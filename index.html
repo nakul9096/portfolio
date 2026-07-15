@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nakul Dhande | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes blink {
+    50% { opacity: 0; }
+}
+.animate-blink {
+    animation: blink 0.8s step-end infinite;
+}
+        body { background-color: #0B0F19; color: #F3F4F6; }
+        .glow:hover { box-shadow: 0 0 35px rgba(59, 130, 246, 0.25); transform: translateY(-6px); }
+        .nav-link { position: relative; }
+        .nav-link:after {
+            content: ''; position: absolute; width: 0; height: 2px; bottom: -6px; left: 0;
+            background: linear-gradient(to right, #3b82f6, #10b981); transition: width 0.4s;
+        }
+        .nav-link:hover:after { width: 100%; }
+        .hero-photo:hover {
+            transform: scale(1.05) rotate(1deg);
+            filter: brightness(1.1);
+        }
+        .modal { animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes modalPop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        section { scroll-margin-top: 90px; }
+    </style>
+</head>
+<body class="font-sans antialiased overflow-x-hidden">
+
+    <nav class="fixed top-0 w-full z-50 bg-[#0B0F19]/90 backdrop-blur-xl border-b border-gray-800/80">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="#" class="font-bold text-2xl tracking-tighter text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Nakul Dhande</a>
+            <div class="hidden lg:flex space-x-6 font-mono text-xs tracking-wide">
+                <a href="#about" class="nav-link text-gray-400 hover:text-white py-1">About</a>
+                <a href="#education" class="nav-link text-gray-400 hover:text-white py-1">Education <span class="ml-1 px-1.5 py-0.5 text-[10px] bg-gray-800 rounded-full text-blue-400">4</span></a>
+                <a href="#experience" class="nav-link text-gray-400 hover:text-white py-1">Experience <span class="ml-1 px-1.5 py-0.5 text-[10px] bg-gray-800 rounded-full text-blue-400">3</span></a>
+                <a href="#projects" class="nav-link text-gray-400 hover:text-white py-1">Projects <span class="ml-1 px-1.5 py-0.5 text-[10px] bg-gray-800 rounded-full text-blue-400">4</span></a>
+                <a href="#achievements" class="nav-link text-gray-400 hover:text-white py-1">Achievements <span class="ml-1 px-1.5 py-0.5 text-[10px] bg-gray-800 rounded-full text-blue-400">3</span></a>
+                <a href="#certifications" class="nav-link text-gray-400 hover:text-white py-1">Certifications <span class="ml-1 px-1.5 py-0.5 text-[10px] bg-gray-800 rounded-full text-blue-400">2</span></a>
+                <a href="#skills" class="nav-link text-gray-400 hover:text-white py-1">Skills</a>
+            </div>
+            <button onclick="showContactModal()" class="px-5 py-2.5 border border-blue-500/50 hover:bg-blue-500/10 rounded-xl text-blue-400 text-sm font-medium transition dynamic-button">
+                Get In Touch
+            </button>
+        </div>
+    </nav>
+
+    <section id="about" class="min-h-screen flex items-center pt-24 pb-8 px-6">
+        <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-7 space-y-6">
+                <div class="flex flex-wrap gap-3 items-center">
+                    <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 px-4 py-1.5 rounded-full text-xs font-medium text-blue-400">
+                        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                        YCCE'27 | Android Developer
+                    </div>
+                    <div class="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-4 py-1.5 rounded-full text-xs font-medium text-emerald-400">
+                        <i class="fa-solid fa-briefcase text-[10px]"></i> Open To Full-Time Opportunities
+                    </div>
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl font-bold tracking-tight leading-none min-h-[1.2em]">
+    Hi, I'm <span id="typewriter" class="bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent"></span><span class="text-blue-400 animate-blink font-light">|</span>
+</h1>
+                <p class="text-lg md:text-xl text-gray-400 max-w-2xl leading-relaxed">
+                    A Computer Science & Design student specializing in high-performance Android architectures, clean UI design systems, and robust intelligent workflows.
+                </p>
+                
+                <div class="flex flex-wrap gap-4 pt-2">
+                    <a href="#projects" class="px-6 py-3.5 bg-blue-600 hover:bg-blue-700 rounded-xl font-semibold text-sm flex items-center gap-2 transition shadow-lg shadow-blue-600/20">
+                        Explore Work <i class="fa-solid fa-arrow-down text-xs"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/nakuldhande" target="_blank" class="px-6 py-3.5 border border-gray-700 bg-gray-900/40 hover:border-gray-500 rounded-xl font-medium text-sm flex items-center gap-2.5 transition text-gray-300 hover:text-white">
+                        <i class="fa-brands fa-linkedin text-lg text-blue-400"></i> Connect on LinkedIn
+                    </a>
+                </div>
+            </div>
+            
+            <div class="lg:col-span-5 flex justify-center lg:justify-end">
+                <div class="relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-3xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+                    <img src="photo_ycce.jpg" alt="Nakul Dhande" class="hero-photo relative w-72 h-72 md:w-80 md:h-80 object-cover rounded-3xl border border-gray-800 shadow-2xl transition duration-500">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="education" class="py-1 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center gap-4 mb-8">
+                <h2 class="text-4xl font-bold tracking-tight">Education</h2>
+                <div class="h-px bg-gray-800 flex-1"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-[#111827]/60 border border-gray-800 p-8 rounded-3xl glow transition duration-300 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-mono text-blue-400 uppercase tracking-widest">Degree Program</span>
+                        <h3 class="text-2xl font-bold mt-1 text-white">B.Tech in Computer Science and Design</h3>
+                        <p class="text-gray-400 mt-2 text-sm">Yeshwantrao Chavan College of Engineering, Nagpur</p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gray-800/60 flex justify-between items-center text-sm">
+                        <span class="text-gray-500 font-mono">2024 – 2027 
+                            <span class="ml-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs rounded-full font-medium">Ongoing</span>
+                        </span>
+                        <span class="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-lg font-semibold font-mono">CGPA 9.45</span>
+                    </div>
+                </div>
+
+                <div class="bg-[#111827]/60 border border-gray-800 p-8 rounded-3xl glow transition duration-300 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-mono text-emerald-400 uppercase tracking-widest">Academic Mobility</span>
+                        <h3 class="text-2xl font-bold mt-1 text-white">Student Exchange Program</h3>
+                        <p class="text-gray-400 mt-2 text-sm">Indian Institute of Information Technology (IIITN), Nagpur</p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gray-800/60 flex justify-between items-center text-sm">
+                        <span class="text-gray-500 font-mono">Jan 2026 – May 2026</span>
+                        <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-lg font-semibold font-mono">18 Credits Completed</span>
+                    </div>
+                </div>
+
+                <div class="bg-[#111827]/60 border border-gray-800 p-8 rounded-3xl glow transition duration-300 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-mono text-gray-400 uppercase tracking-widest">Technical Diploma</span>
+                        <h3 class="text-xl font-bold mt-1 text-white">Diploma in Information Technology</h3>
+                        <p class="text-gray-400 mt-2 text-sm">Priyadarshini Polytechnic, Nagpur</p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gray-800/60 flex justify-between items-center text-sm">
+                        <span class="text-gray-500 font-mono">2021 – 2024</span>
+                        <span class="px-3 py-1 bg-gray-800 text-gray-300 rounded-lg font-semibold font-mono">87.50%</span>
+                    </div>
+                </div>
+
+                <div class="bg-[#111827]/60 border border-gray-800 p-8 rounded-3xl glow transition duration-300 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-mono text-gray-400 uppercase tracking-widest">Secondary Education</span>
+                        <h3 class="text-xl font-bold mt-1 text-white">SSC Certification</h3>
+                        <p class="text-gray-400 mt-2 text-sm">Shreyas Convent, Wardhaman Nagar, Nagpur</p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gray-800/60 flex justify-between items-center text-sm">
+                        <span class="text-gray-500 font-mono">Passed 2021</span>
+                        <span class="px-3 py-1 bg-gray-800 text-gray-300 rounded-lg font-semibold font-mono">81.00%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="experience" class="py-12 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center gap-4 mb-10">
+                <h2 class="text-4xl font-bold tracking-tight">Professional Experience</h2>
+                <div class="h-px bg-gray-800 flex-1"></div>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="bg-[#111827]/40 border border-gray-800/70 p-8 rounded-3xl glow transition duration-300">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                        <div>
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <h3 class="text-2xl font-bold text-white">Developer Trainee (Android Developer)</h3>
+                                <span class="px-2.5 py-0.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono rounded-md">Offline Internship</span>
+                            </div>
+                            <p class="text-blue-400 font-medium mt-1">Elite Back Office Solutions Pvt. Ltd., Nagpur</p>
+                        </div>
+                        <span class="px-4 py-1.5 bg-gray-900 rounded-xl border border-gray-800 text-sm font-mono text-gray-400 h-fit w-fit">June 2025 – July 2025</span>
+                    </div>
+                    <ul class="mt-6 space-y-3 text-gray-400 text-sm list-none pl-0">
+                        <li class="flex gap-3"><i class="fa-solid fa-square-terminal text-blue-500/70 mt-1 text-xs"></i> Developed a production-ready Phantom Wallet Clone App, matching functional crypto specs.</li>
+                        <li class="flex gap-3"><i class="fa-solid fa-square-terminal text-blue-500/70 mt-1 text-xs"></i> Built modern layouts matching strict Figma design specifications for high-fidelity UI states.</li>
+                        <li class="flex gap-3"><i class="fa-solid fa-square-terminal text-blue-500/70 mt-1 text-xs"></i> Standardized multi-theme layout utilities to drastically clean up context-dependent rendering tasks.</li>
+                    </ul>
+                    <div class="mt-6 pt-4 border-t border-gray-800/40 flex flex-wrap gap-3">
+                        <a href="https://drive.google.com/file/d/1MYCtMXnT8w8TqG7qIywgoy952770i1zX/view?usp=sharing" target="_blank" class="px-4 py-2 border border-gray-800 hover:border-gray-700 bg-gray-900/50 text-gray-300 hover:text-white rounded-xl text-xs font-medium flex items-center gap-2 transition">
+                            <i class="fa-solid fa-file-signature text-blue-400"></i> Offer Letter
+                        </a>
+                        <a href="https://drive.google.com/file/d/16N23085xyA4JzGGsZ9PK888KIqPYuIep/view?usp=sharing" target="_blank" class="px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center gap-2 transition">
+                            <i class="fa-solid fa-award text-blue-400"></i> Completion Letter
+                        </a>
+                    </div>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/70 p-8 rounded-3xl glow transition duration-300">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                        <div>
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <h3 class="text-2xl font-bold text-white">Full Stack Web Development Intern</h3>
+                                <span class="px-2.5 py-0.5 bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-mono rounded-md">Online Mode</span>
+                            </div>
+                            <p class="text-purple-400 font-medium mt-1">Smarted</p>
+                        </div>
+                        <span class="px-4 py-1.5 bg-gray-900 rounded-xl border border-gray-800 text-sm font-mono text-gray-400 h-fit w-fit">Dec 2024 - Mar 2025</span>
+                    </div>
+                    <ul class="mt-6 space-y-3 text-gray-400 text-sm list-none pl-0">
+                        <li class="flex gap-3"><i class="fa-solid fa-square-terminal text-purple-500/70 mt-1 text-xs"></i> Engineered end-to-end fullstack architectural models with efficient client-to-database routing pipelines.</li>
+                        <li class="flex gap-3"><i class="fa-solid fa-square-terminal text-purple-500/70 mt-1 text-xs"></i> Constructed modular component frameworks for fluid design scaling across complex responsive states.</li>
+                    </ul>
+                    <div class="mt-6 pt-4 border-t border-gray-800/40 flex flex-wrap gap-3">
+                        <a href="https://drive.google.com/file/d/1pOAPg3JSD6nLD2TnSyo7-cclw4CyR4dL/view?usp=sharing" target="_blank" class="px-4 py-2 border border-gray-800 hover:border-gray-700 bg-gray-900/50 text-gray-300 hover:text-white rounded-xl text-xs font-medium flex items-center gap-2 transition">
+                            <i class="fa-solid fa-file-signature text-purple-400"></i> Offer Letter
+                        </a>
+                        <a href="https://drive.google.com/file/d/1NaIpj2PZU00TER5-BxDZ-Lnb-rwSM_-2/view?usp=sharing" target="_blank" class="px-4 py-2 border border-purple-500/20 hover:border-purple-500/40 bg-purple-500/5 hover:bg-purple-500/10 text-purple-400 rounded-xl text-xs font-medium flex items-center gap-2 transition">
+                            <i class="fa-solid fa-award text-purple-400"></i> Completion Letter
+                        </a>
+                    </div>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/70 p-8 rounded-3xl glow transition duration-300">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                        <div>
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <h3 class="text-2xl font-bold text-white">Web Application Development Intern</h3>
+                                <span class="px-2.5 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono rounded-md">Offline Training Based Internship</span>
+                            </div>
+                            <p class="text-blue-400 font-medium mt-1">IT-NetworkZ Infosystems Pvt. Ltd., Nagpur</p>
+                        </div>
+                        <span class="px-4 py-1.5 bg-gray-900 rounded-xl border border-gray-800 text-sm font-mono text-gray-400 h-fit w-fit">June 2023 – July 2023</span>
+                    </div>
+                    <ul class="mt-6 space-y-3 text-gray-400 text-sm list-none pl-0">
+                        <li class="flex gap-3"><i class="fa-solid fa-square-terminal text-blue-500/70 mt-1 text-xs"></i> Engineered end-to-end fullstack Java workflows coupled with Apache Tomcat multi-threading servers.</li>
+                        <li class="flex gap-3"><i class="fa-solid fa-square-terminal text-blue-500/70 mt-1 text-xs"></i> Programmed resilient JDBC pools, maintaining high query consistency profiles on secure schemas.</li>
+                    </ul>
+                    <div class="mt-6 pt-4 border-t border-gray-800/40 flex flex-wrap gap-3">
+                        <a href="https://drive.google.com/file/d/1qgq0q73rhhZrU5OmbeiEQoyAaVcZEyzy/view?usp=sharing" target="_blank" class="px-4 py-2 border border-gray-800 hover:border-gray-700 bg-gray-900/50 text-gray-300 hover:text-white rounded-xl text-xs font-medium flex items-center gap-2 transition">
+                            <i class="fa-solid fa-file-signature text-emerald-400"></i> Offer Letter
+                        </a>
+                        <a href="https://drive.google.com/file/d/1FhOXXO4qx4X-luxf6IDSA75Y3HsoHRoj/view?usp=sharing" target="_blank" class="px-4 py-2 border border-emerald-500/20 hover:border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-400 rounded-xl text-xs font-medium flex items-center gap-2 transition">
+                            <i class="fa-solid fa-award text-emerald-400"></i> Completion Letter
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="py-12 px-6 bg-gradient-to-b from-gray-950/40 to-transparent">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center gap-4 mb-10">
+                <h2 class="text-4xl font-bold tracking-tight">Featured Projects</h2>
+                <div class="h-px bg-gray-800 flex-1"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-[#111827]/60 border border-gray-800/80 rounded-3xl overflow-hidden glow transition duration-300 flex flex-col justify-between">
+                    <div class="p-8">
+                        <span class="text-xs font-mono text-blue-400 uppercase tracking-wider">Android • Firebase • ZXing</span>
+                        <h3 class="text-2xl font-bold mt-2 flex items-center gap-2 flex-wrap text-white">
+                            <del class="text-gray-600 font-medium decoration-1 text-xl">JEEVANDAYINI</del> 
+                            <i class="fa-solid fa-arrow-right text-xs text-gray-500"></i>
+                            <span class="text-emerald-400">AROGYA SETU</span>
+                        </h3>
+                        <p class="text-sm text-gray-400 mt-3 leading-relaxed">
+                            Comprehensive healthcare suite featuring encrypted NFC medical records, atomic appointment handling routines, real-time sync systems, and secure localized identity generation.
+                        </p>
+                    </div>
+                    <div class="px-8 pb-8">
+                        <div class="w-full h-56 bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 cursor-pointer group" onclick="zoomImage(this.querySelector('img'))">
+                            <img src="jeevandayini-logo.png" alt="Arogya Setu Project" class="w-full h-full object-cover transition duration-300 group-hover:scale-105">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#111827]/60 border border-gray-800/80 rounded-3xl overflow-hidden glow transition duration-300 flex flex-col justify-between">
+                    <div class="p-8">
+                        <span class="text-xs font-mono text-purple-400 uppercase tracking-wider">Android • NFC • Realtime DB</span>
+                        <h3 class="text-2xl font-bold mt-2 text-white">QUICK-MARK</h3>
+                        <p class="text-sm text-gray-400 mt-3 leading-relaxed">
+                            Enterprise automated classroom tracker matching asymmetric dual QR-verification pipelines to block spoofed student attendance logs over cloud frameworks.
+                        </p>
+                    </div>
+                    <div class="px-8 pb-8">
+                        <div class="w-full h-56 bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 cursor-pointer group" onclick="zoomImage(this.querySelector('img'))">
+                            <img src="quick-mark.jpg" alt="Quick-Mark Project" class="w-full h-full object-cover transition duration-300 group-hover:scale-105">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#111827]/60 border border-gray-800/80 rounded-3xl overflow-hidden glow transition duration-300 flex flex-col justify-between">
+                    <div class="p-8">
+                        <span class="text-xs font-mono text-amber-400 uppercase tracking-wider">IoT • Hardware Engineering</span>
+                        <h3 class="text-2xl font-bold mt-2 text-white">Piezoelectric Power Generation</h3>
+                        <p class="text-sm text-gray-400 mt-3 leading-relaxed">
+                            Solid-state kinetic generator harvesting mechanical stress vectors from high-footfall flooring zones, converting load strain to usable electricity grids safely.
+                        </p>
+                    </div>
+                    <div class="px-8 pb-8">
+                        <div class="w-full h-56 bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 cursor-pointer group" onclick="zoomImage(this.querySelector('img'))">
+                            <img src="piezo.jpeg" alt="Piezoelectric Power Generation" class="w-full h-full object-cover transition duration-300 group-hover:scale-105">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#111827]/60 border border-gray-800/80 rounded-3xl overflow-hidden glow transition duration-300 flex flex-col justify-between">
+                    <div class="p-8">
+                        <span class="text-xs font-mono text-emerald-400 uppercase tracking-wider">Python • MobileNetV2 • ML</span>
+                        <h3 class="text-2xl font-bold mt-2 text-white">Waste Segregation Intelligence</h3>
+                        <p class="text-sm text-gray-400 mt-3 leading-relaxed">
+                            Computer vision model optimized with transfer learning layers to segment refuse groups instantly, achieving a stellar <strong class="text-emerald-400 font-mono">99.27%</strong> classification accuracy.
+                        </p>
+                    </div>
+                    <div class="px-8 pb-8">
+                        <div class="w-full h-56 bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 cursor-pointer group" onclick="zoomImage(this.querySelector('img'))">
+                            <img src="wasteseg.jpeg" alt="Waste Segregation Intelligence" class="w-full h-full object-cover transition duration-300 group-hover:scale-105">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="achievements" class="py-12 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center gap-4 mb-10">
+                <h2 class="text-4xl font-bold tracking-tight">Hackathons &amp; Honors</h2>
+                <div class="h-px bg-gray-800 flex-1"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-b from-blue-950/20 to-transparent border border-blue-900/40 p-8 rounded-3xl flex flex-col h-full">
+                    <div>
+                        <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 text-xl font-bold mb-6">01</div>
+                        <h4 class="text-xl font-bold text-white">2nd Position Medal</h4>
+                        <p class="text-sm text-blue-400 font-medium mt-1">BIT Chandrapur National Hackathon</p>
+                        <p class="text-xs text-gray-500 mt-1">Organized by Government of Maharashtra • Oct 2025</p>
+                    </div>
+                    <div class="mt-auto pt-8 border-t border-gray-800/60">
+                        <div class="space-y-2">
+                            <div class="w-full h-28 bg-gray-900/50 rounded-xl border border-gray-800/60 overflow-hidden cursor-pointer group" onclick="zoomImage(this.querySelector('img'))">
+                                <img src="bit1.jpeg" alt="Hackathon Project Pitch" class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" onload="this.classList.remove('hidden')">
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="h-16 bg-gray-900/50 rounded-xl border border-gray-800/60 overflow-hidden cursor-pointer group" onclick="zoomImage(this.querySelector('img'))">
+                                    <img src="bit2.jpeg" alt="" class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" onload="this.classList.remove('hidden')">
+                                </div>
+                                <div class="h-16 bg-gray-900/50 rounded-xl border border-gray-800/60 overflow-hidden cursor-pointer group" onclick="zoomImage(this.querySelector('img'))">
+                                    <img src="bit3.jpeg" alt="" class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" onload="this.classList.remove('hidden')">
+                                </div>
+                                <div onclick="showBitGalleryModal()" class="h-16 bg-blue-500/10 hover:bg-blue-500/20 rounded-xl border border-blue-500/30 flex flex-col items-center justify-center cursor-pointer transition text-center group">
+                                    <span class="text-sm font-bold text-blue-400">+4</span>
+                                    <span class="text-[9px] uppercase tracking-wider font-mono text-blue-500/80">Photos</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-b from-emerald-950/20 to-transparent border border-emerald-900/40 p-8 rounded-3xl flex flex-col h-full">
+                    <div>
+                        <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 text-xl font-bold mb-6">02</div>
+                        <h4 class="text-xl font-bold text-white">3rd Position Award</h4>
+                        <p class="text-sm text-emerald-400 font-medium mt-1">IIT Hyderabad E-Summit</p>
+                        <p class="text-xs text-gray-500 mt-1">National Poster Presentation Track • Jan 2026</p>
+                    </div>
+                    <div class="mt-auto pt-8 border-t border-gray-800/60">
+                        <div class="space-y-2">
+                            <div class="w-full h-28 bg-gray-900/50 rounded-xl border border-gray-800/60 overflow-hidden cursor-pointer group" onclick="zoomImage(this.querySelector('img'))">
+                                <img src="iith-team.jpeg" alt="Poster Presentation" class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" onload="this.classList.remove('hidden')">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="h-20 bg-gray-900/50 rounded-xl border border-gray-800/60 overflow-hidden cursor-pointer group" onclick="zoomImage(this.querySelector('img'))">
+                                    <img src="iith-award.jpeg" alt="Award Ceremony" class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" onload="this.classList.remove('hidden')">
+                                </div>
+                                <div class="h-20 bg-gray-900/50 rounded-xl border border-gray-800/60 overflow-hidden cursor-pointer group" onclick="zoomImage(this.querySelector('img'))">
+                                    <img src="iith-certificate.jpeg" alt="Summit Venue" class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" onload="this.classList.remove('hidden')">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-b from-indigo-950/20 to-transparent border border-indigo-900/40 p-8 rounded-3xl flex flex-col h-full">
+                    <div>
+                        <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-xl font-bold mb-6">03</div>
+                        <h4 class="text-xl font-bold text-white">1st Rank - 2nd Year</h4>
+                        <p class="text-sm text-indigo-400 font-medium mt-1">B.Tech Computer Science &amp; Design</p>
+                        <p class="text-xs text-gray-500 mt-1">YCCE (DSY) • 2025-26</p>
+                    </div>
+                    <div class="mt-auto pt-8 border-t border-gray-800/60 space-y-3">
+                        <div onclick="zoomImage(this.querySelector('img'))" class="w-full h-32 bg-gray-900/50 rounded-2xl border border-gray-800/60 overflow-hidden cursor-pointer group">
+                            <img src="dsy-btech1.jpg" alt="B.Tech 2nd Year" class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" onload="this.classList.remove('hidden')">
+                        </div>
+                        <div onclick="zoomImage(this.querySelector('img'))" class="w-full h-32 bg-gray-900/50 rounded-2xl border border-gray-800/60 overflow-hidden cursor-pointer group">
+                            <img src="dsy-btech2.jpeg" alt="B.Tech 2nd Year" class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" onload="this.classList.remove('hidden')">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-b from-amber-950/20 to-transparent border border-amber-900/40 p-8 rounded-3xl flex flex-col h-full">
+                    <div>
+                        <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-400 text-xl font-bold mb-6">04</div>
+                        <h4 class="text-xl font-bold text-white">1st Rank - 1st Year</h4>
+                        <p class="text-sm text-amber-400 font-medium mt-1">Diploma in Information Technology</p>
+                        <p class="text-xs text-gray-500 mt-1">Priyadarshini Polytechnic • 2021-22</p>
+                    </div>
+                    <div class="mt-auto pt-8 border-t border-gray-800/60">
+                        <div onclick="zoomImage(this.querySelector('img'))" class="w-full h-40 bg-gray-900/50 rounded-2xl border border-gray-800/60 overflow-hidden cursor-pointer group">
+                            <img src="diploma-fy.jpg" alt="Diploma 1st Year" class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" onload="this.classList.remove('hidden')">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-b from-purple-950/20 to-transparent border border-purple-900/40 p-8 rounded-3xl flex flex-col h-full">
+                    <div>
+                        <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 text-xl font-bold mb-6">05</div>
+                        <h4 class="text-xl font-bold text-white">1st Rank - 2nd Year</h4>
+                        <p class="text-sm text-purple-400 font-medium mt-1">Diploma in Information Technology</p>
+                        <p class="text-xs text-gray-500 mt-1">Priyadarshini Polytechnic • 2022-23</p>
+                    </div>
+                    <div class="mt-auto pt-8 border-t border-gray-800/60">
+                        <div onclick="zoomImage(this.querySelector('img'))" class="w-full h-40 bg-gray-900/50 rounded-2xl border border-gray-800/60 overflow-hidden cursor-pointer group">
+                            <img src="diploma-sy.jpg" alt="Diploma 2nd Year" class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" onload="this.classList.remove('hidden')">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-b from-rose-950/20 to-transparent border border-rose-900/40 p-8 rounded-3xl flex flex-col h-full">
+                    <div>
+                        <div class="w-12 h-12 bg-rose-500/10 rounded-xl flex items-center justify-center text-rose-400 text-xl font-bold mb-6">06</div>
+                        <h4 class="text-xl font-bold text-white">1st Rank - 3rd Year</h4>
+                        <p class="text-sm text-rose-400 font-medium mt-1">Diploma in Information Technology</p>
+                        <p class="text-xs text-gray-500 mt-1">Priyadarshini Polytechnic • 2023-24</p>
+                    </div>
+                    <div class="mt-auto pt-8 border-t border-gray-800/60 space-y-3">
+                        <div onclick="zoomImage(this.querySelector('img'))" class="w-full h-32 bg-gray-900/50 rounded-2xl border border-gray-800/60 overflow-hidden cursor-pointer group">
+                            <img src="diploma-ty1.jpeg" alt="Diploma 3rd Year" class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" onload="this.classList.remove('hidden')">
+                        </div>
+                        <div onclick="zoomImage(this.querySelector('img'))" class="w-full h-32 bg-gray-900/50 rounded-2xl border border-gray-800/60 overflow-hidden cursor-pointer group">
+                            <img src="diploma-ty2.jpeg" alt="Diploma 3rd Year" class="w-full h-full object-cover transition duration-300 group-hover:scale-105 hidden" onload="this.classList.remove('hidden')">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="community" class="py-12 px-6 bg-gradient-to-b from-transparent to-gray-950/40">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center gap-4 mb-10">
+                <h2 class="text-4xl font-bold tracking-tight">Community Engagement</h2>
+                <div class="h-px bg-gray-800 flex-1"></div>
+            </div>
+            
+            <div class="relative">
+                <div class="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide scroll-smooth" id="community-scroll">
+                    <div class="min-w-[380px] snap-start">
+                        <div onclick="zoomImage(this.querySelector('img'))" class="cursor-zoom-in overflow-hidden rounded-3xl border border-gray-800 group">
+                            <img src="cep1.jpeg" alt="Community Activity 1" class="w-full h-[420px] object-cover transition duration-500 group-hover:scale-105">
+                        </div>
+                    </div>
+                    <div class="min-w-[380px] snap-start">
+                        <div onclick="zoomImage(this.querySelector('img'))" class="cursor-zoom-in overflow-hidden rounded-3xl border border-gray-800 group">
+                            <img src="cep2.jpeg" alt="Community Activity 2" class="w-full h-[420px] object-cover transition duration-500 group-hover:scale-105">
+                        </div>
+                    </div>
+                    <div class="min-w-[380px] snap-start">
+                        <div onclick="zoomImage(this.querySelector('img'))" class="cursor-zoom-in overflow-hidden rounded-3xl border border-gray-800 group">
+                            <img src="cep3.jpeg" alt="Community Activity 3" class="w-full h-[420px] object-cover transition duration-500 group-hover:scale-105">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center text-gray-400 mt-6 px-4">
+                    <button onclick="document.getElementById('community-scroll').scrollBy({left: -400, behavior: 'smooth'})" class="hover:text-white transition flex items-center gap-2">
+                        ← Previous
+                    </button>
+                    <div class="text-xs font-mono tracking-widest">SCROLL FOR MORE</div>
+                    <button onclick="document.getElementById('community-scroll').scrollBy({left: 400, behavior: 'smooth'})" class="hover:text-white transition flex items-center gap-2">
+                        Next →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   <section id="certifications" class="py-12 px-6 bg-gradient-to-b from-transparent to-gray-950/40">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center gap-4 mb-10">
+                <h2 class="text-4xl font-bold tracking-tight text-white flex items-center gap-3">
+                    <i class="fa-solid fa-award text-blue-500"></i> Certifications &amp; Achievements
+                </h2>
+             <h6>Certificates will be uploaded soon</h6>
+                <div class="h-px bg-gray-800 flex-1"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-400 text-lg shrink-0">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">HackGenX 2026 – National Level Hackathon</h4>
+                            <p class="text-xs text-gray-400 mt-1">Sipna College of Engineering &amp; Technology, Amravati</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Feb 2026 • Team-LOCALHOST</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-pink-500/10 rounded-xl flex items-center justify-center text-pink-400 text-lg shrink-0">
+                            <i class="fa-solid fa-laptop-code"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Palloti National HackFest 2026 Hackathon</h4>
+                            <p class="text-xs text-gray-400 mt-1">Rotaract Club of SVPCET</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Apr 2026 • Participation_Team-LOCALHOST</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 text-lg shrink-0">
+                            <i class="fa-solid fa-globe"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">TechFiesta International Hackathon</h4>
+                            <p class="text-xs text-gray-400 mt-1">Pune Institute of Computer Technology</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Feb 2026 • Participation_Team-CODEBLUE</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 text-lg shrink-0">
+                            <i class="fa-solid fa-code"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Programmers Club Coding Series</h4>
+                            <p class="text-xs text-gray-400 mt-1">Yeshwantrao Chavan College of Engineering - YCCE</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Apr 2026</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center text-green-400 text-lg shrink-0">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Building Transformer-Based NLP Applications</h4>
+                            <p class="text-xs text-gray-400 mt-1">NVIDIA</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Apr 2026 • Credential ID: pF329a7-SwSyOeTLS-WONQ</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center text-green-400 text-lg shrink-0">
+                            <i class="fa-solid fa-network-wired"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Fundamentals of Deep Learning</h4>
+                            <p class="text-xs text-gray-400 mt-1">NVIDIA • <span class="text-gray-500">Skills: Deep Learning</span></p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Mar 2026 • Credential ID: 1tO0Ys3ITkGJkXM3sgBKrQ</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center text-red-400 text-lg shrink-0">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">IIT Hyderabad Poster Presentation</h4>
+                            <p class="text-xs text-gray-400 mt-1">Department of CSE, IIT Hyderabad • <span class="text-amber-400/80 font-medium">Certificate of Excellence</span></p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Jan 2026</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 text-lg shrink-0">
+                            <i class="fa-solid fa-medal"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">BIT Hackathon</h4>
+                            <p class="text-xs text-gray-400 mt-1">Ballarpur Institute of Technology, Ballarpur • <span class="text-amber-400/80 font-medium">Certificate of Excellence</span></p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Nov 2025</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-lg shrink-0">
+                            <i class="fa-brands fa-android"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Android App Development</h4>
+                            <p class="text-xs text-gray-400 mt-1">Coursera</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Credential ID: ZCXJOVRPBSWB</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-lg shrink-0">
+                            <i class="fa-brands fa-java"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Java for Android</h4>
+                            <p class="text-xs text-gray-400 mt-1">Coursera</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Nov 2025 • Credential ID: JP0RROQ7XXKI</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 text-lg shrink-0">
+                            <i class="fa-brands fa-aws"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Attended Workshop on AWS</h4>
+                            <p class="text-xs text-gray-400 mt-1">Yeshwantrao Chavan College of Engineering - YCCE</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Oct 2025 • <span class="text-gray-500">Skills: AWS</span></p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-lg shrink-0">
+                            <i class="fa-brands fa-android"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base text-sm sm:text-base leading-tight">Android App Components - Services, Local IPC, and Content Providers</h4>
+                            <p class="text-xs text-gray-400 mt-1">Coursera</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Oct 2025 • Credential ID: PAXK3G9VRMLD</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-lg shrink-0">
+                            <i class="fa-brands fa-android"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base text-sm sm:text-base leading-tight">Android App Components - Intents, Activities, and Broadcast Receivers</h4>
+                            <p class="text-xs text-gray-400 mt-1">Coursera</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Oct 2025 • Credential ID: A06GYPC5XOW5</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-lg shrink-0">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Engineering Maintainable Android Apps</h4>
+                            <p class="text-xs text-gray-400 mt-1">Coursera</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Oct 2025 • Credential ID: D3QJ1XAUL954</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-lg shrink-0">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Capstone MOOC for "Android App Development"</h4>
+                            <p class="text-xs text-gray-400 mt-1">Coursera</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Sep 2025 • Credential ID: BNX85SBIYET8</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-green-600/10 rounded-xl flex items-center justify-center text-green-500 text-lg shrink-0">
+                            <i class="fa-regular fa-file-excel"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Getting Started with Microsoft Excel</h4>
+                            <p class="text-xs text-gray-400 mt-1">Coursera</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Jul 2025 • Credential ID: KJF3EMWTTGCJ</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 text-lg shrink-0">
+                            <i class="fa-solid fa-palette"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Navneet Drawing Competition 2011</h4>
+                            <p class="text-xs text-gray-400 mt-1">Navneet Education Limited</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Mar 2012</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-400 text-lg shrink-0">
+                            <i class="fa-solid fa-diagram-project"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">State Level Project Competition (Nagpur Region)</h4>
+                            <p class="text-xs text-gray-400 mt-1">Maharashtra State Board of Technical Education (MSBTE)</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Mar 2024</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-400 text-lg shrink-0">
+                            <i class="fa-regular fa-file-lines"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">State Level Technical Paper Presentation Competition</h4>
+                            <p class="text-xs text-gray-400 mt-1">Maharashtra State Board of Technical Education (MSBTE)</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Jan 2024</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-500 text-lg shrink-0">
+                            <i class="fa-brands fa-python"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Python Boot Camp</h4>
+                            <p class="text-xs text-gray-400 mt-1">Yeshwantrao Chavan College of Engineering - YCCE</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Apr 2023</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+                <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 glow transition duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-teal-500/10 rounded-xl flex items-center justify-center text-teal-400 text-lg shrink-0">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-base">Introduction to Cyber Security</h4>
+                            <p class="text-xs text-gray-400 mt-1">Cisco</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Issued Nov 2022</p>
+                        </div>
+                    </div>
+                    <a href="#" target="_blank" class="sm:shrink-0 px-4 py-2 border border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition h-fit w-full sm:w-auto">
+                        <i class="fa-solid fa-eye text-[11px]"></i> View Certification
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+   <!-- TECHNICAL CAPABILITIES / SKILLS SECTION -->
+<section id="skills" class="py-12 px-6 bg-gradient-to-b from-transparent to-gray-950/40">
+    <div class="max-w-6xl mx-auto">
+        <!-- Section Header -->
+        <div class="flex items-center gap-4 mb-10">
+            <h2 class="text-4xl font-bold tracking-tight text-white flex items-center gap-3">
+                <i class="fa-solid fa-laptop-code text-blue-500"></i> Technical Capabilities
+            </h2>
+            <div class="h-px bg-gray-800 flex-1"></div>
+        </div>
+        
+        <!-- Skills Grid Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- 1. Languages Card -->
+            <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl hover:border-blue-500/30 transition duration-300 flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 text-base shrink-0">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-lg">Languages</h3>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">Java</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">C</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">Android XML</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">Android Java</span>
+                </div>
+            </div>
+
+            <!-- 2. Core Subjects Card -->
+            <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl hover:border-blue-500/30 transition duration-300 flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 text-base shrink-0">
+                        <i class="fa-solid fa-book"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-lg">Core Subjects</h3>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">DSA</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">OOPS</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">OS</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">DBMS</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">CN</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">Design Patterns</span>
+                </div>
+            </div>
+
+            <!-- 3. Technologies Card -->
+            <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl hover:border-blue-500/30 transition duration-300 flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 text-base shrink-0">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-lg">Technologies</h3>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">Android Development</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">Firebase</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">IoT</span>
+                </div>
+            </div>
+
+            <!-- 4. Tools & Servers Card -->
+            <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl hover:border-blue-500/30 transition duration-300 flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-400 text-base shrink-0">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-lg">Tools &amp; Servers</h3>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">Android Studio</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">Git</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">XAMPP Server</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">Apache Tomcat</span>
+                </div>
+            </div>
+
+            <!-- 5. Java Frameworks & GUI Card -->
+            <div class="bg-[#111827]/40 border border-gray-800/80 p-6 rounded-2xl hover:border-blue-500/30 transition duration-300 flex flex-col gap-4 md:col-span-2 lg:col-span-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-pink-500/10 rounded-xl flex items-center justify-center text-pink-400 text-base shrink-0">
+                        <i class="fa-brands fa-java"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-lg">GUI &amp; Database Connectivity</h3>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">AWT</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">SWING</span>
+                    <span class="px-3 py-1.5 bg-[#1f2937]/50 border border-gray-800 text-gray-300 rounded-xl text-xs font-medium">JDBC (Java Database Connectivity)</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+    <footer class="py-12 border-t border-gray-900 bg-gray-950/20 text-center text-xs font-mono text-gray-500">
+        &copy; 2026 Nakul Dhande. Engineered cleanly via modern CSS.
+    </footer>
+
+    <div id="contact-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[100] items-center justify-center">
+        <div class="modal bg-[#111827] border border-gray-800 rounded-3xl w-full max-w-md mx-4 p-8 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Contact Interface</h2>
+                <button onclick="hideContactModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4">
+                <a href="tel:+919730982185" class="flex gap-4 items-center p-4 bg-gray-900/50 hover:bg-gray-800 border border-gray-800 rounded-xl transition text-sm font-medium text-gray-300 hover:text-white">
+                    <i class="fa-solid fa-phone text-xl text-emerald-400 w-6 text-center"></i> +91 9730982185
+                </a>
+                <a href="mailto:nakulnetworkz@gmail.com" class="flex gap-4 items-center p-4 bg-gray-900/50 hover:bg-gray-800 border border-gray-800 rounded-xl transition text-sm font-medium text-gray-300 hover:text-white">
+                    <i class="fa-solid fa-envelope text-xl text-blue-400 w-6 text-center"></i> nakulnetworkz@gmail.com
+                </a>
+                <a href="https://linkedin.com/in/nakuldhande" target="_blank" class="flex gap-4 items-center p-4 bg-gray-900/50 hover:bg-gray-800 border border-gray-800 rounded-xl transition text-sm font-medium text-gray-300 hover:text-white">
+                    <i class="fa-brands fa-linkedin text-xl text-blue-500 w-6 text-center"></i> LinkedIn Network
+                </a>
+                <a href="https://wa.me/message/WKRAMYNF257AG1" target="_blank" class="flex gap-4 items-center p-4 bg-gray-900/50 hover:bg-gray-800 border border-gray-800 rounded-xl transition text-sm font-medium text-gray-300 hover:text-white">
+                    <i class="fa-brands fa-whatsapp text-xl text-green-500 w-6 text-center"></i> WhatsApp Chat
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="lightbox-modal" class="hidden fixed inset-0 bg-black/95 z-[110] items-center justify-center cursor-zoom-out" onclick="hideLightbox()">
+        <img id="lightbox-img" src="" alt="Zoomed View" class="max-w-[90vw] max-h-[90vh] object-contain rounded-xl shadow-2xl transition duration-300 scale-95">
+    </div>
+
+    <script>
+        function showContactModal() {
+            document.getElementById('contact-modal').classList.remove('hidden');
+            document.getElementById('contact-modal').classList.add('flex');
+        }
+        function hideContactModal() {
+            const modal = document.getElementById('contact-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        function zoomImage(imgElement) {
+            if (!imgElement) return;
+            const lightbox = document.getElementById('lightbox-modal');
+            const lightboxImg = document.getElementById('lightbox-img');
+            lightboxImg.src = imgElement.src;
+            lightbox.classList.remove('hidden');
+            lightbox.classList.add('flex');
+            setTimeout(() => lightboxImg.classList.remove('scale-95'), 10);
+        }
+        function hideLightbox() {
+            const lightbox = document.getElementById('lightbox-modal');
+            document.getElementById('lightbox-img').classList.add('scale-95');
+            lightbox.classList.add('hidden');
+            lightbox.classList.remove('flex');
+        }
+        const words = ["Nakul Dhande", "an Android Developer", "a Designer", "a Tech Innovator"];
+    let wordIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    const typewriterEl = document.getElementById("typewriter");
+
+    function typeEffect() {
+        const currentWord = words[wordIndex];
+        
+        if (isDeleting) {
+            // Remove character
+            charIndex--;
+        } else {
+            // Add character
+            charIndex++;
+        }
+
+        // Output current slice text
+        typewriterEl.textContent = currentWord.substring(0, charIndex);
+
+        // Standard speed variables (ms)
+        let typeSpeed = isDeleting ? 40 : 100;
+
+        // If word is completely typed out
+        if (!isDeleting && charIndex === currentWord.length) {
+            typeSpeed = 1800; // Pause at the end of the phrase
+            isDeleting = true;
+        } 
+        // If word is completely deleted
+        else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            wordIndex = (wordIndex + 1) % words.length; // Move to next word loop
+            typeSpeed = 400; // Brief pause before typing next word
+        }
+
+        setTimeout(typeEffect, typeSpeed);
+    }
+
+    // Initialize typing loop when content loads
+    document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(typeEffect, 500);
+    });
+    </script>
+</body>
+</html>
