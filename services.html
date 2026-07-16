@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services | Nakul Dhande</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #030712; color: #f3f4f6; }
+        .glass { background: rgba(10, 15, 30, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .glass-card { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); }
+        .service-card { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .service-card:hover { transform: translateY(-10px); }
+        .modal { animation: modalPop 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes modalPop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body class="font-sans antialiased overflow-x-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-gray-950 to-black">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="font-bold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">Nakul Dhande</a>
+            <div class="hidden lg:flex space-x-8 font-mono text-xs tracking-widest uppercase">
+                <a href="index.html" class="text-slate-400 hover:text-white transition">Home</a>
+                <a href="#" class="text-sky-400 font-semibold border-b-2 border-sky-400/50 pb-1">Services</a>
+                <a href="index.html#projects" class="text-slate-400 hover:text-white transition">Projects</a>
+            </div>
+            <a href="index.html" class="px-5 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-slate-200 transition shadow-lg shadow-white/5 text-sm">Portfolio</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-40 pb-20 px-6 overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(56,189,248,0.08),transparent_50%)]"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(16,185,129,0.05),transparent_50%)]"></div>
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <span class="font-mono text-xs font-semibold tracking-widest uppercase text-sky-400 bg-sky-500/10 px-4 py-1.5 rounded-full border border-sky-500/20">Expertise Stack</span>
+            <h1 class="text-5xl md:text-7xl font-bold tracking-tight text-white mt-6 mb-8 leading-[1.1]">
+                Professional Solutions<br><span class="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-indigo-400 to-emerald-400">Engineered with Precision</span>
+            </h1>
+            <p class="text-xl text-slate-400 max-w-3xl mx-auto font-light leading-relaxed">
+                Bridging the gap between software performance, customized hardware architecture, and deep academic research.
+            </p>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="pb-32 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="services-grid">
+                <!-- Dynamically generated premium cards will render here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Modal -->
+    <div id="booking-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[100] items-center justify-center p-4">
+        <div class="modal glass-card border border-white/10 rounded-3xl w-full max-w-lg p-8 md:p-10 shadow-2xl relative bg-slate-950">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <span class="text-xs font-mono uppercase tracking-widest text-emerald-400">Direct Connect</span>
+                    <h2 class="text-2xl font-bold text-white mt-1" id="modal-service-title">Book Service</h2>
+                </div>
+                <button onclick="closeModal()" class="text-3xl text-slate-400 hover:text-white transition">&times;</button>
+            </div>
+            
+            <form id="booking-form" onsubmit="sendToWhatsApp(event)" class="space-y-5">
+                <input type="hidden" id="selected-service" name="service">
+                
+                <div>
+                    <label class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-2">Your Name</label>
+                    <input type="text" id="name" required class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3.5 text-white focus:outline-none focus:border-sky-500 focus:bg-white/10 transition" placeholder="Enter name">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-2">Project Requirements</label>
+                    <textarea id="requirement" rows="4" required class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3.5 text-white focus:outline-none focus:border-sky-500 focus:bg-white/10 transition resize-none" placeholder="Describe your goals, deadlines, or scope details..."></textarea>
+                </div>
+                
+                <button type="submit" class="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 rounded-xl font-semibold text-white flex items-center justify-center gap-3 transition shadow-lg shadow-emerald-950/50">
+                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                    Initiate Chat via WhatsApp
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-white/5 text-center text-xs text-slate-600 font-mono tracking-wider">
+        © 2026 Nakul Dhande &bull; High-Performance Development & Research Architecture
+    </footer>
+
+    <script>
+        // Configured color schemes safely mapped to explicitly generated classes
+        const services = [
+            { title: "Web Application Development", icon: "fa-code", desc: "Modern, responsive full-stack applications leveraging clean components and reactive performance.", theme: { text: "text-sky-400", bg: "from-sky-500/5 to-transparent", hoverBg: "group-hover:bg-sky-500/10", border: "hover:border-sky-500/30", iconBg: "bg-sky-500/10" }},
+            { title: "Android Application Development", icon: "fa-android", desc: "High-performance native mobile software architected with sleek, responsive layouts.", theme: { text: "text-emerald-400", bg: "from-emerald-500/5 to-transparent", hoverBg: "group-hover:bg-emerald-500/10", border: "hover:border-emerald-500/30", iconBg: "bg-emerald-500/10" }},
+            { title: "IoT Projects & Automation", icon: "fa-microchip", desc: "End-to-end microcontroller programming, sensory arrays, and embedded hardware automation.", theme: { text: "text-cyan-400", bg: "from-cyan-500/5 to-transparent", hoverBg: "group-hover:bg-cyan-500/10", border: "hover:border-cyan-500/30", iconBg: "bg-cyan-500/10" }},
+            { title: "Research & Conference Papers", icon: "fa-file-signature", desc: "High-impact technical and academic drafting targeted for international index submissions.", theme: { text: "text-amber-400", bg: "from-amber-500/5 to-transparent", hoverBg: "group-hover:bg-amber-500/10", border: "hover:border-amber-500/30", iconBg: "bg-amber-500/10" }},
+            { title: "Thesis & Synopsis Writing", icon: "fa-graduation-cap", desc: "Rigorous academic project proposals, structurally framed analysis, and citation formatting.", theme: { text: "text-violet-400", bg: "from-violet-500/5 to-transparent", hoverBg: "group-hover:bg-violet-500/10", border: "hover:border-violet-500/30", iconBg: "bg-violet-500/10" }},
+            { title: "Rectifiers & Power Systems", icon: "fa-bolt", desc: "Precision electrical layout designs for power converters, clean rectifiers, and custom hardware testing.", theme: { text: "text-yellow-400", bg: "from-yellow-500/5 to-transparent", hoverBg: "group-hover:bg-yellow-500/10", border: "hover:border-yellow-500/30", iconBg: "bg-yellow-500/10" }},
+            { title: "Filters & Signal Processing", icon: "fa-wave-square", desc: "Analog circuit engineering and digital noise reduction system modeling.", theme: { text: "text-fuchsia-400", bg: "from-fuchsia-500/5 to-transparent", hoverBg: "group-hover:bg-fuchsia-500/10", border: "hover:border-fuchsia-500/30", iconBg: "bg-fuchsia-500/10" }},
+            { title: "Exhibition Models & Systems", icon: "fa-flask", desc: "Interactive physical engineering installations engineered for exhibitions and academic defenses.", theme: { text: "text-rose-400", bg: "from-rose-500/5 to-transparent", hoverBg: "group-hover:bg-rose-500/10", border: "hover:border-rose-500/30", iconBg: "bg-rose-500/10" }},
+            { title: "Graphic Architecture & Logs", icon: "fa-bezier-curve", desc: "Production of cohesive operational identities, responsive vector systems, and scalable layouts.", theme: { text: "text-indigo-400", bg: "from-indigo-500/5 to-transparent", hoverBg: "group-hover:bg-indigo-500/10", border: "hover:border-indigo-500/30", iconBg: "bg-indigo-500/10" }}
+        ];
+
+        function renderServices() {
+            const container = document.getElementById('services-grid');
+            container.innerHTML = '';
+            
+            services.forEach(service => {
+                const card = document.createElement('div');
+                card.className = `service-card glass-card border border-white/5 rounded-3xl p-8 group relative overflow-hidden bg-gradient-to-b ${service.theme.bg} ${service.theme.border} flex flex-col justify-between shadow-xl`;
+                card.innerHTML = `
+                    <div>
+                        <div class="w-14 h-14 ${service.theme.iconBg} rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 ${service.theme.hoverBg}">
+                            <i class="fa-solid ${service.icon} text-xl ${service.theme.text}"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3 tracking-tight">${service.title}</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-8 font-light">${service.desc}</p>
+                    </div>
+                    <button onclick="openBookingModal('${service.title}')" 
+                            class="w-full py-3 bg-white/5 hover:bg-white text-white hover:text-black border border-white/10 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition duration-300 group-hover:border-transparent">
+                        Consult Project <i class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        let currentService = "";
+
+        function openBookingModal(serviceTitle) {
+            currentService = serviceTitle;
+            document.getElementById('modal-service-title').textContent = serviceTitle;
+            document.getElementById('selected-service').value = serviceTitle;
+            document.getElementById('requirement').value = `Hello Nakul, I am reaching out to discuss requirements regarding your "${serviceTitle}" services. `;
+            document.getElementById('booking-modal').classList.remove('hidden');
+            document.getElementById('booking-modal').classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('booking-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        }
+
+        function sendToWhatsApp(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const service = document.getElementById('selected-service').value;
+            const requirement = document.getElementById('requirement').value.trim();
+            
+            if (!name || !requirement) return;
+            
+            const message = `*Service Inquiry - Nakul Dhande Portfolio*%0A%0A` +
+                           `*Client Name:* ${encodeURIComponent(name)}%0A` +
+                           `*Requested Track:* ${encodeURIComponent(service)}%0A%0A` +
+                           `*Detailed Directives:*%0A${encodeURIComponent(requirement)}`;
+            
+            const whatsappURL = `https://wa.me/919730982185?text=${message}`;
+            window.open(whatsappURL, '_blank');
+            
+            setTimeout(() => {
+                closeModal();
+                document.getElementById('booking-form').reset();
+            }, 300);
+        }
+
+        document.addEventListener('DOMContentLoaded', renderServices);
+    </script>
+</body>
+</html>
