@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive Admin | Nakul Dhande</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> 
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        body { background-color: #030712; color: #F3F4F6; font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <div class="max-w-2xl w-full bg-[#0b0f19] border border-gray-800 rounded-3xl p-8 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-gray-800 pb-6 mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <i class="fa-solid fa-shield-halved text-blue-500"></i> Admin Upload Portal
+                </h1>
+                <p class="text-xs text-gray-400 mt-1">Firebase Google Auth $\rightarrow$ Supabase Storage & DB</p>
+            </div>
+            <div id="user-profile" class="hidden flex items-center gap-3">
+                <button onclick="handleSignOut()" class="text-xs text-gray-400 hover:text-white transition bg-gray-900 border border-gray-800 px-3 py-1.5 rounded-xl">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Google Login Screen (When logged out or non-admin) -->
+        <div id="login-gate" class="text-center py-12">
+            <div class="w-16 h-16 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-5 text-2xl">
+                <i class="fa-brands fa-google"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Admin Authentication Required</h3>
+            <p class="text-xs text-gray-400 mb-6 max-w-sm mx-auto">Sign in with your admin Google account to access file uploads.</p>
+            <button onclick="handleGoogleLogin()" class="bg-white hover:bg-gray-100 text-gray-900 font-semibold px-6 py-3 rounded-xl text-sm transition active:scale-95 inline-flex items-center gap-3">
+                <i class="fa-brands fa-google text-red-500"></i> Sign in with Google
+            </button>
+            <p id="auth-error" class="hidden mt-4 text-xs text-red-400"></p>
+        </div>
+
+        <!-- Main Upload Panel (Visible only to nakuldhande2005@gmail.com) -->
+        <div id="upload-content" class="hidden">
+            <form id="upload-form" onsubmit="handleUpload(event)" class="space-y-5">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-2">DOCUMENT TITLE</label>
+                    <input type="text" id="doc-title" placeholder="e.g. Semester 6 Marksheet" required
+                           class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-400 mb-2">SELECT PDF FILE</label>
+                    <input type="file" id="doc-file" accept="application/pdf" required
+                           class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:bg-blue-600 file:text-white cursor-pointer">
+                </div>
+
+                <button type="submit" id="upload-btn"
+                        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition active:scale-95 flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload to Supabase Storage
+                </button>
+            </form>
+
+            <div id="status-message" class="mt-4 hidden p-4 rounded-xl text-xs"></div>
+
+            <!-- Documents Table -->
+            <div class="mt-10 border-t border-gray-800 pt-6">
+                <h3 class="text-sm font-semibold text-white mb-4">Manage Archive Files</h3>
+                <div id="admin-doc-list" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                    <p class="text-xs text-gray-500">Loading documents...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK Modular Import -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // 1. FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // 2. SUPABASE CONFIG
+        const SUPABASE_URL = "https://your-supabase-project.supabase.co";
+        const SUPABASE_ANON_KEY = "your-supabase-anon-key";
+        const ADMIN_EMAIL = "nakuldhande2005@gmail.com";
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Listen for Firebase Auth Changes
+        onAuthStateChanged(auth, (user) => {
+            const loginGate = document.getElementById("login-gate");
+            const uploadContent = document.getElementById("upload-content");
+            const userProfile = document.getElementById("user-profile");
+            const authError = document.getElementById("auth-error");
+
+            if (user && user.email === ADMIN_EMAIL) {
+                loginGate.classList.add("hidden");
+                uploadContent.classList.remove("hidden");
+                userProfile.classList.remove("hidden");
+                loadAdminDocs();
+            } else if (user && user.email !== ADMIN_EMAIL) {
+                authError.innerText = `Access Denied: ${user.email} is not authorized.`;
+                authError.classList.remove("hidden");
+                signOut(auth);
+            } else {
+                loginGate.classList.remove("hidden");
+                uploadContent.classList.add("hidden");
+                userProfile.classList.add("hidden");
+            }
+        });
+
+        // Expose functions globally for button handlers
+        window.handleGoogleLogin = async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (err) {
+                alert("Login Error: " + err.message);
+            }
+        };
+
+        window.handleSignOut = () => signOut(auth);
+
+        window.handleUpload = async (e) => {
+            e.preventDefault();
+            const title = document.getElementById("doc-title").value;
+            const file = document.getElementById("doc-file").files[0];
+            const btn = document.getElementById("upload-btn");
+            const status = document.getElementById("status-message");
+
+            if (!file) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Uploading...`;
+            status.classList.add("hidden");
+
+            try {
+                // Upload file to Supabase Storage Bucket 'archive-pdfs'
+                const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+                const { data: storageData, error: storageError } = await supabase.storage
+                    .from('archive-pdfs')
+                    .upload(fileName, file);
+
+                if (storageError) throw storageError;
+
+                // Get Public URL from Supabase
+                const { data: publicUrlData } = supabase.storage
+                    .from('archive-pdfs')
+                    .getPublicUrl(fileName);
+
+                // Insert into Supabase 'documents' table
+                const { error: dbError } = await supabase
+                    .from('documents')
+                    .insert([{ title: title, file_url: publicUrlData.publicUrl, views: 0 }]);
+
+                if (dbError) throw dbError;
+
+                status.className = "mt-4 p-4 rounded-xl text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
+                status.innerText = "✓ Document uploaded successfully to Supabase!";
+                status.classList.remove("hidden");
+
+                document.getElementById("doc-title").value = "";
+                document.getElementById("doc-file").value = "";
+                loadAdminDocs();
+            } catch (err) {
+                status.className = "mt-4 p-4 rounded-xl text-xs bg-red-500/10 border border-red-500/20 text-red-400";
+                status.innerText = "Upload Error: " + err.message;
+                status.classList.remove("hidden");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Upload to Supabase Storage`;
+            }
+        };
+
+        async function loadAdminDocs() {
+            const list = document.getElementById("admin-doc-list");
+            const { data, error } = await supabase.from("documents").select("*").order("uploaded_at", { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                list.innerHTML = `<p class="text-xs text-gray-600">No documents found.</p>`;
+                return;
+            }
+
+            list.innerHTML = data.map(doc => `
+                <div class="flex items-center justify-between bg-gray-950 border border-gray-900 p-3 rounded-xl text-xs">
+                    <span class="text-gray-300 font-medium truncate max-w-[250px]">${doc.title}</span>
+                    <button onclick="deleteDoc('${doc.id}')" class="text-red-400 hover:text-red-300 transition">
+                        <i class="fa-solid fa-trash-can"></i> Delete
+                    </button>
+                </div>
+            `).join("");
+        }
+
+        window.deleteDoc = async (id) => {
+            if (!confirm("Are you sure you want to delete this document?")) return;
+            await supabase.from("documents").delete().eq("id", id);
+            loadAdminDocs();
+        };
+    </script>
+</body>
+</html>
