@@ -51,7 +51,7 @@
                     <i class="fa-solid fa-lock-open"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-white mb-2">Admin Authentication</h2>
-                <p class="text-xs text-gray-400 mb-6">Sign in with authorized account (`nakuldhande2005@gmail.com`) to manage live attendance sessions.</p>
+                <p class="text-xs text-gray-400 mb-6">Sign in with authorized account (<code class="text-blue-400">nakuldhande2005@gmail.com</code>) to manage live attendance sessions.</p>
                 <button onclick="loginWithGoogle()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 rounded-xl transition flex items-center justify-center gap-3">
                     <i class="fa-brands fa-google"></i> Sign In with Google
                 </button>
@@ -151,33 +151,51 @@
         © 2026 Nakul Dhande. Secure Attendance Engine.
     </footer>
 
-    <script>
-        // SUPABASE CONFIGURATION
-          const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
+    <!-- Firebase App & Auth SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // FIREBASE CONFIGURATION
+        const firebaseConfig = {
+         apiKey: "AIzaSyBR1L9UACOdMfOHaOPerfZY1SyzPEBnEGA",
+  authDomain: "myportfolio-9096.firebaseapp.com",
+  projectId: "myportfolio-9096",
+  storageBucket: "myportfolio-9096.firebasestorage.app",
+  messagingSenderId: "1614082917",
+  appId: "1:1614082917:web:e844f4b92091986c4be78c",
+  measurementId: "G-6E9VPG1QYM"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
         const ADMIN_EMAIL = "nakuldhande2005@gmail.com";
 
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Supabase configuration remains for real-time spreadsheet records backend
+      const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
+        const ADMIN_EMAIL = "nakuldhande2005@gmail.com";
+        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentSessionId = localStorage.getItem("active_session_id") || null;
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            
-            if (!session) {
+        // Listen for Firebase Auth State Changes
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
                 showView("auth-view");
                 return;
             }
 
-            if (session.user.email !== ADMIN_EMAIL) {
+            if (user.email !== ADMIN_EMAIL) {
                 showView("auth-view");
                 document.getElementById("auth-error").classList.remove("hidden");
-                await supabaseClient.auth.signOut();
+                await signOut(auth);
                 return;
             }
 
             // Display admin badge
             document.getElementById("user-badge").classList.remove("hidden");
-            document.getElementById("user-email").innerText = session.user.email;
+            document.getElementById("user-email").innerText = user.email;
 
             if (currentSessionId) {
                 showView("dashboard-view");
@@ -189,15 +207,16 @@
             }
         });
 
-        async function loginWithGoogle() {
-            await supabaseClient.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: window.location.href }
-            });
+        window.loginWithGoogle = async function() {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Auth error:", error);
+            }
         }
 
-        async function logout() {
-            await supabaseClient.auth.signOut();
+        window.logout = async function() {
+            await signOut(auth);
             localStorage.removeItem("active_session_id");
             window.location.reload();
         }
@@ -209,13 +228,12 @@
             document.getElementById(viewId).classList.remove("hidden");
         }
 
-        async function startSession(e) {
+        window.startSession = async function(e) {
             e.preventDefault();
             const subject = document.getElementById("subject-input").value;
             const date = document.getElementById("date-input").value;
 
-            // Insert new session into Supabase table 'attendance_sessions'
-            const { data, error } = await supabaseClient
+            const { data, error } = await window.supabaseClient
                 .from("attendance_sessions")
                 .insert([{ subject, session_date: date, active: true }])
                 .select()
@@ -235,14 +253,14 @@
         }
 
         async function loadSessionData() {
-            const { data: session } = await supabaseClient
+            const { data: session } = await window.supabaseClient
                 .from("attendance_sessions")
                 .select("*")
                 .eq("id", currentSessionId)
                 .single();
 
             if (!session) {
-                endSession();
+                window.endSession();
                 return;
             }
 
@@ -256,7 +274,6 @@
         function generateQRCode(sessionId) {
             const container = document.getElementById("qrcode-container");
             container.innerHTML = "";
-            // URL that students land on to check in automatically using their Google Login
             const checkInUrl = `${window.location.origin}/checkin.html?session=${sessionId}`;
             new QRCode(container, {
                 text: checkInUrl,
@@ -266,7 +283,7 @@
         }
 
         async function fetchAttendanceRecords() {
-            const { data, error } = await supabaseClient
+            const { data, error } = await window.supabaseClient
                 .from("attendance_records")
                 .select("*")
                 .eq("session_id", currentSessionId)
@@ -276,7 +293,7 @@
         }
 
         function subscribeToAttendance() {
-            supabaseClient
+            window.supabaseClient
                 .channel('public:attendance_records')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance_records', filter: `session_id=eq.${currentSessionId}` }, payload => {
                     fetchAttendanceRecords();
@@ -313,24 +330,24 @@
             `).join("");
         }
 
-        async function removeRecord(recordId) {
+        window.removeRecord = async function(recordId) {
             if (confirm("Remove this entry (mark proxy as invalid)?")) {
-                await supabaseClient.from("attendance_records").delete().eq("id", recordId);
+                await window.supabaseClient.from("attendance_records").delete().eq("id", recordId);
                 fetchAttendanceRecords();
             }
         }
 
-        async function endSession() {
+        window.endSession = async function() {
             if (confirm("Are you sure you want to end this attendance session?")) {
-                await supabaseClient.from("attendance_sessions").update({ active: false }).eq("id", currentSessionId);
+                await window.supabaseClient.from("attendance_sessions").update({ active: false }).eq("id", currentSessionId);
                 localStorage.removeItem("active_session_id");
                 currentSessionId = null;
                 showView("setup-view");
             }
         }
 
-        function openQRModal() { document.getElementById("qr-modal").classList.remove("hidden"); }
-        function closeQRModal() { document.getElementById("qr-modal").classList.add("hidden"); }
+        window.openQRModal = function() { document.getElementById("qr-modal").classList.remove("hidden"); }
+        window.closeQRModal = function() { document.getElementById("qr-modal").classList.add("hidden"); }
     </script>
 </body>
 </html>
