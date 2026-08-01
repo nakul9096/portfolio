@@ -38,7 +38,7 @@
 <body class="font-sans antialiased bg-[#030712] min-h-screen flex flex-col justify-between" oncontextmenu="return false;">
 
     <!-- Navbar -->
-    <nav class="fixed top-0 w-full z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-gray-900/80">
+    <nav class="fixed top-0 w-full z-40 bg-[#030712]/80 backdrop-blur-xl border-b border-gray-900/80">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <a href="index.html" class="font-bold text-xl tracking-tight text-white font-mono">Nakul.Dhande</a>
             
@@ -91,16 +91,40 @@
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
             <h3 class="text-xl font-bold text-white mb-1">Passcode Required</h3>
-            <p id="modal-doc-title" class="text-xs text-gray-400 mb-6 truncate px-4">Enter master password to launch full view mode.</p>
+            <p id="modal-doc-title" class="text-xs text-gray-400 mb-6 truncate px-4">Enter master password to view document.</p>
 
             <form onsubmit="verifyPassword(event)" class="space-y-4">
                 <input type="password" id="pass-input" placeholder="Enter password" required
                        class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-center text-white focus:outline-none focus:border-blue-500 transition">
                 <p id="pass-error" class="hidden text-xs text-red-400 font-mono"><i class="fa-solid fa-circle-exclamation"></i> Incorrect access passcode.</p>
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 rounded-xl transition active:scale-95 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i> Open Document Stream
+                    <i class="fa-solid fa-eye text-xs"></i> View Document
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- Protected Fullscreen PDF Viewing Overlay -->
+    <div id="fullscreen-viewer" class="hidden fixed inset-0 z-50 bg-[#030712] flex flex-col w-screen h-screen">
+        <!-- Protected Header Bar -->
+        <div class="h-14 bg-[#0b0f19] border-b border-gray-800 px-6 flex items-center justify-between font-mono text-sm shrink-0">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-file-pdf text-red-500"></i>
+                <span id="viewer-title" class="font-semibold text-white truncate max-w-md sm:max-w-xl">Document Viewer</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="hidden sm:flex text-xs text-gray-400 bg-gray-900 border border-gray-800 px-3 py-1.5 rounded-lg items-center gap-2">
+                    <i class="fa-solid fa-lock text-emerald-400"></i> Read-Only Protection Active
+                </span>
+                <button onclick="closeViewer()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-2">
+                    <i class="fa-solid fa-xmark"></i> Close
+                </button>
+            </div>
+        </div>
+
+        <!-- Frame Stream container with non-downloadable restrictions -->
+        <div class="flex-1 w-full h-full relative bg-gray-950">
+            <iframe id="pdf-stream-frame" class="w-full h-full border-none"></iframe>
         </div>
     </div>
 
@@ -110,7 +134,7 @@
 
     <script>
         // SUPABASE CONFIGURATION
-           const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
+      const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
         if (!window.supabaseClient) {
             window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -118,10 +142,11 @@
 
         let currentActiveDoc = null;
 
-        // Prevent Print and Save Shortcuts
+        // Block Ctrl+P (Print) and Ctrl+S (Save) shortcuts globally
         window.addEventListener('keydown', function (e) {
             if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's')) {
                 e.preventDefault();
+                e.stopPropagation();
                 alert('Downloading and printing are disabled for protected files.');
             }
         });
@@ -200,53 +225,25 @@
             if (document.getElementById("pass-input").value === "nakuldhande") {
                 closeModal();
                 
-                // Construct PDF Stream URL with viewer parameters (No controls, scroll enabled)
-                const pdfViewerUrl = currentActiveDoc.url + "#toolbar=0&navpanes=0&scrollbar=1";
+                // Set Title
+                document.getElementById("viewer-title").innerText = currentActiveDoc.title;
                 
-                // Open Protected Fullscreen Viewing Tab
-                const viewerTab = window.open("", "_blank");
-                if (viewerTab) {
-                    viewerTab.document.write(`
-                        <!DOCTYPE html>
-                        <html lang="en">
-                        <head>
-                            <title>${currentActiveDoc.title} | Protected View</title>
-                            <script src="https://cdn.tailwindcss.com"><\/script>
-                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-                            <style>
-                                body { margin: 0; background-color: #030712; color: #fff; user-select: none; -webkit-user-select: none; }
-                                iframe { width: 100vw; height: calc(100vh - 56px); border: none; }
-                            </style>
-                        </head>
-                        <body oncontextmenu="return false;">
-                            <div class="h-14 bg-[#0b0f19] border-b border-gray-800 px-6 flex items-center justify-between font-mono text-sm">
-                                <div class="flex items-center gap-3">
-                                    <i class="fa-solid fa-file-pdf text-red-500"></i>
-                                    <span class="font-semibold text-white truncate max-w-xl">${currentActiveDoc.title}</span>
-                                </div>
-                                <div class="text-xs text-gray-400 bg-gray-900 border border-gray-800 px-3 py-1.5 rounded-lg flex items-center gap-2">
-                                    <i class="fa-solid fa-lock text-emerald-400"></i> Read-Only View Stream
-                                </div>
-                            </div>
-                            <iframe src="${pdfViewerUrl}" id="pdf-stream"></iframe>
-                            <script>
-                                window.addEventListener('keydown', function (e) {
-                                    if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's')) {
-                                        e.preventDefault();
-                                        alert('Printing and downloading are disabled for this document.');
-                                    }
-                                });
-                            <\/script>
-                        </body>
-                        </html>
-                    `);
-                    viewerTab.document.close();
-                } else {
-                    alert("Popup blocked! Please allow popups to open the viewer window.");
-                }
+                // Embed URL with toolbar/navpanes hidden and scrollbar enabled
+                const streamUrl = currentActiveDoc.url + "#toolbar=0&navpanes=0&scrollbar=1";
+                document.getElementById("pdf-stream-frame").src = streamUrl;
+                
+                // Display Fullscreen Viewer Overlay
+                document.getElementById("fullscreen-viewer").classList.remove("hidden");
+                document.body.style.overflow = "hidden"; // Lock background scrolling
             } else {
                 document.getElementById("pass-error").classList.remove("hidden");
             }
+        }
+
+        function closeViewer() {
+            document.getElementById("fullscreen-viewer").classList.add("hidden");
+            document.getElementById("pdf-stream-frame").src = "";
+            document.body.style.overflow = "auto";
         }
     </script>
 </body>
