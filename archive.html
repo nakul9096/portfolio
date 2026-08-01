@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
@@ -116,8 +118,14 @@
     </footer>
 
     <script>
-              const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
+        // 1. SUPABASE CONFIG (Replace with your actual Supabase URL & Anon Key)
+         const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
+
+        // Avoid 'const' variable collisions by attaching directly to window
+        if (!window.supabaseClient) {
+            window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
 
         let currentActiveDoc = null;
 
@@ -125,7 +133,7 @@
 
         async function fetchDocuments() {
             const grid = document.getElementById("docs-grid");
-            const { data, error } = await supabase
+            const { data, error } = await window.supabaseClient
                 .from("documents")
                 .select("*")
                 .order("uploaded_at", { ascending: false });
@@ -154,7 +162,9 @@
             `).join("");
         }
 
-        function escapeQuotes(str) { return str.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+        function escapeQuotes(str) { 
+            return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : ''; 
+        }
 
         function openDocModal(id, title, url) {
             currentActiveDoc = { id, title, url };
@@ -179,8 +189,13 @@
                 document.getElementById("viewer-title").innerText = currentActiveDoc.title;
                 document.getElementById("pdf-frame").src = currentActiveDoc.url + "#toolbar=0";
 
-                await supabase.rpc('increment_views', { doc_id: currentActiveDoc.id });
-                fetchDocuments();
+                // Safely update view counts
+                try {
+                    await window.supabaseClient.rpc('increment_views', { doc_id: currentActiveDoc.id });
+                    fetchDocuments();
+                } catch (err) {
+                    console.log("View counter bypass:", err.message);
+                }
             } else {
                 document.getElementById("pass-error").classList.remove("hidden");
             }
