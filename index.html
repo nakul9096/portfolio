@@ -51,42 +51,38 @@
 </head>
 <body class="font-sans antialiased overflow-x-hidden bg-[#030712]">
 
-    <nav class="fixed top-0 w-full z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-gray-900/80">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="#" class="font-bold text-xl tracking-tight text-white bg-gradient-to-r from-white via-gray-200 to-gray-500 bg-clip-text text-transparent font-mono">Nakul.Dhande</a>
-            
-            <div class="hidden lg:flex items-center space-x-6 font-mono text-[13px] tracking-wide bg-gray-950/40 border border-gray-900 px-6 py-2 rounded-full backdrop-blur-md">
-                <a href="#about" class="nav-link text-gray-400 hover:text-white transition">About</a>
-                <a href="#education" class="nav-link text-gray-400 hover:text-white transition">Education</a>
-                <a href="#experience" class="nav-link text-gray-400 hover:text-white transition">Experience</a>
-                <a href="#projects" class="nav-link text-gray-400 hover:text-white transition">Projects</a>
-                <a href="#achievements" class="nav-link text-gray-400 hover:text-white transition">Achievements</a>
-                <a href="#certifications" class="nav-link text-gray-400 hover:text-white transition">Certifications</a>
-                <a href="#skills" class="nav-link text-gray-400 hover:text-white transition">Skills</a>
-                <a href="services.html" class="nav-link text-blue-400 hover:text-blue-300 transition font-sans font-medium flex items-center gap-1"><i class="fa-solid fa-gears text-[11px]"></i> Services</a>
-            </div>
-
-            <div class="flex items-center gap-4">
-                <button onclick="showContactModal()" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-medium rounded-xl transition shadow-lg shadow-blue-600/20 active:scale-95">
-                    Get In Touch
-                </button>
-                <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-400 hover:text-white text-xl transition focus:outline-none">
-                    <i class="fa-solid fa-bars-staggered"></i>
-                </button>
-            </div>
+ <nav class="fixed top-0 w-full z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-gray-900/80">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <a href="#" class="font-bold text-xl tracking-tight text-white bg-gradient-to-r from-white via-gray-200 to-gray-500 bg-clip-text text-transparent font-mono">Nakul.Dhande</a>
+        
+        <!-- Desktop Navigation Links -->
+        <div class="hidden lg:flex items-center space-x-6 font-mono text-[13px] tracking-wide bg-gray-950/40 border border-gray-900 px-6 py-2 rounded-full backdrop-blur-md">
+            <a href="#" class="nav-link text-gray-400 hover:text-white transition">Home</a>
+            <a href="services.html" class="nav-link text-gray-400 hover:text-white transition">Services</a>
+            <!-- Opens PDF reader for viewing, downloading, and printing -->
+            <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="nav-link text-gray-400 hover:text-white transition">MyResume</a>
+            <!-- Redirects to CGPA calculator -->
+            <a href="cgpacalculator.html" class="nav-link text-gray-400 hover:text-white transition">CGPA Calculator</a>
         </div>
 
-        <div id="mobile-menu" class="hidden lg:hidden border-t border-gray-900 bg-[#030712]/95 backdrop-blur-2xl px-6 py-6 space-y-4 font-mono text-sm">
-            <a href="#about" onclick="toggleMobileMenu()" class="block text-gray-400 hover:text-white transition py-1">About</a>
-            <a href="#education" onclick="toggleMobileMenu()" class="block text-gray-400 hover:text-white transition py-1">Education</a>
-            <a href="#experience" onclick="toggleMobileMenu()" class="block text-gray-400 hover:text-white transition py-1">Experience</a>
-            <a href="#projects" onclick="toggleMobileMenu()" class="block text-gray-400 hover:text-white transition py-1">Projects</a>
-            <a href="#achievements" onclick="toggleMobileMenu()" class="block text-gray-400 hover:text-white transition py-1">Achievements</a>
-            <a href="#certifications" onclick="toggleMobileMenu()" class="block text-gray-400 hover:text-white transition py-1">Certifications</a>
-            <a href="#skills" onclick="toggleMobileMenu()" class="block text-gray-400 hover:text-white transition py-1">Skills</a>
-            <a href="services.html" class="block text-blue-400 hover:text-blue-300 transition py-1 font-sans font-medium">Services</a>
+        <div class="flex items-center gap-4">
+            <button onclick="showContactModal()" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-medium rounded-xl transition shadow-lg shadow-blue-600/20 active:scale-95">
+                Get In Touch
+            </button>
+            <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-400 hover:text-white text-xl transition focus:outline-none">
+                <i class="fa-solid fa-bars-staggered"></i>
+            </button>
         </div>
-    </nav>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-gray-900 bg-[#030712]/95 backdrop-blur-2xl px-6 py-6 space-y-4 font-mono text-sm">
+        <a href="#" onclick="toggleMobileMenu()" class="block text-gray-400 hover:text-white transition py-1">Home</a>
+        <a href="services.html" class="block text-gray-400 hover:text-white transition py-1">Services</a>
+        <a href="resume.pdf" target="_blank" rel="noopener noreferrer" onclick="toggleMobileMenu()" class="block text-gray-400 hover:text-white transition py-1">MyResume</a>
+        <a href="cgpacalculator.html" class="block text-gray-400 hover:text-white transition py-1">CGPA Calculator</a>
+    </div>
+</nav>
 
     <section id="about" class="min-h-screen flex items-center pt-28 pb-16 px-6 relative overflow-hidden">
         <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
