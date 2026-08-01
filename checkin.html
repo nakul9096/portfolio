@@ -80,12 +80,13 @@
 
         // FIREBASE CONFIGURATION (Use same config credentials as your dashboard)
         const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
-            projectId: "YOUR_FIREBASE_PROJECT_ID",
-            storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
-            appId: "YOUR_FIREBASE_APP_ID"
+            apiKey: "AIzaSyBR1L9UACOdMfOHaOPerfZY1SyzPEBnEGA",
+  authDomain: "myportfolio-9096.firebaseapp.com",
+  projectId: "myportfolio-9096",
+  storageBucket: "myportfolio-9096.firebasestorage.app",
+  messagingSenderId: "1614082917",
+  appId: "1:1614082917:web:e844f4b92091986c4be78c",
+  measurementId: "G-6E9VPG1QYM"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -93,8 +94,8 @@
         const provider = new GoogleAuthProvider();
 
         // SUPABASE CONFIGURATION
-        const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+         const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Get Session ID from URL Query Parameters (?session=UUID)
