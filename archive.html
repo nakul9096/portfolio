@@ -42,6 +42,7 @@
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <a href="index.html" class="font-bold text-xl tracking-tight text-white font-mono">Nakul.Dhande</a>
             
+            <!-- Desktop Navigation -->
             <div class="hidden lg:flex items-center space-x-6 font-mono text-[13px] tracking-wide bg-gray-950/40 border border-gray-900 px-6 py-2 rounded-full backdrop-blur-md">
                 <a href="index.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
                     <i class="fa-solid fa-house text-xs"></i><span>Home</span>
@@ -59,6 +60,30 @@
                     <i class="fa-solid fa-calculator text-xs"></i><span>CGPA Calculator</span>
                 </a>
             </div>
+
+            <!-- Mobile Toggle -->
+            <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-400 hover:text-white p-2 rounded-xl bg-gray-950/60 border border-gray-900">
+                <i id="menu-icon" class="fa-solid fa-bars text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-[#030712]/95 border-b border-gray-900 px-6 py-4 font-mono text-sm space-y-3 backdrop-blur-xl">
+            <a href="index.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg">
+                <i class="fa-solid fa-house text-xs w-4"></i><span>Home</span>
+            </a>
+            <a href="services.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg">
+                <i class="fa-solid fa-briefcase text-xs w-4"></i><span>Services</span>
+            </a>
+            <a href="archive.html" class="flex items-center gap-3 text-white font-semibold p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <i class="fa-solid fa-box-archive text-xs w-4 text-blue-400"></i><span>Archive</span>
+            </a>
+            <a href="resume.pdf" target="_blank" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg">
+                <i class="fa-solid fa-file-pdf text-xs w-4 text-red-400"></i><span>MyResume</span>
+            </a>
+            <a href="cgpacalculator.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg">
+                <i class="fa-solid fa-calculator text-xs w-4"></i><span>CGPA Calculator</span>
+            </a>
         </div>
     </nav>
 
@@ -122,9 +147,12 @@
             </div>
         </div>
 
-        <!-- Frame Stream container with non-downloadable restrictions -->
-        <div class="flex-1 w-full h-full relative bg-gray-950">
-            <iframe id="pdf-stream-frame" class="w-full h-full border-none"></iframe>
+        <!-- Frame Stream Container -->
+        <div class="flex-1 w-full h-full relative bg-gray-950 overflow-hidden">
+            <div id="loading-spinner" class="absolute inset-0 flex items-center justify-center bg-gray-950 text-gray-400 font-mono text-sm gap-3 z-10">
+                <i class="fa-solid fa-circle-notch animate-spin text-blue-500 text-2xl"></i> Loading document stream...
+            </div>
+            <iframe id="pdf-stream-frame" class="w-full h-full border-none relative z-20" onload="document.getElementById('loading-spinner').classList.add('hidden')"></iframe>
         </div>
     </div>
 
@@ -134,7 +162,7 @@
 
     <script>
         // SUPABASE CONFIGURATION
-      const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
+         const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
         if (!window.supabaseClient) {
             window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -142,7 +170,7 @@
 
         let currentActiveDoc = null;
 
-        // Block Ctrl+P (Print) and Ctrl+S (Save) shortcuts globally
+        // Block Ctrl+P and Ctrl+S globally
         window.addEventListener('keydown', function (e) {
             if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's')) {
                 e.preventDefault();
@@ -169,7 +197,7 @@
                 <div onclick="openDocModal('${doc.id}', '${escapeQuotes(doc.title)}', '${doc.file_url}')"
                      class="glow-card bg-[#0b0f19] border border-gray-900 rounded-2xl overflow-hidden cursor-pointer flex flex-col justify-between group h-full">
                     
-                    <!-- Curved Half-Squared PDF Visual Thumbnail -->
+                    <!-- Curved Half-Squared Visual Thumbnail -->
                     <div class="h-44 bg-gradient-to-b from-gray-900 to-[#0b0f19] p-4 flex items-center justify-center relative overflow-hidden border-b border-gray-900">
                         <div class="w-28 h-36 bg-[#030712] border border-gray-800 rounded-lg shadow-xl p-3 flex flex-col justify-between transform group-hover:scale-105 group-hover:-translate-y-1 transition duration-300 relative">
                             <div class="flex items-center justify-between border-b border-gray-800 pb-2">
@@ -225,16 +253,15 @@
             if (document.getElementById("pass-input").value === "nakuldhande") {
                 closeModal();
                 
-                // Set Title
                 document.getElementById("viewer-title").innerText = currentActiveDoc.title;
+                document.getElementById("loading-spinner").classList.remove("hidden");
                 
-                // Embed URL with toolbar/navpanes hidden and scrollbar enabled
-                const streamUrl = currentActiveDoc.url + "#toolbar=0&navpanes=0&scrollbar=1";
-                document.getElementById("pdf-stream-frame").src = streamUrl;
+                // Embed via Google Docs PDF Viewer Engine (Prevents CORS iframe blocking & forces embedded scroll mode)
+                const embedUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(currentActiveDoc.url)}&embedded=true`;
+                document.getElementById("pdf-stream-frame").src = embedUrl;
                 
-                // Display Fullscreen Viewer Overlay
                 document.getElementById("fullscreen-viewer").classList.remove("hidden");
-                document.body.style.overflow = "hidden"; // Lock background scrolling
+                document.body.style.overflow = "hidden";
             } else {
                 document.getElementById("pass-error").classList.remove("hidden");
             }
@@ -244,6 +271,19 @@
             document.getElementById("fullscreen-viewer").classList.add("hidden");
             document.getElementById("pdf-stream-frame").src = "";
             document.body.style.overflow = "auto";
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            menu.classList.toggle('hidden');
+            if (menu.classList.contains('hidden')) {
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-xmark');
+            }
         }
     </script>
 </body>
