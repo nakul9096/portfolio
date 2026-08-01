@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CGPA Analytics & Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(19, 26, 42, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.35);
+      --accent: #10b981;
+      --danger: #f43f5e;
+      --danger-hover: #e11d48;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 36px;
+      border-radius: 24px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    header {
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 8px;
+    }
+
+    /* Result Metric Card */
+    .dashboard-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(16, 185, 129, 0.05) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: var(--radius);
+      padding: 24px 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 0 30px var(--primary-glow);
+    }
+
+    .cgpa-metric {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cgpa-metric .label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #a5b4fc;
+    }
+
+    .cgpa-metric .value {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-top: 6px;
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .stats-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: right;
+    }
+
+    .stat-badge {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+    }
+
+    .stat-badge strong {
+      color: var(--text-main);
+    }
+
+    /* Semester Cards */
+    .semester-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .semester-card {
+      display: grid;
+      grid-template-columns: 80px 1fr 1fr 44px;
+      gap: 14px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 16px 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--card-border);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .semester-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .sem-label {
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 0.95rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-group label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .input-group input {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .btn-delete {
+      background: rgba(244, 63, 94, 0.1);
+      border: 1px solid rgba(244, 63, 94, 0.2);
+      color: var(--danger);
+      height: 42px;
+      width: 44px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.2s;
+      align-self: flex-end;
+    }
+
+    .btn-delete:hover {
+      background: var(--danger);
+      color: white;
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+    }
+
+    /* Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 14px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-add {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+    }
+
+    .btn-add:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-calc {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 20px var(--primary-glow);
+    }
+
+    .btn-calc:hover {
+      background: #4f46e5;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px var(--primary-glow);
+    }
+
+    @media (max-width: 580px) {
+      .dashboard-summary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .stats-breakdown {
+        text-align: left;
+      }
+      .semester-card {
+        grid-template-columns: 1fr 1fr;
+        position: relative;
+      }
+      .sem-label {
+        grid-column: span 2;
+      }
+      .btn-delete {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>CGPA Calculator</h1>
+      <p>Seamlessly track and compute your academic performance</p>
+    </header>
+
+    <!-- Top Summary Card -->
+    <div class="dashboard-summary">
+      <div class="cgpa-metric">
+        <span class="label">Overall CGPA</span>
+        <span id="cgpaVal" class="value">0.00</span>
+      </div>
+      <div class="stats-breakdown">
+        <span class="stat-badge">Total Credits: <strong id="totalCredits">0</strong></span>
+        <span class="stat-badge">Grade Points: <strong id="totalPoints">0.00</strong></span>
+      </div>
+    </div>
+
+    <!-- Dynamic List -->
+    <div id="semesterList" class="semester-list"></div>
+
+    <!-- Controls -->
+    <div class="action-buttons">
+      <button class="btn btn-add" id="addSemBtn">+ Add Semester</button>
+      <button class="btn btn-calc" id="calcBtn">Recalculate</button>
+    </div>
+  </div>
+
+  <script>
+    let semCount = 0;
+
+    function addSemester(sgpa = '', credits = '') {
+      semCount++;
+      const list = document.getElementById('semesterList');
+      const card = document.createElement('div');
+      card.className = 'semester-card';
+      card.id = `sem-card-${semCount}`;
+
+      card.innerHTML = `
+        <span class="sem-label">Sem ${semCount}</span>
+        <div class="input-group">
+          <label>SGPA</label>
+          <input type="number" class="sgpa-input" step="0.01" min="0" max="10" placeholder="e.g. 8.5" value="${sgpa}" oninput="calculateCGPA()">
+        </div>
+        <div class="input-group">
+          <label>Credits</label>
+          <input type="number" class="credit-input" step="0.5" min="0" placeholder="e.g. 20" value="${credits}" oninput="calculateCGPA()">
+        </div>
+        <button class="btn-delete" onclick="removeSemester(${semCount})" title="Delete Semester">&times;</button>
+      `;
+
+      list.appendChild(card);
+      renumberSemesters();
+      calculateCGPA();
+    }
+
+    function removeSemester(id) {
+      const card = document.getElementById(`sem-card-${id}`);
+      if (card) {
+        card.remove();
+        renumberSemesters();
+        calculateCGPA();
+      }
+    }
+
+    function renumberSemesters() {
+      const cards = document.querySelectorAll('.semester-card');
+      cards.forEach((card, index) => {
+        const label = card.querySelector('.sem-label');
+        if (label) {
+          label.textContent = `Sem ${index + 1}`;
+        }
+      });
+    }
+
+    function calculateCGPA() {
+      const sgpaInputs = document.querySelectorAll('.sgpa-input');
+      const creditInputs = document.querySelectorAll('.credit-input');
+
+      let totalPoints = 0;
+      let totalCredits = 0;
+
+      sgpaInputs.forEach((sgpaInput, i) => {
+        const sgpa = parseFloat(sgpaInput.value);
+        const credits = parseFloat(creditInputs[i].value);
+
+        if (!isNaN(sgpa) && !isNaN(credits) && credits > 0) {
+          totalPoints += sgpa * credits;
+          totalCredits += credits;
+        }
+      });
+
+      const cgpaVal = document.getElementById('cgpaVal');
+      const totalCreditsEl = document.getElementById('totalCredits');
+      const totalPointsEl = document.getElementById('totalPoints');
+
+      if (totalCredits > 0) {
+        const cgpa = totalPoints / totalCredits;
+        cgpaVal.textContent = cgpa.toFixed(2);
+        totalCreditsEl.textContent = totalCredits;
+        totalPointsEl.textContent = totalPoints.toFixed(2);
+      } else {
+        cgpaVal.textContent = '0.00';
+        totalCreditsEl.textContent = '0';
+        totalPointsEl.textContent = '0.00';
+      }
+    }
+
+    // Default start with 2 semesters
+    addSemester();
+    addSemester();
+
+    document.getElementById('addSemBtn').addEventListener('click', () => addSemester());
+    document.getElementById('calcBtn').addEventListener('click', calculateCGPA);
+  </script>
+</body>
+</html>
