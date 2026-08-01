@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live QR Attendance | Nakul Dhande</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase & QR Code Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: { dark: '#030712', card: '#0b0f19', accent: '#3b82f6' } },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'], mono: ['Space Grotesk', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #030712; color: #F3F4F6; }
+        .glow-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glow-card:hover { border-color: rgba(59, 130, 246, 0.4); box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.25); }
+    </style>
+</head>
+<body class="font-sans antialiased bg-[#030712] min-h-screen flex flex-col justify-between">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-40 bg-[#030712]/80 backdrop-blur-xl border-b border-gray-900/80">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="font-bold text-xl tracking-tight text-white font-mono">Nakul.Dhande</a>
+            <div id="user-badge" class="hidden items-center gap-3 font-mono text-xs bg-gray-950 border border-gray-800 px-4 py-2 rounded-xl">
+                <span id="user-email" class="text-gray-300"></span>
+                <button onclick="logout()" class="text-red-400 hover:text-red-300 ml-2"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto px-6 pt-32 pb-20 w-full flex-1">
+
+        <!-- VIEW 1: AUTHENTICATION LOCK -->
+        <section id="auth-view" class="hidden py-20 text-center max-w-md mx-auto">
+            <div class="bg-[#0b0f19] border border-gray-800 rounded-3xl p-8 shadow-2xl">
+                <div class="w-14 h-14 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-5 text-xl">
+                    <i class="fa-solid fa-lock-open"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-2">Admin Authentication</h2>
+                <p class="text-xs text-gray-400 mb-6">Sign in with authorized account (`nakuldhande2005@gmail.com`) to manage live attendance sessions.</p>
+                <button onclick="loginWithGoogle()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 rounded-xl transition flex items-center justify-center gap-3">
+                    <i class="fa-brands fa-google"></i> Sign In with Google
+                </button>
+                <p id="auth-error" class="hidden text-xs text-red-400 mt-4 font-mono">Unauthorized account. Access restricted to administrator.</p>
+            </div>
+        </section>
+
+        <!-- VIEW 2: SETUP SESSION FORM -->
+        <section id="setup-view" class="hidden max-w-lg mx-auto py-10">
+            <div class="bg-[#0b0f19] border border-gray-800 rounded-3xl p-8 shadow-2xl">
+                <h1 class="text-2xl font-bold text-white font-mono mb-2 flex items-center gap-3">
+                    <i class="fa-solid fa-qrcode text-blue-500"></i> Create Attendance Session
+                </h1>
+                <p class="text-xs text-gray-400 mb-6">Configure session details to generate your tracking QR code.</p>
+                
+                <form onsubmit="startSession(event)" class="space-y-4 font-mono text-sm">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-2">Subject Name</label>
+                        <input type="text" id="subject-input" placeholder="e.g., Cloud Computing / IoT" required
+                               class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-2">Date</label>
+                        <input type="date" id="date-input" required
+                               class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition mt-2">
+                        Generate QR & Start Session
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- VIEW 3: LIVE SPREADSHEET DASHBOARD -->
+        <section id="dashboard-view" class="hidden space-y-6">
+            <!-- Top Control Bar -->
+            <div class="flex flex-col sm:flex-row items-center justify-between bg-[#0b0f19] border border-gray-800 p-6 rounded-2xl gap-4">
+                <div>
+                    <span id="active-subject-badge" class="text-xs font-mono text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-lg">Subject: --</span>
+                    <h2 id="active-date-display" class="text-xl font-bold text-white mt-2 font-mono">Date: --</h2>
+                </div>
+                <div class="flex items-center gap-3 font-mono text-xs">
+                    <button onclick="openQRModal()" class="bg-gray-900 hover:bg-gray-800 text-white border border-gray-800 px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-qrcode text-blue-400"></i> Show QR Code
+                    </button>
+                    <button onclick="endSession()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-power-off"></i> End Attendance
+                    </button>
+                </div>
+            </div>
+
+            <!-- Spreadsheet Table Container -->
+            <div class="bg-[#0b0f19] border border-gray-800 rounded-3xl overflow-hidden shadow-2xl">
+                <div class="p-6 border-b border-gray-800 flex items-center justify-between">
+                    <h3 class="font-bold text-white font-mono text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-table text-emerald-400"></i> Live Scanned Records 
+                        <span id="attendance-count" class="ml-2 bg-gray-900 text-gray-400 px-2 py-0.5 rounded-md text-xs">0 Present</span>
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left font-mono text-sm">
+                        <thead class="bg-gray-950/60 text-gray-400 text-xs border-b border-gray-800">
+                            <tr>
+                                <th class="p-4">#</th>
+                                <th class="p-4">Student Name (Google Account)</th>
+                                <th class="p-4">Email</th>
+                                <th class="p-4">Time Scanned</th>
+                                <th class="p-4 text-center">Status</th>
+                                <th class="p-4 text-center">Action (Proxy Remove)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-tbody" class="divide-y divide-gray-900 text-gray-300">
+                            <tr>
+                                <td colspan="6" class="text-center py-10 text-gray-500">Waiting for students to scan...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- QR Code Modal Overlay -->
+    <div id="qr-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0f19] border border-gray-800 rounded-3xl p-8 max-w-sm w-full text-center relative shadow-2xl">
+            <button onclick="closeQRModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white p-2 bg-gray-900 rounded-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="font-bold text-white mb-4 font-mono">Scan for Attendance</h3>
+            <div id="qrcode-container" class="bg-white p-4 rounded-2xl inline-block mx-auto mb-4"></div>
+            <p class="text-xs text-gray-400 font-mono">Students open camera/scanner app to check in.</p>
+        </div>
+    </div>
+
+    <footer class="border-t border-gray-900 py-6 text-center text-xs text-gray-600 font-mono">
+        © 2026 Nakul Dhande. Secure Attendance Engine.
+    </footer>
+
+    <script>
+        // SUPABASE CONFIGURATION
+        const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+        const ADMIN_EMAIL = "nakuldhande2005@gmail.com";
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentSessionId = localStorage.getItem("active_session_id") || null;
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            
+            if (!session) {
+                showView("auth-view");
+                return;
+            }
+
+            if (session.user.email !== ADMIN_EMAIL) {
+                showView("auth-view");
+                document.getElementById("auth-error").classList.remove("hidden");
+                await supabaseClient.auth.signOut();
+                return;
+            }
+
+            // Display admin badge
+            document.getElementById("user-badge").classList.remove("hidden");
+            document.getElementById("user-email").innerText = session.user.email;
+
+            if (currentSessionId) {
+                showView("dashboard-view");
+                loadSessionData();
+                subscribeToAttendance();
+            } else {
+                showView("setup-view");
+                document.getElementById("date-input").valueAsDate = new Date();
+            }
+        });
+
+        async function loginWithGoogle() {
+            await supabaseClient.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: window.location.href }
+            });
+        }
+
+        async function logout() {
+            await supabaseClient.auth.signOut();
+            localStorage.removeItem("active_session_id");
+            window.location.reload();
+        }
+
+        function showView(viewId) {
+            ["auth-view", "setup-view", "dashboard-view"].forEach(id => {
+                document.getElementById(id).classList.add("hidden");
+            });
+            document.getElementById(viewId).classList.remove("hidden");
+        }
+
+        async function startSession(e) {
+            e.preventDefault();
+            const subject = document.getElementById("subject-input").value;
+            const date = document.getElementById("date-input").value;
+
+            // Insert new session into Supabase table 'attendance_sessions'
+            const { data, error } = await supabaseClient
+                .from("attendance_sessions")
+                .insert([{ subject, session_date: date, active: true }])
+                .select()
+                .single();
+
+            if (error) {
+                alert("Error starting session: " + error.message);
+                return;
+            }
+
+            currentSessionId = data.id;
+            localStorage.setItem("active_session_id", currentSessionId);
+            
+            showView("dashboard-view");
+            loadSessionData();
+            subscribeToAttendance();
+        }
+
+        async function loadSessionData() {
+            const { data: session } = await supabaseClient
+                .from("attendance_sessions")
+                .select("*")
+                .eq("id", currentSessionId)
+                .single();
+
+            if (!session) {
+                endSession();
+                return;
+            }
+
+            document.getElementById("active-subject-badge").innerText = `Subject: ${session.subject}`;
+            document.getElementById("active-date-display").innerText = `Date: ${session.session_date}`;
+            
+            generateQRCode(session.id);
+            fetchAttendanceRecords();
+        }
+
+        function generateQRCode(sessionId) {
+            const container = document.getElementById("qrcode-container");
+            container.innerHTML = "";
+            // URL that students land on to check in automatically using their Google Login
+            const checkInUrl = `${window.location.origin}/checkin.html?session=${sessionId}`;
+            new QRCode(container, {
+                text: checkInUrl,
+                width: 200,
+                height: 200
+            });
+        }
+
+        async function fetchAttendanceRecords() {
+            const { data, error } = await supabaseClient
+                .from("attendance_records")
+                .select("*")
+                .eq("session_id", currentSessionId)
+                .order("scanned_at", { ascending: true });
+
+            renderTable(data || []);
+        }
+
+        function subscribeToAttendance() {
+            supabaseClient
+                .channel('public:attendance_records')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance_records', filter: `session_id=eq.${currentSessionId}` }, payload => {
+                    fetchAttendanceRecords();
+                })
+                .subscribe();
+        }
+
+        function renderTable(records) {
+            const tbody = document.getElementById("attendance-tbody");
+            document.getElementById("attendance-count").innerText = `${records.length} Present`;
+
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-gray-500">Waiting for students to scan...</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = records.map((rec, index) => `
+                <tr class="hover:bg-gray-900/40 transition">
+                    <td class="p-4 text-gray-500">${index + 1}</td>
+                    <td class="p-4 font-semibold text-white">${rec.student_name}</td>
+                    <td class="p-4 text-gray-400 text-xs">${rec.student_email}</td>
+                    <td class="p-4 text-xs text-gray-500">${new Date(rec.scanned_at).toLocaleTimeString()}</td>
+                    <td class="p-4 text-center">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            <i class="fa-solid fa-check text-[10px]"></i> Present
+                        </span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="removeRecord('${rec.id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-xs transition">
+                            <i class="fa-solid fa-xmark"></i> Remove
+                        </button>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        async function removeRecord(recordId) {
+            if (confirm("Remove this entry (mark proxy as invalid)?")) {
+                await supabaseClient.from("attendance_records").delete().eq("id", recordId);
+                fetchAttendanceRecords();
+            }
+        }
+
+        async function endSession() {
+            if (confirm("Are you sure you want to end this attendance session?")) {
+                await supabaseClient.from("attendance_sessions").update({ active: false }).eq("id", currentSessionId);
+                localStorage.removeItem("active_session_id");
+                currentSessionId = null;
+                showView("setup-view");
+            }
+        }
+
+        function openQRModal() { document.getElementById("qr-modal").classList.remove("hidden"); }
+        function closeQRModal() { document.getElementById("qr-modal").classList.add("hidden"); }
+    </script>
+</body>
+</html>
