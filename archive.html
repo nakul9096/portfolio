@@ -22,9 +22,9 @@
         }
     </script>
     <style>
-        body { background-color: #030712; color: #F3F4F6; }
-        .glow-card { transition: all 0.3s ease; }
-        .glow-card:hover { transform: translateY(-4px); border-color: rgba(59, 130, 246, 0.4); box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.2); }
+        body { background-color: #030712; color: #F3F4F6; user-select: none; }
+        .glow-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glow-card:hover { transform: translateY(-4px); border-color: rgba(59, 130, 246, 0.4); box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.25); }
         .nav-link { position: relative; }
         .nav-link:after {
             content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0;
@@ -35,7 +35,7 @@
         @keyframes modalPop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
-<body class="font-sans antialiased bg-[#030712] min-h-screen flex flex-col justify-between">
+<body class="font-sans antialiased bg-[#030712] min-h-screen flex flex-col justify-between" oncontextmenu="return false;">
 
     <!-- Navbar -->
     <nav class="fixed top-0 w-full z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-gray-900/80">
@@ -62,72 +62,69 @@
         </div>
     </nav>
 
-    <!-- Documents Section -->
+    <!-- Documents Grid -->
     <main class="max-w-7xl mx-auto px-6 pt-32 pb-20 w-full">
-        <div class="border-b border-gray-900 pb-8 mb-10">
-            <h1 class="text-3xl md:text-4xl font-bold text-white font-mono flex items-center gap-3">
-                <i class="fa-solid fa-box-archive text-blue-500"></i> Document Archive
-            </h1>
-            <p class="text-gray-400 text-sm mt-2">Public digital library. Passcode protected previews.</p>
+        <div class="border-b border-gray-900 pb-8 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white font-mono flex items-center gap-3">
+                    <i class="fa-solid fa-box-archive text-blue-500"></i> Document Archive
+                </h1>
+                <p class="text-gray-400 text-sm mt-2">Protected PDF Library. Passcode required to view stream.</p>
+            </div>
         </div>
 
-        <div id="docs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div id="docs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <div class="col-span-full text-center py-20 text-gray-500 font-mono text-sm flex items-center justify-center gap-3">
-                <i class="fa-solid fa-circle-notch animate-spin text-blue-500 text-xl"></i> Loading archive items...
+                <i class="fa-solid fa-circle-notch animate-spin text-blue-500 text-xl"></i> Loading library contents...
             </div>
         </div>
     </main>
 
-    <!-- Passcode & PDF Viewer Modal -->
-    <div id="pdf-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0b0f19] border border-gray-800 rounded-2xl w-full max-w-4xl overflow-hidden modal-anim relative shadow-2xl">
+    <!-- Password Unlock Modal -->
+    <div id="pdf-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0f19] border border-gray-800 rounded-3xl w-full max-w-md overflow-hidden modal-anim relative shadow-2xl p-8 text-center">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10 p-2 bg-gray-900/80 rounded-xl transition">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
 
-            <!-- Passcode Gate -->
-            <div id="modal-password-gate" class="p-8 max-w-md mx-auto text-center">
-                <div class="w-14 h-14 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-5 text-xl">
-                    <i class="fa-solid fa-lock"></i>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-2">Protected Document</h3>
-                <p class="text-xs text-gray-400 mb-6">Enter password to view document.</p>
-
-                <form onsubmit="verifyPassword(event)" class="space-y-4">
-                    <input type="password" id="pass-input" placeholder="Enter password" required
-                           class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-center text-white focus:outline-none focus:border-blue-500">
-                    <p id="pass-error" class="hidden text-xs text-red-400"><i class="fa-solid fa-circle-exclamation"></i> Incorrect password.</p>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 rounded-xl transition active:scale-95">
-                        Unlock & View PDF
-                    </button>
-                </form>
+            <div class="w-14 h-14 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-5 text-xl">
+                <i class="fa-solid fa-shield-halved"></i>
             </div>
+            <h3 class="text-xl font-bold text-white mb-1">Passcode Required</h3>
+            <p id="modal-doc-title" class="text-xs text-gray-400 mb-6 truncate px-4">Enter master password to launch full view mode.</p>
 
-            <!-- PDF iFrame Screen -->
-            <div id="modal-pdf-viewer" class="hidden h-[80vh] flex flex-col">
-                <div class="p-4 border-b border-gray-800 bg-gray-950">
-                    <h4 id="viewer-title" class="font-semibold text-white text-sm truncate pr-8">Document Preview</h4>
-                </div>
-                <iframe id="pdf-frame" class="w-full flex-1 border-0" src=""></iframe>
-            </div>
+            <form onsubmit="verifyPassword(event)" class="space-y-4">
+                <input type="password" id="pass-input" placeholder="Enter password" required
+                       class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-center text-white focus:outline-none focus:border-blue-500 transition">
+                <p id="pass-error" class="hidden text-xs text-red-400 font-mono"><i class="fa-solid fa-circle-exclamation"></i> Incorrect access passcode.</p>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 rounded-xl transition active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i> Open Document Stream
+                </button>
+            </form>
         </div>
     </div>
 
     <footer class="border-t border-gray-900 py-8 text-center text-xs text-gray-600 font-mono">
-        © 2026 Nakul Dhande. All rights reserved.
+        © 2026 Nakul Dhande. Read-only protected library.
     </footer>
 
     <script>
-        // 1. SUPABASE CONFIG (Replace with your actual Supabase URL & Anon Key)
-         const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
+        // SUPABASE CONFIGURATION
+           const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
-
-        // Avoid 'const' variable collisions by attaching directly to window
         if (!window.supabaseClient) {
             window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
 
         let currentActiveDoc = null;
+
+        // Prevent Print and Save Shortcuts
+        window.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's')) {
+                e.preventDefault();
+                alert('Downloading and printing are disabled for protected files.');
+            }
+        });
 
         document.addEventListener("DOMContentLoaded", fetchDocuments);
 
@@ -139,25 +136,44 @@
                 .order("uploaded_at", { ascending: false });
 
             if (error || !data || data.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">No documents found.</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">No documents uploaded.</div>`;
                 return;
             }
 
             grid.innerHTML = data.map(doc => `
                 <div onclick="openDocModal('${doc.id}', '${escapeQuotes(doc.title)}', '${doc.file_url}')"
-                     class="glow-card bg-[#0b0f19] border border-gray-900 rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
-                    <div>
-                        <div class="flex items-start justify-between">
-                            <div class="w-10 h-10 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition">
-                                <i class="fa-solid fa-file-pdf"></i>
+                     class="glow-card bg-[#0b0f19] border border-gray-900 rounded-2xl overflow-hidden cursor-pointer flex flex-col justify-between group h-full">
+                    
+                    <!-- Curved Half-Squared PDF Visual Thumbnail -->
+                    <div class="h-44 bg-gradient-to-b from-gray-900 to-[#0b0f19] p-4 flex items-center justify-center relative overflow-hidden border-b border-gray-900">
+                        <div class="w-28 h-36 bg-[#030712] border border-gray-800 rounded-lg shadow-xl p-3 flex flex-col justify-between transform group-hover:scale-105 group-hover:-translate-y-1 transition duration-300 relative">
+                            <div class="flex items-center justify-between border-b border-gray-800 pb-2">
+                                <i class="fa-solid fa-file-pdf text-red-500 text-sm"></i>
+                                <span class="text-[9px] font-mono text-gray-500">PDF</span>
                             </div>
-                            <span class="text-xs font-mono text-gray-400 bg-gray-950 border border-gray-900 px-3 py-1 rounded-full flex items-center gap-1.5">
-                                <i class="fa-regular fa-eye text-emerald-400"></i> ${doc.views || 0} views
-                            </span>
+                            <div class="space-y-1 my-auto">
+                                <div class="h-1.5 w-3/4 bg-gray-700 rounded-full"></div>
+                                <div class="h-1.5 w-full bg-gray-800 rounded-full"></div>
+                                <div class="h-1.5 w-5/6 bg-gray-800 rounded-full"></div>
+                                <div class="h-1.5 w-2/3 bg-gray-800 rounded-full"></div>
+                            </div>
+                            <div class="text-[8px] font-mono text-gray-600 truncate border-t border-gray-900 pt-1">
+                                READ-ONLY
+                            </div>
                         </div>
-                        <h3 class="font-semibold text-white mt-4 group-hover:text-blue-400 transition line-clamp-1">${doc.title}</h3>
+                        <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition"></div>
                     </div>
-                    <p class="text-[11px] text-gray-500 font-mono mt-4">${new Date(doc.uploaded_at).toLocaleDateString()}</p>
+
+                    <!-- Metadata Header -->
+                    <div class="p-5 flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-blue-400 transition line-clamp-2 text-sm leading-snug">${doc.title}</h3>
+                        </div>
+                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-900 text-[11px] font-mono text-gray-500">
+                            <span><i class="fa-regular fa-calendar text-xs mr-1"></i>${new Date(doc.uploaded_at).toLocaleDateString()}</span>
+                            <span class="text-blue-400 group-hover:underline flex items-center gap-1">View <i class="fa-solid fa-chevron-right text-[9px]"></i></span>
+                        </div>
+                    </div>
                 </div>
             `).join("");
         }
@@ -170,31 +186,63 @@
             currentActiveDoc = { id, title, url };
             document.getElementById("pass-input").value = "";
             document.getElementById("pass-error").classList.add("hidden");
-            document.getElementById("modal-password-gate").classList.remove("hidden");
-            document.getElementById("modal-pdf-viewer").classList.add("hidden");
+            document.getElementById("modal-doc-title").innerText = title;
             document.getElementById("pdf-modal").classList.remove("hidden");
         }
 
         function closeModal() {
             document.getElementById("pdf-modal").classList.add("hidden");
-            document.getElementById("pdf-frame").src = "";
             currentActiveDoc = null;
         }
 
-        async function verifyPassword(e) {
+        function verifyPassword(e) {
             e.preventDefault();
             if (document.getElementById("pass-input").value === "nakuldhande") {
-                document.getElementById("modal-password-gate").classList.add("hidden");
-                document.getElementById("modal-pdf-viewer").classList.remove("hidden");
-                document.getElementById("viewer-title").innerText = currentActiveDoc.title;
-                document.getElementById("pdf-frame").src = currentActiveDoc.url + "#toolbar=0";
-
-                // Safely update view counts
-                try {
-                    await window.supabaseClient.rpc('increment_views', { doc_id: currentActiveDoc.id });
-                    fetchDocuments();
-                } catch (err) {
-                    console.log("View counter bypass:", err.message);
+                closeModal();
+                
+                // Construct PDF Stream URL with viewer parameters (No controls, scroll enabled)
+                const pdfViewerUrl = currentActiveDoc.url + "#toolbar=0&navpanes=0&scrollbar=1";
+                
+                // Open Protected Fullscreen Viewing Tab
+                const viewerTab = window.open("", "_blank");
+                if (viewerTab) {
+                    viewerTab.document.write(`
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <title>${currentActiveDoc.title} | Protected View</title>
+                            <script src="https://cdn.tailwindcss.com"><\/script>
+                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+                            <style>
+                                body { margin: 0; background-color: #030712; color: #fff; user-select: none; -webkit-user-select: none; }
+                                iframe { width: 100vw; height: calc(100vh - 56px); border: none; }
+                            </style>
+                        </head>
+                        <body oncontextmenu="return false;">
+                            <div class="h-14 bg-[#0b0f19] border-b border-gray-800 px-6 flex items-center justify-between font-mono text-sm">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                    <span class="font-semibold text-white truncate max-w-xl">${currentActiveDoc.title}</span>
+                                </div>
+                                <div class="text-xs text-gray-400 bg-gray-900 border border-gray-800 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                                    <i class="fa-solid fa-lock text-emerald-400"></i> Read-Only View Stream
+                                </div>
+                            </div>
+                            <iframe src="${pdfViewerUrl}" id="pdf-stream"></iframe>
+                            <script>
+                                window.addEventListener('keydown', function (e) {
+                                    if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's')) {
+                                        e.preventDefault();
+                                        alert('Printing and downloading are disabled for this document.');
+                                    }
+                                });
+                            <\/script>
+                        </body>
+                        </html>
+                    `);
+                    viewerTab.document.close();
+                } else {
+                    alert("Popup blocked! Please allow popups to open the viewer window.");
                 }
             } else {
                 document.getElementById("pass-error").classList.remove("hidden");
