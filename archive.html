@@ -118,7 +118,7 @@
             <h3 class="text-xl font-bold text-white mb-1">Passcode Required</h3>
             <p id="modal-doc-title" class="text-xs text-gray-400 mb-6 truncate px-4">Enter master password to view document.</p>
 
-            <form onsubmit="verifyPassword(event)" class="space-y-4">
+            <form onsubmit="handlePasswordSubmit(event)" class="space-y-4">
                 <input type="password" id="pass-input" placeholder="Enter password" required
                        class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-center text-white focus:outline-none focus:border-blue-500 transition">
                 <p id="pass-error" class="hidden text-xs text-red-400 font-mono"><i class="fa-solid fa-circle-exclamation"></i> Incorrect access passcode.</p>
@@ -162,8 +162,9 @@
 
     <script>
         // SUPABASE CONFIGURATION
-         const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
+       const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
+
         if (!window.supabaseClient) {
             window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
@@ -245,25 +246,34 @@
 
         function closeModal() {
             document.getElementById("pdf-modal").classList.add("hidden");
-            currentActiveDoc = null;
         }
 
-        function verifyPassword(e) {
+        function handlePasswordSubmit(e) {
             e.preventDefault();
-            if (document.getElementById("pass-input").value === "nakuldhande") {
+            
+            const passwordInput = document.getElementById("pass-input").value;
+            const errorText = document.getElementById("pass-error");
+
+            if (passwordInput === "nakuldhande") {
+                errorText.classList.add("hidden");
+                
+                if (!currentActiveDoc) {
+                    console.error("No active document selected.");
+                    return;
+                }
+
                 closeModal();
                 
                 document.getElementById("viewer-title").innerText = currentActiveDoc.title;
                 document.getElementById("loading-spinner").classList.remove("hidden");
                 
-                // Embed via Google Docs PDF Viewer Engine (Prevents CORS iframe blocking & forces embedded scroll mode)
                 const embedUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(currentActiveDoc.url)}&embedded=true`;
                 document.getElementById("pdf-stream-frame").src = embedUrl;
                 
                 document.getElementById("fullscreen-viewer").classList.remove("hidden");
                 document.body.style.overflow = "hidden";
             } else {
-                document.getElementById("pass-error").classList.remove("hidden");
+                errorText.classList.remove("hidden");
             }
         }
 
