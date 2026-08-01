@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-In | Attendance Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: { dark: '#030712', card: '#0b0f19', accent: '#3b82f6' } },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'], mono: ['Space Grotesk', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #030712; color: #F3F4F6; }
+    </style>
+</head>
+<body class="font-sans antialiased bg-[#030712] min-h-screen flex items-center justify-center p-6">
+
+    <div class="bg-[#0b0f19] border border-gray-800 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
+        
+        <!-- Loading State -->
+        <div id="loading-state" class="py-10 space-y-4">
+            <i class="fa-solid fa-circle-notch animate-spin text-blue-500 text-3xl"></i>
+            <h2 class="text-xl font-bold text-white font-mono">Processing Check-In...</h2>
+            <p class="text-xs text-gray-400">Verifying your Google account session.</p>
+        </div>
+
+        <!-- Success State -->
+        <div id="success-state" class="hidden py-6 space-y-4">
+            <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white font-mono">Attendance Recorded!</h2>
+            <p class="text-xs text-gray-400">You have been marked present successfully.</p>
+            <div class="bg-gray-950 border border-gray-800 rounded-2xl p-4 text-left font-mono text-xs space-y-2 mt-4">
+                <p class="text-gray-400">Name: <span id="student-name" class="text-white font-semibold">--</span></p>
+                <p class="text-gray-400">Email: <span id="student-email" class="text-white font-semibold">--</span></p>
+                <p class="text-gray-400">Time: <span id="checkin-time" class="text-emerald-400 font-semibold">--</span></p>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden py-6 space-y-4">
+            <div class="w-16 h-16 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h2 class="text-xl font-bold text-white font-mono">Check-In Failed</h2>
+            <p id="error-message" class="text-xs text-red-400 font-mono">Invalid session or authentication error.</p>
+        </div>
+
+        <!-- Sign In Prompt (If not logged into Firebase) -->
+        <div id="login-prompt" class="hidden py-6 space-y-4">
+            <div class="w-16 h-16 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-brands fa-google"></i>
+            </div>
+            <h2 class="text-xl font-bold text-white font-mono">Student Sign-In Required</h2>
+            <p class="text-xs text-gray-400">Please sign in with your Google account to log your attendance.</p>
+            <button onclick="loginAndCheckIn()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 rounded-xl transition flex items-center justify-center gap-2 mt-2">
+                <i class="fa-brands fa-google"></i> Continue with Google
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Firebase App & Auth SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // FIREBASE CONFIGURATION (Use same config credentials as your dashboard)
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
+            projectId: "YOUR_FIREBASE_PROJECT_ID",
+            storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
+            appId: "YOUR_FIREBASE_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // SUPABASE CONFIGURATION
+        const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Get Session ID from URL Query Parameters (?session=UUID)
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get("session");
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!sessionId) {
+                showState("error-state");
+                document.getElementById("error-message").innerText = "Missing attendance session parameter.";
+                return;
+            }
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    await recordAttendance(user);
+                } else {
+                    showState("login-prompt");
+                }
+            });
+        });
+
+        window.loginAndCheckIn = async function() {
+            try {
+                showState("loading-state");
+                const result = await signInWithPopup(auth, provider);
+                await recordAttendance(result.user);
+            } catch (error) {
+                showState("error-state");
+                document.getElementById("error-message").innerText = error.message;
+            }
+        }
+
+        async function recordAttendance(user) {
+            showState("loading-state");
+
+            // Check if student already checked in for this session
+            const { data: existing } = await supabaseClient
+                .from("attendance_records")
+                .select("id")
+                .eq("session_id", sessionId)
+                .eq("student_email", user.email)
+                .single();
+
+            if (existing) {
+                // Already checked in, show success anyway
+                displaySuccessUI(user.displayName, user.email, new Date());
+                return;
+            }
+
+            // Insert attendance record
+            const { error } = await supabaseClient
+                .from("attendance_records")
+                .insert([{
+                    session_id: sessionId,
+                    student_name: user.displayName || "Unknown Student",
+                    student_email: user.email
+                }]);
+
+            if (error) {
+                showState("error-state");
+                document.getElementById("error-message").innerText = "Database error: " + error.message;
+                return;
+            }
+
+            displaySuccessUI(user.displayName, user.email, new Date());
+        }
+
+        function displaySuccessUI(name, email, time) {
+            showState("success-state");
+            document.getElementById("student-name").innerText = name;
+            document.getElementById("student-email").innerText = email;
+            document.getElementById("checkin-time").innerText = time.toLocaleTimeString();
+        }
+
+        function showState(stateId) {
+            ["loading-state", "success-state", "error-state", "login-prompt"].forEach(id => {
+                document.getElementById(id).classList.add("hidden");
+            });
+            document.getElementById(stateId).classList.remove("hidden");
+        }
+    </script>
+</body>
+</html>
