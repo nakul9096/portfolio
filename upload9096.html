@@ -88,12 +88,13 @@
 
         // 1. FIREBASE CONFIG
         const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyBR1L9UACOdMfOHaOPerfZY1SyzPEBnEGA",
+  authDomain: "myportfolio-9096.firebaseapp.com",
+  projectId: "myportfolio-9096",
+  storageBucket: "myportfolio-9096.firebasestorage.app",
+  messagingSenderId: "1614082917",
+  appId: "1:1614082917:web:e844f4b92091986c4be78c",
+  measurementId: "G-6E9VPG1QYM"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -101,8 +102,8 @@
         const provider = new GoogleAuthProvider();
 
         // 2. SUPABASE CONFIG
-        const SUPABASE_URL = "https://your-supabase-project.supabase.co";
-        const SUPABASE_ANON_KEY = "your-supabase-anon-key";
+        const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
         const ADMIN_EMAIL = "nakuldhande2005@gmail.com";
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
