@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive | Nakul Dhande</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> 
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: { dark: '#030712', card: '#0b0f19', accent: '#3b82f6' } },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'], mono: ['Space Grotesk', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #030712; color: #F3F4F6; }
+        .glow-card { transition: all 0.3s ease; }
+        .glow-card:hover { transform: translateY(-4px); border-color: rgba(59, 130, 246, 0.4); box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.2); }
+        .nav-link { position: relative; }
+        .nav-link:after {
+            content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0;
+            background: linear-gradient(to right, #3b82f6, #10b981); transition: width 0.3s ease;
+        }
+        .nav-link:hover:after { width: 100%; }
+        .modal-anim { animation: modalPop 0.25s ease-out; }
+        @keyframes modalPop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body class="font-sans antialiased bg-[#030712] min-h-screen flex flex-col justify-between">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-gray-900/80">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="font-bold text-xl tracking-tight text-white font-mono">Nakul.Dhande</a>
+            
+            <div class="hidden lg:flex items-center space-x-6 font-mono text-[13px] tracking-wide bg-gray-950/40 border border-gray-900 px-6 py-2 rounded-full backdrop-blur-md">
+                <a href="index.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
+                    <i class="fa-solid fa-house text-xs"></i><span>Home</span>
+                </a>
+                <a href="services.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
+                    <i class="fa-solid fa-briefcase text-xs"></i><span>Services</span>
+                </a>
+                <a href="archive.html" class="nav-link text-white transition flex items-center gap-2">
+                    <i class="fa-solid fa-box-archive text-xs text-blue-400"></i><span class="text-white font-semibold">Archive</span>
+                </a>
+                <a href="resume.pdf" target="_blank" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf text-xs text-red-400/80"></i><span>MyResume</span>
+                </a>
+                <a href="cgpacalculator.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-xs"></i><span>CGPA Calculator</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Documents Section -->
+    <main class="max-w-7xl mx-auto px-6 pt-32 pb-20 w-full">
+        <div class="border-b border-gray-900 pb-8 mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-white font-mono flex items-center gap-3">
+                <i class="fa-solid fa-box-archive text-blue-500"></i> Document Archive
+            </h1>
+            <p class="text-gray-400 text-sm mt-2">Public digital library. Passcode protected previews.</p>
+        </div>
+
+        <div id="docs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full text-center py-20 text-gray-500 font-mono text-sm flex items-center justify-center gap-3">
+                <i class="fa-solid fa-circle-notch animate-spin text-blue-500 text-xl"></i> Loading archive items...
+            </div>
+        </div>
+    </main>
+
+    <!-- Passcode & PDF Viewer Modal -->
+    <div id="pdf-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-[#0b0f19] border border-gray-800 rounded-2xl w-full max-w-4xl overflow-hidden modal-anim relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10 p-2 bg-gray-900/80 rounded-xl transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Passcode Gate -->
+            <div id="modal-password-gate" class="p-8 max-w-md mx-auto text-center">
+                <div class="w-14 h-14 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-5 text-xl">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Protected Document</h3>
+                <p class="text-xs text-gray-400 mb-6">Enter password to view document.</p>
+
+                <form onsubmit="verifyPassword(event)" class="space-y-4">
+                    <input type="password" id="pass-input" placeholder="Enter password" required
+                           class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-center text-white focus:outline-none focus:border-blue-500">
+                    <p id="pass-error" class="hidden text-xs text-red-400"><i class="fa-solid fa-circle-exclamation"></i> Incorrect password.</p>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 rounded-xl transition active:scale-95">
+                        Unlock & View PDF
+                    </button>
+                </form>
+            </div>
+
+            <!-- PDF iFrame Screen -->
+            <div id="modal-pdf-viewer" class="hidden h-[80vh] flex flex-col">
+                <div class="p-4 border-b border-gray-800 bg-gray-950">
+                    <h4 id="viewer-title" class="font-semibold text-white text-sm truncate pr-8">Document Preview</h4>
+                </div>
+                <iframe id="pdf-frame" class="w-full flex-1 border-0" src=""></iframe>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-gray-900 py-8 text-center text-xs text-gray-600 font-mono">
+        © 2026 Nakul Dhande. All rights reserved.
+    </footer>
+
+    <script>
+        const SUPABASE_URL = "https://your-supabase-project.supabase.co";
+        const SUPABASE_ANON_KEY = "your-supabase-anon-key";
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentActiveDoc = null;
+
+        document.addEventListener("DOMContentLoaded", fetchDocuments);
+
+        async function fetchDocuments() {
+            const grid = document.getElementById("docs-grid");
+            const { data, error } = await supabase
+                .from("documents")
+                .select("*")
+                .order("uploaded_at", { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">No documents found.</div>`;
+                return;
+            }
+
+            grid.innerHTML = data.map(doc => `
+                <div onclick="openDocModal('${doc.id}', '${escapeQuotes(doc.title)}', '${doc.file_url}')"
+                     class="glow-card bg-[#0b0f19] border border-gray-900 rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-start justify-between">
+                            <div class="w-10 h-10 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <span class="text-xs font-mono text-gray-400 bg-gray-950 border border-gray-900 px-3 py-1 rounded-full flex items-center gap-1.5">
+                                <i class="fa-regular fa-eye text-emerald-400"></i> ${doc.views || 0} views
+                            </span>
+                        </div>
+                        <h3 class="font-semibold text-white mt-4 group-hover:text-blue-400 transition line-clamp-1">${doc.title}</h3>
+                    </div>
+                    <p class="text-[11px] text-gray-500 font-mono mt-4">${new Date(doc.uploaded_at).toLocaleDateString()}</p>
+                </div>
+            `).join("");
+        }
+
+        function escapeQuotes(str) { return str.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+        function openDocModal(id, title, url) {
+            currentActiveDoc = { id, title, url };
+            document.getElementById("pass-input").value = "";
+            document.getElementById("pass-error").classList.add("hidden");
+            document.getElementById("modal-password-gate").classList.remove("hidden");
+            document.getElementById("modal-pdf-viewer").classList.add("hidden");
+            document.getElementById("pdf-modal").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("pdf-modal").classList.add("hidden");
+            document.getElementById("pdf-frame").src = "";
+            currentActiveDoc = null;
+        }
+
+        async function verifyPassword(e) {
+            e.preventDefault();
+            if (document.getElementById("pass-input").value === "nakuldhande") {
+                document.getElementById("modal-password-gate").classList.add("hidden");
+                document.getElementById("modal-pdf-viewer").classList.remove("hidden");
+                document.getElementById("viewer-title").innerText = currentActiveDoc.title;
+                document.getElementById("pdf-frame").src = currentActiveDoc.url + "#toolbar=0";
+
+                await supabase.rpc('increment_views', { doc_id: currentActiveDoc.id });
+                fetchDocuments();
+            } else {
+                document.getElementById("pass-error").classList.remove("hidden");
+            }
+        }
+    </script>
+</body>
+</html>
