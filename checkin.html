@@ -11,7 +11,7 @@
     <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- External Secure Config File -->
+    <!-- External Secure Config File (Adjusted to config/) -->
     <script src="config/config.js"></script>
 
     <script>
@@ -84,14 +84,13 @@
             <div class="w-16 h-16 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h2 class="text-xl font-bold text-white font-mono">Check-In Failed</h2>
+            <h2 class="text-xl font-bold text-white font-mono">Check-In Restricted</h2>
             <p id="error-message" class="text-xs text-red-400 font-mono">Invalid session or database error.</p>
         </div>
     </div>
 
     <!-- Script Logic -->
     <script>
-        // Initialize Supabase using api/config.js credentials
         const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || "";
         const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || "";
 
@@ -106,7 +105,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             if (!supabaseClient) {
                 showState("error-state");
-                document.getElementById("error-message").innerText = "Configuration missing: Check api/config.js";
+                document.getElementById("error-message").innerText = "Configuration missing: Check config/config.js";
                 return;
             }
 
@@ -116,7 +115,14 @@
                 return;
             }
 
-            // Show form once checks pass
+            // Check if this device has already submitted attendance for this specific session
+            const storedCheckin = localStorage.getItem(`submitted_session_${sessionId}`);
+            if (storedCheckin) {
+                showState("error-state");
+                document.getElementById("error-message").innerText = "Attendance has already been submitted from this device for this session.";
+                return;
+            }
+
             showState("form-state");
         });
 
@@ -130,21 +136,7 @@
 
             showState("loading-state");
 
-            // Check if this roll number has already checked into this session
-            const { data: existing, error: checkError } = await supabaseClient
-                .from("attendance_records")
-                .select("id")
-                .eq("session_id", sessionId)
-                .eq("roll_no", rollNo)
-                .single();
-
-            if (existing) {
-                displaySuccessUI(name, rollNo, new Date());
-                return;
-            }
-
             // Insert attendance record into Supabase
-            // Note: Ensure your table columns match (e.g., session_id, student_name, roll_no)
             const { error } = await supabaseClient
                 .from("attendance_records")
                 .insert([{
@@ -158,6 +150,9 @@
                 document.getElementById("error-message").innerText = "Database error: " + error.message;
                 return;
             }
+
+            // Lock this device out from submitting to this session again using local storage
+            localStorage.setItem(`submitted_session_${sessionId}`, "true");
 
             displaySuccessUI(name, rollNo, new Date());
         }
