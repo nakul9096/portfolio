@@ -11,6 +11,9 @@
     <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- External Secure Config File -->
+    <script src="config/config.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -26,14 +29,40 @@
     </style>
 </head>
 <body class="font-sans antialiased bg-[#030712] min-h-screen flex items-center justify-center p-6">
-
     <div class="bg-[#0b0f19] border border-gray-800 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
         
         <!-- Loading State -->
         <div id="loading-state" class="py-10 space-y-4">
             <i class="fa-solid fa-circle-notch animate-spin text-blue-500 text-3xl"></i>
-            <h2 class="text-xl font-bold text-white font-mono">Processing Check-In...</h2>
-            <p class="text-xs text-gray-400">Verifying your Google account session.</p>
+            <h2 class="text-xl font-bold text-white font-mono">Verifying Session...</h2>
+            <p class="text-xs text-gray-400">Please wait while we load the attendance portal.</p>
+        </div>
+
+        <!-- Attendance Form State -->
+        <div id="form-state" class="hidden py-4 space-y-5 text-left">
+            <div class="text-center">
+                <div class="w-14 h-14 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                    <i class="fa-solid fa-clipboard-user"></i>
+                </div>
+                <h2 class="text-xl font-bold text-white font-mono">Mark Attendance</h2>
+                <p class="text-xs text-gray-400 mt-1">Enter your details below to log your presence.</p>
+            </div>
+
+            <form onsubmit="handleAttendanceSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-mono text-gray-400 mb-1.5">Full Name</label>
+                    <input type="text" id="student-name-input" placeholder="e.g. Nakul Dhande" required
+                           class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-mono text-gray-400 mb-1.5">Roll Number</label>
+                    <input type="text" id="student-roll-input" placeholder="e.g. 24" required
+                           class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 rounded-xl transition active:scale-95 flex items-center justify-center gap-2 mt-2">
+                    <i class="fa-solid fa-check text-xs"></i> Mark Present
+                </button>
+            </form>
         </div>
 
         <!-- Success State -->
@@ -44,8 +73,8 @@
             <h2 class="text-2xl font-bold text-white font-mono">Attendance Recorded!</h2>
             <p class="text-xs text-gray-400">You have been marked present successfully.</p>
             <div class="bg-gray-950 border border-gray-800 rounded-2xl p-4 text-left font-mono text-xs space-y-2 mt-4">
-                <p class="text-gray-400">Name: <span id="student-name" class="text-white font-semibold">--</span></p>
-                <p class="text-gray-400">Email: <span id="student-email" class="text-white font-semibold">--</span></p>
+                <p class="text-gray-400">Name: <span id="display-name" class="text-white font-semibold">--</span></p>
+                <p class="text-gray-400">Roll No: <span id="display-roll" class="text-white font-semibold">--</span></p>
                 <p class="text-gray-400">Time: <span id="checkin-time" class="text-emerald-400 font-semibold">--</span></p>
             </div>
         </div>
@@ -56,103 +85,72 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <h2 class="text-xl font-bold text-white font-mono">Check-In Failed</h2>
-            <p id="error-message" class="text-xs text-red-400 font-mono">Invalid session or authentication error.</p>
+            <p id="error-message" class="text-xs text-red-400 font-mono">Invalid session or database error.</p>
         </div>
-
-        <!-- Sign In Prompt (If not logged into Firebase) -->
-        <div id="login-prompt" class="hidden py-6 space-y-4">
-            <div class="w-16 h-16 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
-                <i class="fa-brands fa-google"></i>
-            </div>
-            <h2 class="text-xl font-bold text-white font-mono">Student Sign-In Required</h2>
-            <p class="text-xs text-gray-400">Please sign in with your Google account to log your attendance.</p>
-            <button onclick="loginAndCheckIn()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 rounded-xl transition flex items-center justify-center gap-2 mt-2">
-                <i class="fa-brands fa-google"></i> Continue with Google
-            </button>
-        </div>
-
     </div>
 
-    <!-- Firebase App & Auth SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    <!-- Script Logic -->
+    <script>
+        // Initialize Supabase using api/config.js credentials
+        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || "";
+        const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || "";
 
-        // FIREBASE CONFIGURATION (Use same config credentials as your dashboard)
-        const firebaseConfig = {
-            apiKey: "AIzaSyBR1L9UACOdMfOHaOPerfZY1SyzPEBnEGA",
-  authDomain: "myportfolio-9096.firebaseapp.com",
-  projectId: "myportfolio-9096",
-  storageBucket: "myportfolio-9096.firebasestorage.app",
-  messagingSenderId: "1614082917",
-  appId: "1:1614082917:web:e844f4b92091986c4be78c",
-  measurementId: "G-6E9VPG1QYM"
-        };
+        let supabaseClient = null;
+        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        // SUPABASE CONFIGURATION
-         const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // Get Session ID from URL Query Parameters (?session=UUID)
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get("session");
 
         document.addEventListener("DOMContentLoaded", () => {
-            if (!sessionId) {
+            if (!supabaseClient) {
                 showState("error-state");
-                document.getElementById("error-message").innerText = "Missing attendance session parameter.";
+                document.getElementById("error-message").innerText = "Configuration missing: Check api/config.js";
                 return;
             }
 
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    await recordAttendance(user);
-                } else {
-                    showState("login-prompt");
-                }
-            });
+            if (!sessionId) {
+                showState("error-state");
+                document.getElementById("error-message").innerText = "Missing attendance session parameter in URL.";
+                return;
+            }
+
+            // Show form once checks pass
+            showState("form-state");
         });
 
-        window.loginAndCheckIn = async function() {
-            try {
-                showState("loading-state");
-                const result = await signInWithPopup(auth, provider);
-                await recordAttendance(result.user);
-            } catch (error) {
-                showState("error-state");
-                document.getElementById("error-message").innerText = error.message;
-            }
-        }
+        async function handleAttendanceSubmit(e) {
+            e.preventDefault();
 
-        async function recordAttendance(user) {
+            const name = document.getElementById("student-name-input").value.trim();
+            const rollNo = document.getElementById("student-roll-input").value.trim();
+
+            if (!name || !rollNo) return;
+
             showState("loading-state");
 
-            // Check if student already checked in for this session
-            const { data: existing } = await supabaseClient
+            // Check if this roll number has already checked into this session
+            const { data: existing, error: checkError } = await supabaseClient
                 .from("attendance_records")
                 .select("id")
                 .eq("session_id", sessionId)
-                .eq("student_email", user.email)
+                .eq("roll_no", rollNo)
                 .single();
 
             if (existing) {
-                // Already checked in, show success anyway
-                displaySuccessUI(user.displayName, user.email, new Date());
+                displaySuccessUI(name, rollNo, new Date());
                 return;
             }
 
-            // Insert attendance record
+            // Insert attendance record into Supabase
+            // Note: Ensure your table columns match (e.g., session_id, student_name, roll_no)
             const { error } = await supabaseClient
                 .from("attendance_records")
                 .insert([{
                     session_id: sessionId,
-                    student_name: user.displayName || "Unknown Student",
-                    student_email: user.email
+                    student_name: name,
+                    roll_no: rollNo
                 }]);
 
             if (error) {
@@ -161,21 +159,23 @@
                 return;
             }
 
-            displaySuccessUI(user.displayName, user.email, new Date());
+            displaySuccessUI(name, rollNo, new Date());
         }
 
-        function displaySuccessUI(name, email, time) {
+        function displaySuccessUI(name, rollNo, time) {
             showState("success-state");
-            document.getElementById("student-name").innerText = name;
-            document.getElementById("student-email").innerText = email;
+            document.getElementById("display-name").innerText = name;
+            document.getElementById("display-roll").innerText = rollNo;
             document.getElementById("checkin-time").innerText = time.toLocaleTimeString();
         }
 
         function showState(stateId) {
-            ["loading-state", "success-state", "error-state", "login-prompt"].forEach(id => {
-                document.getElementById(id).classList.add("hidden");
+            ["loading-state", "form-state", "success-state", "error-state"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add("hidden");
             });
-            document.getElementById(stateId).classList.remove("hidden");
+            const target = document.getElementById(stateId);
+            if (target) target.classList.remove("hidden");
         }
     </script>
 </body>
