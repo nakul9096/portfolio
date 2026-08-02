@@ -11,6 +11,9 @@
     <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- External Secure Config File -->
+    <script src="api/config.js"></script>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -61,10 +64,15 @@
                 </a>
             </div>
 
-            <!-- Mobile Toggle -->
-            <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-400 hover:text-white p-2 rounded-xl bg-gray-950/60 border border-gray-900">
-                <i id="menu-icon" class="fa-solid fa-bars text-lg"></i>
-            </button>
+            <!-- Header Actions (Login / Mobile Toggle) -->
+            <div class="flex items-center gap-3">
+                <a href="upload9096.html" class="hidden sm:flex items-center gap-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/30 px-4 py-2 rounded-xl text-xs font-mono transition">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i><span>Login</span>
+                </a>
+                <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-400 hover:text-white p-2 rounded-xl bg-gray-950/60 border border-gray-900">
+                    <i id="menu-icon" class="fa-solid fa-bars text-lg"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Mobile Menu -->
@@ -83,6 +91,9 @@
             </a>
             <a href="cgpacalculator.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg">
                 <i class="fa-solid fa-calculator text-xs w-4"></i><span>CGPA Calculator</span>
+            </a>
+            <a href="upload9096.html" class="flex items-center gap-3 text-blue-400 hover:text-blue-300 p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <i class="fa-solid fa-arrow-right-to-bracket text-xs w-4"></i><span>Login / Upload</span>
             </a>
         </div>
     </nav>
@@ -161,12 +172,14 @@
     </footer>
 
     <script>
-        // SUPABASE CONFIGURATION
-       const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
+        // SUPABASE INITIALIZATION USING api/config.js
+        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || "";
+        const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || "";
 
-        if (!window.supabaseClient) {
+        if (!window.supabaseClient && SUPABASE_URL && SUPABASE_ANON_KEY) {
             window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } else if (!window.supabaseClient) {
+            console.error("Supabase credentials could not be loaded from api/config.js");
         }
 
         let currentActiveDoc = null;
@@ -184,6 +197,12 @@
 
         async function fetchDocuments() {
             const grid = document.getElementById("docs-grid");
+            
+            if (!window.supabaseClient) {
+                grid.innerHTML = `<div class="col-span-full text-center py-16 border border-dashed border-gray-900 rounded-2xl text-red-400 font-mono text-sm">Error: Configuration missing.</div>`;
+                return;
+            }
+
             const { data, error } = await window.supabaseClient
                 .from("documents")
                 .select("*")
