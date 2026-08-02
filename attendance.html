@@ -112,18 +112,24 @@
             <!-- Top Control Bar -->
             <div class="flex flex-col sm:flex-row items-center justify-between bg-[#0b0f19] border border-gray-800 p-6 rounded-2xl gap-4">
                 <div>
-                    <span id="active-subject-badge" class="text-xs font-mono text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-lg">Subject: --</span>
+                    <div class="flex items-center gap-3">
+                        <span id="active-subject-badge" class="text-xs font-mono text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-lg">Subject: --</span>
+                        <span id="session-status-badge" class="text-xs font-mono px-3 py-1 rounded-lg">--</span>
+                    </div>
                     <h2 id="active-date-display" class="text-xl font-bold text-white mt-2 font-mono">Date: --</h2>
                 </div>
                 <div class="flex flex-wrap items-center gap-3 font-mono text-xs">
                     <button onclick="openQRModal()" class="bg-gray-900 hover:bg-gray-800 text-white border border-gray-800 px-4 py-2.5 rounded-xl transition flex items-center gap-2">
                         <i class="fa-solid fa-qrcode text-blue-400"></i> Show QR
                     </button>
+                    <button id="toggle-session-btn" onclick="toggleSessionActiveState()" class="transition px-4 py-2.5 rounded-xl flex items-center gap-2">
+                        <!-- Dynamically set via JS -->
+                    </button>
                     <button onclick="exportToCSV()" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-4 py-2.5 rounded-xl transition flex items-center gap-2">
                         <i class="fa-solid fa-file-csv"></i> Export CSV
                     </button>
-                    <button onclick="endSession()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-4 py-2.5 rounded-xl transition flex items-center gap-2">
-                        <i class="fa-solid fa-power-off"></i> Exit Dashboard
+                    <button onclick="exitDashboard()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> Dashboard
                     </button>
                 </div>
             </div>
@@ -166,7 +172,7 @@
             </button>
             <h3 class="font-bold text-white mb-4 font-mono">Scan for Attendance</h3>
             <div id="qrcode-container" class="bg-white p-4 rounded-2xl inline-block mx-auto mb-4"></div>
-            <p class="text-xs text-gray-400 font-mono">Have students scan this code using phone camera.</p>
+            <p id="qr-status-text" class="text-xs text-gray-400 font-mono">Have students scan this code using phone camera.</p>
         </div>
     </div>
 
@@ -179,14 +185,13 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Pull secure configuration from api/config.js
         const firebaseConfig = window.CONFIG?.FIREBASE_CONFIG;
         const SUPABASE_URL = window.CONFIG?.SUPABASE_URL;
         const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY;
         const ADMIN_EMAIL = "nakuldhande2005@gmail.com";
 
         if (!firebaseConfig || !SUPABASE_URL) {
-            alert("Configuration missing from api/config.js!");
+            alert("Configuration missing from config/config.js!");
         }
 
         const app = initializeApp(firebaseConfig);
@@ -196,6 +201,8 @@
         window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentSessionId = localStorage.getItem("active_session_id") || null;
         let liveRecordsCache = [];
+        let activeSubscription = null;
+        let sessionDataCache = null;
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -215,7 +222,7 @@
 
             if (currentSessionId) {
                 showView("dashboard-view");
-                loadSessionData();
+                await loadSessionData();
                 subscribeToAttendance();
             } else {
                 showView("setup-view");
@@ -261,7 +268,7 @@
             localStorage.setItem("active_session_id", currentSessionId);
             
             showView("dashboard-view");
-            loadSessionData();
+            await loadSessionData();
             subscribeToAttendance();
         }
 
@@ -280,11 +287,51 @@
                 return;
             }
 
+            sessionDataCache = session;
             document.getElementById("active-subject-badge").innerText = `Subject: ${session.subject}`;
             document.getElementById("active-date-display").innerText = `Date: ${session.session_date}`;
             
-            generateQRCode(session.id);
-            fetchAttendanceRecords();
+            updateSessionUIState(session.active);
+            generateQRCode(session.id, session.active);
+            await fetchAttendanceRecords();
+        }
+
+        function updateSessionUIState(isActive) {
+            const statusBadge = document.getElementById("session-status-badge");
+            const toggleBtn = document.getElementById("toggle-session-btn");
+
+            if (isActive) {
+                statusBadge.innerText = "Status: Accepting Scans";
+                statusBadge.className = "text-xs font-mono px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                
+                toggleBtn.innerText = "End Session";
+                toggleBtn.className = "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-4 py-2.5 rounded-xl transition flex items-center gap-2";
+            } else {
+                statusBadge.innerText = "Status: Session Ended";
+                statusBadge.className = "text-xs font-mono px-3 py-1 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20";
+                
+                toggleBtn.innerText = "Resume Session";
+                toggleBtn.className = "bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-4 py-2.5 rounded-xl transition flex items-center gap-2";
+            }
+        }
+
+        window.toggleSessionActiveState = async function() {
+            if (!sessionDataCache) return;
+            const newActiveState = !sessionDataCache.active;
+
+            const { error } = await window.supabaseClient
+                .from("attendance_sessions")
+                .update({ active: newActiveState })
+                .eq("id", currentSessionId);
+
+            if (error) {
+                alert("Failed to update session state: " + error.message);
+                return;
+            }
+
+            sessionDataCache.active = newActiveState;
+            updateSessionUIState(newActiveState);
+            generateQRCode(currentSessionId, newActiveState);
         }
 
         async function loadArchives() {
@@ -315,19 +362,28 @@
             `).join("");
         }
 
-        window.resumeSession = function(sessionId) {
+        window.resumeSession = async function(sessionId) {
             currentSessionId = sessionId;
             localStorage.setItem("active_session_id", currentSessionId);
             showView("dashboard-view");
-            loadSessionData();
+            await loadSessionData();
             subscribeToAttendance();
         }
 
-        function generateQRCode(sessionId) {
+        function generateQRCode(sessionId, isActive) {
             const container = document.getElementById("qrcode-container");
+            const statusText = document.getElementById("qr-status-text");
             container.innerHTML = "";
+
+            if (!isActive) {
+                container.innerHTML = `<div class="w-[180px] h-[180px] flex items-center justify-center text-red-500 font-mono text-xs text-center font-bold bg-gray-900 rounded-xl">QR Code Disabled<br><span class="text-[10px] text-gray-400 font-normal">Session has ended</span></div>`;
+                statusText.innerText = "This session has been ended. Scans are no longer accepted.";
+                return;
+            }
+
             const checkInUrl = `${window.location.origin}/checkin.html?session=${sessionId}`;
             new QRCode(container, { text: checkInUrl, width: 180, height: 180 });
+            statusText.innerText = "Have students scan this code using phone camera.";
         }
 
         async function fetchAttendanceRecords() {
@@ -342,8 +398,12 @@
         }
 
         function subscribeToAttendance() {
-            window.supabaseClient
-                .channel('public:attendance_records')
+            if (activeSubscription) {
+                window.supabaseClient.removeChannel(activeSubscription);
+            }
+
+            activeSubscription = window.supabaseClient
+                .channel('public:attendance_records_' + currentSessionId)
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance_records', filter: `session_id=eq.${currentSessionId}` }, () => {
                     fetchAttendanceRecords();
                 })
@@ -402,7 +462,10 @@
             document.body.removeChild(link);
         }
 
-        window.endSession = async function() {
+        window.exitDashboard = function() {
+            if (activeSubscription) {
+                window.supabaseClient.removeChannel(activeSubscription);
+            }
             localStorage.removeItem("active_session_id");
             currentSessionId = null;
             showView("setup-view");
