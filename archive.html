@@ -43,75 +43,98 @@
     <!-- Navbar -->
     <nav class="fixed top-0 w-full z-40 bg-[#030712]/80 backdrop-blur-xl border-b border-gray-900/80">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="index.html" class="font-bold text-xl tracking-tight text-white font-mono">Nakul.Dhande</a>
+            <a href="index.html" class="font-bold text-xl tracking-tight text-white bg-gradient-to-r from-white via-gray-200 to-gray-500 bg-clip-text text-transparent font-mono">
+                Nakul.Dhande
+            </a>
             
-            <!-- Desktop Navigation -->
+            <!-- Desktop Navigation Links -->
             <div class="hidden lg:flex items-center space-x-6 font-mono text-[13px] tracking-wide bg-gray-950/40 border border-gray-900 px-6 py-2 rounded-full backdrop-blur-md">
                 <a href="index.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
-                    <i class="fa-solid fa-house text-xs"></i><span>Home</span>
+                    <i class="fa-solid fa-house text-xs"></i>
+                    <span>Home</span>
                 </a>
                 <a href="services.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
-                    <i class="fa-solid fa-briefcase text-xs"></i><span>Services</span>
+                    <i class="fa-solid fa-briefcase text-xs"></i>
+                    <span>Services</span>
                 </a>
-                <a href="archive.html" class="nav-link text-white transition flex items-center gap-2">
-                    <i class="fa-solid fa-box-archive text-xs text-blue-400"></i><span class="text-white font-semibold">Archive</span>
+                <a href="archive.html" class="nav-link text-white transition flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full">
+                    <i class="fa-solid fa-box-archive text-xs text-blue-400"></i>
+                    <span class="text-white font-semibold">Archive</span>
                 </a>
-                <a href="resume.pdf" target="_blank" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
-                    <i class="fa-solid fa-file-pdf text-xs text-red-400/80"></i><span>MyResume</span>
+                <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf text-xs text-red-400/80"></i>
+                    <span>MyResume</span>
                 </a>
                 <a href="cgpacalculator.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
-                    <i class="fa-solid fa-calculator text-xs"></i><span>CGPA Calculator</span>
+                    <i class="fa-solid fa-calculator text-xs"></i>
+                    <span>CGPA Calculator</span>
                 </a>
             </div>
 
-            <!-- Header Actions (Login / Mobile Toggle) -->
+            <!-- Header Actions (Admin Login / Mobile Toggle) -->
             <div class="flex items-center gap-3">
                 <a href="upload9096.html" class="hidden sm:flex items-center gap-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/30 px-4 py-2 rounded-xl text-xs font-mono transition">
-                    <i class="fa-solid fa-arrow-right-to-bracket"></i><span>Login</span>
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i><span>Admin Login</span>
                 </a>
-                <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-400 hover:text-white p-2 rounded-xl bg-gray-950/60 border border-gray-900">
+                <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden text-gray-400 hover:text-white focus:outline-none p-2 rounded-xl bg-gray-950/60 border border-gray-900">
                     <i id="menu-icon" class="fa-solid fa-bars text-lg"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Mobile Menu -->
+        <!-- Mobile Dropdown Menu -->
         <div id="mobile-menu" class="hidden lg:hidden bg-[#030712]/95 border-b border-gray-900 px-6 py-4 font-mono text-sm space-y-3 backdrop-blur-xl">
-            <a href="index.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg">
-                <i class="fa-solid fa-house text-xs w-4"></i><span>Home</span>
+            <a href="index.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
+                <i class="fa-solid fa-house text-xs w-4"></i>
+                <span>Home</span>
             </a>
-            <a href="services.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg">
-                <i class="fa-solid fa-briefcase text-xs w-4"></i><span>Services</span>
+            <a href="services.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
+                <i class="fa-solid fa-briefcase text-xs w-4"></i>
+                <span>Services</span>
             </a>
-            <a href="archive.html" class="flex items-center gap-3 text-white font-semibold p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                <i class="fa-solid fa-box-archive text-xs w-4 text-blue-400"></i><span>Archive</span>
+            <a href="archive.html" class="flex items-center gap-3 text-white font-semibold p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 transition">
+                <i class="fa-solid fa-box-archive text-xs w-4 text-blue-400"></i>
+                <span>Archive</span>
             </a>
-            <a href="resume.pdf" target="_blank" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg">
-                <i class="fa-solid fa-file-pdf text-xs w-4 text-red-400"></i><span>MyResume</span>
+            <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
+                <i class="fa-solid fa-file-pdf text-xs w-4 text-red-400"></i>
+                <span>MyResume</span>
             </a>
-            <a href="cgpacalculator.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg">
-                <i class="fa-solid fa-calculator text-xs w-4"></i><span>CGPA Calculator</span>
+            <a href="cgpacalculator.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
+                <i class="fa-solid fa-calculator text-xs w-4"></i>
+                <span>CGPA Calculator</span>
             </a>
-            <a href="upload9096.html" class="flex items-center gap-3 text-blue-400 hover:text-blue-300 p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                <i class="fa-solid fa-arrow-right-to-bracket text-xs w-4"></i><span>Login / Upload</span>
+            <a href="upload9096.html" class="flex items-center gap-3 text-blue-400 hover:text-blue-300 p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 transition">
+                <i class="fa-solid fa-arrow-right-to-bracket text-xs w-4"></i>
+                <span>Admin Login</span>
             </a>
         </div>
     </nav>
 
-    <!-- Documents Grid -->
+    <!-- Documents Area / Folder Structure Container -->
     <main class="max-w-7xl mx-auto px-6 pt-32 pb-20 w-full">
         <div class="border-b border-gray-900 pb-8 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
                 <h1 class="text-3xl md:text-4xl font-bold text-white font-mono flex items-center gap-3">
                     <i class="fa-solid fa-box-archive text-blue-500"></i> Document Archive
                 </h1>
-                <p class="text-gray-400 text-sm mt-2">Protected PDF Library. Passcode required to view stream.</p>
+                <p class="text-gray-400 text-sm mt-2">Protected PDF Library categorized by folders. Passcode required to view stream.</p>
+            </div>
+            <div id="breadcrumb-container" class="hidden items-center gap-2 font-mono text-xs text-gray-400">
+                <button onclick="resetFolderView()" class="hover:text-white transition flex items-center gap-1.5 text-blue-400">
+                    <i class="fa-solid fa-folder-open"></i> Root Library
+                </button>
+                <span id="breadcrumb-sub" class="hidden items-center gap-2">
+                    <i class="fa-solid fa-chevron-right text-[10px] text-gray-600"></i>
+                    <span id="current-folder-name" class="text-white"></span>
+                </span>
             </div>
         </div>
 
-        <div id="docs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <div class="col-span-full text-center py-20 text-gray-500 font-mono text-sm flex items-center justify-center gap-3">
-                <i class="fa-solid fa-circle-notch animate-spin text-blue-500 text-xl"></i> Loading library contents...
+        <!-- Dynamic Container: Folders View or File Grid View -->
+        <div id="archive-content-container">
+            <div class="text-center py-20 text-gray-500 font-mono text-sm flex items-center justify-center gap-3">
+                <i class="fa-solid fa-circle-notch animate-spin text-blue-500 text-xl"></i> Loading library structure...
             </div>
         </div>
     </main>
@@ -182,7 +205,9 @@
             console.error("Supabase credentials could not be loaded from api/config.js");
         }
 
+        let allDocuments = [];
         let currentActiveDoc = null;
+        let selectedFolder = null; // null means viewing folders list
 
         // Block Ctrl+P and Ctrl+S globally
         window.addEventListener('keydown', function (e) {
@@ -196,10 +221,10 @@
         document.addEventListener("DOMContentLoaded", fetchDocuments);
 
         async function fetchDocuments() {
-            const grid = document.getElementById("docs-grid");
+            const container = document.getElementById("archive-content-container");
             
             if (!window.supabaseClient) {
-                grid.innerHTML = `<div class="col-span-full text-center py-16 border border-dashed border-gray-900 rounded-2xl text-red-400 font-mono text-sm">Error: Configuration missing.</div>`;
+                container.innerHTML = `<div class="text-center py-16 border border-dashed border-gray-900 rounded-2xl text-red-400 font-mono text-sm">Error: Configuration missing.</div>`;
                 return;
             }
 
@@ -208,47 +233,131 @@
                 .select("*")
                 .order("uploaded_at", { ascending: false });
 
-            if (error || !data || data.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">No documents uploaded.</div>`;
+            if (error || !data) {
+                container.innerHTML = `<div class="text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">No documents found.</div>`;
                 return;
             }
 
-            grid.innerHTML = data.map(doc => `
-                <div onclick="openDocModal('${doc.id}', '${escapeQuotes(doc.title)}', '${doc.file_url}')"
-                     class="glow-card bg-[#0b0f19] border border-gray-900 rounded-2xl overflow-hidden cursor-pointer flex flex-col justify-between group h-full">
-                    
-                    <!-- Curved Half-Squared Visual Thumbnail -->
-                    <div class="h-44 bg-gradient-to-b from-gray-900 to-[#0b0f19] p-4 flex items-center justify-center relative overflow-hidden border-b border-gray-900">
-                        <div class="w-28 h-36 bg-[#030712] border border-gray-800 rounded-lg shadow-xl p-3 flex flex-col justify-between transform group-hover:scale-105 group-hover:-translate-y-1 transition duration-300 relative">
-                            <div class="flex items-center justify-between border-b border-gray-800 pb-2">
-                                <i class="fa-solid fa-file-pdf text-red-500 text-sm"></i>
-                                <span class="text-[9px] font-mono text-gray-500">PDF</span>
-                            </div>
-                            <div class="space-y-1 my-auto">
-                                <div class="h-1.5 w-3/4 bg-gray-700 rounded-full"></div>
-                                <div class="h-1.5 w-full bg-gray-800 rounded-full"></div>
-                                <div class="h-1.5 w-5/6 bg-gray-800 rounded-full"></div>
-                                <div class="h-1.5 w-2/3 bg-gray-800 rounded-full"></div>
-                            </div>
-                            <div class="text-[8px] font-mono text-gray-600 truncate border-t border-gray-900 pt-1">
-                                READ-ONLY
-                            </div>
-                        </div>
-                        <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition"></div>
-                    </div>
+            allDocuments = data;
+            renderView();
+        }
 
-                    <!-- Metadata Header -->
-                    <div class="p-5 flex flex-col justify-between flex-1">
-                        <div>
-                            <h3 class="font-semibold text-white group-hover:text-blue-400 transition line-clamp-2 text-sm leading-snug">${doc.title}</h3>
-                        </div>
-                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-900 text-[11px] font-mono text-gray-500">
-                            <span><i class="fa-regular fa-calendar text-xs mr-1"></i>${new Date(doc.uploaded_at).toLocaleDateString()}</span>
-                            <span class="text-blue-400 group-hover:underline flex items-center gap-1">View <i class="fa-solid fa-chevron-right text-[9px]"></i></span>
-                        </div>
+        function renderView() {
+            const container = document.getElementById("archive-content-container");
+            const breadcrumbContainer = document.getElementById("breadcrumb-container");
+            const breadcrumbSub = document.getElementById("breadcrumb-sub");
+            const currentFolderNameEl = document.getElementById("current-folder-name");
+
+            if (selectedFolder === null) {
+                // Show Folders View
+                breadcrumbContainer.classList.add("hidden");
+                
+                // Group documents by folder (default to 'General' if category / folder column is empty or missing)
+                const folderMap = {};
+                allDocuments.forEach(doc => {
+                    const folder = doc.folder || doc.category || "General";
+                    if (!folderMap[folder]) folderMap[folder] = [];
+                    folderMap[folder].push(doc);
+                });
+
+                const folders = Object.keys(folderMap).sort();
+
+                if (folders.length === 0) {
+                    container.innerHTML = `<div class="text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">No folders or documents available.</div>`;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        ${folders.map(folder => {
+                            const count = folderMap[folder].length;
+                            return `
+                                <div onclick="openFolder('${escapeQuotes(folder)}')"
+                                     class="glow-card bg-[#0b0f19] border border-gray-900 rounded-2xl p-6 cursor-pointer flex flex-col justify-between group h-44">
+                                    <div class="flex items-center justify-between">
+                                        <div class="w-12 h-12 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-xl flex items-center justify-center text-xl group-hover:bg-blue-500/20 transition">
+                                            <i class="fa-solid fa-folder"></i>
+                                        </div>
+                                        <span class="text-xs font-mono bg-gray-900 text-gray-400 border border-gray-800 px-2.5 py-1 rounded-lg">
+                                            ${count} ${count === 1 ? 'file' : 'files'}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-white group-hover:text-blue-400 transition text-base tracking-tight truncate">${folder}</h3>
+                                        <p class="text-xs text-gray-500 font-mono mt-1">Open folder stream</p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join("")}
                     </div>
-                </div>
-            `).join("");
+                `;
+            } else {
+                // Show Files Inside Selected Folder
+                breadcrumbContainer.classList.remove("hidden");
+                breadcrumbSub.classList.remove("hidden");
+                breadcrumbSub.classList.add("flex");
+                currentFolderNameEl.innerText = selectedFolder;
+
+                const filteredDocs = allDocuments.filter(doc => (doc.folder || doc.category || "General") === selectedFolder);
+
+                if (filteredDocs.length === 0) {
+                    container.innerHTML = `<div class="text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">This folder is empty.</div>`;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        ${filteredDocs.map(doc => `
+                            <div onclick="openDocModal('${doc.id}', '${escapeQuotes(doc.title)}', '${doc.file_url}')"
+                                 class="glow-card bg-[#0b0f19] border border-gray-900 rounded-2xl overflow-hidden cursor-pointer flex flex-col justify-between group h-full">
+                                
+                                <!-- Curved Half-Squared Visual Thumbnail -->
+                                <div class="h-44 bg-gradient-to-b from-gray-900 to-[#0b0f19] p-4 flex items-center justify-center relative overflow-hidden border-b border-gray-900">
+                                    <div class="w-28 h-36 bg-[#030712] border border-gray-800 rounded-lg shadow-xl p-3 flex flex-col justify-between transform group-hover:scale-105 group-hover:-translate-y-1 transition duration-300 relative">
+                                        <div class="flex items-center justify-between border-b border-gray-800 pb-2">
+                                            <i class="fa-solid fa-file-pdf text-red-500 text-sm"></i>
+                                            <span class="text-[9px] font-mono text-gray-500">PDF</span>
+                                        </div>
+                                        <div class="space-y-1 my-auto">
+                                            <div class="h-1.5 w-3/4 bg-gray-700 rounded-full"></div>
+                                            <div class="h-1.5 w-full bg-gray-800 rounded-full"></div>
+                                            <div class="h-1.5 w-5/6 bg-gray-800 rounded-full"></div>
+                                            <div class="h-1.5 w-2/3 bg-gray-800 rounded-full"></div>
+                                        </div>
+                                        <div class="text-[8px] font-mono text-gray-600 truncate border-t border-gray-900 pt-1">
+                                            READ-ONLY
+                                        </div>
+                                    </div>
+                                    <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition"></div>
+                                </div>
+
+                                <!-- Metadata Header -->
+                                <div class="p-5 flex flex-col justify-between flex-1">
+                                    <div>
+                                        <h3 class="font-semibold text-white group-hover:text-blue-400 transition line-clamp-2 text-sm leading-snug">${doc.title}</h3>
+                                    </div>
+                                    <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-900 text-[11px] font-mono text-gray-500">
+                                        <span><i class="fa-regular fa-calendar text-xs mr-1"></i>${new Date(doc.uploaded_at).toLocaleDateString()}</span>
+                                        <span class="text-blue-400 group-hover:underline flex items-center gap-1">View <i class="fa-solid fa-chevron-right text-[9px]"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join("")}
+                    </div>
+                `;
+            }
+        }
+
+        function openFolder(folderName) {
+            selectedFolder = folderName;
+            renderView();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetFolderView() {
+            selectedFolder = null;
+            renderView();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function escapeQuotes(str) { 
@@ -307,11 +416,9 @@
             const icon = document.getElementById('menu-icon');
             menu.classList.toggle('hidden');
             if (menu.classList.contains('hidden')) {
-                icon.classList.remove('fa-xmark');
-                icon.classList.add('fa-bars');
+                icon.className = 'fa-solid fa-bars text-lg';
             } else {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-xmark');
+                icon.className = 'fa-solid fa-xmark text-lg';
             }
         }
     </script>
