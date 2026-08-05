@@ -8,6 +8,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: { dark: '#030712', card: '#0b0f19', accent: '#3b82f6' } },
+          fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'], mono: ['Space Grotesk', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
   <style>
     :root {
       --bg: #030712;
@@ -42,58 +53,6 @@
       padding-bottom: 40px;
     }
 
-    /* Navbar */
-    .app-nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 40;
-      background: rgba(3, 7, 18, 0.8);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .nav-content {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 20px;
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .nav-logo {
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: #ffffff;
-      font-family: 'Space Grotesk', sans-serif;
-      text-decoration: none;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 12px;
-      list-style: none;
-    }
-
-    .nav-links a {
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-family: 'Space Grotesk', sans-serif;
-      padding: 8px 16px;
-      border-radius: 10px;
-      color: var(--text-muted);
-      transition: all 0.2s;
-    }
-
-    .nav-links a.active {
-      background: rgba(59, 130, 246, 0.1);
-      color: #60a5fa;
-      border: 1px solid rgba(59, 130, 246, 0.2);
-    }
-
     .container {
       width: 100%;
       max-width: 720px;
@@ -104,7 +63,7 @@
       border-radius: 24px;
       border: 1px solid var(--card-border);
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      margin-top: 100px;
+      margin-top: 120px;
       margin-left: 20px;
       margin-right: 20px;
     }
@@ -356,14 +315,66 @@
 </head>
 <body>
 
-  <!-- App Header Navigation -->
-  <nav class="app-nav">
-    <div class="nav-content">
-      <a href="#" class="nav-logo">Nakul.Dhande</a>
-      <ul class="nav-links">
-        <li><a href="#" class="active">CGPA Cal</a></li>
-      </ul>
-    </div>
+  <!-- Navbar -->
+  <nav class="fixed top-0 w-full z-40 bg-[#030712]/80 backdrop-blur-xl border-b border-gray-900/80">
+      <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <a href="index.html" class="font-bold text-xl tracking-tight text-white bg-gradient-to-r from-white via-gray-200 to-gray-500 bg-clip-text text-transparent font-mono">
+              Nakul.Dhande
+          </a>
+          
+          <!-- Desktop Navigation Links -->
+          <div class="hidden lg:flex items-center space-x-6 font-mono text-[13px] tracking-wide bg-gray-950/40 border border-gray-900 px-6 py-2 rounded-full backdrop-blur-md">
+              <a href="index.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
+                  <i class="fa-solid fa-house text-xs"></i>
+                  <span>Home</span>
+              </a>
+              <a href="services.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
+                  <i class="fa-solid fa-briefcase text-xs"></i>
+                  <span>Services</span>
+              </a>
+              <a href="archive.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
+                  <i class="fa-solid fa-box-archive text-xs"></i>
+                  <span>Archive</span>
+              </a>
+              <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
+                  <i class="fa-solid fa-file-pdf text-xs text-red-400/80"></i>
+                  <span>MyResume</span>
+              </a>
+              <a href="cgpacalculator.html" class="nav-link text-white transition flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full">
+                  <i class="fa-solid fa-calculator text-xs text-blue-400"></i>
+                  <span class="text-white font-semibold">CGPA Calculator</span>
+              </a>
+          </div>
+
+          <!-- Mobile Menu Toggle Button -->
+          <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden text-gray-400 hover:text-white focus:outline-none p-2 rounded-xl bg-gray-950/60 border border-gray-900">
+              <i id="menu-icon" class="fa-solid fa-bars text-lg"></i>
+          </button>
+      </div>
+
+      <!-- Mobile Dropdown Menu -->
+      <div id="mobile-menu" class="hidden lg:hidden bg-[#030712]/95 border-b border-gray-900 px-6 py-4 font-mono text-sm space-y-3 backdrop-blur-xl">
+          <a href="index.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
+              <i class="fa-solid fa-house text-xs w-4"></i>
+              <span>Home</span>
+          </a>
+          <a href="services.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
+              <i class="fa-solid fa-briefcase text-xs w-4"></i>
+              <span>Services</span>
+          </a>
+          <a href="archive.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
+              <i class="fa-solid fa-box-archive text-xs w-4"></i>
+              <span>Archive</span>
+          </a>
+          <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
+              <i class="fa-solid fa-file-pdf text-xs w-4 text-red-400"></i>
+              <span>MyResume</span>
+          </a>
+          <a href="cgpacalculator.html" class="flex items-center gap-3 text-white font-semibold p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 transition">
+              <i class="fa-solid fa-calculator text-xs w-4 text-blue-400"></i>
+              <span>CGPA Calculator</span>
+          </a>
+      </div>
   </nav>
 
   <div class="container" id="topContainer">
@@ -398,6 +409,17 @@
   </div>
 
   <script>
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const icon = document.getElementById('menu-icon');
+      menu.classList.toggle('hidden');
+      if (menu.classList.contains('hidden')) {
+        icon.className = 'fa-solid fa-bars text-lg';
+      } else {
+        icon.className = 'fa-solid fa-xmark text-lg';
+      }
+    }
+
     let semCount = 0;
 
     function addSemester(sgpa = '', credits = '') {
