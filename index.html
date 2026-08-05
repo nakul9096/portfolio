@@ -52,63 +52,78 @@
 </head>
 <body class="font-sans antialiased overflow-x-hidden bg-[#030712]">
 
-<nav class="fixed top-0 w-full z-40 bg-[#030712]/80 backdrop-blur-xl border-b border-gray-900/80">
+<nav class="fixed top-0 w-full z-40 bg-[#030712]/80 backdrop-blur-xl border-b border-gray-900/80 shadow-2xl">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        <a href="index.html" class="font-bold text-xl tracking-tight text-white bg-gradient-to-r from-white via-gray-200 to-gray-500 bg-clip-text text-transparent font-mono">
-            Nakul.Dhande
+        <!-- Logo / Brand -->
+        <a href="index.html" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600/20 to-emerald-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-105 transition duration-300 shadow-lg shadow-blue-500/10">
+                <i class="fa-solid fa-code text-sm"></i>
+            </div>
+            <span class="font-bold text-xl tracking-tight text-white bg-gradient-to-r from-white via-gray-200 to-gray-500 bg-clip-text text-transparent font-mono">
+                Nakul.Dhande
+            </span>
         </a>
         
         <!-- Desktop Navigation Links -->
-        <div class="hidden lg:flex items-center space-x-6 font-mono text-[13px] tracking-wide bg-gray-950/40 border border-gray-900 px-6 py-2 rounded-full backdrop-blur-md">
-            <a href="index.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
-                <i class="fa-solid fa-house text-xs"></i>
+        <div class="hidden lg:flex items-center space-x-2 font-mono text-[13px] tracking-wide bg-gray-950/60 border border-gray-900/80 px-3 py-1.5 rounded-full backdrop-blur-md shadow-inner">
+            <a href="index.html" class="nav-link text-white font-semibold transition flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-4 py-1.5 rounded-full shadow-sm">
+                <i class="fa-solid fa-house text-xs text-blue-400"></i>
                 <span>Home</span>
             </a>
-            <a href="services.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
+            <a href="services.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2 px-4 py-1.5 rounded-full hover:bg-gray-900/50">
                 <i class="fa-solid fa-briefcase text-xs"></i>
                 <span>Services</span>
             </a>
-            <a href="archive.html" class="nav-link text-white transition flex items-center gap-2">
-                <i class="fa-solid fa-box-archive text-xs text-blue-400"></i>
-                <span class="text-white font-semibold">Archive</span>
+            <a href="archive.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2 px-4 py-1.5 rounded-full hover:bg-gray-900/50">
+                <i class="fa-solid fa-box-archive text-xs"></i>
+                <span>Archive</span>
             </a>
-            <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
+            <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2 px-4 py-1.5 rounded-full hover:bg-gray-900/50">
                 <i class="fa-solid fa-file-pdf text-xs text-red-400/80"></i>
                 <span>MyResume</span>
             </a>
-            <a href="cgpacalculator.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2">
+            <a href="cgpacalculator.html" class="nav-link text-gray-400 hover:text-white transition flex items-center gap-2 px-4 py-1.5 rounded-full hover:bg-gray-900/50">
                 <i class="fa-solid fa-calculator text-xs"></i>
                 <span>CGPA Calculator</span>
             </a>
         </div>
 
-        <!-- Mobile Menu Toggle Button -->
-        <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden text-gray-400 hover:text-white focus:outline-none p-2 rounded-xl bg-gray-950/60 border border-gray-900">
-            <i id="menu-icon" class="fa-solid fa-bars text-lg"></i>
-        </button>
+        <!-- Header Actions (Admin Login / Mobile Toggle) -->
+        <div class="flex items-center gap-3">
+            <a href="upload9096.html" class="hidden sm:flex items-center gap-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/30 px-4 py-2 rounded-xl text-xs font-mono transition shadow-sm">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i><span>Admin Login</span>
+            </a>
+            <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden text-gray-400 hover:text-white focus:outline-none p-2.5 rounded-xl bg-gray-950/60 border border-gray-900 transition active:scale-95">
+                <i id="menu-icon" class="fa-solid fa-bars text-lg"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Mobile Dropdown Menu -->
-    <div id="mobile-menu" class="hidden lg:hidden bg-[#030712]/95 border-b border-gray-900 px-6 py-4 font-mono text-sm space-y-3 backdrop-blur-xl">
-        <a href="index.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
-            <i class="fa-solid fa-house text-xs w-4"></i>
+    <div id="mobile-menu" class="hidden lg:hidden bg-[#030712]/95 border-b border-gray-900 px-6 py-5 font-mono text-sm space-y-3 backdrop-blur-xl">
+        <a href="index.html" class="flex items-center gap-3 text-white font-semibold p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 transition">
+            <i class="fa-solid fa-house text-xs w-4 text-blue-400"></i>
             <span>Home</span>
         </a>
-        <a href="services.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
+        <a href="services.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-3 rounded-xl hover:bg-gray-900/50 transition">
             <i class="fa-solid fa-briefcase text-xs w-4"></i>
             <span>Services</span>
         </a>
-        <a href="archive.html" class="flex items-center gap-3 text-white font-semibold p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 transition">
-            <i class="fa-solid fa-box-archive text-xs w-4 text-blue-400"></i>
+        <a href="archive.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-3 rounded-xl hover:bg-gray-900/50 transition">
+            <i class="fa-solid fa-box-archive text-xs w-4"></i>
             <span>Archive</span>
         </a>
-        <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
+        <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 text-gray-400 hover:text-white p-3 rounded-xl hover:bg-gray-900/50 transition">
             <i class="fa-solid fa-file-pdf text-xs w-4 text-red-400"></i>
             <span>MyResume</span>
         </a>
-        <a href="cgpacalculator.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
+        <a href="cgpacalculator.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-3 rounded-xl hover:bg-gray-900/50 transition">
             <i class="fa-solid fa-calculator text-xs w-4"></i>
             <span>CGPA Calculator</span>
+        </a>
+        <a href="upload9096.html" class="flex items-center gap-3 text-blue-400 hover:text-blue-300 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 transition">
+            <i class="fa-solid fa-arrow-right-to-bracket text-xs w-4"></i>
+            <span>Admin Login</span>
         </a>
     </div>
 </nav>
