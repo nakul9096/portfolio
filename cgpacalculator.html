@@ -6,19 +6,19 @@
   <title>CGPA Analytics & Calculator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     :root {
-      --bg: #090d16;
-      --card-bg: rgba(19, 26, 42, 0.7);
+      --bg: #030712;
+      --card-bg: rgba(11, 15, 25, 0.7);
       --card-border: rgba(255, 255, 255, 0.08);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --primary: #6366f1;
-      --primary-glow: rgba(99, 102, 241, 0.35);
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.35);
       --accent: #10b981;
       --danger: #f43f5e;
-      --danger-hover: #e11d48;
       --radius: 16px;
     }
 
@@ -32,14 +32,66 @@
     body {
       background-color: var(--bg);
       background-image: 
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
         radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
       color: var(--text-main);
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      padding: 40px 20px;
       min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
+    /* Navbar */
+    .app-nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 40;
+      background: rgba(3, 7, 18, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-content {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 20px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #ffffff;
+      font-family: 'Space Grotesk', sans-serif;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 12px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-family: 'Space Grotesk', sans-serif;
+      padding: 8px 16px;
+      border-radius: 10px;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .nav-links a.active {
+      background: rgba(59, 130, 246, 0.1);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.2);
     }
 
     .container {
@@ -52,6 +104,9 @@
       border-radius: 24px;
       border: 1px solid var(--card-border);
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      margin-top: 100px;
+      margin-left: 20px;
+      margin-right: 20px;
     }
 
     header {
@@ -63,7 +118,7 @@
       font-size: 2rem;
       font-weight: 800;
       letter-spacing: -0.025em;
-      background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #93c5fd 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -79,12 +134,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(16, 185, 129, 0.05) 100%);
-      border: 1px solid rgba(99, 102, 241, 0.25);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(16, 185, 129, 0.05) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.25);
       border-radius: var(--radius);
       padding: 24px 32px;
       margin-bottom: 28px;
       box-shadow: 0 0 30px var(--primary-glow);
+      position: relative;
     }
 
     .cgpa-metric {
@@ -97,7 +153,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: #a5b4fc;
+      color: #93c5fd;
     }
 
     .cgpa-metric .value {
@@ -123,10 +179,26 @@
       font-size: 0.85rem;
       color: var(--text-muted);
       border: 1px solid var(--card-border);
+      font-family: 'Space Grotesk', sans-serif;
     }
 
     .stat-badge strong {
       color: var(--text-main);
+    }
+
+    /* Curved Formula Badge */
+    .formula-badge {
+      position: absolute;
+      top: -12px;
+      left: 32px;
+      background: #030712;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-family: 'Space Grotesk', sans-serif;
+      color: #93c5fd;
+      letter-spacing: 0.03em;
     }
 
     /* Semester Cards */
@@ -151,7 +223,7 @@
 
     .semester-card:hover {
       background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(99, 102, 241, 0.4);
+      border-color: rgba(59, 130, 246, 0.4);
       transform: translateY(-2px);
     }
 
@@ -159,6 +231,7 @@
       font-weight: 700;
       color: var(--text-main);
       font-size: 0.95rem;
+      font-family: 'Space Grotesk', sans-serif;
     }
 
     .input-group {
@@ -173,6 +246,7 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      font-family: 'Space Grotesk', sans-serif;
     }
 
     .input-group input {
@@ -185,6 +259,7 @@
       font-weight: 600;
       outline: none;
       transition: all 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
     }
 
     .input-group input:focus {
@@ -229,6 +304,7 @@
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Space Grotesk', sans-serif;
     }
 
     .btn-add {
@@ -249,7 +325,7 @@
     }
 
     .btn-calc:hover {
-      background: #4f46e5;
+      background: #2563eb;
       transform: translateY(-1px);
       box-shadow: 0 6px 24px var(--primary-glow);
     }
@@ -280,14 +356,27 @@
 </head>
 <body>
 
-  <div class="container">
+  <!-- App Header Navigation -->
+  <nav class="app-nav">
+    <div class="nav-content">
+      <a href="#" class="nav-logo">Nakul.Dhande</a>
+      <ul class="nav-links">
+        <li><a href="#" class="active">CGPA Cal</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container" id="topContainer">
     <header>
       <h1>CGPA Calculator</h1>
       <p>Seamlessly track and compute your academic performance</p>
     </header>
 
     <!-- Top Summary Card -->
-    <div class="dashboard-summary">
+    <div class="dashboard-summary" id="summaryCard">
+      <div class="formula-badge">
+        <i class="fa-solid fa-function"></i> Formula: &Sigma;(SGPA &times; Credits) / &Sigma;(Credits)
+      </div>
       <div class="cgpa-metric">
         <span class="label">Overall CGPA</span>
         <span id="cgpaVal" class="value">0.00</span>
@@ -355,7 +444,7 @@
       });
     }
 
-    function calculateCGPA() {
+    function calculateCGPA(shouldScroll = false) {
       const sgpaInputs = document.querySelectorAll('.sgpa-input');
       const creditInputs = document.querySelectorAll('.credit-input');
 
@@ -386,6 +475,10 @@
         totalCreditsEl.textContent = '0';
         totalPointsEl.textContent = '0.00';
       }
+
+      if (shouldScroll) {
+        document.getElementById('summaryCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
 
     // Default start with 2 semesters
@@ -393,7 +486,7 @@
     addSemester();
 
     document.getElementById('addSemBtn').addEventListener('click', () => addSemester());
-    document.getElementById('calcBtn').addEventListener('click', calculateCGPA);
+    document.getElementById('calcBtn').addEventListener('click', () => calculateCGPA(true));
   </script>
 </body>
 </html>
