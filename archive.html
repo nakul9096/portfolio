@@ -186,6 +186,7 @@
     <script>
         let supabaseClient = null;
         let allDocuments = [];
+        let folderLookup = {}; // Maps folder_id -> Folder Name
         let currentActiveDoc = null;
         let selectedFolder = null;
 
@@ -200,7 +201,6 @@
 
         document.addEventListener("DOMContentLoaded", initializeApp);
 
-        // Fetch config from /api/config serverless route
         async function initializeApp() {
             const container = document.getElementById("archive-content-container");
 
@@ -208,7 +208,6 @@
                 let supabaseUrl = "";
                 let supabaseAnonKey = "";
 
-                // Attempt fetching runtime credentials from Vercel Serverless Route /api/config
                 const response = await fetch('/api/config');
                 if (response.ok) {
                     const config = await response.json();
@@ -224,7 +223,7 @@
                 }
 
                 supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
-                await fetchDocuments();
+                await fetchDocumentsAndFolders();
 
             } catch (err) {
                 console.error("Initialization Error:", err);
@@ -234,34 +233,50 @@
             }
         }
 
-        async function fetchDocuments() {
+        async function fetchDocumentsAndFolders() {
             const container = document.getElementById("archive-content-container");
 
             if (!supabaseClient) return;
 
-            const { data, error } = await supabaseClient
+            // Fetch folders mapping
+            const { data: foldersData } = await supabaseClient
+                .from("folders")
+                .select("id, name");
+
+            folderLookup = {};
+            if (foldersData) {
+                foldersData.forEach(f => {
+                    folderLookup[f.id] = f.name;
+                });
+            }
+
+            // Fetch documents
+            const { data: docsData, error } = await supabaseClient
                 .from("documents")
                 .select("*")
                 .order("uploaded_at", { ascending: false });
 
-            if (error || !data) {
+            if (error || !docsData) {
                 console.error("Supabase Error:", error);
                 container.innerHTML = `<div class="text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">No documents found or library is restricted.</div>`;
                 return;
             }
 
-            allDocuments = data;
+            allDocuments = docsData;
             renderView();
         }
 
-        // Extract folder name safely from any database column variation
-        function getDocFolder(doc) {
+        function getDocFolderName(doc) {
+            // Priority 1: Map folder_id UUID to folders table name
+            if (doc.folder_id && folderLookup[doc.folder_id]) {
+                return folderLookup[doc.folder_id];
+            }
+            // Priority 2: Fallback text string if available
             const raw = doc.folder || doc.category || doc.folder_name || doc.type;
-            if (!raw) return "General";
-            const trimmed = String(raw).trim();
-            if (trimmed === "") return "General";
-            // Capitalize first letter cleanly
-            return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+            if (raw && String(raw).trim() !== "") {
+                return String(raw).trim();
+            }
+            return "General";
         }
 
         function renderView() {
@@ -276,9 +291,9 @@
                 
                 const folderMap = {};
                 allDocuments.forEach(doc => {
-                    const folder = getDocFolder(doc);
-                    if (!folderMap[folder]) folderMap[folder] = [];
-                    folderMap[folder].push(doc);
+                    const folderName = getDocFolderName(doc);
+                    if (!folderMap[folderName]) folderMap[folderName] = [];
+                    folderMap[folderName].push(doc);
                 });
 
                 const folders = Object.keys(folderMap).sort();
@@ -319,7 +334,7 @@
                 breadcrumbSub.classList.add("flex");
                 currentFolderNameEl.innerText = selectedFolder;
 
-                const filteredDocs = allDocuments.filter(doc => getDocFolder(doc).toLowerCase() === selectedFolder.toLowerCase());
+                const filteredDocs = allDocuments.filter(doc => getDocFolderName(doc) === selectedFolder);
 
                 if (filteredDocs.length === 0) {
                     container.innerHTML = `<div class="text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">This folder is empty.</div>`;
