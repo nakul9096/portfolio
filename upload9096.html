@@ -53,7 +53,7 @@
                     <p id="user-email-display" class="text-xs font-mono text-slate-300"></p>
                     <span class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full uppercase font-mono">Authenticated Admin</span>
                 </div>
-                <button id="logout-btn" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-semibold transition flex items-center gap-2">
+                <button id="logout-btn" type="button" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-semibold transition flex items-center gap-2">
                     <i class="fa-solid fa-right-from-bracket"></i> Logout
                 </button>
             </div>
@@ -104,11 +104,11 @@
                 </div>
 
                 <!-- Google SSO Button -->
-                <button id="login-btn" class="w-full py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-xl text-sm transition active:scale-[0.98] flex items-center justify-center gap-3">
+                <button id="login-btn" type="button" class="w-full py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-xl text-sm transition active:scale-[0.98] flex items-center justify-center gap-3">
                     <i class="fa-brands fa-google text-red-400 text-base"></i> Sign in with Google
                 </button>
 
-                <p id="auth-error" class="hidden mt-4 text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl"></p>
+                <p id="auth-error" class="hidden mt-4 text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl font-mono"></p>
             </div>
         </div>
 
@@ -159,7 +159,7 @@
                         <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono mb-4 flex items-center gap-2">
                             <i class="fa-solid fa-folder-plus text-indigo-400"></i> Directory Creation
                         </h3>
-                        <form id="folder-form" onsubmit="handleCreateFolder(event)" class="space-y-4">
+                        <form id="folder-form" class="space-y-4">
                             <div>
                                 <label class="block text-xs text-slate-400 mb-2 font-mono">PARENT DIRECTORY (OPTIONAL)</label>
                                 <select id="parent-folder" class="w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
@@ -184,7 +184,7 @@
                             <i class="fa-solid fa-cloud-arrow-up text-blue-400"></i> Dispatch Asset
                         </h3>
                         
-                        <form id="upload-form" onsubmit="handleUpload(event)" class="space-y-4">
+                        <form id="upload-form" class="space-y-4">
                             <div>
                                 <label class="block text-xs text-slate-400 mb-2 font-mono">DOCUMENT TITLE</label>
                                 <input type="text" id="doc-title" placeholder="e.g. Final Project Report" required
@@ -231,7 +231,7 @@
                             </div>
                             <div class="relative">
                                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-500"></i>
-                                <input type="text" id="search-input" onkeyup="filterDocuments()" placeholder="Search archive..." 
+                                <input type="text" id="search-input" placeholder="Search archive..." 
                                        class="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition w-full sm:w-48">
                             </div>
                         </div>
@@ -255,7 +255,7 @@
 
     </main>
 
-    <!-- Resilient Script Handling Dynamic Config & Modular Imports -->
+    <!-- Script Handling -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -268,7 +268,8 @@
         let cachedDocs = [];
         let folderMap = new Map();
 
-        document.addEventListener("DOMContentLoaded", () => {
+        // Bind events after DOM loads
+        window.addEventListener("DOMContentLoaded", () => {
             const loginBtn = document.getElementById("login-btn");
             if (loginBtn) loginBtn.addEventListener("click", handleGoogleLogin);
             
@@ -278,6 +279,15 @@
             const logoutBtn = document.getElementById("logout-btn");
             if (logoutBtn) logoutBtn.addEventListener("click", handleSignOut);
 
+            const folderForm = document.getElementById("folder-form");
+            if (folderForm) folderForm.addEventListener("submit", handleCreateFolder);
+
+            const uploadForm = document.getElementById("upload-form");
+            if (uploadForm) uploadForm.addEventListener("submit", handleUpload);
+
+            const searchInput = document.getElementById("search-input");
+            if (searchInput) searchInput.addEventListener("keyup", filterDocuments);
+
             bootstrapApp();
         });
 
@@ -285,30 +295,26 @@
             const authError = document.getElementById("auth-error");
 
             try {
-                // Fetch runtime credentials from API route
                 const response = await fetch('/api/config');
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: Failed to reach /api/config API route.`);
+                    throw new Error(`HTTP ${response.status}: Failed to reach /api/config route.`);
                 }
                 const config = await response.json();
 
                 ADMIN_EMAIL = config.ADMIN_EMAIL || "nakuldhande2005@gmail.com";
 
-                // Initialize Firebase Auth
                 const app = initializeApp(config.firebaseConfig);
                 auth = getAuth(app);
                 provider = new GoogleAuthProvider();
 
-                // Initialize Supabase Client
                 supabase = window.supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
 
-                // Setup Auth observer
                 setupAuthObserver();
 
             } catch (err) {
-                console.error("Application initialization error:", err);
+                console.error("Initialization failure:", err);
                 if (authError) {
-                    authError.innerText = `Configuration Failure: ${err.message}. Please check your server environmental variables and backend /api/config response.`;
+                    authError.innerText = `Config Error: ${err.message}`;
                     authError.classList.remove("hidden");
                 }
             }
@@ -331,7 +337,7 @@
                     loadFolders();
                     loadAdminDocs();
                 } else if (user && user.email !== ADMIN_EMAIL) {
-                    authError.innerText = `Unauthorized: Access restricted to ${ADMIN_EMAIL}. (${user.email})`;
+                    authError.innerText = `Unauthorized access attempt from ${user.email}. Restrict to ${ADMIN_EMAIL}.`;
                     authError.classList.remove("hidden");
                     signOut(auth);
                 } else {
@@ -349,10 +355,7 @@
             const authError = document.getElementById("auth-error");
             const btn = document.getElementById("email-login-btn");
 
-            if (!auth) {
-                alert("Application failed to initialize. Check your /api/config route.");
-                return;
-            }
+            if (!auth) return alert("Firebase Auth not initialized.");
 
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Authenticating...`;
@@ -361,24 +364,23 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (err) {
-                authError.innerText = "Authentication Error: " + err.message;
+                authError.innerText = "Auth Failed: " + err.message;
                 authError.classList.remove("hidden");
-            } font-mono
-            finally {
+            } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In`;
             }
         }
 
         async function handleGoogleLogin() {
-            if (!auth || !provider) {
-                alert("Application failed to initialize. Check your /api/config route.");
-                return;
-            }
+            if (!auth || !provider) return alert("Firebase Auth not initialized.");
+            
+            const authError = document.getElementById("auth-error");
+            authError.classList.add("hidden");
+            
             try {
                 await signInWithPopup(auth, provider);
             } catch (err) {
-                const authError = document.getElementById("auth-error");
                 authError.innerText = "Google Auth Error: " + err.message;
                 authError.classList.remove("hidden");
             }
@@ -388,7 +390,6 @@
             if (auth) signOut(auth);
         }
 
-        // Folder Operations & Tree Builder
         async function loadFolders() {
             const folderSpinner = document.getElementById("folder-spinner");
             const parentSelect = document.getElementById("parent-folder");
@@ -405,7 +406,6 @@
 
                 document.getElementById("stat-folder-count").innerText = cachedFolders.length;
 
-                // Build tree structure for dropdown options
                 const treeOptions = buildFolderTreeOptions(cachedFolders);
                 const defaultOption = `<option value="">/ (Root Directory)</option>`;
 
@@ -458,7 +458,7 @@
             return path.join(" / ");
         }
 
-        window.handleCreateFolder = async (e) => {
+        async function handleCreateFolder(e) {
             e.preventDefault();
             const folderNameInput = document.getElementById("folder-name");
             const parentFolderSelect = document.getElementById("parent-folder");
@@ -488,10 +488,9 @@
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-plus"></i> Create Directory`;
             }
-        };
+        }
 
-        // Document Operations
-        window.handleUpload = async (e) => {
+        async function handleUpload(e) {
             e.preventDefault();
             const title = document.getElementById("doc-title").value;
             const folderId = document.getElementById("doc-folder").value || null;
@@ -502,7 +501,7 @@
             if (!file || !supabase) return;
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Processing & Uploading...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Dispatching...`;
             status.classList.add("hidden");
 
             try {
@@ -544,20 +543,14 @@
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Upload Document`;
             }
-        };
+        }
 
         async function loadAdminDocs() {
             const list = document.getElementById("admin-doc-list");
             try {
                 const { data, error } = await supabase
                     .from("documents")
-                    .select(`
-                        id,
-                        title,
-                        file_url,
-                        uploaded_at,
-                        folder_id
-                    `)
+                    .select("id, title, file_url, uploaded_at, folder_id")
                     .order("uploaded_at", { ascending: false });
 
                 if (error) throw error;
@@ -566,7 +559,7 @@
                 document.getElementById("stat-doc-count").innerText = cachedDocs.length;
                 renderDocList(cachedDocs);
             } catch (err) {
-                list.innerHTML = `<p class="text-xs text-red-400">Failed to sync documents: ${err.message}</p>`;
+                list.innerHTML = `<p class="text-xs text-red-400 font-mono">Failed to sync documents: ${err.message}</p>`;
             }
         }
 
@@ -577,7 +570,7 @@
                 list.innerHTML = `
                     <div class="text-center py-12 border border-dashed border-white/10 rounded-2xl">
                         <i class="fa-regular fa-folder-open text-2xl text-slate-600 mb-2"></i>
-                        <p class="text-xs text-slate-500 font-mono">No documents found matching current filters.</p>
+                        <p class="text-xs text-slate-500 font-mono">No documents found.</p>
                     </div>`;
                 return;
             }
@@ -602,7 +595,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button onclick="deleteDoc('${doc.id}')" class="px-3 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition text-xs flex items-center gap-1.5 shrink-0 ml-2">
+                        <button onclick="window.deleteDoc('${doc.id}')" class="px-3 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition text-xs flex items-center gap-1.5 shrink-0 ml-2">
                             <i class="fa-solid fa-trash-can"></i> <span class="hidden sm:inline">Delete</span>
                         </button>
                     </div>
@@ -610,14 +603,14 @@
             }).join("");
         }
 
-        window.filterDocuments = () => {
+        function filterDocuments() {
             const query = document.getElementById("search-input").value.toLowerCase();
             const filtered = cachedDocs.filter(d => {
                 const path = getFolderPath(d.folder_id).toLowerCase();
                 return d.title.toLowerCase().includes(query) || path.includes(query);
             });
             renderDocList(filtered);
-        };
+        }
 
         window.deleteDoc = async (id) => {
             if (!confirm("Are you sure you want to permanently remove this document?")) return;
