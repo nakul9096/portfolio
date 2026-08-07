@@ -1,20 +1,54 @@
-// window.CONFIG = {
-//   SUPABASE_URL: "https://vmorzlhqeeosmwkjfumm.supabase.co",
-//   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg"
-// };
-
 // api/config.js
-export const ADMIN_EMAIL = "nakuldhande2005@gmail.com";
 
-export const firebaseConfig = {
-    apiKey: "AIzaSyBR1L9UACOdMfOHaOPerfZY1SyzPEBnEGA",
-  authDomain: "myportfolio-9096.firebaseapp.com",
-  projectId: "myportfolio-9096",
-  storageBucket: "myportfolio-9096.firebasestorage.app",
-  messagingSenderId: "1614082917",
-  appId: "1:1614082917:web:e844f4b92091986c4be78c",
-  measurementId: "G-6E9VPG1QYM"
-};
+export default function handler(req, res) {
+  // Allow cross-origin requests
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
 
-export const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
-export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
+  // Reject any request method other than GET
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  try {
+    // Verify required environment variables exist in Vercel
+    const requiredEnvVars = [
+      'SUPABASE_URL',
+      'SUPABASE_ANON_KEY',
+      'FIREBASE_API_KEY',
+      'FIREBASE_AUTH_DOMAIN',
+      'FIREBASE_PROJECT_ID'
+    ];
+
+    const missingVars = requiredEnvVars.filter((key) => !process.env[key]);
+
+    if (missingVars.length > 0) {
+      console.error('Missing Environment Variables in Vercel:', missingVars);
+      return res.status(500).json({
+        error: 'Missing backend environment variables on Vercel.',
+        missingVariables: missingVars
+      });
+    }
+
+    // Return clean client configuration payload
+    return res.status(200).json({
+      SUPABASE_URL: process.env.SUPABASE_URL,
+      SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
+      firebaseConfig: {
+        apiKey: process.env.FIREBASE_API_KEY,
+        authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "",
+        messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "",
+        appId: process.env.FIREBASE_APP_ID || ""
+      }
+    });
+
+  } catch (error) {
+    console.error('Internal Error in api/config.js:', error);
+    return res.status(500).json({
+      error: 'Internal Server Error',
+      details: error.message
+    });
+  }
+}
