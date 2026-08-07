@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Archive Admin Dashboard</title>
+     <link rel="icon" type="image/png" href="nd_logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -127,8 +128,14 @@
                         </h3>
                         <form id="folder-form" onsubmit="handleCreateFolder(event)" class="space-y-4">
                             <div>
-                                <label class="block text-xs text-slate-400 mb-2 font-mono">FOLDER NAME</label>
-                                <input type="text" id="folder-name" placeholder="e.g. Academic Research" required
+                                <label class="block text-xs text-slate-400 mb-2 font-mono">PARENT DIRECTORY (OPTIONAL)</label>
+                                <select id="parent-folder" class="w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition">
+                                    <option value="">/ (Root Directory)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-2 font-mono">NEW FOLDER NAME</label>
+                                <input type="text" id="folder-name" placeholder="e.g. pd prac" required
                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
                             </div>
                             <button type="submit" id="folder-btn"
@@ -226,6 +233,7 @@
         let ADMIN_EMAIL = "";
         let cachedFolders = [];
         let cachedDocs = [];
+        let folderMap = new Map();
 
         document.addEventListener("DOMContentLoaded", () => {
             const loginBtn = document.getElementById("login-btn");
@@ -314,10 +322,11 @@
             if (auth) signOut(auth);
         }
 
-        // Folder Operations
+        // Folder Operations & Tree Builder
         async function loadFolders() {
             const folderSpinner = document.getElementById("folder-spinner");
-            const folderSelect = document.getElementById("doc-folder");
+            const parentSelect = document.getElementById("parent-folder");
+            const docFolderSelect = document.getElementById("doc-folder");
             if (folderSpinner) folderSpinner.classList.remove("hidden");
 
             try {
@@ -325,10 +334,17 @@
                 if (error) throw error;
 
                 cachedFolders = data || [];
+                folderMap.clear();
+                cachedFolders.forEach(f => folderMap.set(f.id, f));
+
                 document.getElementById("stat-folder-count").innerText = cachedFolders.length;
 
-                folderSelect.innerHTML = `<option value="">/ (Root Directory)</option>` + 
-                    cachedFolders.map(f => `<option value="${f.id}">${f.name}</option>`).join("");
+                // Build tree structure for dropdown options
+                const treeOptions = buildFolderTreeOptions(cachedFolders);
+                const defaultOption = `<option value="">/ (Root Directory)</option>`;
+
+                if (parentSelect) parentSelect.innerHTML = defaultOption + treeOptions;
+                if (docFolderSelect) docFolderSelect.innerHTML = defaultOption + treeOptions;
 
             } catch (err) {
                 console.error("Error loading folders:", err);
@@ -337,11 +353,53 @@
             }
         }
 
+        function buildFolderTreeOptions(folders) {
+            const childrenMap = new Map();
+            const roots = [];
+
+            folders.forEach(f => {
+                if (f.parent_id) {
+                    if (!childrenMap.has(f.parent_id)) childrenMap.set(f.parent_id, []);
+                    childrenMap.get(f.parent_id).push(f);
+                } else {
+                    roots.push(f);
+                }
+            });
+
+            function renderOptions(nodes, depth = 0) {
+                let html = "";
+                nodes.forEach(node => {
+                    const prefix = depth > 0 ? "&nbsp;&nbsp;".repeat(depth) + "└─ " : "";
+                    html += `<option value="${node.id}">${prefix}${node.name}</option>`;
+                    if (childrenMap.has(node.id)) {
+                        html += renderOptions(childrenMap.get(node.id), depth + 1);
+                    }
+                });
+                return html;
+            }
+
+            return renderOptions(roots);
+        }
+
+        function getFolderPath(folderId) {
+            if (!folderId || !folderMap.has(folderId)) return 'Root';
+            const path = [];
+            let current = folderMap.get(folderId);
+            while (current) {
+                path.unshift(current.name);
+                current = current.parent_id ? folderMap.get(current.parent_id) : null;
+            }
+            return path.join(" / ");
+        }
+
         window.handleCreateFolder = async (e) => {
             e.preventDefault();
             const folderNameInput = document.getElementById("folder-name");
+            const parentFolderSelect = document.getElementById("parent-folder");
             const btn = document.getElementById("folder-btn");
+
             const folderName = folderNameInput.value.trim();
+            const parentId = parentFolderSelect.value || null;
 
             if (!folderName || !supabase) return;
 
@@ -349,7 +407,10 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Creating...`;
 
             try {
-                const { error } = await supabase.from("folders").insert([{ name: folderName }]);
+                const { error } = await supabase.from("folders").insert([{ 
+                    name: folderName,
+                    parent_id: parentId
+                }]);
                 if (error) throw error;
 
                 folderNameInput.value = "";
@@ -429,8 +490,7 @@
                         title,
                         file_url,
                         uploaded_at,
-                        folder_id,
-                        folders ( name )
+                        folder_id
                     `)
                     .order("uploaded_at", { ascending: false });
 
@@ -457,7 +517,7 @@
             }
 
             list.innerHTML = docs.map(doc => {
-                const folderName = doc.folders ? doc.folders.name : 'Root';
+                const folderPath = getFolderPath(doc.folder_id);
                 return `
                     <div class="flex items-center justify-between bg-white/5 hover:bg-white/10 border border-white/5 p-4 rounded-2xl transition duration-200">
                         <div class="flex items-center gap-3.5 overflow-hidden">
@@ -468,7 +528,7 @@
                                 <h4 class="text-sm font-semibold text-white truncate">${doc.title}</h4>
                                 <div class="flex items-center gap-2 mt-0.5">
                                     <span class="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">
-                                        <i class="fa-solid fa-folder text-[9px] mr-1"></i>${folderName}
+                                        <i class="fa-solid fa-folder text-[9px] mr-1"></i>${folderPath}
                                     </span>
                                     <a href="${doc.file_url}" target="_blank" class="text-[10px] font-mono text-slate-400 hover:text-white underline">
                                         View File
@@ -486,10 +546,10 @@
 
         window.filterDocuments = () => {
             const query = document.getElementById("search-input").value.toLowerCase();
-            const filtered = cachedDocs.filter(d => 
-                d.title.toLowerCase().includes(query) || 
-                (d.folders && d.folders.name.toLowerCase().includes(query))
-            );
+            const filtered = cachedDocs.filter(d => {
+                const path = getFolderPath(d.folder_id).toLowerCase();
+                return d.title.toLowerCase().includes(query) || path.includes(query);
+            });
             renderDocList(filtered);
         };
 
