@@ -254,6 +254,16 @@
             renderView();
         }
 
+        // Extract folder name safely from any database column variation
+        function getDocFolder(doc) {
+            const raw = doc.folder || doc.category || doc.folder_name || doc.type;
+            if (!raw) return "General";
+            const trimmed = String(raw).trim();
+            if (trimmed === "") return "General";
+            // Capitalize first letter cleanly
+            return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+        }
+
         function renderView() {
             const container = document.getElementById("archive-content-container");
             const breadcrumbContainer = document.getElementById("breadcrumb-container");
@@ -266,7 +276,7 @@
                 
                 const folderMap = {};
                 allDocuments.forEach(doc => {
-                    const folder = doc.folder || doc.category || doc.folder_name || "General";
+                    const folder = getDocFolder(doc);
                     if (!folderMap[folder]) folderMap[folder] = [];
                     folderMap[folder].push(doc);
                 });
@@ -309,7 +319,7 @@
                 breadcrumbSub.classList.add("flex");
                 currentFolderNameEl.innerText = selectedFolder;
 
-                const filteredDocs = allDocuments.filter(doc => (doc.folder || doc.category || doc.folder_name || "General") === selectedFolder);
+                const filteredDocs = allDocuments.filter(doc => getDocFolder(doc).toLowerCase() === selectedFolder.toLowerCase());
 
                 if (filteredDocs.length === 0) {
                     container.innerHTML = `<div class="text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">This folder is empty.</div>`;
