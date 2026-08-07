@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Archive Admin Dashboard</title>
-     <link rel="icon" type="image/png" href="nd_logo.png">
+    <link rel="icon" type="image/png" href="nd_logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -64,17 +64,50 @@
     <main class="max-w-7xl mx-auto px-6 pt-8">
 
         <!-- Login Gate View -->
-        <div id="login-gate" class="max-w-md mx-auto py-20 text-center">
-            <div class="glass-card border border-white/10 rounded-3xl p-10 shadow-2xl relative overflow-hidden">
-                <div class="w-16 h-16 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl">
-                    <i class="fa-brands fa-google"></i>
+        <div id="login-gate" class="max-w-md mx-auto py-12 text-center">
+            <div class="glass-card border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden text-left">
+                <div class="text-center mb-6">
+                    <div class="w-14 h-14 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-1 tracking-tight">Admin Authentication</h3>
+                    <p class="text-xs text-slate-400">Sign in with authorized administrator credentials.</p>
                 </div>
-                <h3 class="text-2xl font-bold text-white mb-2 tracking-tight">Admin Gatekeeper</h3>
-                <p class="text-xs text-slate-400 mb-8 leading-relaxed">Sign in with authorized administrator Google account to access file organization and upload pipelines.</p>
-                
-                <button id="login-btn" class="w-full py-4 bg-white hover:bg-slate-100 text-slate-900 font-semibold rounded-2xl text-sm transition shadow-lg active:scale-[0.98] flex items-center justify-center gap-3">
-                    <i class="fa-brands fa-google text-red-500 text-lg"></i> Authenticate with Google
+
+                <!-- Email & Password Form -->
+                <form id="email-login-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 mb-1.5 uppercase">Admin Email</label>
+                        <div class="relative">
+                            <i class="fa-regular fa-envelope absolute left-4 top-3.5 text-slate-500 text-sm"></i>
+                            <input type="email" id="email-input" required placeholder="admin@example.com"
+                                   class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 mb-1.5 uppercase">Password</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-4 top-3.5 text-slate-500 text-sm"></i>
+                            <input type="password" id="password-input" required placeholder="••••••••"
+                                   class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                    </div>
+                    <button type="submit" id="email-login-btn" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-sm transition shadow-lg active:scale-[0.98] flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+                    </button>
+                </form>
+
+                <div class="flex items-center my-5">
+                    <div class="flex-grow border-t border-white/10"></div>
+                    <span class="px-3 text-[10px] text-slate-500 uppercase font-mono">OR</span>
+                    <div class="flex-grow border-t border-white/10"></div>
+                </div>
+
+                <!-- Google SSO Button -->
+                <button id="login-btn" class="w-full py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-xl text-sm transition active:scale-[0.98] flex items-center justify-center gap-3">
+                    <i class="fa-brands fa-google text-red-400 text-base"></i> Sign in with Google
                 </button>
+
                 <p id="auth-error" class="hidden mt-4 text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl"></p>
             </div>
         </div>
@@ -225,7 +258,7 @@
     <!-- Resilient Script Handling Dynamic Config & Modular Imports -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         let supabase = null;
         let auth = null;
@@ -239,6 +272,9 @@
             const loginBtn = document.getElementById("login-btn");
             if (loginBtn) loginBtn.addEventListener("click", handleGoogleLogin);
             
+            const emailForm = document.getElementById("email-login-form");
+            if (emailForm) emailForm.addEventListener("submit", handleEmailLogin);
+
             const logoutBtn = document.getElementById("logout-btn");
             if (logoutBtn) logoutBtn.addEventListener("click", handleSignOut);
 
@@ -306,6 +342,34 @@
             });
         }
 
+        async function handleEmailLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById("email-input").value;
+            const password = document.getElementById("password-input").value;
+            const authError = document.getElementById("auth-error");
+            const btn = document.getElementById("email-login-btn");
+
+            if (!auth) {
+                alert("Application failed to initialize. Check your /api/config route.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Authenticating...`;
+            authError.classList.add("hidden");
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (err) {
+                authError.innerText = "Authentication Error: " + err.message;
+                authError.classList.remove("hidden");
+            } font-mono
+            finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In`;
+            }
+        }
+
         async function handleGoogleLogin() {
             if (!auth || !provider) {
                 alert("Application failed to initialize. Check your /api/config route.");
@@ -314,7 +378,9 @@
             try {
                 await signInWithPopup(auth, provider);
             } catch (err) {
-                alert("Authentication Error: " + err.message);
+                const authError = document.getElementById("auth-error");
+                authError.innerText = "Google Auth Error: " + err.message;
+                authError.classList.remove("hidden");
             }
         }
 
