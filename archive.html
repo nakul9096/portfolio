@@ -11,9 +11,6 @@
     <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- External Secure Config File -->
-    <script src="/config/config.js"></script>
-    
     <script>
         tailwind.config = {
             theme: {
@@ -71,7 +68,7 @@
                 </a>
             </div>
 
-            <!-- Header Actions (Admin Login / Mobile Toggle) -->
+            <!-- Header Actions -->
             <div class="flex items-center gap-3">
                 <a href="upload9096.html" class="hidden sm:flex items-center gap-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/30 px-4 py-2 rounded-xl text-xs font-mono transition">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i><span>Admin Login</span>
@@ -82,36 +79,30 @@
             </div>
         </div>
 
-        <!-- Mobile Dropdown Menu -->
+        <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden lg:hidden bg-[#030712]/95 border-b border-gray-900 px-6 py-4 font-mono text-sm space-y-3 backdrop-blur-xl">
             <a href="index.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
-                <i class="fa-solid fa-house text-xs w-4"></i>
-                <span>Home</span>
+                <i class="fa-solid fa-house text-xs w-4"></i><span>Home</span>
             </a>
             <a href="services.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
-                <i class="fa-solid fa-briefcase text-xs w-4"></i>
-                <span>Services</span>
+                <i class="fa-solid fa-briefcase text-xs w-4"></i><span>Services</span>
             </a>
             <a href="archive.html" class="flex items-center gap-3 text-white font-semibold p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 transition">
-                <i class="fa-solid fa-box-archive text-xs w-4 text-blue-400"></i>
-                <span>Archive</span>
+                <i class="fa-solid fa-box-archive text-xs w-4 text-blue-400"></i><span>Archive</span>
             </a>
             <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
-                <i class="fa-solid fa-file-pdf text-xs w-4 text-red-400"></i>
-                <span>MyResume</span>
+                <i class="fa-solid fa-file-pdf text-xs w-4 text-red-400"></i><span>MyResume</span>
             </a>
             <a href="cgpacalculator.html" class="flex items-center gap-3 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-900/50 transition">
-                <i class="fa-solid fa-calculator text-xs w-4"></i>
-                <span>CGPA Calculator</span>
+                <i class="fa-solid fa-calculator text-xs w-4"></i><span>CGPA Calculator</span>
             </a>
             <a href="upload9096.html" class="flex items-center gap-3 text-blue-400 hover:text-blue-300 p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 transition">
-                <i class="fa-solid fa-arrow-right-to-bracket text-xs w-4"></i>
-                <span>Admin Login</span>
+                <i class="fa-solid fa-arrow-right-to-bracket text-xs w-4"></i><span>Admin Login</span>
             </a>
         </div>
     </nav>
 
-    <!-- Documents Area / Folder Structure Container -->
+    <!-- Documents Area -->
     <main class="max-w-7xl mx-auto px-6 pt-32 pb-20 w-full">
         <div class="border-b border-gray-900 pb-8 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
@@ -165,7 +156,6 @@
 
     <!-- Protected Fullscreen PDF Viewing Overlay -->
     <div id="fullscreen-viewer" class="hidden fixed inset-0 z-50 bg-[#030712] flex flex-col w-screen h-screen">
-        <!-- Protected Header Bar -->
         <div class="h-14 bg-[#0b0f19] border-b border-gray-800 px-6 flex items-center justify-between font-mono text-sm shrink-0">
             <div class="flex items-center gap-3">
                 <i class="fa-solid fa-file-pdf text-red-500"></i>
@@ -181,7 +171,6 @@
             </div>
         </div>
 
-        <!-- Frame Stream Container -->
         <div class="flex-1 w-full h-full relative bg-gray-950 overflow-hidden">
             <div id="loading-spinner" class="absolute inset-0 flex items-center justify-center bg-gray-950 text-gray-400 font-mono text-sm gap-3 z-10">
                 <i class="fa-solid fa-circle-notch animate-spin text-blue-500 text-2xl"></i> Loading document stream...
@@ -195,19 +184,10 @@
     </footer>
 
     <script>
-        // SUPABASE INITIALIZATION USING api/config.js
-        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || "";
-        const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || "";
-
-        if (!window.supabaseClient && SUPABASE_URL && SUPABASE_ANON_KEY) {
-            window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } else if (!window.supabaseClient) {
-            console.error("Supabase credentials could not be loaded from api/config.js");
-        }
-
+        let supabaseClient = null;
         let allDocuments = [];
         let currentActiveDoc = null;
-        let selectedFolder = null; // null means viewing folders list
+        let selectedFolder = null;
 
         // Block Ctrl+P and Ctrl+S globally
         window.addEventListener('keydown', function (e) {
@@ -218,23 +198,55 @@
             }
         });
 
-        document.addEventListener("DOMContentLoaded", fetchDocuments);
+        document.addEventListener("DOMContentLoaded", initializeApp);
+
+        // Fetch config from /api/config serverless route
+        async function initializeApp() {
+            const container = document.getElementById("archive-content-container");
+
+            try {
+                let supabaseUrl = "";
+                let supabaseAnonKey = "";
+
+                // Attempt fetching runtime credentials from Vercel Serverless Route /api/config
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const config = await response.json();
+                    supabaseUrl = config.SUPABASE_URL;
+                    supabaseAnonKey = config.SUPABASE_ANON_KEY;
+                } else if (window.CONFIG?.SUPABASE_URL && window.CONFIG?.SUPABASE_ANON_KEY) {
+                    supabaseUrl = window.CONFIG.SUPABASE_URL;
+                    supabaseAnonKey = window.CONFIG.SUPABASE_ANON_KEY;
+                }
+
+                if (!supabaseUrl || !supabaseAnonKey) {
+                    throw new Error("Missing Supabase configuration keys.");
+                }
+
+                supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+                await fetchDocuments();
+
+            } catch (err) {
+                console.error("Initialization Error:", err);
+                container.innerHTML = `<div class="text-center py-16 border border-dashed border-gray-900 rounded-2xl text-red-400 font-mono text-sm">
+                    <i class="fa-solid fa-triangle-exclamation mr-2"></i> Failed to connect to configuration service.
+                </div>`;
+            }
+        }
 
         async function fetchDocuments() {
             const container = document.getElementById("archive-content-container");
-            
-            if (!window.supabaseClient) {
-                container.innerHTML = `<div class="text-center py-16 border border-dashed border-gray-900 rounded-2xl text-red-400 font-mono text-sm">Error: Configuration missing.</div>`;
-                return;
-            }
 
-            const { data, error } = await window.supabaseClient
+            if (!supabaseClient) return;
+
+            const { data, error } = await supabaseClient
                 .from("documents")
                 .select("*")
                 .order("uploaded_at", { ascending: false });
 
             if (error || !data) {
-                container.innerHTML = `<div class="text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">No documents found.</div>`;
+                console.error("Supabase Error:", error);
+                container.innerHTML = `<div class="text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">No documents found or library is restricted.</div>`;
                 return;
             }
 
@@ -249,13 +261,12 @@
             const currentFolderNameEl = document.getElementById("current-folder-name");
 
             if (selectedFolder === null) {
-                // Show Folders View
+                // Folder Grid View
                 breadcrumbContainer.classList.add("hidden");
                 
-                // Group documents by folder (default to 'General' if category / folder column is empty or missing)
                 const folderMap = {};
                 allDocuments.forEach(doc => {
-                    const folder = doc.folder || doc.category || "General";
+                    const folder = doc.folder || doc.category || doc.folder_name || "General";
                     if (!folderMap[folder]) folderMap[folder] = [];
                     folderMap[folder].push(doc);
                 });
@@ -292,13 +303,13 @@
                     </div>
                 `;
             } else {
-                // Show Files Inside Selected Folder
+                // File Grid View inside Selected Folder
                 breadcrumbContainer.classList.remove("hidden");
                 breadcrumbSub.classList.remove("hidden");
                 breadcrumbSub.classList.add("flex");
                 currentFolderNameEl.innerText = selectedFolder;
 
-                const filteredDocs = allDocuments.filter(doc => (doc.folder || doc.category || "General") === selectedFolder);
+                const filteredDocs = allDocuments.filter(doc => (doc.folder || doc.category || doc.folder_name || "General") === selectedFolder);
 
                 if (filteredDocs.length === 0) {
                     container.innerHTML = `<div class="text-center py-16 border border-dashed border-gray-900 rounded-2xl text-gray-500 font-mono text-sm">This folder is empty.</div>`;
@@ -311,7 +322,6 @@
                             <div onclick="openDocModal('${doc.id}', '${escapeQuotes(doc.title)}', '${doc.file_url}')"
                                  class="glow-card bg-[#0b0f19] border border-gray-900 rounded-2xl overflow-hidden cursor-pointer flex flex-col justify-between group h-full">
                                 
-                                <!-- Curved Half-Squared Visual Thumbnail -->
                                 <div class="h-44 bg-gradient-to-b from-gray-900 to-[#0b0f19] p-4 flex items-center justify-center relative overflow-hidden border-b border-gray-900">
                                     <div class="w-28 h-36 bg-[#030712] border border-gray-800 rounded-lg shadow-xl p-3 flex flex-col justify-between transform group-hover:scale-105 group-hover:-translate-y-1 transition duration-300 relative">
                                         <div class="flex items-center justify-between border-b border-gray-800 pb-2">
@@ -331,7 +341,6 @@
                                     <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition"></div>
                                 </div>
 
-                                <!-- Metadata Header -->
                                 <div class="p-5 flex flex-col justify-between flex-1">
                                     <div>
                                         <h3 class="font-semibold text-white group-hover:text-blue-400 transition line-clamp-2 text-sm leading-snug">${doc.title}</h3>
@@ -385,10 +394,7 @@
             if (passwordInput === "nakuldhande") {
                 errorText.classList.add("hidden");
                 
-                if (!currentActiveDoc) {
-                    console.error("No active document selected.");
-                    return;
-                }
+                if (!currentActiveDoc) return;
 
                 closeModal();
                 
@@ -415,11 +421,7 @@
             const menu = document.getElementById('mobile-menu');
             const icon = document.getElementById('menu-icon');
             menu.classList.toggle('hidden');
-            if (menu.classList.contains('hidden')) {
-                icon.className = 'fa-solid fa-bars text-lg';
-            } else {
-                icon.className = 'fa-solid fa-xmark text-lg';
-            }
+            icon.className = menu.classList.contains('hidden') ? 'fa-solid fa-bars text-lg' : 'fa-solid fa-xmark text-lg';
         }
     </script>
 </body>
