@@ -3,125 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Archive Admin | Nakul Dhande</title>
+    <title>Archive Admin Dashboard | Nakul Dhande</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> 
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Supabase Client -->
+    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { background-color: #030712; color: #F3F4F6; font-family: 'Space Grotesk', sans-serif; }
+        body { background-color: #030712; color: #f3f4f6; }
+        .glass { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); }
+        .glass-card { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
+<body class="min-h-screen font-sans bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-gray-950 to-black antialiased pb-12">
 
-    <div class="max-w-2xl w-full bg-[#0b0f19] border border-gray-800 rounded-3xl p-8 shadow-2xl relative">
-        
-        <!-- Header -->
-        <div class="flex items-center justify-between border-b border-gray-800 pb-6 mb-8">
-            <div>
-                <h1 class="text-2xl font-bold text-white flex items-center gap-3">
-                    <i class="fa-solid fa-shield-halved text-blue-500"></i> Admin Upload Portal
-                </h1>
-                <p class="text-xs text-gray-400 mt-1">Firebase Google Auth $\rightarrow$ Supabase Storage & DB</p>
+    <!-- Top Navigation -->
+    <nav class="border-b border-white/10 glass sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-xl flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-folder-tree"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-white leading-tight">Archive Dashboard</h1>
+                    <p class="text-xs text-slate-400 font-mono">System Console & Storage Manager</p>
+                </div>
             </div>
-            <div id="user-profile" class="hidden flex items-center gap-3">
-                <button onclick="handleSignOut()" class="text-xs text-gray-400 hover:text-white transition bg-gray-900 border border-gray-800 px-3 py-1.5 rounded-xl">
+
+            <div id="user-profile" class="hidden flex items-center gap-4">
+                <div class="text-right hidden sm:block">
+                    <p id="user-email-display" class="text-xs font-mono text-slate-300"></p>
+                    <span class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full uppercase font-mono">Authenticated Admin</span>
+                </div>
+                <button onclick="handleSignOut()" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-semibold transition flex items-center gap-2">
                     <i class="fa-solid fa-right-from-bracket"></i> Logout
                 </button>
             </div>
         </div>
+    </nav>
 
-        <!-- Google Login Screen (When logged out or non-admin) -->
-        <div id="login-gate" class="text-center py-12">
-            <div class="w-16 h-16 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-5 text-2xl">
-                <i class="fa-brands fa-google"></i>
-            </div>
-            <h3 class="text-lg font-bold text-white mb-2">Admin Authentication Required</h3>
-            <p class="text-xs text-gray-400 mb-6 max-w-sm mx-auto">Sign in with your admin Google account to access file uploads.</p>
-            <button onclick="handleGoogleLogin()" class="bg-white hover:bg-gray-100 text-gray-900 font-semibold px-6 py-3 rounded-xl text-sm transition active:scale-95 inline-flex items-center gap-3">
-                <i class="fa-brands fa-google text-red-500"></i> Sign in with Google
-            </button>
-            <p id="auth-error" class="hidden mt-4 text-xs text-red-400"></p>
-        </div>
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-6 pt-8">
 
-        <!-- Main Upload Panel (Visible only to nakuldhande2005@gmail.com) -->
-        <div id="upload-content" class="hidden">
-            <form id="upload-form" onsubmit="handleUpload(event)" class="space-y-5">
-                <div>
-                    <label class="block text-xs text-gray-400 mb-2">DOCUMENT TITLE</label>
-                    <input type="text" id="doc-title" placeholder="e.g. Semester 6 Marksheet" required
-                           class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500">
+        <!-- Login Gate View -->
+        <div id="login-gate" class="max-w-md mx-auto py-20 text-center">
+            <div class="glass-card border border-white/10 rounded-3xl p-10 shadow-2xl relative overflow-hidden">
+                <div class="w-16 h-16 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl">
+                    <i class="fa-brands fa-google"></i>
                 </div>
-
-                <div>
-                    <label class="block text-xs text-gray-400 mb-2">SELECT PDF FILE</label>
-                    <input type="file" id="doc-file" accept="application/pdf" required
-                           class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:bg-blue-600 file:text-white cursor-pointer">
-                </div>
-
-                <button type="submit" id="upload-btn"
-                        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition active:scale-95 flex items-center justify-center gap-2 text-sm">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload to Supabase Storage
+                <h3 class="text-2xl font-bold text-white mb-2 tracking-tight">Admin Gatekeeper</h3>
+                <p class="text-xs text-slate-400 mb-8 leading-relaxed">Sign in with authorized administrator Google account to access file organization and upload pipelines.</p>
+                
+                <button onclick="handleGoogleLogin()" class="w-full py-4 bg-white hover:bg-slate-100 text-slate-900 font-semibold rounded-2xl text-sm transition shadow-lg active:scale-[0.98] flex items-center justify-center gap-3">
+                    <i class="fa-brands fa-google text-red-500 text-lg"></i> Authenticate with Google
                 </button>
-            </form>
-
-            <div id="status-message" class="mt-4 hidden p-4 rounded-xl text-xs"></div>
-
-            <!-- Documents Table -->
-            <div class="mt-10 border-t border-gray-800 pt-6">
-                <h3 class="text-sm font-semibold text-white mb-4">Manage Archive Files</h3>
-                <div id="admin-doc-list" class="space-y-3 max-h-60 overflow-y-auto pr-2">
-                    <p class="text-xs text-gray-500">Loading documents...</p>
-                </div>
+                <p id="auth-error" class="hidden mt-4 text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl"></p>
             </div>
         </div>
 
-    </div>
+        <!-- Dashboard Content View -->
+        <div id="upload-content" class="hidden space-y-8">
+            
+            <!-- Dashboard Stats Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="glass-card border border-white/10 rounded-2xl p-6 flex items-center gap-5">
+                    <div class="w-12 h-12 bg-sky-500/10 border border-sky-500/20 text-sky-400 rounded-xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider font-mono">Total Documents</p>
+                        <h4 id="stat-doc-count" class="text-2xl font-bold text-white mt-0.5">--</h4>
+                    </div>
+                </div>
 
-    <!-- Firebase SDK Modular Import -->
+                <div class="glass-card border border-white/10 rounded-2xl p-6 flex items-center gap-5">
+                    <div class="w-12 h-12 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-folder-closed"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider font-mono">Total Folders</p>
+                        <h4 id="stat-folder-count" class="text-2xl font-bold text-white mt-0.5">--</h4>
+                    </div>
+                </div>
+
+                <div class="glass-card border border-white/10 rounded-2xl p-6 flex items-center gap-5">
+                    <div class="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-hard-drive"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider font-mono">Storage Engine</p>
+                        <h4 class="text-lg font-bold text-emerald-400 mt-0.5">Supabase Active</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workspace Action Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Left Panel: Folder Manager & Upload Action -->
+                <div class="lg:col-span-5 space-y-6">
+                    
+                    <!-- Create Folder Card -->
+                    <div class="glass-card border border-white/10 rounded-3xl p-6 relative">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-folder-plus text-indigo-400"></i> Directory Creation
+                        </h3>
+                        <form id="folder-form" onsubmit="handleCreateFolder(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-2 font-mono">FOLDER NAME</label>
+                                <input type="text" id="folder-name" placeholder="e.g. Academic Research" required
+                                       class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                            </div>
+                            <button type="submit" id="folder-btn"
+                                    class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition active:scale-[0.98] flex items-center justify-center gap-2 text-sm">
+                                <i class="fa-solid fa-plus"></i> Create Directory
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Upload File Card -->
+                    <div class="glass-card border border-white/10 rounded-3xl p-6 relative">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-up text-blue-400"></i> Dispatch Asset
+                        </h3>
+                        
+                        <form id="upload-form" onsubmit="handleUpload(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-2 font-mono">DOCUMENT TITLE</label>
+                                <input type="text" id="doc-title" placeholder="e.g. Final Project Report" required
+                                       class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="block text-xs text-slate-400 font-mono">DESTINATION FOLDER</label>
+                                    <div id="folder-spinner" class="hidden text-xs text-blue-400 flex items-center gap-1.5 font-mono">
+                                        <i class="fa-solid fa-spinner animate-spin"></i> Loading Folders...
+                                    </div>
+                                </div>
+                                <select id="doc-folder" class="w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-blue-500 transition">
+                                    <option value="">/ (Root Directory)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-2 font-mono">ATTACH PDF DOCUMENT</label>
+                                <input type="file" id="doc-file" accept="application/pdf" required
+                                       class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:bg-blue-600 file:text-white cursor-pointer">
+                            </div>
+
+                            <button type="submit" id="upload-btn"
+                                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition active:scale-[0.98] flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-900/20">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Upload Document
+                            </button>
+                        </form>
+
+                        <div id="status-message" class="mt-4 hidden p-4 rounded-xl text-xs font-mono"></div>
+                    </div>
+
+                </div>
+
+                <!-- Right Panel: Data Explorer & Management -->
+                <div class="lg:col-span-7">
+                    <div class="glass-card border border-white/10 rounded-3xl p-6 h-full flex flex-col">
+                        
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+                            <div>
+                                <h3 class="text-base font-bold text-white">Repository Explorer</h3>
+                                <p class="text-xs text-slate-400">View and handle assets grouped by target directory</p>
+                            </div>
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-500"></i>
+                                <input type="text" id="search-input" onkeyup="filterDocuments()" placeholder="Search archive..." 
+                                       class="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition w-full sm:w-48">
+                            </div>
+                        </div>
+
+                        <!-- Documents List -->
+                        <div class="mt-6 flex-1">
+                            <div id="admin-doc-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                                <div class="text-center py-12 text-slate-500 font-mono text-xs">
+                                    <i class="fa-solid fa-spinner animate-spin text-xl mb-2 text-blue-400"></i>
+                                    <p>Connecting to Supabase Engine...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modular Script importing directly from api/config.js -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        
+        // Direct ES Module Import from api/config.js
+        import { firebaseConfig, SUPABASE_URL, SUPABASE_ANON_KEY, ADMIN_EMAIL } from '/api/config.js';
 
-        // 1. FIREBASE CONFIG
-        const firebaseConfig = {
-            apiKey: "AIzaSyBR1L9UACOdMfOHaOPerfZY1SyzPEBnEGA",
-  authDomain: "myportfolio-9096.firebaseapp.com",
-  projectId: "myportfolio-9096",
-  storageBucket: "myportfolio-9096.firebasestorage.app",
-  messagingSenderId: "1614082917",
-  appId: "1:1614082917:web:e844f4b92091986c4be78c",
-  measurementId: "G-6E9VPG1QYM"
-        };
-
+        // 1. Initialize Firebase Auth
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // 2. SUPABASE CONFIG
-        const SUPABASE_URL = "https://vmorzlhqeeosmwkjfumm.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtb3J6bGhxZWVvc213a2pmdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDAyMTEsImV4cCI6MjEwMTE3NjIxMX0.m1tmsh4u9wtY5PcMo0BrRrVeA0SOGibyhV7yIXDN7Gg";
-        const ADMIN_EMAIL = "nakuldhande2005@gmail.com";
-
+        // 2. Initialize Supabase Client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Listen for Firebase Auth Changes
+        let cachedFolders = [];
+        let cachedDocs = [];
+
+        // Auth State Observer
         onAuthStateChanged(auth, (user) => {
             const loginGate = document.getElementById("login-gate");
             const uploadContent = document.getElementById("upload-content");
             const userProfile = document.getElementById("user-profile");
             const authError = document.getElementById("auth-error");
+            const userEmailDisplay = document.getElementById("user-email-display");
 
             if (user && user.email === ADMIN_EMAIL) {
                 loginGate.classList.add("hidden");
                 uploadContent.classList.remove("hidden");
                 userProfile.classList.remove("hidden");
+                userEmailDisplay.innerText = user.email;
+
+                // Load Initial Data
+                loadFolders();
                 loadAdminDocs();
             } else if (user && user.email !== ADMIN_EMAIL) {
-                authError.innerText = `Access Denied: ${user.email} is not authorized.`;
+                authError.innerText = `Unauthorized: Access restricted to ${ADMIN_EMAIL}. (${user.email})`;
                 authError.classList.remove("hidden");
                 signOut(auth);
             } else {
@@ -131,20 +262,71 @@
             }
         });
 
-        // Expose functions globally for button handlers
+        // Global Event Handlers for Buttons
         window.handleGoogleLogin = async () => {
             try {
                 await signInWithPopup(auth, provider);
             } catch (err) {
-                alert("Login Error: " + err.message);
+                alert("Authentication Error: " + err.message);
             }
         };
 
         window.handleSignOut = () => signOut(auth);
 
+        // Folder Operations
+        async function loadFolders() {
+            const folderSpinner = document.getElementById("folder-spinner");
+            const folderSelect = document.getElementById("doc-folder");
+            folderSpinner.classList.remove("hidden");
+
+            try {
+                const { data, error } = await supabase.from("folders").select("*").order("name", { ascending: true });
+                if (error) throw error;
+
+                cachedFolders = data || [];
+                document.getElementById("stat-folder-count").innerText = cachedFolders.length;
+
+                folderSelect.innerHTML = `<option value="">/ (Root Directory)</option>` + 
+                    cachedFolders.map(f => `<option value="${f.id}">${f.name}</option>`).join("");
+
+            } catch (err) {
+                console.error("Error loading folders:", err);
+            } finally {
+                folderSpinner.classList.add("hidden");
+            }
+        }
+
+        window.handleCreateFolder = async (e) => {
+            e.preventDefault();
+            const folderNameInput = document.getElementById("folder-name");
+            const btn = document.getElementById("folder-btn");
+            const folderName = folderNameInput.value.trim();
+
+            if (!folderName) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Creating...`;
+
+            try {
+                const { error } = await supabase.from("folders").insert([{ name: folderName }]);
+                if (error) throw error;
+
+                folderNameInput.value = "";
+                await loadFolders();
+                await loadAdminDocs();
+            } catch (err) {
+                alert("Folder Creation Failed: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-plus"></i> Create Directory`;
+            }
+        };
+
+        // Document Operations
         window.handleUpload = async (e) => {
             e.preventDefault();
             const title = document.getElementById("doc-title").value;
+            const folderId = document.getElementById("doc-folder").value || null;
             const file = document.getElementById("doc-file").files[0];
             const btn = document.getElementById("upload-btn");
             const status = document.getElementById("status-message");
@@ -152,70 +334,135 @@
             if (!file) return;
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Uploading...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Processing & Uploading...`;
             status.classList.add("hidden");
 
             try {
-                // Upload file to Supabase Storage Bucket 'archive-pdfs'
                 const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-                const { data: storageData, error: storageError } = await supabase.storage
+                
+                const { error: storageError } = await supabase.storage
                     .from('archive-pdfs')
                     .upload(fileName, file);
 
                 if (storageError) throw storageError;
 
-                // Get Public URL from Supabase
                 const { data: publicUrlData } = supabase.storage
                     .from('archive-pdfs')
                     .getPublicUrl(fileName);
 
-                // Insert into Supabase 'documents' table
                 const { error: dbError } = await supabase
                     .from('documents')
-                    .insert([{ title: title, file_url: publicUrlData.publicUrl, views: 0 }]);
+                    .insert([{ 
+                        title: title, 
+                        file_url: publicUrlData.publicUrl, 
+                        folder_id: folderId, 
+                        views: 0 
+                    }]);
 
                 if (dbError) throw dbError;
 
-                status.className = "mt-4 p-4 rounded-xl text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
-                status.innerText = "✓ Document uploaded successfully to Supabase!";
+                status.className = "mt-4 p-4 rounded-xl text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono";
+                status.innerText = "✓ Asset dispatched and saved successfully!";
                 status.classList.remove("hidden");
 
                 document.getElementById("doc-title").value = "";
                 document.getElementById("doc-file").value = "";
                 loadAdminDocs();
             } catch (err) {
-                status.className = "mt-4 p-4 rounded-xl text-xs bg-red-500/10 border border-red-500/20 text-red-400";
+                status.className = "mt-4 p-4 rounded-xl text-xs bg-red-500/10 border border-red-500/20 text-red-400 font-mono";
                 status.innerText = "Upload Error: " + err.message;
                 status.classList.remove("hidden");
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Upload to Supabase Storage`;
+                btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Upload Document`;
             }
         };
 
         async function loadAdminDocs() {
             const list = document.getElementById("admin-doc-list");
-            const { data, error } = await supabase.from("documents").select("*").order("uploaded_at", { ascending: false });
+            
+            try {
+                const { data, error } = await supabase
+                    .from("documents")
+                    .select(`
+                        id,
+                        title,
+                        file_url,
+                        uploaded_at,
+                        folder_id,
+                        folders ( name )
+                    `)
+                    .order("uploaded_at", { ascending: false });
 
-            if (error || !data || data.length === 0) {
-                list.innerHTML = `<p class="text-xs text-gray-600">No documents found.</p>`;
+                if (error) throw error;
+
+                cachedDocs = data || [];
+                document.getElementById("stat-doc-count").innerText = cachedDocs.length;
+                renderDocList(cachedDocs);
+
+            } catch (err) {
+                list.innerHTML = `<p class="text-xs text-red-400">Failed to sync documents: ${err.message}</p>`;
+            }
+        }
+
+        function renderDocList(docs) {
+            const list = document.getElementById("admin-doc-list");
+
+            if (!docs || docs.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-12 border border-dashed border-white/10 rounded-2xl">
+                        <i class="fa-regular fa-folder-open text-2xl text-slate-600 mb-2"></i>
+                        <p class="text-xs text-slate-500 font-mono">No documents found matching current filters.</p>
+                    </div>`;
                 return;
             }
 
-            list.innerHTML = data.map(doc => `
-                <div class="flex items-center justify-between bg-gray-950 border border-gray-900 p-3 rounded-xl text-xs">
-                    <span class="text-gray-300 font-medium truncate max-w-[250px]">${doc.title}</span>
-                    <button onclick="deleteDoc('${doc.id}')" class="text-red-400 hover:text-red-300 transition">
-                        <i class="fa-solid fa-trash-can"></i> Delete
-                    </button>
-                </div>
-            `).join("");
+            list.innerHTML = docs.map(doc => {
+                const folderName = doc.folders ? doc.folders.name : 'Root';
+                return `
+                    <div class="flex items-center justify-between bg-white/5 hover:bg-white/10 border border-white/5 p-4 rounded-2xl transition duration-200">
+                        <div class="flex items-center gap-3.5 overflow-hidden">
+                            <div class="w-10 h-10 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-xl flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div class="truncate">
+                                <h4 class="text-sm font-semibold text-white truncate">${doc.title}</h4>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">
+                                        <i class="fa-solid fa-folder text-[9px] mr-1"></i>${folderName}
+                                    </span>
+                                    <a href="${doc.file_url}" target="_blank" class="text-[10px] font-mono text-slate-400 hover:text-white underline">
+                                        View File
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="deleteDoc('${doc.id}')" class="px-3 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition text-xs flex items-center gap-1.5 shrink-0 ml-2">
+                            <i class="fa-solid fa-trash-can"></i> <span class="hidden sm:inline">Delete</span>
+                        </button>
+                    </div>
+                `;
+            }).join("");
         }
 
+        window.filterDocuments = () => {
+            const query = document.getElementById("search-input").value.toLowerCase();
+            const filtered = cachedDocs.filter(d => 
+                d.title.toLowerCase().includes(query) || 
+                (d.folders && d.folders.name.toLowerCase().includes(query))
+            );
+            renderDocList(filtered);
+        };
+
         window.deleteDoc = async (id) => {
-            if (!confirm("Are you sure you want to delete this document?")) return;
-            await supabase.from("documents").delete().eq("id", id);
-            loadAdminDocs();
+            if (!confirm("Are you sure you want to permanently remove this document?")) return;
+            try {
+                const { error } = await supabase.from("documents").delete().eq("id", id);
+                if (error) throw error;
+                loadAdminDocs();
+            } catch (err) {
+                alert("Deletion Error: " + err.message);
+            }
         };
     </script>
 </body>
