@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Archive Admin Dashboard | Nakul Dhande</title>
+    <title>Archive Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -52,7 +52,7 @@
                     <p id="user-email-display" class="text-xs font-mono text-slate-300"></p>
                     <span class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full uppercase font-mono">Authenticated Admin</span>
                 </div>
-                <button onclick="handleSignOut()" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-semibold transition flex items-center gap-2">
+                <button id="logout-btn" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-semibold transition flex items-center gap-2">
                     <i class="fa-solid fa-right-from-bracket"></i> Logout
                 </button>
             </div>
@@ -71,7 +71,7 @@
                 <h3 class="text-2xl font-bold text-white mb-2 tracking-tight">Admin Gatekeeper</h3>
                 <p class="text-xs text-slate-400 mb-8 leading-relaxed">Sign in with authorized administrator Google account to access file organization and upload pipelines.</p>
                 
-                <button onclick="handleGoogleLogin()" class="w-full py-4 bg-white hover:bg-slate-100 text-slate-900 font-semibold rounded-2xl text-sm transition shadow-lg active:scale-[0.98] flex items-center justify-center gap-3">
+                <button id="login-btn" class="w-full py-4 bg-white hover:bg-slate-100 text-slate-900 font-semibold rounded-2xl text-sm transition shadow-lg active:scale-[0.98] flex items-center justify-center gap-3">
                     <i class="fa-brands fa-google text-red-500 text-lg"></i> Authenticate with Google
                 </button>
                 <p id="auth-error" class="hidden mt-4 text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl"></p>
@@ -215,69 +215,110 @@
 
     </main>
 
-    <!-- Modular Script importing directly from api/config.js -->
+    <!-- Resilient Script Handling Dynamic Config & Modular Imports -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        
-        // Direct ES Module Import from api/config.js
-        import { firebaseConfig, SUPABASE_URL, SUPABASE_ANON_KEY, ADMIN_EMAIL } from '/api/config.js';
 
-        // 1. Initialize Firebase Auth
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        // 2. Initialize Supabase Client
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+        let supabase = null;
+        let auth = null;
+        let provider = null;
+        let ADMIN_EMAIL = "";
         let cachedFolders = [];
         let cachedDocs = [];
 
-        // Auth State Observer
-        onAuthStateChanged(auth, (user) => {
-            const loginGate = document.getElementById("login-gate");
-            const uploadContent = document.getElementById("upload-content");
-            const userProfile = document.getElementById("user-profile");
-            const authError = document.getElementById("auth-error");
-            const userEmailDisplay = document.getElementById("user-email-display");
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginBtn = document.getElementById("login-btn");
+            if (loginBtn) loginBtn.addEventListener("click", handleGoogleLogin);
+            
+            const logoutBtn = document.getElementById("logout-btn");
+            if (logoutBtn) logoutBtn.addEventListener("click", handleSignOut);
 
-            if (user && user.email === ADMIN_EMAIL) {
-                loginGate.classList.add("hidden");
-                uploadContent.classList.remove("hidden");
-                userProfile.classList.remove("hidden");
-                userEmailDisplay.innerText = user.email;
-
-                // Load Initial Data
-                loadFolders();
-                loadAdminDocs();
-            } else if (user && user.email !== ADMIN_EMAIL) {
-                authError.innerText = `Unauthorized: Access restricted to ${ADMIN_EMAIL}. (${user.email})`;
-                authError.classList.remove("hidden");
-                signOut(auth);
-            } else {
-                loginGate.classList.remove("hidden");
-                uploadContent.classList.add("hidden");
-                userProfile.classList.add("hidden");
-            }
+            bootstrapApp();
         });
 
-        // Global Event Handlers for Buttons
-        window.handleGoogleLogin = async () => {
+        async function bootstrapApp() {
+            const authError = document.getElementById("auth-error");
+
+            try {
+                // Fetch runtime credentials from API route
+                const response = await fetch('/api/config');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: Failed to reach /api/config API route.`);
+                }
+                const config = await response.json();
+
+                ADMIN_EMAIL = config.ADMIN_EMAIL || "nakuldhande2005@gmail.com";
+
+                // Initialize Firebase Auth
+                const app = initializeApp(config.firebaseConfig);
+                auth = getAuth(app);
+                provider = new GoogleAuthProvider();
+
+                // Initialize Supabase Client
+                supabase = window.supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
+
+                // Setup Auth observer
+                setupAuthObserver();
+
+            } catch (err) {
+                console.error("Application initialization error:", err);
+                if (authError) {
+                    authError.innerText = `Configuration Failure: ${err.message}. Please check your server environmental variables and backend /api/config response.`;
+                    authError.classList.remove("hidden");
+                }
+            }
+        }
+
+        function setupAuthObserver() {
+            onAuthStateChanged(auth, (user) => {
+                const loginGate = document.getElementById("login-gate");
+                const uploadContent = document.getElementById("upload-content");
+                const userProfile = document.getElementById("user-profile");
+                const authError = document.getElementById("auth-error");
+                const userEmailDisplay = document.getElementById("user-email-display");
+
+                if (user && user.email === ADMIN_EMAIL) {
+                    loginGate.classList.add("hidden");
+                    uploadContent.classList.remove("hidden");
+                    userProfile.classList.remove("hidden");
+                    userEmailDisplay.innerText = user.email;
+
+                    loadFolders();
+                    loadAdminDocs();
+                } else if (user && user.email !== ADMIN_EMAIL) {
+                    authError.innerText = `Unauthorized: Access restricted to ${ADMIN_EMAIL}. (${user.email})`;
+                    authError.classList.remove("hidden");
+                    signOut(auth);
+                } else {
+                    loginGate.classList.remove("hidden");
+                    uploadContent.classList.add("hidden");
+                    userProfile.classList.add("hidden");
+                }
+            });
+        }
+
+        async function handleGoogleLogin() {
+            if (!auth || !provider) {
+                alert("Application failed to initialize. Check your /api/config route.");
+                return;
+            }
             try {
                 await signInWithPopup(auth, provider);
             } catch (err) {
                 alert("Authentication Error: " + err.message);
             }
-        };
+        }
 
-        window.handleSignOut = () => signOut(auth);
+        function handleSignOut() {
+            if (auth) signOut(auth);
+        }
 
         // Folder Operations
         async function loadFolders() {
             const folderSpinner = document.getElementById("folder-spinner");
             const folderSelect = document.getElementById("doc-folder");
-            folderSpinner.classList.remove("hidden");
+            if (folderSpinner) folderSpinner.classList.remove("hidden");
 
             try {
                 const { data, error } = await supabase.from("folders").select("*").order("name", { ascending: true });
@@ -292,7 +333,7 @@
             } catch (err) {
                 console.error("Error loading folders:", err);
             } finally {
-                folderSpinner.classList.add("hidden");
+                if (folderSpinner) folderSpinner.classList.add("hidden");
             }
         }
 
@@ -302,7 +343,7 @@
             const btn = document.getElementById("folder-btn");
             const folderName = folderNameInput.value.trim();
 
-            if (!folderName) return;
+            if (!folderName || !supabase) return;
 
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Creating...`;
@@ -331,7 +372,7 @@
             const btn = document.getElementById("upload-btn");
             const status = document.getElementById("status-message");
 
-            if (!file) return;
+            if (!file || !supabase) return;
 
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Processing & Uploading...`;
@@ -380,7 +421,6 @@
 
         async function loadAdminDocs() {
             const list = document.getElementById("admin-doc-list");
-            
             try {
                 const { data, error } = await supabase
                     .from("documents")
@@ -399,7 +439,6 @@
                 cachedDocs = data || [];
                 document.getElementById("stat-doc-count").innerText = cachedDocs.length;
                 renderDocList(cachedDocs);
-
             } catch (err) {
                 list.innerHTML = `<p class="text-xs text-red-400">Failed to sync documents: ${err.message}</p>`;
             }
