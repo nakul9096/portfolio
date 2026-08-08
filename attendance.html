@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live QR Attendance | Admin Dashboard</title>
-        <link rel="icon" type="image/png" href="nd_logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="icon" type="image/png" href="nd_logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -36,7 +36,7 @@
     <nav class="fixed top-0 w-full z-40 bg-[#030712]/90 backdrop-blur-xl border-b border-gray-900">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <a href="index.html" class="font-bold text-xl tracking-tight text-white font-mono flex items-center gap-2">
-                <i class="fa-solid fa-[#3b82f6] fa-qrcode text-blue-500"></i> Attendance Admin
+                <i class="fa-solid fa-qrcode text-blue-500"></i> Attendance Admin
             </a>
             <div id="user-badge" class="hidden items-center gap-3 font-mono text-xs bg-gray-950 border border-gray-800 px-4 py-2 rounded-xl">
                 <span id="user-email" class="text-gray-300"></span>
@@ -230,14 +230,14 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Read Config from api/config.js
-        const firebaseConfig = window.CONFIG?.FIREBASE_CONFIG;
-        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL;
-        const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY;
-        const ADMIN_EMAIL = "nakuldhande2005@gmail.com";
+        // Read Config from api/config.js with fallback safety
+        const firebaseConfig = window.CONFIG?.FIREBASE_CONFIG || window.FIREBASE_CONFIG;
+        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || window.SUPABASE_URL;
+        const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY;
+        const ADMIN_EMAIL = window.CONFIG?.ADMIN_EMAIL || window.ADMIN_EMAIL || "nakuldhande2005@gmail.com";
 
-        if (!firebaseConfig || !SUPABASE_URL) {
-            alert("Missing configuration! Check api/config.js file.");
+        if (!firebaseConfig || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
+            alert("Missing configuration details! Please check api/config.js file.");
         }
 
         const app = initializeApp(firebaseConfig);
