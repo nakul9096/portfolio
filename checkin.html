@@ -11,7 +11,7 @@
     <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- External Secure Config File (Adjusted to config/) -->
+    <!-- External Secure Config File -->
     <script src="config/config.js"></script>
 
     <script>
@@ -45,7 +45,7 @@
                     <i class="fa-solid fa-clipboard-user"></i>
                 </div>
                 <h2 class="text-xl font-bold text-white font-mono">Mark Attendance</h2>
-                <p class="text-xs text-gray-400 mt-1">Enter your details below to log your presence.</p>
+                <p id="session-info-subtitle" class="text-xs text-gray-400 mt-1">Enter your details below to log your presence.</p>
             </div>
 
             <form onsubmit="handleAttendanceSubmit(event)" class="space-y-4">
@@ -79,12 +79,12 @@
             </div>
         </div>
 
-        <!-- Error State -->
+        <!-- Error / Session Closed State -->
         <div id="error-state" class="hidden py-6 space-y-4">
             <div class="w-16 h-16 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h2 class="text-xl font-bold text-white font-mono">Check-In Restricted</h2>
+            <h2 id="error-title" class="text-xl font-bold text-white font-mono">Check-In Restricted</h2>
             <p id="error-message" class="text-xs text-red-400 font-mono">Invalid session or database error.</p>
         </div>
     </div>
@@ -102,29 +102,51 @@
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get("session");
 
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", async () => {
             if (!supabaseClient) {
-                showState("error-state");
-                document.getElementById("error-message").innerText = "Configuration missing: Check config/config.js";
+                showError("Configuration missing: Check config/config.js");
                 return;
             }
 
             if (!sessionId) {
-                showState("error-state");
-                document.getElementById("error-message").innerText = "Missing attendance session parameter in URL.";
+                showError("Missing attendance session parameter in URL.");
                 return;
             }
 
-            // Check if this device has already submitted attendance for this specific session
+            // Check if device already submitted
             const storedCheckin = localStorage.getItem(`submitted_session_${sessionId}`);
             if (storedCheckin) {
-                showState("error-state");
-                document.getElementById("error-message").innerText = "Attendance has already been submitted from this device for this session.";
+                showError("Attendance has already been submitted from this device for this session.");
                 return;
             }
 
-            showState("form-state");
+            // Verify session active status directly from Supabase
+            await verifySession();
         });
+
+        async function verifySession() {
+            showState("loading-state");
+
+            const { data: session, error } = await supabaseClient
+                .from("attendance_sessions")
+                .select("*")
+                .eq("id", sessionId)
+                .single();
+
+            if (error || !session) {
+                showError("Session not found or invalid.");
+                return;
+            }
+
+            // Block form if session closed
+            if (!session.active) {
+                showError("Attendance is closed for this session.", "Session Closed");
+                return;
+            }
+
+            document.getElementById("session-info-subtitle").innerText = `Subject: ${session.subject}`;
+            showState("form-state");
+        }
 
         async function handleAttendanceSubmit(e) {
             e.preventDefault();
@@ -136,7 +158,19 @@
 
             showState("loading-state");
 
-            // Insert attendance record into Supabase
+            // Re-verify session is active before submitting record
+            const { data: session } = await supabaseClient
+                .from("attendance_sessions")
+                .select("active")
+                .eq("id", sessionId)
+                .single();
+
+            if (!session || !session.active) {
+                showError("Attendance is closed for this session.", "Session Closed");
+                return;
+            }
+
+            // Insert attendance record
             const { error } = await supabaseClient
                 .from("attendance_records")
                 .insert([{
@@ -146,14 +180,11 @@
                 }]);
 
             if (error) {
-                showState("error-state");
-                document.getElementById("error-message").innerText = "Database error: " + error.message;
+                showError("Database error: " + error.message);
                 return;
             }
 
-            // Lock this device out from submitting to this session again using local storage
             localStorage.setItem(`submitted_session_${sessionId}`, "true");
-
             displaySuccessUI(name, rollNo, new Date());
         }
 
@@ -162,6 +193,12 @@
             document.getElementById("display-name").innerText = name;
             document.getElementById("display-roll").innerText = rollNo;
             document.getElementById("checkin-time").innerText = time.toLocaleTimeString();
+        }
+
+        function showError(message, title = "Check-In Restricted") {
+            showState("error-state");
+            document.getElementById("error-title").innerText = title;
+            document.getElementById("error-message").innerText = message;
         }
 
         function showState(stateId) {
