@@ -5,16 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live QR Attendance | Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-        <link rel="icon" type="image/png" href="nd_logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Supabase, QR Code, PDF Libraries & Config -->
+    <!-- Supabase, QR Code & PDF Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <script src="api/config.js"></script>
     
     <script>
         tailwind.config = {
@@ -157,7 +155,7 @@
                     </h3>
                     <div class="flex items-center gap-2 text-xs font-mono text-gray-400">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Auto-syncing every 3s
+                        Auto-syncing
                     </div>
                 </div>
                 <div class="overflow-x-auto">
@@ -225,19 +223,24 @@
         © 2026 Nakul Dhande. Secure Attendance System.
     </footer>
 
-    <!-- Core Application Code -->
+    <!-- Core Application Code (Module script properly importing config) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Read Config from api/config.js with fallback safety
-        const firebaseConfig = window.CONFIG?.FIREBASE_CONFIG || window.FIREBASE_CONFIG;
-        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || window.SUPABASE_URL;
-        const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY;
-        const ADMIN_EMAIL = window.CONFIG?.ADMIN_EMAIL || window.ADMIN_EMAIL || "nakuldhande2005@gmail.com";
+        // Dynamic ES Module import that handles both Named and Default export config styles
+        import * as ConfigModule from "./api/config.js";
+        
+        const configData = ConfigModule.default || ConfigModule;
+
+        const firebaseConfig = configData.firebaseConfig || configData.FIREBASE_CONFIG;
+        const SUPABASE_URL = configData.SUPABASE_URL || configData.supabaseUrl;
+        const SUPABASE_ANON_KEY = configData.SUPABASE_ANON_KEY || configData.supabaseAnonKey;
+        const ADMIN_EMAIL = configData.ADMIN_EMAIL || configData.adminEmail || "nakuldhande2005@gmail.com";
 
         if (!firebaseConfig || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
-            alert("Missing configuration details! Please check api/config.js file.");
+            console.error("Configuration payload resolved:", configData);
+            alert("Configuration error! Please ensure api/config.js exports valid firebaseConfig, SUPABASE_URL, and SUPABASE_ANON_KEY.");
         }
 
         const app = initializeApp(firebaseConfig);
@@ -456,7 +459,6 @@
             renderTable(liveRecordsCache);
         }
 
-        // Live Realtime Subscription + Auto Polling Every 3 Seconds
         function subscribeToAttendance() {
             if (activeSubscription) {
                 window.supabaseClient.removeChannel(activeSubscription);
@@ -474,7 +476,7 @@
             stopPolling();
             pollingInterval = setInterval(() => {
                 fetchAttendanceRecords();
-            }, 3000); // Refreshes every 3 seconds automatically
+            }, 3000);
         }
 
         function stopPolling() {
@@ -508,7 +510,6 @@
             `).join("");
         }
 
-        // Add Student Manually
         window.openManualEntryModal = function() {
             document.getElementById("manual-entry-modal").classList.remove("hidden");
         }
@@ -551,7 +552,6 @@
             }
         }
 
-        // Export as CSV
         window.exportToCSV = function() {
             if (liveRecordsCache.length === 0) {
                 alert("No records to export.");
@@ -570,7 +570,6 @@
             document.body.removeChild(link);
         }
 
-        // Export as PDF
         window.exportToPDF = function() {
             if (liveRecordsCache.length === 0) {
                 alert("No records to export.");
