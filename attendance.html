@@ -8,10 +8,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Supabase, QR Code Libraries & External Config -->
+    <!-- Supabase, QR Code, PDF Libraries & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="config/config.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="api/config.js"></script>
     
     <script>
         tailwind.config = {
@@ -29,48 +31,52 @@
 </head>
 <body class="font-sans antialiased bg-[#030712] min-h-screen flex flex-col justify-between">
 
-    <!-- Navbar -->
-    <nav class="fixed top-0 w-full z-40 bg-[#030712]/80 backdrop-blur-xl border-b border-gray-900/80">
+    <!-- Top Navbar -->
+    <nav class="fixed top-0 w-full z-40 bg-[#030712]/90 backdrop-blur-xl border-b border-gray-900">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="index.html" class="font-bold text-xl tracking-tight text-white font-mono">Nakul.Dhande</a>
+            <a href="index.html" class="font-bold text-xl tracking-tight text-white font-mono flex items-center gap-2">
+                <i class="fa-solid fa-[#3b82f6] fa-qrcode text-blue-500"></i> Attendance Admin
+            </a>
             <div id="user-badge" class="hidden items-center gap-3 font-mono text-xs bg-gray-950 border border-gray-800 px-4 py-2 rounded-xl">
                 <span id="user-email" class="text-gray-300"></span>
-                <button onclick="logout()" class="text-red-400 hover:text-red-300 ml-2"><i class="fa-solid fa-right-from-bracket"></i></button>
+                <button onclick="logout()" class="text-red-400 hover:text-red-300 ml-2" title="Sign Out">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
             </div>
         </div>
     </nav>
 
     <!-- Main Container -->
-    <main class="max-w-6xl mx-auto px-6 pt-32 pb-20 w-full flex-1">
+    <main class="max-w-6xl mx-auto px-6 pt-28 pb-20 w-full flex-1">
 
         <!-- VIEW 1: AUTHENTICATION LOCK -->
         <section id="auth-view" class="hidden py-20 text-center max-w-md mx-auto">
             <div class="bg-[#0b0f19] border border-gray-800 rounded-3xl p-8 shadow-2xl">
                 <div class="w-14 h-14 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-5 text-xl">
-                    <i class="fa-solid fa-lock-open"></i>
+                    <i class="fa-solid fa-lock"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-white mb-2">Admin Authentication</h2>
-                <p class="text-xs text-gray-400 mb-6">Sign in with authorized administrator account to manage sessions.</p>
+                <h2 class="text-2xl font-bold text-white mb-2">Admin Login</h2>
+                <p class="text-xs text-gray-400 mb-6">Sign in with your admin account to manage attendance sessions.</p>
                 <button onclick="loginWithGoogle()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 rounded-xl transition flex items-center justify-center gap-3">
                     <i class="fa-brands fa-google"></i> Sign In with Google
                 </button>
-                <p id="auth-error" class="hidden text-xs text-red-400 mt-4 font-mono">Unauthorized account. Access restricted to administrator.</p>
+                <p id="auth-error" class="hidden text-xs text-red-400 mt-4 font-mono">Access denied. Unauthorized account.</p>
             </div>
         </section>
 
         <!-- VIEW 2: SETUP SESSION & ARCHIVES -->
         <section id="setup-view" class="hidden grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Create Session Box -->
+            <!-- Create Session Form -->
             <div class="md:col-span-1 bg-[#0b0f19] border border-gray-800 rounded-3xl p-6 shadow-2xl h-fit">
                 <h1 class="text-xl font-bold text-white font-mono mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-qrcode text-blue-500"></i> New Session
+                    <i class="fa-solid fa-plus-circle text-blue-500"></i> New Session
                 </h1>
-                <p class="text-xs text-gray-400 mb-6">Setup class details to generate tracking code.</p>
+                <p class="text-xs text-gray-400 mb-6">Enter details to start generating attendance QR code.</p>
                 
                 <form onsubmit="startSession(event)" class="space-y-4 font-mono text-sm">
                     <div>
                         <label class="block text-xs text-gray-400 mb-2">Subject Name</label>
-                        <input type="text" id="subject-input" placeholder="e.g., Cloud Computing" required
+                        <input type="text" id="subject-input" placeholder="e.g., Computer Networks" required
                                class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 text-xs">
                     </div>
                     <div>
@@ -78,20 +84,20 @@
                         <input type="date" id="date-input" required
                                class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 text-xs">
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition text-xs">
-                        Start Session & QR
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition text-xs flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-qrcode"></i> Start Session & QR
                     </button>
                 </form>
             </div>
 
-            <!-- Past Sessions Archive Log -->
+            <!-- Saved Archives -->
             <div class="md:col-span-2 bg-[#0b0f19] border border-gray-800 rounded-3xl p-6 shadow-2xl">
                 <h3 class="font-bold text-white font-mono text-sm mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-box-archive text-yellow-500"></i> Saved Attendance Archives
+                    <i class="fa-solid fa-box-archive text-yellow-500"></i> Past Attendance Logs
                 </h3>
                 <div class="overflow-x-auto max-h-[400px]">
                     <table class="w-full text-left font-mono text-xs">
-                        <thead class="bg-gray-950/60 text-gray-400 border-b border-gray-800 sticky top-0">
+                        <thead class="bg-gray-950/80 text-gray-400 border-b border-gray-800 sticky top-0">
                             <tr>
                                 <th class="p-3">Subject</th>
                                 <th class="p-3">Date</th>
@@ -100,17 +106,17 @@
                             </tr>
                         </thead>
                         <tbody id="archives-tbody" class="divide-y divide-gray-900 text-gray-300">
-                            <tr><td colspan="4" class="text-center py-6 text-gray-500">Loading saved archives...</td></tr>
+                            <tr><td colspan="4" class="text-center py-6 text-gray-500">Loading saved logs...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- VIEW 3: LIVE SPREADSHEET DASHBOARD -->
+        <!-- VIEW 3: LIVE DASHBOARD -->
         <section id="dashboard-view" class="hidden space-y-6">
-            <!-- Top Control Bar -->
-            <div class="flex flex-col sm:flex-row items-center justify-between bg-[#0b0f19] border border-gray-800 p-6 rounded-2xl gap-4">
+            <!-- Top Controls -->
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between bg-[#0b0f19] border border-gray-800 p-6 rounded-2xl gap-4">
                 <div>
                     <div class="flex items-center gap-3">
                         <span id="active-subject-badge" class="text-xs font-mono text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-lg">Subject: --</span>
@@ -118,33 +124,44 @@
                     </div>
                     <h2 id="active-date-display" class="text-xl font-bold text-white mt-2 font-mono">Date: --</h2>
                 </div>
-                <div class="flex flex-wrap items-center gap-3 font-mono text-xs">
-                    <button onclick="openQRModal()" class="bg-gray-900 hover:bg-gray-800 text-white border border-gray-800 px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                
+                <div class="flex flex-wrap items-center gap-2 font-mono text-xs">
+                    <button onclick="openManualEntryModal()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-2.5 rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus"></i> Add Student
+                    </button>
+                    <button onclick="openQRModal()" class="bg-gray-900 hover:bg-gray-800 text-white border border-gray-800 px-3 py-2.5 rounded-xl transition flex items-center gap-2">
                         <i class="fa-solid fa-qrcode text-blue-400"></i> Show QR
                     </button>
-                    <button id="toggle-session-btn" onclick="toggleSessionActiveState()" class="transition px-4 py-2.5 rounded-xl flex items-center gap-2">
-                        <!-- Dynamically set via JS -->
+                    <button id="toggle-session-btn" onclick="toggleSessionActiveState()" class="transition px-3 py-2.5 rounded-xl flex items-center gap-2">
+                        <!-- JS toggles content -->
                     </button>
-                    <button onclick="exportToCSV()" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-4 py-2.5 rounded-xl transition flex items-center gap-2">
-                        <i class="fa-solid fa-file-csv"></i> Export CSV
+                    <button onclick="exportToCSV()" class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-3 py-2.5 rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-csv"></i> CSV
                     </button>
-                    <button onclick="exitDashboard()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 px-4 py-2.5 rounded-xl transition flex items-center gap-2">
-                        <i class="fa-solid fa-arrow-left"></i> Dashboard
+                    <button onclick="exportToPDF()" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 px-3 py-2.5 rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i> PDF
+                    </button>
+                    <button onclick="exitDashboard()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 px-3 py-2.5 rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> Exit
                     </button>
                 </div>
             </div>
 
-            <!-- Spreadsheet Table Container -->
+            <!-- Attendance Table -->
             <div class="bg-[#0b0f19] border border-gray-800 rounded-3xl overflow-hidden shadow-2xl">
                 <div class="p-6 border-b border-gray-800 flex items-center justify-between">
                     <h3 class="font-bold text-white font-mono text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-table text-emerald-400"></i> Live Database Entries 
-                        <span id="attendance-count" class="ml-2 bg-gray-900 text-gray-400 px-2 py-0.5 rounded-md text-xs">0 Present</span>
+                        <i class="fa-solid fa-users text-emerald-400"></i> Live Entries
+                        <span id="attendance-count" class="ml-2 bg-gray-900 text-gray-400 px-2.5 py-1 rounded-md text-xs font-normal">0 Present</span>
                     </h3>
+                    <div class="flex items-center gap-2 text-xs font-mono text-gray-400">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Auto-syncing every 3s
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left font-mono text-sm">
-                        <thead class="bg-gray-950/60 text-gray-400 text-xs border-b border-gray-800">
+                        <thead class="bg-gray-950/80 text-gray-400 text-xs border-b border-gray-800">
                             <tr>
                                 <th class="p-4">#</th>
                                 <th class="p-4">Student Name</th>
@@ -164,15 +181,42 @@
 
     </main>
 
-    <!-- QR Code Modal Overlay -->
-    <div id="qr-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <!-- Modal 1: QR Code -->
+    <div id="qr-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-[#0b0f19] border border-gray-800 rounded-3xl p-8 max-w-sm w-full text-center relative shadow-2xl">
             <button onclick="closeQRModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white p-2 bg-gray-900 rounded-xl">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <h3 class="font-bold text-white mb-4 font-mono">Scan for Attendance</h3>
             <div id="qrcode-container" class="bg-white p-4 rounded-2xl inline-block mx-auto mb-4"></div>
-            <p id="qr-status-text" class="text-xs text-gray-400 font-mono">Have students scan this code using phone camera.</p>
+            <p id="qr-status-text" class="text-xs text-gray-400 font-mono">Scan this QR code using phone camera to mark attendance.</p>
+        </div>
+    </div>
+
+    <!-- Modal 2: Manual Student Entry -->
+    <div id="manual-entry-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-[#0b0f19] border border-gray-800 rounded-3xl p-6 max-w-sm w-full relative shadow-2xl">
+            <button onclick="closeManualEntryModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white p-2 bg-gray-900 rounded-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="font-bold text-white mb-4 font-mono flex items-center gap-2">
+                <i class="fa-solid fa-user-plus text-emerald-400"></i> Add Student Manually
+            </h3>
+            <form onsubmit="submitManualEntry(event)" class="space-y-4 font-mono text-xs">
+                <div>
+                    <label class="block text-gray-400 mb-1">Student Name</label>
+                    <input type="text" id="manual-name" required placeholder="Full Name"
+                           class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1">Roll Number</label>
+                    <input type="text" id="manual-roll" required placeholder="e.g. 101"
+                           class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl transition">
+                    Save Entry
+                </button>
+            </form>
         </div>
     </div>
 
@@ -180,18 +224,19 @@
         © 2026 Nakul Dhande. Secure Attendance System.
     </footer>
 
-    <!-- Core App Logic -->
+    <!-- Core Application Code -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+        // Read Config from api/config.js
         const firebaseConfig = window.CONFIG?.FIREBASE_CONFIG;
         const SUPABASE_URL = window.CONFIG?.SUPABASE_URL;
         const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY;
         const ADMIN_EMAIL = "nakuldhande2005@gmail.com";
 
         if (!firebaseConfig || !SUPABASE_URL) {
-            alert("Configuration missing from config/config.js!");
+            alert("Missing configuration! Check api/config.js file.");
         }
 
         const app = initializeApp(firebaseConfig);
@@ -199,14 +244,18 @@
         const provider = new GoogleAuthProvider();
 
         window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         let currentSessionId = localStorage.getItem("active_session_id") || null;
         let liveRecordsCache = [];
         let activeSubscription = null;
         let sessionDataCache = null;
+        let pollingInterval = null;
 
+        // Auth Observer
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 showView("auth-view");
+                stopPolling();
                 return;
             }
 
@@ -214,16 +263,19 @@
                 showView("auth-view");
                 document.getElementById("auth-error").classList.remove("hidden");
                 await signOut(auth);
+                stopPolling();
                 return;
             }
 
             document.getElementById("user-badge").classList.remove("hidden");
+            document.getElementById("user-badge").classList.add("flex");
             document.getElementById("user-email").innerText = user.email;
 
             if (currentSessionId) {
                 showView("dashboard-view");
                 await loadSessionData();
                 subscribeToAttendance();
+                startPolling();
             } else {
                 showView("setup-view");
                 document.getElementById("date-input").valueAsDate = new Date();
@@ -236,6 +288,7 @@
         }
 
         window.logout = async function() {
+            stopPolling();
             await signOut(auth);
             localStorage.removeItem("active_session_id");
             window.location.reload();
@@ -260,7 +313,7 @@
                 .single();
 
             if (error) {
-                alert("Error starting session: " + error.message);
+                alert("Error creating session: " + error.message);
                 return;
             }
 
@@ -270,6 +323,7 @@
             showView("dashboard-view");
             await loadSessionData();
             subscribeToAttendance();
+            startPolling();
         }
 
         async function loadSessionData() {
@@ -282,6 +336,7 @@
             if (!session) {
                 localStorage.removeItem("active_session_id");
                 currentSessionId = null;
+                stopPolling();
                 showView("setup-view");
                 loadArchives();
                 return;
@@ -305,13 +360,13 @@
                 statusBadge.className = "text-xs font-mono px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
                 
                 toggleBtn.innerText = "End Session";
-                toggleBtn.className = "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-4 py-2.5 rounded-xl transition flex items-center gap-2";
+                toggleBtn.className = "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3 py-2.5 rounded-xl transition flex items-center gap-2";
             } else {
-                statusBadge.innerText = "Status: Session Ended";
+                statusBadge.innerText = "Status: Session Closed";
                 statusBadge.className = "text-xs font-mono px-3 py-1 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20";
                 
-                toggleBtn.innerText = "Resume Session";
-                toggleBtn.className = "bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-4 py-2.5 rounded-xl transition flex items-center gap-2";
+                toggleBtn.innerText = "Reopen Session";
+                toggleBtn.className = "bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-3 py-2.5 rounded-xl transition flex items-center gap-2";
             }
         }
 
@@ -325,7 +380,7 @@
                 .eq("id", currentSessionId);
 
             if (error) {
-                alert("Failed to update session state: " + error.message);
+                alert("Could not update session state: " + error.message);
                 return;
             }
 
@@ -342,7 +397,7 @@
 
             const tbody = document.getElementById("archives-tbody");
             if (!sessions || sessions.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-gray-500">No saved session archives found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-gray-500">No saved session logs found.</td></tr>`;
                 return;
             }
 
@@ -352,7 +407,7 @@
                     <td class="p-3 text-gray-400">${s.session_date}</td>
                     <td class="p-3 text-center">
                         <span class="px-2 py-0.5 rounded text-[10px] ${s.active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-gray-800 text-gray-400'}">
-                            ${s.active ? 'Active' : 'Archived'}
+                            ${s.active ? 'Active' : 'Closed'}
                         </span>
                     </td>
                     <td class="p-3 text-center">
@@ -368,6 +423,7 @@
             showView("dashboard-view");
             await loadSessionData();
             subscribeToAttendance();
+            startPolling();
         }
 
         function generateQRCode(sessionId, isActive) {
@@ -376,17 +432,19 @@
             container.innerHTML = "";
 
             if (!isActive) {
-                container.innerHTML = `<div class="w-[180px] h-[180px] flex items-center justify-center text-red-500 font-mono text-xs text-center font-bold bg-gray-900 rounded-xl">QR Code Disabled<br><span class="text-[10px] text-gray-400 font-normal">Session has ended</span></div>`;
-                statusText.innerText = "This session has been ended. Scans are no longer accepted.";
+                container.innerHTML = `<div class="w-[180px] h-[180px] flex items-center justify-center text-red-500 font-mono text-xs text-center font-bold bg-gray-900 rounded-xl">QR Disabled<br><span class="text-[10px] text-gray-400 font-normal">Session is closed</span></div>`;
+                statusText.innerText = "This session is closed. No new scans will be registered.";
                 return;
             }
 
             const checkInUrl = `${window.location.origin}/checkin.html?session=${sessionId}`;
             new QRCode(container, { text: checkInUrl, width: 180, height: 180 });
-            statusText.innerText = "Have students scan this code using phone camera.";
+            statusText.innerText = "Scan this QR code using phone camera to mark attendance.";
         }
 
         async function fetchAttendanceRecords() {
+            if (!currentSessionId) return;
+
             const { data } = await window.supabaseClient
                 .from("attendance_records")
                 .select("*")
@@ -397,6 +455,7 @@
             renderTable(liveRecordsCache);
         }
 
+        // Live Realtime Subscription + Auto Polling Every 3 Seconds
         function subscribeToAttendance() {
             if (activeSubscription) {
                 window.supabaseClient.removeChannel(activeSubscription);
@@ -410,12 +469,23 @@
                 .subscribe();
         }
 
+        function startPolling() {
+            stopPolling();
+            pollingInterval = setInterval(() => {
+                fetchAttendanceRecords();
+            }, 3000); // Refreshes every 3 seconds automatically
+        }
+
+        function stopPolling() {
+            if (pollingInterval) clearInterval(pollingInterval);
+        }
+
         function renderTable(records) {
             const tbody = document.getElementById("attendance-tbody");
             document.getElementById("attendance-count").innerText = `${records.length} Present`;
 
             if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-gray-500">Waiting for submissions...</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-gray-500">No submissions yet...</td></tr>`;
                 return;
             }
 
@@ -424,7 +494,7 @@
                     <td class="p-4 text-gray-500">${index + 1}</td>
                     <td class="p-4 font-semibold text-white">${rec.student_name || 'N/A'}</td>
                     <td class="p-4 text-blue-400 font-semibold">${rec.roll_no || 'N/A'}</td>
-                    <td class="p-4 text-xs text-gray-500">${new Date(rec.scanned_at).toLocaleTimeString()}</td>
+                    <td class="p-4 text-xs text-gray-400">${new Date(rec.scanned_at).toLocaleTimeString()}</td>
                     <td class="p-4 text-center">
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                             Present
@@ -437,6 +507,42 @@
             `).join("");
         }
 
+        // Add Student Manually
+        window.openManualEntryModal = function() {
+            document.getElementById("manual-entry-modal").classList.remove("hidden");
+        }
+        
+        window.closeManualEntryModal = function() {
+            document.getElementById("manual-entry-modal").classList.add("hidden");
+        }
+
+        window.submitManualEntry = async function(e) {
+            e.preventDefault();
+            const name = document.getElementById("manual-name").value.trim();
+            const roll = document.getElementById("manual-roll").value.trim();
+
+            if (!name || !roll || !currentSessionId) return;
+
+            const { error } = await window.supabaseClient
+                .from("attendance_records")
+                .insert([{
+                    session_id: currentSessionId,
+                    student_name: name,
+                    roll_no: roll,
+                    scanned_at: new Date().toISOString()
+                }]);
+
+            if (error) {
+                alert("Failed to add entry: " + error.message);
+                return;
+            }
+
+            document.getElementById("manual-name").value = "";
+            document.getElementById("manual-roll").value = "";
+            closeManualEntryModal();
+            fetchAttendanceRecords();
+        }
+
         window.removeRecord = async function(recordId) {
             if (confirm("Remove this entry?")) {
                 await window.supabaseClient.from("attendance_records").delete().eq("id", recordId);
@@ -444,25 +550,64 @@
             }
         }
 
+        // Export as CSV
         window.exportToCSV = function() {
             if (liveRecordsCache.length === 0) {
-                alert("No records available to export.");
+                alert("No records to export.");
                 return;
             }
             let csvContent = "data:text/csv;charset=utf-8,Sr No,Student Name,Roll Number,Time Scanned\n";
             liveRecordsCache.forEach((r, index) => {
-                csvContent += `${index + 1},"${r.student_name}","${r.roll_no}","${r.scanned_at}"\n`;
+                csvContent += `${index + 1},"${r.student_name}","${r.roll_no}","${new Date(r.scanned_at).toLocaleTimeString()}"\n`;
             });
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `attendance_${currentSessionId}.csv`);
+            link.setAttribute("download", `attendance_${sessionDataCache?.subject || 'session'}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
+        // Export as PDF
+        window.exportToPDF = function() {
+            if (liveRecordsCache.length === 0) {
+                alert("No records to export.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const title = `Attendance Report - ${sessionDataCache?.subject || 'Session'}`;
+            const dateStr = `Date: ${sessionDataCache?.session_date || ''} | Total Present: ${liveRecordsCache.length}`;
+
+            doc.setFontSize(16);
+            doc.text(title, 14, 15);
+            doc.setFontSize(10);
+            doc.text(dateStr, 14, 23);
+
+            const tableData = liveRecordsCache.map((r, i) => [
+                i + 1,
+                r.student_name,
+                r.roll_no,
+                new Date(r.scanned_at).toLocaleTimeString(),
+                'Present'
+            ]);
+
+            doc.autoTable({
+                startY: 28,
+                head: [['#', 'Student Name', 'Roll Number', 'Time', 'Status']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [59, 130, 246] }
+            });
+
+            doc.save(`attendance_${sessionDataCache?.subject || 'session'}.pdf`);
+        }
+
         window.exitDashboard = function() {
+            stopPolling();
             if (activeSubscription) {
                 window.supabaseClient.removeChannel(activeSubscription);
             }
