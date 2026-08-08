@@ -223,69 +223,102 @@
         © 2026 Nakul Dhande. Secure Attendance System.
     </footer>
 
-    <!-- Core Application Code (Module script properly importing config) -->
+    <!-- Core Application Code -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Dynamic ES Module import that handles both Named and Default export config styles
-        import * as ConfigModule from "./api/config.js";
-        
-        const configData = ConfigModule.default || ConfigModule;
-
-        const firebaseConfig = configData.firebaseConfig || configData.FIREBASE_CONFIG;
-        const SUPABASE_URL = configData.SUPABASE_URL || configData.supabaseUrl;
-        const SUPABASE_ANON_KEY = configData.SUPABASE_ANON_KEY || configData.supabaseAnonKey;
-        const ADMIN_EMAIL = configData.ADMIN_EMAIL || configData.adminEmail || "nakuldhande2005@gmail.com";
-
-        if (!firebaseConfig || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
-            console.error("Configuration payload resolved:", configData);
-            alert("Configuration error! Please ensure api/config.js exports valid firebaseConfig, SUPABASE_URL, and SUPABASE_ANON_KEY.");
-        }
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
+        let auth, provider, app;
         let currentSessionId = localStorage.getItem("active_session_id") || null;
         let liveRecordsCache = [];
         let activeSubscription = null;
         let sessionDataCache = null;
         let pollingInterval = null;
+        let ADMIN_EMAIL = "nakuldhande2005@gmail.com";
 
-        // Auth Observer
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                showView("auth-view");
-                stopPolling();
-                return;
+        async function initApp() {
+            try {
+                let firebaseConfig = null;
+                let supabaseUrl = "";
+                let supabaseAnonKey = "";
+
+                // 1. Fetch JSON config from server API endpoint
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const config = await response.json();
+                    firebaseConfig = config.FIREBASE_CONFIG || config.firebaseConfig;
+                    supabaseUrl = config.SUPABASE_URL || config.supabaseUrl;
+                    supabaseAnonKey = config.SUPABASE_ANON_KEY || config.supabaseAnonKey;
+                    if (config.ADMIN_EMAIL || config.adminEmail) {
+                        ADMIN_EMAIL = config.ADMIN_EMAIL || config.adminEmail;
+                    }
+                } 
+                // 2. Fallback to global window config if set
+                else if (window.CONFIG) {
+                    firebaseConfig = window.CONFIG.FIREBASE_CONFIG || window.CONFIG.firebaseConfig;
+                    supabaseUrl = window.CONFIG.SUPABASE_URL || window.CONFIG.supabaseUrl;
+                    supabaseAnonKey = window.CONFIG.SUPABASE_ANON_KEY || window.CONFIG.supabaseAnonKey;
+                    if (window.CONFIG.ADMIN_EMAIL) {
+                        ADMIN_EMAIL = window.CONFIG.ADMIN_EMAIL;
+                    }
+                }
+
+                if (!firebaseConfig || !supabaseUrl || !supabaseAnonKey) {
+                    throw new Error("Missing Supabase or Firebase configuration keys.");
+                }
+
+                // Initialize Firebase & Supabase safely after config retrieval
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                provider = new GoogleAuthProvider();
+
+                window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+                setupAuthListener();
+
+            } catch (err) {
+                console.error("Initialization Error:", err);
+                document.getElementById("auth-view").classList.remove("hidden");
+                const errElem = document.getElementById("auth-error");
+                errElem.innerText = "Failed to connect to configuration service.";
+                errElem.classList.remove("hidden");
             }
+        }
 
-            if (user.email !== ADMIN_EMAIL) {
-                showView("auth-view");
-                document.getElementById("auth-error").classList.remove("hidden");
-                await signOut(auth);
-                stopPolling();
-                return;
-            }
+        function setupAuthListener() {
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    showView("auth-view");
+                    stopPolling();
+                    return;
+                }
 
-            document.getElementById("user-badge").classList.remove("hidden");
-            document.getElementById("user-badge").classList.add("flex");
-            document.getElementById("user-email").innerText = user.email;
+                if (user.email !== ADMIN_EMAIL) {
+                    showView("auth-view");
+                    const errElem = document.getElementById("auth-error");
+                    errElem.innerText = "Access denied. Unauthorized account.";
+                    errElem.classList.remove("hidden");
+                    await signOut(auth);
+                    stopPolling();
+                    return;
+                }
 
-            if (currentSessionId) {
-                showView("dashboard-view");
-                await loadSessionData();
-                subscribeToAttendance();
-                startPolling();
-            } else {
-                showView("setup-view");
-                document.getElementById("date-input").valueAsDate = new Date();
-                loadArchives();
-            }
-        });
+                document.getElementById("user-badge").classList.remove("hidden");
+                document.getElementById("user-badge").classList.add("flex");
+                document.getElementById("user-email").innerText = user.email;
+
+                if (currentSessionId) {
+                    showView("dashboard-view");
+                    await loadSessionData();
+                    subscribeToAttendance();
+                    startPolling();
+                } else {
+                    showView("setup-view");
+                    document.getElementById("date-input").valueAsDate = new Date();
+                    loadArchives();
+                }
+            });
+        }
 
         window.loginWithGoogle = async function() {
             try { await signInWithPopup(auth, provider); } catch (error) { console.error(error); }
@@ -293,7 +326,7 @@
 
         window.logout = async function() {
             stopPolling();
-            await signOut(auth);
+            if (auth) await signOut(auth);
             localStorage.removeItem("active_session_id");
             window.location.reload();
         }
@@ -619,6 +652,9 @@
 
         window.openQRModal = function() { document.getElementById("qr-modal").classList.remove("hidden"); }
         window.closeQRModal = function() { document.getElementById("qr-modal").classList.add("hidden"); }
+
+        // Initialize application on launch
+        initApp();
     </script>
 </body>
 </html>
