@@ -70,19 +70,20 @@
   <div id="dashboardContainer" class="hidden min-h-screen flex">
     <!-- Sidebar -->
     <aside class="w-72 bg-slate-800/60 border-r border-slate-700/60 flex flex-col fixed inset-y-0 left-0 z-20">
-      <div class="p-5 border-b border-slate-700/60 flex items-center gap-3">
-        <div class="p-2 bg-indigo-600 rounded-lg text-white">
-          <i data-lucide="book-open-check" class="w-5 h-5"></i>
-        </div>
-        <div>
-          <h2 class="font-bold text-white leading-tight">Prep Hub</h2>
-          <p class="text-xs text-slate-400">Placement Portal</p>
+      <div class="p-5 border-b border-slate-700/60 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-indigo-600 rounded-lg text-white">
+            <i data-lucide="book-open-check" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 class="font-bold text-white leading-tight">Prep Hub</h2>
+            <p class="text-xs text-slate-400">Placement Portal</p>
+          </div>
         </div>
       </div>
 
       <!-- Navigation Links -->
       <nav class="flex-1 overflow-y-auto p-4 space-y-6">
-        <!-- Section: Aptitude -->
         <div>
           <h3 class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Aptitude</h3>
           <div class="space-y-1">
@@ -101,7 +102,6 @@
           </div>
         </div>
 
-        <!-- Section: Technical -->
         <div>
           <h3 class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Technical</h3>
           <div class="space-y-1">
@@ -123,7 +123,7 @@
           <div class="truncate mr-2">
             <p id="userEmailDisplay" class="text-xs font-medium text-slate-200 truncate"></p>
             <span class="text-[10px] text-emerald-400 flex items-center gap-1 mt-0.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Firebase Authenticated
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Verified Access
             </span>
           </div>
           <button onclick="logout()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition" title="Logout">
@@ -135,7 +135,7 @@
 
     <!-- Main Content Area -->
     <main class="flex-1 ml-72 p-8 min-h-screen">
-      <!-- Top Bar Breadcrumb -->
+      <!-- Top Bar Header with FREE Tag and Take Test Button -->
       <header class="flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
         <div>
           <div class="flex items-center gap-2 text-sm text-slate-400">
@@ -143,17 +143,26 @@
             <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
             <span id="breadcrumbSubtopic" class="text-indigo-400 font-medium">Select Topic</span>
           </div>
-          <h1 id="mainTitle" class="text-2xl font-bold text-white mt-1">Select a Category</h1>
+          <h1 id="mainTitle" class="text-2xl font-bold text-white mt-1">Quantitative Aptitude</h1>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <!-- Take Online Test Button -->
+          <button onclick="openTestModal()" class="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-4 py-2 rounded-xl font-semibold shadow-lg shadow-emerald-900/30 transition transform hover:-translate-y-0.5">
+            <i data-lucide="timer" class="w-4 h-4"></i>
+            Take Online Test
+          </button>
+
+          <!-- Free For Limited Time Tag -->
+          <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm animate-pulse">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            FREE FOR LIMITED TIME
+          </div>
         </div>
       </header>
 
       <!-- View 1: Topic / Folder Selection -->
-      <div id="topicsView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        <div class="col-span-full py-16 text-center text-slate-500">
-          <i data-lucide="folder-search" class="w-12 h-12 mx-auto mb-3 stroke-[1.5]"></i>
-          <p>Select a category from the sidebar to view subtopics.</p>
-        </div>
-      </div>
+      <div id="topicsView" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 
       <!-- View 2: Questions & Practice View -->
       <div id="practiceView" class="hidden max-w-4xl space-y-6">
@@ -172,10 +181,72 @@
           </div>
         </div>
 
-        <!-- Questions Container -->
         <div id="questionsContainer" class="space-y-6"></div>
       </div>
+
+      <!-- View 3: Live Test Interface -->
+      <div id="testModeContainer" class="hidden max-w-4xl space-y-6">
+        <div class="bg-slate-800/90 border border-slate-700 p-4 rounded-xl flex items-center justify-between sticky top-4 z-10 backdrop-blur-md shadow-xl">
+          <div>
+            <h3 id="testTitle" class="font-bold text-lg text-white">Online Aptitude Test</h3>
+            <p id="testSubInfo" class="text-xs text-slate-400">Answer all questions before timer expires</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="bg-slate-900 border border-indigo-500/40 px-4 py-2 rounded-lg text-center">
+              <span class="text-[10px] text-slate-400 block uppercase font-semibold">Time Remaining</span>
+              <span id="testTimer" class="font-mono text-xl text-emerald-400 font-bold">00:00</span>
+            </div>
+            <button onclick="submitTest()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2.5 rounded-lg text-sm transition">
+              Submit Test
+            </button>
+          </div>
+        </div>
+
+        <div id="testQuestionsContainer" class="space-y-6"></div>
+      </div>
     </main>
+  </div>
+
+  <!-- ================= TEST SETUP MODAL ================= -->
+  <div id="testModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="clipboard-check" class="w-6 h-6 text-emerald-400"></i>
+          <h3 class="text-xl font-bold text-white">Configure Your Test</h3>
+        </div>
+        <button onclick="closeTestModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="overflow-y-auto space-y-6 pr-2 flex-1">
+        <!-- Duration Selector -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Select Test Duration:</label>
+          <div class="grid grid-cols-4 gap-3">
+            <button onclick="setTestDuration(15)" class="time-btn border border-slate-700 bg-slate-900/60 p-3 rounded-xl text-center text-sm font-medium hover:border-indigo-500 transition focus:border-indigo-500">15 Mins</button>
+            <button onclick="setTestDuration(30)" class="time-btn border border-slate-700 bg-slate-900/60 p-3 rounded-xl text-center text-sm font-medium hover:border-indigo-500 transition focus:border-indigo-500">30 Mins</button>
+            <button onclick="setTestDuration(45)" class="time-btn border border-slate-700 bg-slate-900/60 p-3 rounded-xl text-center text-sm font-medium hover:border-indigo-500 transition focus:border-indigo-500">45 Mins</button>
+            <button onclick="setTestDuration(60)" class="time-btn border border-slate-700 bg-slate-900/60 p-3 rounded-xl text-center text-sm font-medium hover:border-indigo-500 transition focus:border-indigo-500">60 Mins</button>
+          </div>
+        </div>
+
+        <!-- Topics Selection Checkboxes -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-semibold text-slate-300">Select Aptitude Topics:</label>
+            <button onclick="toggleSelectAllTopics()" class="text-xs text-indigo-400 hover:underline">Select All</button>
+          </div>
+          <div id="testTopicsList" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto p-3 bg-slate-900/50 rounded-xl border border-slate-700"></div>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-700 pt-4 flex justify-end gap-3">
+        <button onclick="closeTestModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-700">Cancel</button>
+        <button onclick="startTest()" class="px-6 py-2 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-lg shadow-emerald-600/20">Start Test</button>
+      </div>
+    </div>
   </div>
 
   <!-- Firebase v10 Modular SDK Modules -->
@@ -190,55 +261,56 @@
       onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // Global variables accessible across the app
     window.supabaseClient = null;
     window.firebaseAuth = null;
     window.currentUser = null;
     window.currentCategory = '';
     window.currentSubtopic = '';
+    window.selectedDuration = 15;
+    window.testTimerInterval = null;
 
+    // Full Arithmetic Aptitude structure matched with screenshot
     window.TOPIC_STRUCTURE = {
-      'Quantitative Aptitude': ['Problems on Trains', 'Boats and Streams', 'Time and Work', 'Permutations & Combinations', 'Probability'],
+      'Quantitative Aptitude': [
+        'Problems on Trains', 'Time and Distance', 'Height and Distance',
+        'Time and Work', 'Simple Interest', 'Compound Interest',
+        'Profit and Loss', 'Partnership', 'Percentage',
+        'Problems on Ages', 'Calendar', 'Clock',
+        'Average', 'Area', 'Volume and Surface Area',
+        'Permutation and Combination', 'Numbers', 'Problems on Numbers',
+        'Problems on H.C.F and L.C.M', 'Decimal Fraction', 'Simplification',
+        'Square Root and Cube Root', 'Surds and Indices', 'Ratio and Proportion',
+        'Chain Rule', 'Pipes and Cistern', 'Boats and Streams',
+        'Alligation or Mixture', 'Logarithm', 'Races and Games',
+        'Stocks and Shares', 'Probability', 'True Discount',
+        'Banker\'s Discount', 'Odd Man Out and Series'
+      ],
       'Logical Reasoning': ['Seating Arrangement', 'Blood Relations', 'Syllogism', 'Coding Decoding'],
       'Non-Verbal Reasoning': ['Series Completion', 'Mirror Images', 'Paper Folding'],
       'Data Structures': ['Arrays & Strings', 'Linked Lists', 'Trees & Graphs', 'Dynamic Programming'],
       'CS Fundamentals': ['Operating Systems', 'DBMS & SQL', 'Computer Networks']
     };
 
-    // Load API configuration and initialize both Firebase Auth & Supabase
     async function initializeApp() {
       try {
         const response = await fetch('/api/config');
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.error || `Server error ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Server error ${response.status}`);
         
         const config = await response.json();
 
-        // 1. Initialize Supabase Client (For SQL Database queries)
         const supabaseUrl = config.SUPABASE_URL || config.supabaseUrl;
         const supabaseAnonKey = config.SUPABASE_ANON_KEY || config.supabaseAnonKey;
 
         if (supabaseUrl && supabaseAnonKey && window.supabase) {
           window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
-        } else {
-          console.warn("Supabase parameters missing or script failed to load.");
-        }
-
-        // 2. Initialize Firebase App & Auth
-        if (!config.firebaseConfig || !config.firebaseConfig.apiKey) {
-          throw new Error("FIREBASE_API_KEY or firebaseConfig missing in /api/config response.");
         }
 
         const app = initFirebaseApp(config.firebaseConfig);
         window.firebaseAuth = getAuth(app);
 
-        // Hide loader once app is initialized
         document.getElementById('initLoader').classList.add('hidden');
         lucide.createIcons();
 
-        // 3. Listen to Firebase Authentication state changes
         onAuthStateChanged(window.firebaseAuth, (user) => {
           if (user) {
             window.currentUser = user;
@@ -253,49 +325,25 @@
 
       } catch (err) {
         console.error("Initialization Failed:", err);
-        document.getElementById('initLoader').innerHTML = `
-          <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl max-w-md text-center">
-            <strong>Initialization Error:</strong> ${err.message}
-          </div>`;
       }
     }
 
-    // Attach Auth actions to window scope for HTML onclick handlers
     window.loginWithGoogle = async function() {
       const provider = new GoogleAuthProvider();
-      try {
-        await signInWithPopup(window.firebaseAuth, provider);
-      } catch (error) {
-        showError(error.message);
-      }
+      await signInWithPopup(window.firebaseAuth, provider);
     };
 
     window.handleEmailLogin = async function(e) {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
-
-      try {
-        await signInWithEmailAndPassword(window.firebaseAuth, email, password);
-      } catch (error) {
-        showError(error.message);
-      }
+      await signInWithEmailAndPassword(window.firebaseAuth, email, password);
     };
 
     window.logout = async function() {
-      try {
-        await signOut(window.firebaseAuth);
-        window.location.reload();
-      } catch (error) {
-        console.error("Logout Error:", error);
-      }
+      await signOut(window.firebaseAuth);
+      window.location.reload();
     };
-
-    function showError(msg) {
-      const errDiv = document.getElementById('authError');
-      errDiv.textContent = msg;
-      errDiv.classList.remove('hidden');
-    }
 
     function showAuthUI() {
       document.getElementById('authContainer').classList.remove('hidden');
@@ -314,21 +362,18 @@
       document.getElementById('mainTitle').textContent = category;
 
       document.getElementById('practiceView').classList.add('hidden');
+      document.getElementById('testModeContainer').classList.add('hidden');
       document.getElementById('topicsView').classList.remove('hidden');
 
       const topicsView = document.getElementById('topicsView');
       const subtopics = window.TOPIC_STRUCTURE[category] || [];
 
       topicsView.innerHTML = subtopics.map(subtopic => `
-        <div onclick="selectSubtopic('${subtopic}')" class="group p-6 bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/60 hover:border-indigo-500/50 rounded-2xl cursor-pointer transition-all duration-200">
-          <div class="flex items-center justify-between mb-4">
-            <div class="p-3 bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white rounded-xl transition">
-              <i data-lucide="folder" class="w-6 h-6"></i>
-            </div>
-            <i data-lucide="chevron-right" class="w-5 h-5 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-1 transition"></i>
+        <div onclick="selectSubtopic('${subtopic}')" class="group p-4 bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/60 hover:border-indigo-500/50 rounded-xl cursor-pointer transition flex items-center gap-3">
+          <div class="p-2.5 bg-amber-500/10 text-amber-400 group-hover:bg-amber-500 group-hover:text-slate-950 rounded-lg transition">
+            <i data-lucide="folder" class="w-5 h-5"></i>
           </div>
-          <h3 class="font-bold text-lg text-white group-hover:text-indigo-300 transition">${subtopic}</h3>
-          <p class="text-xs text-slate-400 mt-1">Click to practice MCQs and formulas</p>
+          <span class="font-medium text-sm text-slate-200 group-hover:text-white">${subtopic}</span>
         </div>
       `).join('');
 
@@ -341,6 +386,7 @@
       document.getElementById('mainTitle').textContent = subtopic;
 
       document.getElementById('topicsView').classList.add('hidden');
+      document.getElementById('testModeContainer').classList.add('hidden');
       document.getElementById('practiceView').classList.remove('hidden');
 
       await fetchQuestions(window.currentCategory, subtopic);
@@ -350,7 +396,6 @@
       window.selectCategory(window.currentCategory);
     };
 
-    // Supabase Query for fetching questions
     async function fetchQuestions(category, subtopic) {
       const container = document.getElementById('questionsContainer');
       const formulaBanner = document.getElementById('formulaBanner');
@@ -359,62 +404,35 @@
       container.innerHTML = `<div class="py-12 text-center text-slate-400">Loading questions from database...</div>`;
       formulaBanner.classList.add('hidden');
 
-      if (!window.supabaseClient) {
-        container.innerHTML = `<div class="p-4 bg-red-500/10 text-red-400 rounded-xl">Supabase client is not initialized.</div>`;
-        return;
-      }
-
       const { data: questions, error } = await window.supabaseClient
         .from('questions')
         .select('*')
         .eq('category', category)
         .eq('subtopic', subtopic);
 
-      if (error) {
-        container.innerHTML = `<div class="p-4 bg-red-500/10 text-red-400 rounded-xl">Failed to load questions: ${error.message}</div>`;
+      if (error || !questions || questions.length === 0) {
+        container.innerHTML = `<div class="p-12 text-center text-slate-400">No questions found for ${subtopic} yet.</div>`;
         return;
       }
 
-      if (!questions || questions.length === 0) {
-        container.innerHTML = `
-          <div class="p-12 text-center bg-slate-800/30 border border-slate-700/50 rounded-2xl">
-            <i data-lucide="file-question" class="w-10 h-10 mx-auto text-slate-500 mb-2"></i>
-            <h3 class="text-lg font-medium text-slate-300">No questions found</h3>
-            <p class="text-sm text-slate-500 mt-1">Upload questions for "${subtopic}" in your database table.</p>
-          </div>`;
-        lucide.createIcons();
-        return;
-      }
-
-      const questionWithFormula = questions.find(q => q.formula);
-      if (questionWithFormula) {
-        formulaContent.textContent = questionWithFormula.formula;
+      const qFormula = questions.find(q => q.formula);
+      if (qFormula) {
+        formulaContent.textContent = qFormula.formula;
         formulaBanner.classList.remove('hidden');
       }
 
       container.innerHTML = questions.map((q, idx) => `
         <div class="p-6 bg-slate-800/40 border border-slate-700/60 rounded-2xl space-y-4">
-          <div class="flex items-start justify-between gap-4">
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-700 text-slate-300">Q${idx + 1}</span>
-            <p class="text-slate-100 font-medium text-base flex-1">${q.question_text}</p>
+          <p class="text-slate-100 font-medium"><span class="text-indigo-400 mr-2">Q${idx + 1}.</span> ${q.question_text}</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${['A', 'B', 'C', 'D'].map(opt => `
+              <button onclick="checkAnswer(this, '${opt}', '${q.correct_option}', 'exp-${q.id}')" class="option-btn text-left p-3 rounded-xl border border-slate-700 bg-slate-900/40 hover:bg-slate-700/40 text-sm transition">
+                <strong class="text-slate-500 mr-2">${opt}.</strong> ${q[`option_${opt.toLowerCase()}`]}
+              </button>
+            `).join('')}
           </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-            ${['A', 'B', 'C', 'D'].map(optKey => {
-              const optText = q[`option_${optKey.toLowerCase()}`];
-              return `
-                <button onclick="checkAnswer(this, '${optKey}', '${q.correct_option}', 'exp-${q.id}')" 
-                  class="option-btn text-left p-3.5 rounded-xl border border-slate-700/80 bg-slate-900/40 hover:bg-slate-700/40 hover:border-slate-600 transition flex items-center justify-between group">
-                  <span class="text-sm text-slate-300 font-medium"><strong class="text-slate-500 group-hover:text-indigo-400 mr-2">${optKey}.</strong> ${optText}</span>
-                  <i data-lucide="circle" class="w-4 h-4 text-slate-600 icon-status"></i>
-                </button>
-              `;
-            }).join('')}
-          </div>
-
-          <div id="exp-${q.id}" class="hidden p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 text-sm text-slate-300 mt-4 space-y-1">
-            <p class="font-semibold text-indigo-400">Explanation:</p>
-            <p>${q.explanation || 'No detailed explanation provided.'}</p>
+          <div id="exp-${q.id}" class="hidden p-4 rounded-xl bg-slate-900/80 text-sm text-slate-300">
+            <strong>Explanation:</strong> ${q.explanation || 'N/A'}
           </div>
         </div>
       `).join('');
@@ -422,28 +440,113 @@
       lucide.createIcons();
     }
 
-    window.checkAnswer = function(selectedBtn, selectedOpt, correctOpt, expId) {
-      const parentCard = selectedBtn.closest('.space-y-4');
-      const allButtons = parentCard.querySelectorAll('.option-btn');
+    // --- TEST SYSTEM FUNCTIONS --- //
+    window.openTestModal = function() {
+      const modal = document.getElementById('testModal');
+      const container = document.getElementById('testTopicsList');
+      const quantTopics = window.TOPIC_STRUCTURE['Quantitative Aptitude'];
 
-      allButtons.forEach(btn => btn.style.pointerEvents = 'none');
+      container.innerHTML = quantTopics.map(topic => `
+        <label class="flex items-center gap-2 p-2 hover:bg-slate-800 rounded-lg cursor-pointer text-xs text-slate-300">
+          <input type="checkbox" value="${topic}" class="topic-checkbox rounded border-slate-700 text-indigo-600 focus:ring-0" checked>
+          <span class="truncate">${topic}</span>
+        </label>
+      `).join('');
 
-      if (selectedOpt === correctOpt) {
-        selectedBtn.classList.add('bg-emerald-950/40', 'border-emerald-500/50', 'text-emerald-300');
-        selectedBtn.querySelector('.icon-status').outerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>`;
-      } else {
-        selectedBtn.classList.add('bg-rose-950/40', 'border-rose-500/50', 'text-rose-300');
-        selectedBtn.querySelector('.icon-status').outerHTML = `<i data-lucide="x-circle" class="w-4 h-4 text-rose-400"></i>`;
+      modal.classList.remove('hidden');
+      setTestDuration(15);
+      lucide.createIcons();
+    };
 
-        allButtons.forEach(btn => {
-          if (btn.innerText.startsWith(correctOpt)) {
-            btn.classList.add('bg-emerald-950/40', 'border-emerald-500/50', 'text-emerald-300');
-          }
-        });
+    window.closeTestModal = function() {
+      document.getElementById('testModal').classList.add('hidden');
+    };
+
+    window.setTestDuration = function(mins) {
+      window.selectedDuration = mins;
+      document.querySelectorAll('.time-btn').forEach(btn => {
+        if (btn.innerText.includes(mins)) {
+          btn.classList.add('border-indigo-500', 'bg-indigo-600/20', 'text-indigo-300');
+        } else {
+          btn.classList.remove('border-indigo-500', 'bg-indigo-600/20', 'text-indigo-300');
+        }
+      });
+    };
+
+    window.toggleSelectAllTopics = function() {
+      const checkboxes = document.querySelectorAll('.topic-checkbox');
+      const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+      checkboxes.forEach(cb => cb.checked = !allChecked);
+    };
+
+    window.startTest = async function() {
+      const selectedTopics = Array.from(document.querySelectorAll('.topic-checkbox:checked')).map(cb => cb.value);
+
+      if (selectedTopics.length === 0) {
+        alert("Please select at least one topic.");
+        return;
       }
 
-      document.getElementById(expId).classList.remove('hidden');
-      lucide.createIcons();
+      closeTestModal();
+      document.getElementById('topicsView').classList.add('hidden');
+      document.getElementById('practiceView').classList.add('hidden');
+      document.getElementById('testModeContainer').classList.remove('hidden');
+
+      const testQuestionsContainer = document.getElementById('testQuestionsContainer');
+      testQuestionsContainer.innerHTML = `<div class="py-12 text-center text-slate-400">Generating test questions from pool...</div>`;
+
+      // Fetch questions from database for selected topics
+      const { data: questions } = await window.supabaseClient
+        .from('questions')
+        .select('*')
+        .in('subtopic', selectedTopics);
+
+      if (!questions || questions.length === 0) {
+        testQuestionsContainer.innerHTML = `<div class="p-8 text-center text-slate-400">No questions available in database for selected topics.</div>`;
+        return;
+      }
+
+      testQuestionsContainer.innerHTML = questions.map((q, idx) => `
+        <div class="p-6 bg-slate-800/40 border border-slate-700 rounded-2xl space-y-4">
+          <p class="text-slate-100 font-medium"><span class="text-indigo-400 mr-2">Q${idx + 1}.</span> ${q.question_text}</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${['A', 'B', 'C', 'D'].map(opt => `
+              <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-700 bg-slate-900/40 hover:bg-slate-700/40 cursor-pointer text-sm">
+                <input type="radio" name="test-q-${q.id}" value="${opt}" class="text-indigo-600">
+                <span><strong class="text-slate-500">${opt}.</strong> ${q[`option_${opt.toLowerCase()}`]}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      startTimer(window.selectedDuration * 60);
+    };
+
+    function startTimer(seconds) {
+      clearInterval(window.testTimerInterval);
+      let timeRemaining = seconds;
+
+      const timerDisplay = document.getElementById('testTimer');
+
+      window.testTimerInterval = setInterval(() => {
+        const mins = Math.floor(timeRemaining / 60);
+        const secs = timeRemaining % 60;
+        timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+        if (timeRemaining <= 0) {
+          clearInterval(window.testTimerInterval);
+          alert("Time's up! Submitting your test.");
+          submitTest();
+        }
+        timeRemaining--;
+      }, 1000);
+    }
+
+    window.submitTest = function() {
+      clearInterval(window.testTimerInterval);
+      alert("Test submitted successfully!");
+      backToTopics();
     };
 
     window.addEventListener('DOMContentLoaded', initializeApp);
