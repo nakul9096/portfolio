@@ -178,245 +178,248 @@
     </main>
   </div>
 
-  <script>
-    let supabase = null;
-    let currentUser = null;
-    let currentCategory = '';
-    let currentSubtopic = '';
+ <script>
+  // Renamed to avoid collision with global window.supabase from the CDN
+  let supabaseClient = null;
+  let currentUser = null;
+  let currentCategory = '';
+  let currentSubtopic = '';
 
-    const TOPIC_STRUCTURE = {
-      'Quantitative Aptitude': ['Problems on Trains', 'Boats and Streams', 'Time and Work', 'Permutations & Combinations', 'Probability'],
-      'Logical Reasoning': ['Seating Arrangement', 'Blood Relations', 'Syllogism', 'Coding Decoding'],
-      'Non-Verbal Reasoning': ['Series Completion', 'Mirror Images', 'Paper Folding'],
-      'Data Structures': ['Arrays & Strings', 'Linked Lists', 'Trees & Graphs', 'Dynamic Programming'],
-      'CS Fundamentals': ['Operating Systems', 'DBMS & SQL', 'Computer Networks']
-    };
+  const TOPIC_STRUCTURE = {
+    'Quantitative Aptitude': ['Problems on Trains', 'Boats and Streams', 'Time and Work', 'Permutations & Combinations', 'Probability'],
+    'Logical Reasoning': ['Seating Arrangement', 'Blood Relations', 'Syllogism', 'Coding Decoding'],
+    'Non-Verbal Reasoning': ['Series Completion', 'Mirror Images', 'Paper Folding'],
+    'Data Structures': ['Arrays & Strings', 'Linked Lists', 'Trees & Graphs', 'Dynamic Programming'],
+    'CS Fundamentals': ['Operating Systems', 'DBMS & SQL', 'Computer Networks']
+  };
 
-    // Initialize Supabase Client dynamically via /api/config
-    async function initializeApp() {
-      try {
-        const response = await fetch('/api/config');
-        if (!response.ok) throw new Error('Failed to load server configuration');
-        
-        const config = await response.json();
-        supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+  // Initialize Supabase Client dynamically via /api/config
+  async function initializeApp() {
+    try {
+      const response = await fetch('/api/config');
+      if (!response.ok) throw new Error('Failed to load server configuration');
+      
+      const config = await response.json();
+      
+      // Use window.supabase.createClient to instantiate your custom client
+      supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
 
-        document.getElementById('initLoader').classList.add('hidden');
-        lucide.createIcons();
+      document.getElementById('initLoader').classList.add('hidden');
+      lucide.createIcons();
 
-        // Check active session
-        const { data: { session } } = await supabase.auth.getSession();
+      // Check active session
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        await validateAndSetUser(session.user);
+      } else {
+        showAuthUI();
+      }
+
+      // Auth Listener
+      supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (session) {
           await validateAndSetUser(session.user);
         } else {
           showAuthUI();
         }
+      });
 
-        // Auth Listener
-        supabase.auth.onAuthStateChange(async (event, session) => {
-          if (session) {
-            await validateAndSetUser(session.user);
-          } else {
-            showAuthUI();
-          }
-        });
+    } catch (err) {
+      document.getElementById('initLoader').innerHTML = `
+        <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl max-w-md text-center">
+          <strong>Initialization Error:</strong> ${err.message}. Make sure <code>/api/config</code> returns valid Supabase credentials.
+        </div>`;
+    }
+  }
 
-      } catch (err) {
-        document.getElementById('initLoader').innerHTML = `
-          <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl max-w-md text-center">
-            <strong>Initialization Error:</strong> ${err.message}. Make sure <code>/api/config</code> returns valid Supabase credentials.
-          </div>`;
-      }
+  window.addEventListener('DOMContentLoaded', initializeApp);
+
+  async function validateAndSetUser(user) {
+    const { data, error } = await supabaseClient
+      .from('allowed_users')
+      .select('email')
+      .eq('email', user.email)
+      .single();
+
+    if (error || !data) {
+      showError('Access Denied: Your email is not whitelisted.');
+      await supabaseClient.auth.signOut();
+      return;
     }
 
-    window.addEventListener('DOMContentLoaded', initializeApp);
+    currentUser = user;
+    document.getElementById('userEmailDisplay').textContent = user.email;
+    showDashboardUI();
+    selectCategory('Quantitative Aptitude');
+  }
 
-    async function validateAndSetUser(user) {
-      const { data, error } = await supabase
-        .from('allowed_users')
-        .select('email')
-        .eq('email', user.email)
-        .single();
+  async function loginWithGoogle() {
+    const { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google' });
+    if (error) showError(error.message);
+  }
 
-      if (error || !data) {
-        showError('Access Denied: Your email is not whitelisted.');
-        await supabase.auth.signOut();
-        return;
-      }
+  async function handleEmailLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
 
-      currentUser = user;
-      document.getElementById('userEmailDisplay').textContent = user.email;
-      showDashboardUI();
-      selectCategory('Quantitative Aptitude');
-    }
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) showError(error.message);
+  }
 
-    async function loginWithGoogle() {
-      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
-      if (error) showError(error.message);
-    }
+  async function logout() {
+    await supabaseClient.auth.signOut();
+    window.location.reload();
+  }
 
-    async function handleEmailLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
+  function showError(msg) {
+    const errDiv = document.getElementById('authError');
+    errDiv.textContent = msg;
+    errDiv.classList.remove('hidden');
+  }
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) showError(error.message);
-    }
+  function showAuthUI() {
+    document.getElementById('authContainer').classList.remove('hidden');
+    document.getElementById('dashboardContainer').classList.add('hidden');
+  }
 
-    async function logout() {
-      await supabase.auth.signOut();
-      window.location.reload();
-    }
+  function showDashboardUI() {
+    document.getElementById('authContainer').classList.add('hidden');
+    document.getElementById('dashboardContainer').classList.remove('hidden');
+  }
 
-    function showError(msg) {
-      const errDiv = document.getElementById('authError');
-      errDiv.textContent = msg;
-      errDiv.classList.remove('hidden');
-    }
+  function selectCategory(category) {
+    currentCategory = category;
+    document.getElementById('breadcrumbCategory').textContent = category;
+    document.getElementById('breadcrumbSubtopic').textContent = 'Subtopics';
+    document.getElementById('mainTitle').textContent = category;
 
-    function showAuthUI() {
-      document.getElementById('authContainer').classList.remove('hidden');
-      document.getElementById('dashboardContainer').classList.add('hidden');
-    }
+    document.getElementById('practiceView').classList.add('hidden');
+    document.getElementById('topicsView').classList.remove('hidden');
 
-    function showDashboardUI() {
-      document.getElementById('authContainer').classList.add('hidden');
-      document.getElementById('dashboardContainer').classList.remove('hidden');
-    }
+    const topicsView = document.getElementById('topicsView');
+    const subtopics = TOPIC_STRUCTURE[category] || [];
 
-    function selectCategory(category) {
-      currentCategory = category;
-      document.getElementById('breadcrumbCategory').textContent = category;
-      document.getElementById('breadcrumbSubtopic').textContent = 'Subtopics';
-      document.getElementById('mainTitle').textContent = category;
-
-      document.getElementById('practiceView').classList.add('hidden');
-      document.getElementById('topicsView').classList.remove('hidden');
-
-      const topicsView = document.getElementById('topicsView');
-      const subtopics = TOPIC_STRUCTURE[category] || [];
-
-      topicsView.innerHTML = subtopics.map(subtopic => `
-        <div onclick="selectSubtopic('${subtopic}')" class="group p-6 bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/60 hover:border-indigo-500/50 rounded-2xl cursor-pointer transition-all duration-200">
-          <div class="flex items-center justify-between mb-4">
-            <div class="p-3 bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white rounded-xl transition">
-              <i data-lucide="folder" class="w-6 h-6"></i>
-            </div>
-            <i data-lucide="chevron-right" class="w-5 h-5 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-1 transition"></i>
+    topicsView.innerHTML = subtopics.map(subtopic => `
+      <div onclick="selectSubtopic('${subtopic}')" class="group p-6 bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/60 hover:border-indigo-500/50 rounded-2xl cursor-pointer transition-all duration-200">
+        <div class="flex items-center justify-between mb-4">
+          <div class="p-3 bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white rounded-xl transition">
+            <i data-lucide="folder" class="w-6 h-6"></i>
           </div>
-          <h3 class="font-bold text-lg text-white group-hover:text-indigo-300 transition">${subtopic}</h3>
-          <p class="text-xs text-slate-400 mt-1">Click to practice MCQs and formulas</p>
+          <i data-lucide="chevron-right" class="w-5 h-5 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-1 transition"></i>
         </div>
-      `).join('');
+        <h3 class="font-bold text-lg text-white group-hover:text-indigo-300 transition">${subtopic}</h3>
+        <p class="text-xs text-slate-400 mt-1">Click to practice MCQs and formulas</p>
+      </div>
+    `).join('');
 
+    lucide.createIcons();
+  }
+
+  async function selectSubtopic(subtopic) {
+    currentSubtopic = subtopic;
+    document.getElementById('breadcrumbSubtopic').textContent = subtopic;
+    document.getElementById('mainTitle').textContent = subtopic;
+
+    document.getElementById('topicsView').classList.add('hidden');
+    document.getElementById('practiceView').classList.remove('hidden');
+
+    await fetchQuestions(currentCategory, subtopic);
+  }
+
+  function backToTopics() {
+    selectCategory(currentCategory);
+  }
+
+  async function fetchQuestions(category, subtopic) {
+    const container = document.getElementById('questionsContainer');
+    const formulaBanner = document.getElementById('formulaBanner');
+    const formulaContent = document.getElementById('formulaContent');
+
+    container.innerHTML = `<div class="py-12 text-center text-slate-400">Loading questions from Supabase...</div>`;
+    formulaBanner.classList.add('hidden');
+
+    const { data: questions, error } = await supabaseClient
+      .from('questions')
+      .select('*')
+      .eq('category', category)
+      .eq('subtopic', subtopic);
+
+    if (error) {
+      container.innerHTML = `<div class="p-4 bg-red-500/10 text-red-400 rounded-xl">Failed to load questions: ${error.message}</div>`;
+      return;
+    }
+
+    if (!questions || questions.length === 0) {
+      container.innerHTML = `
+        <div class="p-12 text-center bg-slate-800/30 border border-slate-700/50 rounded-2xl">
+          <i data-lucide="file-question" class="w-10 h-10 mx-auto text-slate-500 mb-2"></i>
+          <h3 class="text-lg font-medium text-slate-300">No questions found</h3>
+          <p class="text-sm text-slate-500 mt-1">Upload questions for "${subtopic}" in your Supabase database.</p>
+        </div>`;
       lucide.createIcons();
+      return;
     }
 
-    async function selectSubtopic(subtopic) {
-      currentSubtopic = subtopic;
-      document.getElementById('breadcrumbSubtopic').textContent = subtopic;
-      document.getElementById('mainTitle').textContent = subtopic;
-
-      document.getElementById('topicsView').classList.add('hidden');
-      document.getElementById('practiceView').classList.remove('hidden');
-
-      await fetchQuestions(currentCategory, subtopic);
+    const questionWithFormula = questions.find(q => q.formula);
+    if (questionWithFormula) {
+      formulaContent.textContent = questionWithFormula.formula;
+      formulaBanner.classList.remove('hidden');
     }
 
-    function backToTopics() {
-      selectCategory(currentCategory);
-    }
-
-    async function fetchQuestions(category, subtopic) {
-      const container = document.getElementById('questionsContainer');
-      const formulaBanner = document.getElementById('formulaBanner');
-      const formulaContent = document.getElementById('formulaContent');
-
-      container.innerHTML = `<div class="py-12 text-center text-slate-400">Loading questions from Supabase...</div>`;
-      formulaBanner.classList.add('hidden');
-
-      const { data: questions, error } = await supabase
-        .from('questions')
-        .select('*')
-        .eq('category', category)
-        .eq('subtopic', subtopic);
-
-      if (error) {
-        container.innerHTML = `<div class="p-4 bg-red-500/10 text-red-400 rounded-xl">Failed to load questions: ${error.message}</div>`;
-        return;
-      }
-
-      if (!questions || questions.length === 0) {
-        container.innerHTML = `
-          <div class="p-12 text-center bg-slate-800/30 border border-slate-700/50 rounded-2xl">
-            <i data-lucide="file-question" class="w-10 h-10 mx-auto text-slate-500 mb-2"></i>
-            <h3 class="text-lg font-medium text-slate-300">No questions found</h3>
-            <p class="text-sm text-slate-500 mt-1">Upload questions for "${subtopic}" in your Supabase database.</p>
-          </div>`;
-        lucide.createIcons();
-        return;
-      }
-
-      const questionWithFormula = questions.find(q => q.formula);
-      if (questionWithFormula) {
-        formulaContent.textContent = questionWithFormula.formula;
-        formulaBanner.classList.remove('hidden');
-      }
-
-      container.innerHTML = questions.map((q, idx) => `
-        <div class="p-6 bg-slate-800/40 border border-slate-700/60 rounded-2xl space-y-4">
-          <div class="flex items-start justify-between gap-4">
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-700 text-slate-300">Q${idx + 1}</span>
-            <p class="text-slate-100 font-medium text-base flex-1">${q.question_text}</p>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-            ${['A', 'B', 'C', 'D'].map(optKey => {
-              const optText = q[`option_${optKey.toLowerCase()}`];
-              return `
-                <button onclick="checkAnswer(this, '${optKey}', '${q.correct_option}', 'exp-${q.id}')" 
-                  class="option-btn text-left p-3.5 rounded-xl border border-slate-700/80 bg-slate-900/40 hover:bg-slate-700/40 hover:border-slate-600 transition flex items-center justify-between group">
-                  <span class="text-sm text-slate-300 font-medium"><strong class="text-slate-500 group-hover:text-indigo-400 mr-2">${optKey}.</strong> ${optText}</span>
-                  <i data-lucide="circle" class="w-4 h-4 text-slate-600 icon-status"></i>
-                </button>
-              `;
-            }).join('')}
-          </div>
-
-          <div id="exp-${q.id}" class="hidden p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 text-sm text-slate-300 mt-4 space-y-1">
-            <p class="font-semibold text-indigo-400">Explanation:</p>
-            <p>${q.explanation || 'No detailed explanation provided.'}</p>
-          </div>
+    container.innerHTML = questions.map((q, idx) => `
+      <div class="p-6 bg-slate-800/40 border border-slate-700/60 rounded-2xl space-y-4">
+        <div class="flex items-start justify-between gap-4">
+          <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-700 text-slate-300">Q${idx + 1}</span>
+          <p class="text-slate-100 font-medium text-base flex-1">${q.question_text}</p>
         </div>
-      `).join('');
 
-      lucide.createIcons();
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+          ${['A', 'B', 'C', 'D'].map(optKey => {
+            const optText = q[`option_${optKey.toLowerCase()}`];
+            return `
+              <button onclick="checkAnswer(this, '${optKey}', '${q.correct_option}', 'exp-${q.id}')" 
+                class="option-btn text-left p-3.5 rounded-xl border border-slate-700/80 bg-slate-900/40 hover:bg-slate-700/40 hover:border-slate-600 transition flex items-center justify-between group">
+                <span class="text-sm text-slate-300 font-medium"><strong class="text-slate-500 group-hover:text-indigo-400 mr-2">${optKey}.</strong> ${optText}</span>
+                <i data-lucide="circle" class="w-4 h-4 text-slate-600 icon-status"></i>
+              </button>
+            `;
+          }).join('')}
+        </div>
+
+        <div id="exp-${q.id}" class="hidden p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 text-sm text-slate-300 mt-4 space-y-1">
+          <p class="font-semibold text-indigo-400">Explanation:</p>
+          <p>${q.explanation || 'No detailed explanation provided.'}</p>
+        </div>
+      </div>
+    `).join('');
+
+    lucide.createIcons();
+  }
+
+  function checkAnswer(selectedBtn, selectedOpt, correctOpt, expId) {
+    const parentCard = selectedBtn.closest('.space-y-4');
+    const allButtons = parentCard.querySelectorAll('.option-btn');
+
+    allButtons.forEach(btn => btn.style.pointerEvents = 'none');
+
+    if (selectedOpt === correctOpt) {
+      selectedBtn.classList.add('bg-emerald-950/40', 'border-emerald-500/50', 'text-emerald-300');
+      selectedBtn.querySelector('.icon-status').outerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>`;
+    } else {
+      selectedBtn.classList.add('bg-rose-950/40', 'border-rose-500/50', 'text-rose-300');
+      selectedBtn.querySelector('.icon-status').outerHTML = `<i data-lucide="x-circle" class="w-4 h-4 text-rose-400"></i>`;
+
+      allButtons.forEach(btn => {
+        if (btn.innerText.startsWith(correctOpt)) {
+          btn.classList.add('bg-emerald-950/40', 'border-emerald-500/50', 'text-emerald-300');
+        }
+      });
     }
 
-    function checkAnswer(selectedBtn, selectedOpt, correctOpt, expId) {
-      const parentCard = selectedBtn.closest('.space-y-4');
-      const allButtons = parentCard.querySelectorAll('.option-btn');
-
-      allButtons.forEach(btn => btn.style.pointerEvents = 'none');
-
-      if (selectedOpt === correctOpt) {
-        selectedBtn.classList.add('bg-emerald-950/40', 'border-emerald-500/50', 'text-emerald-300');
-        selectedBtn.querySelector('.icon-status').outerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>`;
-      } else {
-        selectedBtn.classList.add('bg-rose-950/40', 'border-rose-500/50', 'text-rose-300');
-        selectedBtn.querySelector('.icon-status').outerHTML = `<i data-lucide="x-circle" class="w-4 h-4 text-rose-400"></i>`;
-
-        allButtons.forEach(btn => {
-          if (btn.innerText.startsWith(correctOpt)) {
-            btn.classList.add('bg-emerald-950/40', 'border-emerald-500/50', 'text-emerald-300');
-          }
-        });
-      }
-
-      document.getElementById(expId).classList.remove('hidden');
-      lucide.createIcons();
-    }
-  </script>
+    document.getElementById(expId).classList.remove('hidden');
+    lucide.createIcons();
+  }
+</script>
 </body>
 </html>
