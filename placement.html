@@ -4,33 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Placement Prep Portal</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Supabase JS Client (Database) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
 
-  <!-- ================= LOADING OVERLAY ================= -->
   <div id="initLoader" class="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center gap-3">
     <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
     <p class="text-sm text-slate-400">Loading Configuration & Authentication...</p>
   </div>
 
-  <!-- ================= AUTH VIEW ================= -->
   <div id="authContainer" class="hidden flex items-center justify-center min-h-screen p-4">
     <div class="w-full max-w-md bg-slate-800/80 border border-slate-700 rounded-2xl p-8 shadow-2xl backdrop-blur-md">
-      <div class="text-center mb-8">
+      <div class="text-center mb-6">
         <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600/20 text-indigo-400 mb-3">
           <i data-lucide="graduation-cap" class="w-7 h-7"></i>
         </div>
         <h1 class="text-2xl font-bold text-white">Placement Portal</h1>
-        <p class="text-sm text-slate-400 mt-1">Sign in with Firebase to access study materials</p>
+        <p class="text-sm text-slate-400 mt-1">Sign in or create an account to get access</p>
       </div>
 
-      <!-- Google OAuth Button -->
+      <div class="flex border-b border-slate-700 mb-6">
+        <button id="loginTabBtn" onclick="switchAuthTab('login')" class="flex-1 pb-3 text-sm font-semibold border-b-2 border-indigo-500 text-indigo-400">Sign In</button>
+        <button id="signupTabBtn" onclick="switchAuthTab('signup')" class="flex-1 pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-white">Register Friend</button>
+      </div>
+
       <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-3 bg-slate-700 hover:bg-slate-600 text-white font-medium py-2.5 px-4 rounded-xl transition border border-slate-600 shadow-sm mb-6">
         <svg class="w-5 h-5" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -43,15 +42,14 @@
 
       <div class="relative flex py-2 items-center mb-6">
         <div class="flex-grow border-t border-slate-700"></div>
-        <span class="flex-shrink mx-4 text-xs text-slate-500 uppercase tracking-widest">Or Email Login</span>
+        <span class="flex-shrink mx-4 text-xs text-slate-500 uppercase tracking-widest">Or Email</span>
         <div class="flex-grow border-t border-slate-700"></div>
       </div>
 
-      <!-- Firebase Email Login Form -->
-      <form onsubmit="handleEmailLogin(event)" class="space-y-4">
+      <form id="loginForm" onsubmit="handleEmailLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Email Address</label>
-          <input type="email" id="loginEmail" required placeholder="you@domain.com" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+          <input type="email" id="loginEmail" required placeholder="friend@domain.com" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
         </div>
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Password</label>
@@ -62,13 +60,25 @@
         </button>
       </form>
 
+      <form id="signupForm" onsubmit="handleEmailSignUp(event)" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Friend's Email Address</label>
+          <input type="email" id="signupEmail" required placeholder="friend@domain.com" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Set Password</label>
+          <input type="password" id="signupPassword" required placeholder="••••••••" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 px-4 rounded-xl transition shadow-lg shadow-emerald-600/25">
+          Register Account
+        </button>
+      </form>
+
       <div id="authError" class="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center hidden"></div>
     </div>
   </div>
 
-  <!-- ================= DASHBOARD VIEW ================= -->
   <div id="dashboardContainer" class="hidden min-h-screen flex">
-    <!-- Sidebar -->
     <aside class="w-72 bg-slate-800/60 border-r border-slate-700/60 flex flex-col fixed inset-y-0 left-0 z-20">
       <div class="p-5 border-b border-slate-700/60 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -82,7 +92,6 @@
         </div>
       </div>
 
-      <!-- Navigation Links -->
       <nav class="flex-1 overflow-y-auto p-4 space-y-6">
         <div>
           <h3 class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Aptitude</h3>
@@ -113,11 +122,14 @@
               <i data-lucide="cpu" class="w-4 h-4 text-rose-400"></i>
               CS Fundamentals
             </button>
+            <button onclick="openJavaCompiler()" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700/50 hover:text-white transition">
+              <i data-lucide="terminal" class="w-4 h-4 text-amber-400"></i>
+              Java Compiler
+            </button>
           </div>
         </div>
       </nav>
 
-      <!-- User Info & Logout -->
       <div class="p-4 border-t border-slate-700/60 bg-slate-900/30">
         <div class="flex items-center justify-between">
           <div class="truncate mr-2">
@@ -133,9 +145,7 @@
       </div>
     </aside>
 
-    <!-- Main Content Area -->
     <main class="flex-1 ml-72 p-8 min-h-screen">
-      <!-- Top Bar Header with FREE Tag and Take Test Button -->
       <header class="flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
         <div>
           <div class="flex items-center gap-2 text-sm text-slate-400">
@@ -147,13 +157,11 @@
         </div>
 
         <div class="flex items-center gap-4">
-          <!-- Take Online Test Button -->
           <button onclick="openTestModal()" class="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-4 py-2 rounded-xl font-semibold shadow-lg shadow-emerald-900/30 transition transform hover:-translate-y-0.5">
             <i data-lucide="timer" class="w-4 h-4"></i>
             Take Online Test
           </button>
 
-          <!-- Free For Limited Time Tag -->
           <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm animate-pulse">
             <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
             FREE FOR LIMITED TIME
@@ -161,16 +169,13 @@
         </div>
       </header>
 
-      <!-- View 1: Topic / Folder Selection -->
       <div id="topicsView" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 
-      <!-- View 2: Questions & Practice View -->
       <div id="practiceView" class="hidden max-w-4xl space-y-6">
         <button onclick="backToTopics()" class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition">
           <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Subtopics
         </button>
 
-        <!-- Formula Banner -->
         <div id="formulaBanner" class="hidden p-5 bg-indigo-950/40 border border-indigo-500/30 rounded-xl">
           <div class="flex items-start gap-3">
             <i data-lucide="lightbulb" class="w-5 h-5 text-amber-400 shrink-0 mt-0.5"></i>
@@ -184,7 +189,6 @@
         <div id="questionsContainer" class="space-y-6"></div>
       </div>
 
-      <!-- View 3: Live Test Interface -->
       <div id="testModeContainer" class="hidden max-w-4xl space-y-6">
         <div class="bg-slate-800/90 border border-slate-700 p-4 rounded-xl flex items-center justify-between sticky top-4 z-10 backdrop-blur-md shadow-xl">
           <div>
@@ -204,10 +208,29 @@
 
         <div id="testQuestionsContainer" class="space-y-6"></div>
       </div>
+
+      <div id="compilerView" class="hidden h-[calc(100vh-170px)] w-full flex flex-col space-y-4">
+        <div class="flex items-center justify-between bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <i data-lucide="code" class="w-5 h-5 text-indigo-400"></i> Java Code Execution Workspace
+            </h3>
+            <p class="text-xs text-slate-400">Write, compile, and execute Java programs directly in your browser.</p>
+          </div>
+        </div>
+        <div class="flex-1 w-full bg-slate-900 rounded-2xl overflow-hidden border border-slate-700 shadow-2xl">
+          <iframe 
+            src="https://onecompiler.com/embed/java?theme=dark&hideLanguageSelection=true" 
+            width="100%" 
+            height="100%" 
+            frameborder="0"
+            class="w-full h-full">
+          </iframe>
+        </div>
+      </div>
     </main>
   </div>
 
-  <!-- ================= TEST SETUP MODAL ================= -->
   <div id="testModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl max-h-[90vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-700 pb-4">
@@ -221,7 +244,6 @@
       </div>
 
       <div class="overflow-y-auto space-y-6 pr-2 flex-1">
-        <!-- Duration Selector -->
         <div>
           <label class="block text-sm font-semibold text-slate-300 mb-2">Select Test Duration:</label>
           <div class="grid grid-cols-4 gap-3">
@@ -232,7 +254,6 @@
           </div>
         </div>
 
-        <!-- Topics Selection Checkboxes -->
         <div>
           <div class="flex items-center justify-between mb-2">
             <label class="text-sm font-semibold text-slate-300">Select Aptitude Topics:</label>
@@ -249,14 +270,14 @@
     </div>
   </div>
 
-  <!-- Firebase v10 Modular SDK Modules -->
   <script type="module">
     import { initializeApp as initFirebaseApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { 
       getAuth, 
       GoogleAuthProvider, 
       signInWithPopup, 
-      signInWithEmailAndPassword, 
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
       signOut, 
       onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -269,7 +290,6 @@
     window.selectedDuration = 15;
     window.testTimerInterval = null;
 
-    // Full Arithmetic Aptitude structure matched with screenshot
     window.TOPIC_STRUCTURE = {
       'Quantitative Aptitude': [
         'Problems on Trains', 'Time and Distance', 'Height and Distance',
@@ -328,17 +348,65 @@
       }
     }
 
+    window.switchAuthTab = function(type) {
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const loginBtn = document.getElementById('loginTabBtn');
+      const signupBtn = document.getElementById('signupTabBtn');
+      const errorDiv = document.getElementById('authError');
+
+      errorDiv.classList.add('hidden');
+
+      if (type === 'login') {
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        loginBtn.className = "flex-1 pb-3 text-sm font-semibold border-b-2 border-indigo-500 text-indigo-400";
+        signupBtn.className = "flex-1 pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-white";
+      } else {
+        signupForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        signupBtn.className = "flex-1 pb-3 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-400";
+        loginBtn.className = "flex-1 pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-white";
+      }
+    };
+
     window.loginWithGoogle = async function() {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(window.firebaseAuth, provider);
+      try {
+        await signInWithPopup(window.firebaseAuth, provider);
+      } catch (err) {
+        showAuthError(err.message);
+      }
     };
 
     window.handleEmailLogin = async function(e) {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
-      await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+      try {
+        await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+      } catch (err) {
+        showAuthError("Account not found or password incorrect.");
+      }
     };
+
+    window.handleEmailSignUp = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      try {
+        await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+        alert('Friend account created successfully!');
+      } catch (err) {
+        showAuthError(err.message);
+      }
+    };
+
+    function showAuthError(msg) {
+      const errorDiv = document.getElementById('authError');
+      errorDiv.textContent = msg;
+      errorDiv.classList.remove('hidden');
+    }
 
     window.logout = async function() {
       await signOut(window.firebaseAuth);
@@ -363,6 +431,7 @@
 
       document.getElementById('practiceView').classList.add('hidden');
       document.getElementById('testModeContainer').classList.add('hidden');
+      document.getElementById('compilerView').classList.add('hidden');
       document.getElementById('topicsView').classList.remove('hidden');
 
       const topicsView = document.getElementById('topicsView');
@@ -387,9 +456,23 @@
 
       document.getElementById('topicsView').classList.add('hidden');
       document.getElementById('testModeContainer').classList.add('hidden');
+      document.getElementById('compilerView').classList.add('hidden');
       document.getElementById('practiceView').classList.remove('hidden');
 
       await fetchQuestions(window.currentCategory, subtopic);
+    };
+
+    window.openJavaCompiler = function() {
+      document.getElementById('breadcrumbCategory').textContent = 'Technical';
+      document.getElementById('breadcrumbSubtopic').textContent = 'Java Compiler';
+      document.getElementById('mainTitle').textContent = 'Online Java Compiler';
+
+      document.getElementById('topicsView').classList.add('hidden');
+      document.getElementById('practiceView').classList.add('hidden');
+      document.getElementById('testModeContainer').classList.add('hidden');
+      document.getElementById('compilerView').classList.remove('hidden');
+
+      lucide.createIcons();
     };
 
     window.backToTopics = function() {
@@ -440,7 +523,20 @@
       lucide.createIcons();
     }
 
-    // --- TEST SYSTEM FUNCTIONS --- //
+    window.checkAnswer = function(btn, selected, correct, expId) {
+      const parent = btn.parentElement;
+      const buttons = parent.querySelectorAll('.option-btn');
+      buttons.forEach(b => b.disabled = true);
+
+      if (selected === correct) {
+        btn.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
+      } else {
+        btn.classList.add('bg-rose-500/20', 'border-rose-500', 'text-rose-300');
+      }
+
+      document.getElementById(expId).classList.remove('hidden');
+    };
+
     window.openTestModal = function() {
       const modal = document.getElementById('testModal');
       const container = document.getElementById('testTopicsList');
@@ -490,12 +586,12 @@
       closeTestModal();
       document.getElementById('topicsView').classList.add('hidden');
       document.getElementById('practiceView').classList.add('hidden');
+      document.getElementById('compilerView').classList.add('hidden');
       document.getElementById('testModeContainer').classList.remove('hidden');
 
       const testQuestionsContainer = document.getElementById('testQuestionsContainer');
       testQuestionsContainer.innerHTML = `<div class="py-12 text-center text-slate-400">Generating test questions from pool...</div>`;
 
-      // Fetch questions from database for selected topics
       const { data: questions } = await window.supabaseClient
         .from('questions')
         .select('*')
