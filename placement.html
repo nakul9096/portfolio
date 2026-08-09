@@ -8,7 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Supabase JS Client -->
+  <!-- Supabase JS Client (Database) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
@@ -16,7 +16,7 @@
   <!-- ================= LOADING OVERLAY ================= -->
   <div id="initLoader" class="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center gap-3">
     <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-    <p class="text-sm text-slate-400">Loading Configuration...</p>
+    <p class="text-sm text-slate-400">Loading Configuration & Authentication...</p>
   </div>
 
   <!-- ================= AUTH VIEW ================= -->
@@ -27,7 +27,7 @@
           <i data-lucide="graduation-cap" class="w-7 h-7"></i>
         </div>
         <h1 class="text-2xl font-bold text-white">Placement Portal</h1>
-        <p class="text-sm text-slate-400 mt-1">Sign in to access study materials and MCQs</p>
+        <p class="text-sm text-slate-400 mt-1">Sign in with Firebase to access study materials</p>
       </div>
 
       <!-- Google OAuth Button -->
@@ -47,7 +47,7 @@
         <div class="flex-grow border-t border-slate-700"></div>
       </div>
 
-      <!-- Email Login Form -->
+      <!-- Firebase Email Login Form -->
       <form onsubmit="handleEmailLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Email Address</label>
@@ -123,7 +123,7 @@
           <div class="truncate mr-2">
             <p id="userEmailDisplay" class="text-xs font-medium text-slate-200 truncate"></p>
             <span class="text-[10px] text-emerald-400 flex items-center gap-1 mt-0.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Verified Access
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Firebase Authenticated
             </span>
           </div>
           <button onclick="logout()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition" title="Logout">
@@ -178,14 +178,26 @@
     </main>
   </div>
 
-  <script>
-    // Renamed local variable to avoid collision with global window.supabase object
-    let supabaseClient = null;
-    let currentUser = null;
-    let currentCategory = '';
-    let currentSubtopic = '';
+  <!-- Firebase v10 Modular SDK Modules -->
+  <script type="module">
+    import { initializeApp as initFirebaseApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { 
+      getAuth, 
+      GoogleAuthProvider, 
+      signInWithPopup, 
+      signInWithEmailAndPassword, 
+      signOut, 
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    const TOPIC_STRUCTURE = {
+    // Global variables accessible across the app
+    window.supabaseClient = null;
+    window.firebaseAuth = null;
+    window.currentUser = null;
+    window.currentCategory = '';
+    window.currentSubtopic = '';
+
+    window.TOPIC_STRUCTURE = {
       'Quantitative Aptitude': ['Problems on Trains', 'Boats and Streams', 'Time and Work', 'Permutations & Combinations', 'Probability'],
       'Logical Reasoning': ['Seating Arrangement', 'Blood Relations', 'Syllogism', 'Coding Decoding'],
       'Non-Verbal Reasoning': ['Series Completion', 'Mirror Images', 'Paper Folding'],
@@ -193,7 +205,7 @@
       'CS Fundamentals': ['Operating Systems', 'DBMS & SQL', 'Computer Networks']
     };
 
-    // Initialize Supabase Client dynamically from /api/config
+    // Load API configuration and initialize both Firebase Auth & Supabase
     async function initializeApp() {
       try {
         const response = await fetch('/api/config');
@@ -204,39 +216,43 @@
         
         const config = await response.json();
 
-        // Support exact uppercase keys returned by your api/config.js
-        const url = config.SUPABASE_URL || config.supabaseUrl;
-        const key = config.SUPABASE_ANON_KEY || config.supabaseAnonKey;
+        // 1. Initialize Supabase Client (For SQL Database queries)
+        const supabaseUrl = config.SUPABASE_URL || config.supabaseUrl;
+        const supabaseAnonKey = config.SUPABASE_ANON_KEY || config.supabaseAnonKey;
 
-        if (!url || !key) {
-          throw new Error('SUPABASE_URL or SUPABASE_ANON_KEY is missing in /api/config response.');
+        if (supabaseUrl && supabaseAnonKey && window.supabase) {
+          window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+        } else {
+          console.warn("Supabase parameters missing or script failed to load.");
         }
 
-        // Initialize Supabase client
-        supabaseClient = window.supabase.createClient(url, key);
+        // 2. Initialize Firebase App & Auth
+        if (!config.firebaseConfig || !config.firebaseConfig.apiKey) {
+          throw new Error("FIREBASE_API_KEY or firebaseConfig missing in /api/config response.");
+        }
 
+        const app = initFirebaseApp(config.firebaseConfig);
+        window.firebaseAuth = getAuth(app);
+
+        // Hide loader once app is initialized
         document.getElementById('initLoader').classList.add('hidden');
         lucide.createIcons();
 
-        // Check current session
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) {
-          await validateAndSetUser(session.user);
-        } else {
-          showAuthUI();
-        }
-
-        // Auth state changes
-        supabaseClient.auth.onAuthStateChange(async (event, session) => {
-          if (session) {
-            await validateAndSetUser(session.user);
+        // 3. Listen to Firebase Authentication state changes
+        onAuthStateChanged(window.firebaseAuth, (user) => {
+          if (user) {
+            window.currentUser = user;
+            document.getElementById('userEmailDisplay').textContent = user.email;
+            showDashboardUI();
+            selectCategory('Quantitative Aptitude');
           } else {
+            window.currentUser = null;
             showAuthUI();
           }
         });
 
       } catch (err) {
-        console.error(err);
+        console.error("Initialization Failed:", err);
         document.getElementById('initLoader').innerHTML = `
           <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl max-w-md text-center">
             <strong>Initialization Error:</strong> ${err.message}
@@ -244,45 +260,36 @@
       }
     }
 
-    window.addEventListener('DOMContentLoaded', initializeApp);
-
-    async function validateAndSetUser(user) {
-      const { data, error } = await supabaseClient
-        .from('allowed_users')
-        .select('email')
-        .eq('email', user.email)
-        .single();
-
-      if (error || !data) {
-        showError('Access Denied: Your email is not whitelisted.');
-        await supabaseClient.auth.signOut();
-        return;
+    // Attach Auth actions to window scope for HTML onclick handlers
+    window.loginWithGoogle = async function() {
+      const provider = new GoogleAuthProvider();
+      try {
+        await signInWithPopup(window.firebaseAuth, provider);
+      } catch (error) {
+        showError(error.message);
       }
+    };
 
-      currentUser = user;
-      document.getElementById('userEmailDisplay').textContent = user.email;
-      showDashboardUI();
-      selectCategory('Quantitative Aptitude');
-    }
-
-    async function loginWithGoogle() {
-      const { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google' });
-      if (error) showError(error.message);
-    }
-
-    async function handleEmailLogin(e) {
+    window.handleEmailLogin = async function(e) {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
 
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) showError(error.message);
-    }
+      try {
+        await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+      } catch (error) {
+        showError(error.message);
+      }
+    };
 
-    async function logout() {
-      await supabaseClient.auth.signOut();
-      window.location.reload();
-    }
+    window.logout = async function() {
+      try {
+        await signOut(window.firebaseAuth);
+        window.location.reload();
+      } catch (error) {
+        console.error("Logout Error:", error);
+      }
+    };
 
     function showError(msg) {
       const errDiv = document.getElementById('authError');
@@ -300,8 +307,8 @@
       document.getElementById('dashboardContainer').classList.remove('hidden');
     }
 
-    function selectCategory(category) {
-      currentCategory = category;
+    window.selectCategory = function(category) {
+      window.currentCategory = category;
       document.getElementById('breadcrumbCategory').textContent = category;
       document.getElementById('breadcrumbSubtopic').textContent = 'Subtopics';
       document.getElementById('mainTitle').textContent = category;
@@ -310,7 +317,7 @@
       document.getElementById('topicsView').classList.remove('hidden');
 
       const topicsView = document.getElementById('topicsView');
-      const subtopics = TOPIC_STRUCTURE[category] || [];
+      const subtopics = window.TOPIC_STRUCTURE[category] || [];
 
       topicsView.innerHTML = subtopics.map(subtopic => `
         <div onclick="selectSubtopic('${subtopic}')" class="group p-6 bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/60 hover:border-indigo-500/50 rounded-2xl cursor-pointer transition-all duration-200">
@@ -326,32 +333,38 @@
       `).join('');
 
       lucide.createIcons();
-    }
+    };
 
-    async function selectSubtopic(subtopic) {
-      currentSubtopic = subtopic;
+    window.selectSubtopic = async function(subtopic) {
+      window.currentSubtopic = subtopic;
       document.getElementById('breadcrumbSubtopic').textContent = subtopic;
       document.getElementById('mainTitle').textContent = subtopic;
 
       document.getElementById('topicsView').classList.add('hidden');
       document.getElementById('practiceView').classList.remove('hidden');
 
-      await fetchQuestions(currentCategory, subtopic);
-    }
+      await fetchQuestions(window.currentCategory, subtopic);
+    };
 
-    function backToTopics() {
-      selectCategory(currentCategory);
-    }
+    window.backToTopics = function() {
+      window.selectCategory(window.currentCategory);
+    };
 
+    // Supabase Query for fetching questions
     async function fetchQuestions(category, subtopic) {
       const container = document.getElementById('questionsContainer');
       const formulaBanner = document.getElementById('formulaBanner');
       const formulaContent = document.getElementById('formulaContent');
 
-      container.innerHTML = `<div class="py-12 text-center text-slate-400">Loading questions from Supabase...</div>`;
+      container.innerHTML = `<div class="py-12 text-center text-slate-400">Loading questions from database...</div>`;
       formulaBanner.classList.add('hidden');
 
-      const { data: questions, error } = await supabaseClient
+      if (!window.supabaseClient) {
+        container.innerHTML = `<div class="p-4 bg-red-500/10 text-red-400 rounded-xl">Supabase client is not initialized.</div>`;
+        return;
+      }
+
+      const { data: questions, error } = await window.supabaseClient
         .from('questions')
         .select('*')
         .eq('category', category)
@@ -367,7 +380,7 @@
           <div class="p-12 text-center bg-slate-800/30 border border-slate-700/50 rounded-2xl">
             <i data-lucide="file-question" class="w-10 h-10 mx-auto text-slate-500 mb-2"></i>
             <h3 class="text-lg font-medium text-slate-300">No questions found</h3>
-            <p class="text-sm text-slate-500 mt-1">Upload questions for "${subtopic}" in your Supabase database.</p>
+            <p class="text-sm text-slate-500 mt-1">Upload questions for "${subtopic}" in your database table.</p>
           </div>`;
         lucide.createIcons();
         return;
@@ -409,7 +422,7 @@
       lucide.createIcons();
     }
 
-    function checkAnswer(selectedBtn, selectedOpt, correctOpt, expId) {
+    window.checkAnswer = function(selectedBtn, selectedOpt, correctOpt, expId) {
       const parentCard = selectedBtn.closest('.space-y-4');
       const allButtons = parentCard.querySelectorAll('.option-btn');
 
@@ -431,7 +444,9 @@
 
       document.getElementById(expId).classList.remove('hidden');
       lucide.createIcons();
-    }
+    };
+
+    window.addEventListener('DOMContentLoaded', initializeApp);
   </script>
 </body>
 </html>
