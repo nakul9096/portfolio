@@ -9,23 +9,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f8fafc;
-  --card-bg: #ffffff;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --primary-light: #eff6ff;
-  --border-color: #e2e8f0;
-  --border-focus: #93c5fd;
-  --danger: #ef4444;
-  --success: #10b981;
-  --success-bg: #ecfdf5;
-  --danger-bg: #fef2f2;
+  --bg: #0b0f19;
+  --card-bg: #151c2c;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-light: rgba(59, 130, 246, 0.12);
+  --border-color: #26334d;
+  --border-focus: #60a5fa;
+  --danger: #f87171;
+  --success: #34d399;
+  --success-bg: rgba(52, 211, 153, 0.1);
+  --danger-bg: rgba(248, 113, 113, 0.1);
   --radius-lg: 16px;
   --radius-md: 10px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-  --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
 }
 
 * { box-sizing: border-box; }
@@ -46,11 +45,12 @@ body {
 }
 
 .hero {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
+  background: linear-gradient(135deg, #1e1b4b 0%, #1e293b 50%, #0f172a 100%);
+  border: 1px solid var(--border-color);
   color: #ffffff;
   border-radius: var(--radius-lg);
   padding: 36px 40px;
-  box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
   margin-bottom: 24px;
 }
 
@@ -63,7 +63,7 @@ body {
 
 .hero p {
   margin: 0;
-  opacity: 0.9;
+  color: var(--text-muted);
   font-size: 15px;
   font-weight: 400;
 }
@@ -118,7 +118,7 @@ body {
 label {
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: #cbd5e1;
 }
 
 .required { color: var(--danger); }
@@ -128,7 +128,7 @@ input, select, textarea {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 10px 14px;
-  background: #ffffff;
+  background: #0f172a;
   color: var(--text-main);
   font: inherit;
   font-size: 14px;
@@ -137,21 +137,27 @@ input, select, textarea {
 }
 
 input:hover, select:hover, textarea:hover {
-  border-color: #cbd5e1;
+  border-color: #3b82f6;
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
 }
 
 select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2064748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 16px;
   padding-right: 36px;
+}
+
+/* Fix option tag background in dropdowns for dark mode */
+select option {
+  background-color: #0f172a;
+  color: #f1f5f9;
 }
 
 textarea {
@@ -184,7 +190,7 @@ textarea {
   background: var(--primary-light);
   border-left: 3px solid var(--primary);
   border-radius: 6px;
-  color: #1e40af;
+  color: #93c5fd;
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 20px;
@@ -210,28 +216,29 @@ textarea {
 }
 
 .btn.secondary {
-  background: #f1f5f9;
-  color: #475569;
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid var(--border-color);
 }
 
 .btn.secondary:hover {
-  background: #e2e8f0;
-  color: #1e293b;
+  background: #334155;
+  color: #ffffff;
 }
 
 .btn.primary {
   background: var(--primary);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .btn.primary:hover {
   background: var(--primary-hover);
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.45);
 }
 
 .btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -248,15 +255,15 @@ textarea {
 .status.ok {
   display: block;
   background: var(--success-bg);
-  color: #065f46;
-  border: 1px solid #a7f3d0;
+  color: #6ee7b7;
+  border: 1px solid #065f46;
 }
 
 .status.error {
   display: block;
   background: var(--danger-bg);
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  color: #fca5a5;
+  border: 1px solid #991b1b;
 }
 
 @media (max-width: 850px) {
