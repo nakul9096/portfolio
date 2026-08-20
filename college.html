@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusOS — Smart College Management Portal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['"Fraunces"', 'serif'],
+        body: ['"Plus Jakarta Sans"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
+      },
+      colors: {
+        ink: { 950:'#12142B', 900:'#1B1F3B', 800:'#262B52', 700:'#383C63', 600:'#4B4F78' },
+        violet: { 50:'#EFEDFE', 100:'#E1DEFC', 400:'#8B85F2', 500:'#6C63EE', 600:'#5B4FE9', 700:'#4A3FD1' },
+        paper: { DEFAULT:'#FAF9F6', 100:'#F2F0EA' },
+        amber: { 50:'#FEF6E7', 500:'#F5A623', 600:'#DB8F13' },
+        rose: { 50:'#FDEDEF', 500:'#F0475B', 600:'#D53049' },
+        emerald2: { 50:'#EAFBF1', 500:'#22C55E', 600:'#16A34A' },
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { background-color: #FAF9F6; }
+  ::-webkit-scrollbar { width: 7px; height: 7px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #D8D5CC; border-radius: 10px; }
+
+  .nav-item { position: relative; }
+  .nav-item.active { background: rgba(108,99,238,0.16); color: #fff; }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px;
+    background: #8B85F2; border-radius: 0 3px 3px 0;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeUp .35s ease both; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(6px);} to {opacity:1; transform:none;} }
+
+  .form-panel { max-height:0; overflow:hidden; opacity:0; transition:max-height .35s ease, opacity .25s ease, margin .35s ease; }
+  .form-panel.open { max-height:1200px; opacity:1; }
+
+  .pin::before {
+    content: ''; position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+    width:10px; height:10px; border-radius:50%; background:#F0475B;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.25);
+  }
+
+  .field-label { display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#4B4F78; margin-bottom:4px; }
+  .input-base { width:100%; background:#fff; border:1px solid #E4E1D8; border-radius:12px; padding:.6rem .75rem; font-size:.85rem; outline:none; transition:.15s; }
+  .input-base:focus { border-color:#6C63EE; box-shadow:0 0 0 3px rgba(108,99,238,0.15); }
+
+  .toast { transform: translateY(12px); opacity:0; transition:.3s; }
+  .toast.show { transform:translateY(0); opacity:1; }
+
+  .ring-track { stroke:#EFEDFE; }
+  .ring-progress { stroke: #6C63EE; stroke-linecap:round; transition: stroke-dashoffset 1s ease; }
+
+  @media print { .no-print{display:none!important;} }
+</style>
+</head>
+<body class="font-body text-ink-900 antialiased">
+
+<!-- Toast -->
+<div id="toast" class="toast fixed bottom-6 right-6 z-[100] bg-ink-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm font-semibold flex items-center gap-2 no-print">
+  <i id="toast-icon" class="fa-solid fa-circle-check text-emerald2-500"></i>
+  <span id="toast-msg">Saved</span>
+</div>
+
+<div class="flex min-h-screen">
+
+  <!-- Sidebar -->
+  <aside class="w-64 shrink-0 bg-ink-900 text-violet-100 flex flex-col no-print">
+    <div class="px-6 py-6 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center text-white font-display font-bold text-lg">C</div>
+      <div>
+        <p class="font-display font-bold text-white text-lg leading-none">CampusOS</p>
+        <p class="text-[10px] uppercase tracking-widest text-violet-300 mt-1">Student Portal</p>
+      </div>
+    </div>
+
+    <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto text-sm">
+      <button data-tab="dashboard" class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-white/90 hover:bg-white/5 transition"><i class="fa-solid fa-gauge-high w-5 text-center"></i> Dashboard</button>
+      <button data-tab="attendance" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-white/80 hover:bg-white/5 transition"><i class="fa-solid fa-calendar-check w-5 text-center"></i> Attendance</button>
+      <button data-tab="timetable" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-white/80 hover:bg-white/5 transition"><i class="fa-solid fa-table-cells w-5 text-center"></i> Timetable</button>
+      <button data-tab="assignments" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-white/80 hover:bg-white/5 transition"><i class="fa-solid fa-clipboard-list w-5 text-center"></i> Assignments</button>
+      <button data-tab="notes" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-white/80 hover:bg-white/5 transition"><i class="fa-solid fa-book-open w-5 text-center"></i> Notes Vault</button>
+      <button data-tab="exams" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-white/80 hover:bg-white/5 transition"><i class="fa-solid fa-graduation-cap w-5 text-center"></i> Exams & CGPA</button>
+      <button data-tab="fees" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-white/80 hover:bg-white/5 transition"><i class="fa-solid fa-wallet w-5 text-center"></i> Fees & Dues</button>
+      <button data-tab="notices" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-white/80 hover:bg-white/5 transition"><i class="fa-solid fa-thumbtack w-5 text-center"></i> Notice Board</button>
+      <button data-tab="complaints" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-white/80 hover:bg-white/5 transition"><i class="fa-solid fa-triangle-exclamation w-5 text-center"></i> Complaints</button>
+      <button data-tab="lostfound" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-white/80 hover:bg-white/5 transition"><i class="fa-solid fa-magnifying-glass w-5 text-center"></i> Lost & Found</button>
+      <button data-tab="events" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-white/80 hover:bg-white/5 transition"><i class="fa-solid fa-calendar-days w-5 text-center"></i> Campus Events</button>
+      <button data-tab="library" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-white/80 hover:bg-white/5 transition"><i class="fa-solid fa-book w-5 text-center"></i> Library</button>
+    </nav>
+
+    <div class="px-4 py-4 border-t border-white/10">
+      <button onclick="resetEverything()" class="w-full text-[11px] font-semibold text-violet-300 hover:text-white flex items-center gap-2 px-2 py-2"><i class="fa-solid fa-rotate-left"></i> Reset all demo data</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="flex-1 flex flex-col min-w-0">
+
+    <!-- Topbar -->
+    <header class="bg-white border-b border-ink-100 sticky top-0 z-30 no-print">
+      <div class="px-6 sm:px-8 py-4 flex items-center justify-between gap-4">
+        <div>
+          <h1 id="page-title" class="font-display font-bold text-2xl text-ink-900">Dashboard</h1>
+          <p class="text-xs text-ink-600" id="page-sub">Your day, at a glance.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-right hidden sm:block">
+            <p id="student-name" class="font-bold text-sm text-ink-900 editable-field" contenteditable="true">Aditi Sharma</p>
+            <p id="student-meta" class="text-[11px] text-ink-600 editable-field" contenteditable="true">B.Tech CSE · Semester 5 · Roll 21CS045</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-violet-600 text-white flex items-center justify-center font-display font-bold">AS</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 px-6 sm:px-8 py-8 space-y-8">
+
+      <!-- ============ DASHBOARD ============ -->
+      <section id="panel-dashboard" class="panel active space-y-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
+          <!-- Attendance ring card -->
+          <div class="bg-white rounded-2xl border border-ink-100 p-5 flex items-center gap-4 shadow-sm">
+            <svg width="72" height="72" viewBox="0 0 72 72">
+              <circle cx="36" cy="36" r="30" fill="none" stroke-width="7" class="ring-track"></circle>
+              <circle id="dash-att-ring" cx="36" cy="36" r="30" fill="none" stroke-width="7" class="ring-progress" stroke-dasharray="188.4" stroke-dashoffset="188.4" transform="rotate(-90 36 36)"></circle>
+              <text id="dash-att-text" x="36" y="41" text-anchor="middle" class="font-mono font-bold" style="font-size:15px; fill:#1B1F3B;">0%</text>
+            </svg>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-ink-600">Overall Attendance</p>
+              <p id="dash-att-status" class="text-xs mt-1 font-semibold">Loading…</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-ink-100 p-5 shadow-sm">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-ink-600">Pending Assignments</p>
+            <p id="dash-assignments" class="font-display font-bold text-4xl text-ink-900 mt-1">0</p>
+            <p class="text-xs text-ink-600 mt-1">Due soon — check the tracker</p>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-ink-100 p-5 shadow-sm">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-ink-600">Fee Due</p>
+            <p id="dash-fees" class="font-display font-bold text-4xl text-rose-500 mt-1">₹0</p>
+            <p class="text-xs text-ink-600 mt-1">Across pending fee items</p>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-ink-100 p-5 shadow-sm">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-ink-600">Open Complaints</p>
+            <p id="dash-complaints" class="font-display font-bold text-4xl text-amber-500 mt-1">0</p>
+            <p class="text-xs text-ink-600 mt-1">Not yet resolved</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-white rounded-2xl border border-ink-100 p-6 shadow-sm">
+            <h3 class="font-display font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-calendar-day text-violet-600"></i> Today's Schedule</h3>
+            <div id="dash-today-schedule" class="space-y-2 text-sm"></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-ink-100 p-6 shadow-sm">
+            <h3 class="font-display font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-violet-600"></i> Upcoming Exams</h3>
+            <div id="dash-upcoming-exams" class="space-y-3 text-sm"></div>
+          </div>
+        </div>
+
+        <div class="bg-ink-900 rounded-2xl p-6 shadow-sm">
+          <h3 class="font-display font-bold text-lg mb-4 text-white flex items-center gap-2"><i class="fa-solid fa-thumbtack text-amber-500"></i> Pinned Notices</h3>
+          <div id="dash-notices" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+        </div>
+      </section>
+
+      <!-- ============ ATTENDANCE ============ -->
+      <section id="panel-attendance" class="panel space-y-6">
+        <div class="flex justify-between items-center flex-wrap gap-3">
+          <p class="text-sm text-ink-600">Track subject-wise attendance. Anything under 75% is flagged.</p>
+          <button onclick="togglePanel('attendance-form')" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Subject</button>
+        </div>
+
+        <div id="attendance-form-panel" class="form-panel bg-white border border-ink-100 rounded-2xl">
+          <form onsubmit="handleAddSubject(event)" class="p-5 grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div><label class="field-label">Subject Name *</label><input required id="att-name" class="input-base" placeholder="e.g. Data Structures"></div>
+            <div><label class="field-label">Code</label><input id="att-code" class="input-base" placeholder="e.g. CS301"></div>
+            <div><label class="field-label">Classes Held</label><input required type="number" min="0" id="att-total" class="input-base" placeholder="e.g. 40"></div>
+            <div><label class="field-label">Classes Attended</label><input required type="number" min="0" id="att-attended" class="input-base" placeholder="e.g. 32"></div>
+            <div class="sm:col-span-4 flex gap-2">
+              <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm">Add Subject</button>
+              <button type="button" onclick="togglePanel('attendance-form')" class="bg-ink-100 text-ink-700 font-bold px-5 py-2.5 rounded-xl text-sm">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="attendance-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </section>
+
+      <!-- ============ TIMETABLE ============ -->
+      <section id="panel-timetable" class="panel space-y-6">
+        <div class="flex justify-between items-center flex-wrap gap-3">
+          <p class="text-sm text-ink-600">Your weekly class schedule.</p>
+          <button onclick="togglePanel('timetable-form')" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Class</button>
+        </div>
+
+        <div id="timetable-form-panel" class="form-panel bg-white border border-ink-100 rounded-2xl">
+          <form onsubmit="handleAddClass(event)" class="p-5 grid grid-cols-1 sm:grid-cols-5 gap-4">
+            <div><label class="field-label">Day *</label>
+              <select required id="tt-day" class="input-base">
+                <option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option>
+              </select>
+            </div>
+            <div><label class="field-label">Time *</label><input required id="tt-time" placeholder="e.g. 9:00 AM" class="input-base"></div>
+            <div><label class="field-label">Subject *</label><input required id="tt-subject" placeholder="e.g. Operating Systems" class="input-base"></div>
+            <div><label class="field-label">Room</label><input id="tt-room" placeholder="e.g. LH-4" class="input-base"></div>
+            <div class="flex items-end gap-2">
+              <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm w-full">Add</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="overflow-x-auto bg-white rounded-2xl border border-ink-100 shadow-sm">
+          <table class="w-full text-sm">
+            <thead class="bg-ink-900 text-white text-[11px] uppercase tracking-wider">
+              <tr id="tt-head-row"></tr>
+            </thead>
+            <tbody id="timetable-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ ASSIGNMENTS ============ -->
+      <section id="panel-assignments" class="panel space-y-6">
+        <div class="flex justify-between items-center flex-wrap gap-3">
+          <p class="text-sm text-ink-600">Homework and project deadlines, sorted by due date.</p>
+          <button onclick="togglePanel('assignment-form')" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Assignment</button>
+        </div>
+
+        <div id="assignment-form-panel" class="form-panel bg-white border border-ink-100 rounded-2xl">
+          <form onsubmit="handleAddAssignment(event)" class="p-5 grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div><label class="field-label">Subject *</label><input required id="asg-subject" class="input-base" placeholder="e.g. DBMS"></div>
+            <div class="sm:col-span-2"><label class="field-label">Title *</label><input required id="asg-title" class="input-base" placeholder="e.g. ER Diagram Submission"></div>
+            <div><label class="field-label">Due Date *</label><input required type="date" id="asg-due" class="input-base"></div>
+            <div><label class="field-label">Priority</label>
+              <select id="asg-priority" class="input-base"><option value="Medium">Medium</option><option value="High">High</option><option value="Low">Low</option></select>
+            </div>
+            <div class="sm:col-span-3 flex items-end gap-2">
+              <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm">Add Assignment</button>
+              <button type="button" onclick="togglePanel('assignment-form')" class="bg-ink-100 text-ink-700 font-bold px-5 py-2.5 rounded-xl text-sm">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="assignments-list" class="space-y-3"></div>
+      </section>
+
+      <!-- ============ NOTES VAULT ============ -->
+      <section id="panel-notes" class="panel space-y-6">
+        <div class="flex justify-between items-center flex-wrap gap-3">
+          <p class="text-sm text-ink-600">Quick study notes, organized by subject.</p>
+          <button onclick="togglePanel('notes-form')" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Note</button>
+        </div>
+
+        <div id="notes-form-panel" class="form-panel bg-white border border-ink-100 rounded-2xl">
+          <form onsubmit="handleAddNote(event)" class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label class="field-label">Subject *</label><input required id="note-subject" class="input-base" placeholder="e.g. Thermodynamics"></div>
+            <div><label class="field-label">Title *</label><input required id="note-title" class="input-base" placeholder="e.g. Unit 3 — Entropy"></div>
+            <div class="sm:col-span-2"><label class="field-label">Content</label><textarea id="note-content" rows="3" class="input-base" placeholder="Key points, formulas, summary..."></textarea></div>
+            <div class="sm:col-span-2 flex gap-2">
+              <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm">Save Note</button>
+              <button type="button" onclick="togglePanel('notes-form')" class="bg-ink-100 text-ink-700 font-bold px-5 py-2.5 rounded-xl text-sm">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="notes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </section>
+
+      <!-- ============ EXAMS & CGPA ============ -->
+      <section id="panel-exams" class="panel space-y-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="bg-white rounded-2xl border border-ink-100 p-6 shadow-sm flex flex-col items-center justify-center text-center">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-ink-600 mb-2">Current CGPA</p>
+            <p id="cgpa-value" class="font-display font-bold text-5xl text-violet-600">0.00</p>
+            <p class="text-xs text-ink-600 mt-2">Based on subjects added below</p>
+          </div>
+          <div class="lg:col-span-2 bg-white rounded-2xl border border-ink-100 p-6 shadow-sm">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-display font-bold text-lg">Semester Subjects</h3>
+              <button onclick="togglePanel('grade-form')" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Subject</button>
+            </div>
+            <div id="grade-form-panel" class="form-panel bg-paper-100 border border-ink-100 rounded-xl mb-4">
+              <form onsubmit="handleAddGrade(event)" class="p-4 grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div><label class="field-label">Subject *</label><input required id="grade-subject" class="input-base" placeholder="e.g. Compiler Design"></div>
+                <div><label class="field-label">Credits *</label><input required type="number" min="1" max="6" id="grade-credits" class="input-base" placeholder="e.g. 4"></div>
+                <div><label class="field-label">Grade *</label>
+                  <select required id="grade-grade" class="input-base">
+                    <option value="10">O (10)</option><option value="9">A+ (9)</option><option value="8">A (8)</option>
+                    <option value="7">B+ (7)</option><option value="6">B (6)</option><option value="5">C (5)</option><option value="0">F (0)</option>
+                  </select>
+                </div>
+                <div class="flex items-end"><button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm w-full">Add</button></div>
+              </form>
+            </div>
+            <div id="grades-list" class="space-y-2 text-sm"></div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-ink-100 p-6 shadow-sm">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-display font-bold text-lg">Exam Schedule</h3>
+            <button onclick="togglePanel('exam-form')" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Exam</button>
+          </div>
+          <div id="exam-form-panel" class="form-panel bg-paper-100 border border-ink-100 rounded-xl mb-4">
+            <form onsubmit="handleAddExam(event)" class="p-4 grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <div><label class="field-label">Subject *</label><input required id="exam-subject" class="input-base" placeholder="e.g. Computer Networks"></div>
+              <div><label class="field-label">Date *</label><input required type="date" id="exam-date" class="input-base"></div>
+              <div><label class="field-label">Time</label><input id="exam-time" placeholder="e.g. 10:00 AM" class="input-base"></div>
+              <div><label class="field-label">Room</label><input id="exam-room" placeholder="e.g. Hall B" class="input-base"></div>
+              <div class="sm:col-span-4"><button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm">Add Exam</button></div>
+            </form>
+          </div>
+          <div id="exam-schedule-list" class="space-y-2 text-sm"></div>
+        </div>
+      </section>
+
+      <!-- ============ FEES ============ -->
+      <section id="panel-fees" class="panel space-y-6">
+        <div class="flex justify-between items-center flex-wrap gap-3">
+          <div>
+            <p class="text-sm text-ink-600">Track fee items and payment status.</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="text-right">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-ink-600">Total Due</p>
+              <p id="fees-total-due" class="font-display font-bold text-2xl text-rose-500">₹0</p>
+            </div>
+            <button onclick="togglePanel('fee-form')" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Fee Item</button>
+          </div>
+        </div>
+
+        <div id="fee-form-panel" class="form-panel bg-white border border-ink-100 rounded-2xl">
+          <form onsubmit="handleAddFee(event)" class="p-5 grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div class="sm:col-span-2"><label class="field-label">Fee Title *</label><input required id="fee-title" class="input-base" placeholder="e.g. Semester Tuition Fee"></div>
+            <div><label class="field-label">Amount (₹) *</label><input required type="number" min="0" id="fee-amount" class="input-base" placeholder="e.g. 45000"></div>
+            <div><label class="field-label">Due Date *</label><input required type="date" id="fee-due" class="input-base"></div>
+            <div class="sm:col-span-4 flex gap-2">
+              <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm">Add Fee Item</button>
+              <button type="button" onclick="togglePanel('fee-form')" class="bg-ink-100 text-ink-700 font-bold px-5 py-2.5 rounded-xl text-sm">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="overflow-x-auto bg-white rounded-2xl border border-ink-100 shadow-sm">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-ink-900 text-white text-[11px] uppercase tracking-wider">
+              <tr><th class="p-3">Fee Item</th><th class="p-3">Amount</th><th class="p-3">Due Date</th><th class="p-3">Status</th><th class="p-3">Action</th></tr>
+            </thead>
+            <tbody id="fees-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ NOTICE BOARD ============ -->
+      <section id="panel-notices" class="panel space-y-6">
+        <div class="flex justify-between items-center flex-wrap gap-3">
+          <p class="text-sm text-ink-600">College announcements — pin the important ones.</p>
+          <button onclick="togglePanel('notice-form')" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Notice</button>
+        </div>
+
+        <div id="notice-form-panel" class="form-panel bg-white border border-ink-100 rounded-2xl">
+          <form onsubmit="handleAddNotice(event)" class="p-5 grid grid-cols-1 gap-4">
+            <div><label class="field-label">Title *</label><input required id="notice-title" class="input-base" placeholder="e.g. Mid-Sem Exam Datesheet Released"></div>
+            <div><label class="field-label">Details</label><textarea id="notice-body" rows="2" class="input-base" placeholder="Notice details..."></textarea></div>
+            <label class="flex items-center gap-2 text-xs font-semibold text-ink-700"><input type="checkbox" id="notice-pinned"> Pin this notice to dashboard</label>
+            <div class="flex gap-2">
+              <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm">Post Notice</button>
+              <button type="button" onclick="togglePanel('notice-form')" class="bg-ink-100 text-ink-700 font-bold px-5 py-2.5 rounded-xl text-sm">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="notices-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </section>
+
+      <!-- ============ COMPLAINTS ============ -->
+      <section id="panel-complaints" class="panel space-y-6">
+        <div class="flex justify-between items-center flex-wrap gap-3">
+          <p class="text-sm text-ink-600">Raise and track hostel, mess, wifi, or academic grievances.</p>
+          <button onclick="togglePanel('complaint-form')" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-plus"></i> Raise Complaint</button>
+        </div>
+
+        <div id="complaint-form-panel" class="form-panel bg-white border border-ink-100 rounded-2xl">
+          <form onsubmit="handleAddComplaint(event)" class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label class="field-label">Category *</label>
+              <select required id="comp-category" class="input-base">
+                <option>Hostel</option><option>Mess / Food</option><option>WiFi / IT</option><option>Academic</option><option>Infrastructure</option><option>Other</option>
+              </select>
+            </div>
+            <div><label class="field-label">Title *</label><input required id="comp-title" class="input-base" placeholder="e.g. AC not working in Room 214"></div>
+            <div class="sm:col-span-2"><label class="field-label">Description</label><textarea id="comp-desc" rows="2" class="input-base" placeholder="Describe the issue..."></textarea></div>
+            <div class="sm:col-span-2 flex gap-2">
+              <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm">Submit Complaint</button>
+              <button type="button" onclick="togglePanel('complaint-form')" class="bg-ink-100 text-ink-700 font-bold px-5 py-2.5 rounded-xl text-sm">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="complaints-list" class="space-y-3"></div>
+      </section>
+
+      <!-- ============ LOST & FOUND ============ -->
+      <section id="panel-lostfound" class="panel space-y-6">
+        <div class="flex justify-between items-center flex-wrap gap-3">
+          <p class="text-sm text-ink-600">Post lost or found items around campus.</p>
+          <button onclick="togglePanel('lf-form')" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-plus"></i> Post Item</button>
+        </div>
+
+        <div id="lf-form-panel" class="form-panel bg-white border border-ink-100 rounded-2xl">
+          <form onsubmit="handleAddLostFound(event)" class="p-5 grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div><label class="field-label">Type *</label>
+              <select required id="lf-type" class="input-base"><option value="Lost">Lost</option><option value="Found">Found</option></select>
+            </div>
+            <div><label class="field-label">Item *</label><input required id="lf-item" class="input-base" placeholder="e.g. Blue water bottle"></div>
+            <div><label class="field-label">Location</label><input id="lf-location" class="input-base" placeholder="e.g. Library, 2nd floor"></div>
+            <div><label class="field-label">Contact</label><input id="lf-contact" class="input-base" placeholder="e.g. Phone / email"></div>
+            <div class="sm:col-span-4 flex gap-2">
+              <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm">Post</button>
+              <button type="button" onclick="togglePanel('lf-form')" class="bg-ink-100 text-ink-700 font-bold px-5 py-2.5 rounded-xl text-sm">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="lostfound-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </section>
+
+      <!-- ============ EVENTS ============ -->
+      <section id="panel-events" class="panel space-y-6">
+        <div class="flex justify-between items-center flex-wrap gap-3">
+          <p class="text-sm text-ink-600">Fests, workshops, and campus activities.</p>
+          <button onclick="togglePanel('event-form')" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Event</button>
+        </div>
+
+        <div id="event-form-panel" class="form-panel bg-white border border-ink-100 rounded-2xl">
+          <form onsubmit="handleAddEvent(event)" class="p-5 grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div class="sm:col-span-2"><label class="field-label">Event Title *</label><input required id="ev-title" class="input-base" placeholder="e.g. Annual Tech Fest — Innovex"></div>
+            <div><label class="field-label">Date *</label><input required type="date" id="ev-date" class="input-base"></div>
+            <div><label class="field-label">Location</label><input id="ev-location" class="input-base" placeholder="e.g. Main Auditorium"></div>
+            <div class="sm:col-span-4"><label class="field-label">Description</label><textarea id="ev-desc" rows="2" class="input-base" placeholder="What's happening..."></textarea></div>
+            <div class="sm:col-span-4 flex gap-2">
+              <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm">Add Event</button>
+              <button type="button" onclick="togglePanel('event-form')" class="bg-ink-100 text-ink-700 font-bold px-5 py-2.5 rounded-xl text-sm">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="events-list" class="space-y-3"></div>
+      </section>
+
+      <!-- ============ LIBRARY ============ -->
+      <section id="panel-library" class="panel space-y-6">
+        <div class="flex justify-between items-center flex-wrap gap-3">
+          <p class="text-sm text-ink-600">Books currently issued to you.</p>
+          <button onclick="togglePanel('lib-form')" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Issued Book</button>
+        </div>
+
+        <div id="lib-form-panel" class="form-panel bg-white border border-ink-100 rounded-2xl">
+          <form onsubmit="handleAddBook(event)" class="p-5 grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div><label class="field-label">Book Title *</label><input required id="lib-title" class="input-base" placeholder="e.g. Introduction to Algorithms"></div>
+            <div><label class="field-label">Author</label><input id="lib-author" class="input-base" placeholder="e.g. Cormen et al."></div>
+            <div><label class="field-label">Issue Date *</label><input required type="date" id="lib-issue" class="input-base"></div>
+            <div><label class="field-label">Due Date *</label><input required type="date" id="lib-due" class="input-base"></div>
+            <div class="sm:col-span-4 flex gap-2">
+              <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm">Add Book</button>
+              <button type="button" onclick="togglePanel('lib-form')" class="bg-ink-100 text-ink-700 font-bold px-5 py-2.5 rounded-xl text-sm">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="overflow-x-auto bg-white rounded-2xl border border-ink-100 shadow-sm">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-ink-900 text-white text-[11px] uppercase tracking-wider">
+              <tr><th class="p-3">Book</th><th class="p-3">Author</th><th class="p-3">Issued</th><th class="p-3">Due</th><th class="p-3">Status</th><th class="p-3">Action</th></tr>
+            </thead>
+            <tbody id="library-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Toast helper
+// ============================================================
+let toastTimer = null;
+function showToast(msg, type='success') {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-msg').innerText = msg;
+  document.getElementById('toast-icon').className = type === 'success'
+    ? 'fa-solid fa-circle-check text-emerald2-500'
+    : 'fa-solid fa-circle-exclamation text-rose-500';
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+function togglePanel(id) {
+  document.getElementById(id + '-panel').classList.toggle('open');
+}
+
+// ============================================================
+// Navigation (SPA tab switching)
+// ============================================================
+const pageMeta = {
+  dashboard: ['Dashboard', 'Your day, at a glance.'],
+  attendance: ['Attendance', 'Subject-wise attendance tracker with 75% threshold alerts.'],
+  timetable: ['Timetable', 'Your weekly class schedule.'],
+  assignments: ['Assignments', 'Homework and project deadlines.'],
+  notes: ['Notes Vault', 'Quick study notes by subject.'],
+  exams: ['Exams & CGPA', 'Grade tracker and exam schedule.'],
+  fees: ['Fees & Dues', 'Payment status for fee items.'],
+  notices: ['Notice Board', 'Campus announcements.'],
+  complaints: ['Complaints', 'Grievance tracker.'],
+  lostfound: ['Lost & Found', 'Campus lost & found board.'],
+  events: ['Campus Events', 'Fests, workshops, activities.'],
+  library: ['Library', 'Books issued to you.'],
+};
+
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    document.getElementById('page-title').innerText = pageMeta[tab][0];
+    document.getElementById('page-sub').innerText = pageMeta[tab][1];
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+
+// ============================================================
+// Data store helpers (localStorage backed)
+// ============================================================
+function loadData(key, fallback) {
+  const raw = localStorage.getItem(key);
+  return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(fallback));
+}
+function saveData(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+const defaults = {
+  subjects: [
+    { id: 's1', name: 'Data Structures', code: 'CS301', total: 40, attended: 36 },
+    { id: 's2', name: 'Operating Systems', code: 'CS302', total: 38, attended: 26 },
+    { id: 's3', name: 'DBMS', code: 'CS303', total: 42, attended: 33 },
+  ],
+  timetable: [
+    { id: 't1', day: 'Monday', time: '9:00 AM', subject: 'Data Structures', room: 'LH-2' },
+    { id: 't2', day: 'Monday', time: '11:00 AM', subject: 'Operating Systems', room: 'LH-4' },
+    { id: 't3', day: 'Tuesday', time: '10:00 AM', subject: 'DBMS', room: 'Lab-1' },
+    { id: 't4', day: 'Wednesday', time: '9:00 AM', subject: 'Data Structures', room: 'LH-2' },
+  ],
+  assignments: [
+    { id: 'a1', subject: 'DBMS', title: 'ER Diagram Submission', due: addDays(3), priority: 'High', status: 'Pending' },
+    { id: 'a2', subject: 'Operating Systems', title: 'Process Scheduling Report', due: addDays(7), priority: 'Medium', status: 'Pending' },
+  ],
+  notes: [
+    { id: 'n1', subject: 'Data Structures', title: 'Unit 2 — Trees & Graphs', content: 'BST insertion/deletion, tree traversals, graph BFS/DFS basics.', date: today() },
+  ],
+  grades: [
+    { id: 'g1', subject: 'Discrete Mathematics', credits: 4, grade: 9 },
+    { id: 'g2', subject: 'Computer Networks', credits: 3, grade: 8 },
+  ],
+  examSchedule: [
+    { id: 'e1', subject: 'Data Structures', date: addDays(10), time: '10:00 AM', room: 'Hall A' },
+  ],
+  fees: [
+    { id: 'f1', title: 'Semester Tuition Fee', amount: 45000, due: addDays(14), status: 'Pending' },
+    { id: 'f2', title: 'Hostel & Mess Fee', amount: 18000, due: addDays(5), status: 'Paid' },
+  ],
+  notices: [
+    { id: 'no1', title: 'Mid-Sem Exam Datesheet Released', body: 'Check the exams tab for your updated schedule.', date: today(), pinned: true },
+    { id: 'no2', title: 'Library Timings Extended', body: 'Library now open till 10 PM during exam week.', date: today(), pinned: true },
+  ],
+  complaints: [
+    { id: 'c1', category: 'WiFi / IT', title: 'Weak WiFi signal in Block C', description: 'Signal drops frequently on the 3rd floor.', date: today(), status: 'In Progress' },
+  ],
+  lostfound: [
+    { id: 'lf1', type: 'Found', item: 'Black umbrella', location: 'Canteen', contact: 'front desk', date: today() },
+  ],
+  events: [
+    { id: 'ev1', title: 'Annual Tech Fest — Innovex', date: addDays(20), location: 'Main Auditorium', description: 'College-wide tech fest with hackathons and workshops.' },
+  ],
+  library: [
+    { id: 'lib1', title: 'Introduction to Algorithms', author: 'Cormen et al.', issue: today(), due: addDays(12), status: 'Issued' },
+  ],
+};
+
+function today() { return new Date().toISOString().split('T')[0]; }
+function addDays(n) { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().split('T')[0]; }
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+function daysUntil(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  const t = new Date(); t.setHours(0,0,0,0);
+  return Math.round((d - t) / 86400000);
+}
+
+let subjects = [], timetable = [], assignments = [], notes = [], grades = [], examSchedule = [],
+    fees = [], notices = [], complaints = [], lostfound = [], events = [], library = [];
+
+function loadAll() {
+  subjects = loadData('campus_subjects', defaults.subjects);
+  timetable = loadData('campus_timetable', defaults.timetable);
+  assignments = loadData('campus_assignments', defaults.assignments);
+  notes = loadData('campus_notes', defaults.notes);
+  grades = loadData('campus_grades', defaults.grades);
+  examSchedule = loadData('campus_examSchedule', defaults.examSchedule);
+  fees = loadData('campus_fees', defaults.fees);
+  notices = loadData('campus_notices', defaults.notices);
+  complaints = loadData('campus_complaints', defaults.complaints);
+  lostfound = loadData('campus_lostfound', defaults.lostfound);
+  events = loadData('campus_events', defaults.events);
+  library = loadData('campus_library', defaults.library);
+}
+
+function resetEverything() {
+  if (!confirm('Reset all demo data back to defaults? This clears everything you\\'ve added.')) return;
+  ['campus_subjects','campus_timetable','campus_assignments','campus_notes','campus_grades',
+   'campus_examSchedule','campus_fees','campus_notices','campus_complaints','campus_lostfound',
+   'campus_events','campus_library'].forEach(k => localStorage.removeItem(k));
+  loadAll();
+  renderAll();
+  showToast('All demo data reset.');
+}
+
+// ============================================================
+// ATTENDANCE
+// ============================================================
+function handleAddSubject(evt) {
+  evt.preventDefault();
+  const name = document.getElementById('att-name').value.trim();
+  const code = document.getElementById('att-code').value.trim();
+  const total = parseInt(document.getElementById('att-total').value) || 0;
+  const attended = parseInt(document.getElementById('att-attended').value) || 0;
+  if (!name) { showToast('Please enter a subject name.', 'error'); return; }
+  if (attended > total) { showToast('Attended classes cannot exceed classes held.', 'error'); return; }
+  subjects.push({ id: 'sub-' + Date.now(), name, code, total, attended });
+  saveData('campus_subjects', subjects);
+  renderAttendance();
+  renderDashboard();
+  evt.target.reset();
+  togglePanel('attendance-form');
+  showToast('Subject added.');
+}
+function deleteSubject(id) {
+  subjects = subjects.filter(s => s.id !== id);
+  saveData('campus_subjects', subjects);
+  renderAttendance(); renderDashboard();
+  showToast('Subject removed.');
+}
+function markToday(id, present) {
+  const s = subjects.find(x => x.id === id);
+  if (!s) return;
+  s.total += 1;
+  if (present) s.attended += 1;
+  saveData('campus_subjects', subjects);
+  renderAttendance(); renderDashboard();
+  showToast(present ? 'Marked present.' : 'Marked absent.');
+}
+function renderAttendance() {
+  const grid = document.getElementById('attendance-grid');
+  grid.innerHTML = '';
+  if (subjects.length === 0) {
+    grid.innerHTML = `<p class="text-sm text-ink-600 col-span-full">No subjects added yet.</p>`;
+    return;
+  }
+  subjects.forEach(s => {
+    const pct = s.total > 0 ? Math.round((s.attended / s.total) * 100) : 0;
+    const low = pct < 75;
+    const color = low ? 'text-rose-500' : 'text-emerald2-600';
+    const bar = low ? 'bg-rose-500' : 'bg-emerald2-500';
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl border border-ink-100 p-5 shadow-sm';
+    card.innerHTML = `
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <p class="font-bold text-ink-900">${s.name}</p>
+          <p class="text-[11px] text-ink-600 font-mono">${s.code || '—'}</p>
+        </div>
+        <button onclick="deleteSubject('${s.id}')" class="text-ink-600/40 hover:text-rose-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+      <div class="flex items-end justify-between mt-3 mb-2">
+        <span class="font-display font-bold text-2xl ${color}">${pct}%</span>
+        <span class="text-[11px] text-ink-600">${s.attended}/${s.total} classes</span>
+      </div>
+      <div class="w-full bg-ink-100 rounded-full h-2 overflow-hidden mb-3">
+        <div class="${bar} h-2" style="width:${pct}%"></div>
+      </div>
+      ${low ? `<p class="text-[11px] font-semibold text-rose-500 mb-3"><i class="fa-solid fa-triangle-exclamation"></i> Below 75% — attend more classes</p>` : `<p class="text-[11px] font-semibold text-emerald2-600 mb-3"><i class="fa-solid fa-circle-check"></i> On track</p>`}
+      <div class="flex gap-2">
+        <button onclick="markToday('${s.id}', true)" class="flex-1 bg-emerald2-50 hover:bg-emerald2-100 text-emerald2-600 font-bold text-xs py-2 rounded-lg transition">Mark Present</button>
+        <button onclick="markToday('${s.id}', false)" class="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-500 font-bold text-xs py-2 rounded-lg transition">Mark Absent</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ============================================================
+// TIMETABLE
+// ============================================================
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function handleAddClass(evt) {
+  evt.preventDefault();
+  const day = document.getElementById('tt-day').value;
+  const time = document.getElementById('tt-time').value.trim();
+  const subject = document.getElementById('tt-subject').value.trim();
+  const room = document.getElementById('tt-room').value.trim();
+  if (!day || !time || !subject) { showToast('Please fill in day, time, and subject.', 'error'); return; }
+  timetable.push({ id: 'tt-' + Date.now(), day, time, subject, room });
+  saveData('campus_timetable', timetable);
+  renderTimetable(); renderDashboard();
+  evt.target.reset();
+  togglePanel('timetable-form');
+  showToast('Class added to timetable.');
+}
+function deleteClass(id) {
+  timetable = timetable.filter(t => t.id !== id);
+  saveData('campus_timetable', timetable);
+  renderTimetable(); renderDashboard();
+  showToast('Class removed.');
+}
+function renderTimetable() {
+  const head = document.getElementById('tt-head-row');
+  head.innerHTML = '<th class="p-3">Time</th>' + DAYS.map(d => `<th class="p-3">${d.slice(0,3)}</th>`).join('');
+
+  const times = [...new Set(timetable.map(t => t.time))].sort();
+  const body = document.getElementById('timetable-body');
+  body.innerHTML = '';
+
+  if (timetable.length === 0) {
+    body.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-ink-600 text-xs">No classes added yet.</td></tr>`;
+    return;
+  }
+
+  times.forEach(time => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b border-ink-100';
+    let row = `<td class="p-3 font-mono font-bold text-xs text-ink-700">${time}</td>`;
+    DAYS.forEach(day => {
+      const cls = timetable.find(t => t.day === day && t.time === time);
+      if (cls) {
+        row += `<td class="p-2">
+          <div class="bg-violet-50 border border-violet-100 rounded-xl p-2 relative group">
+            <p class="font-bold text-xs text-ink-900">${cls.subject}</p>
+            <p class="text-[10px] text-ink-600">${cls.room || ''}</p>
+            <button onclick="deleteClass('${cls.id}')" class="absolute top-1 right-1 text-ink-600/30 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </td>`;
+      } else {
+        row += `<td class="p-2"></td>`;
+      }
+    });
+    tr.innerHTML = row;
+    body.appendChild(tr);
+  });
+}
+
+// ============================================================
+// ASSIGNMENTS
+// ============================================================
+function handleAddAssignment(evt) {
+  evt.preventDefault();
+  const subject = document.getElementById('asg-subject').value.trim();
+  const title = document.getElementById('asg-title').value.trim();
+  const due = document.getElementById('asg-due').value;
+  const priority = document.getElementById('asg-priority').value;
+  if (!subject || !title || !due) { showToast('Please fill in all required fields.', 'error'); return; }
+  assignments.push({ id: 'asg-' + Date.now(), subject, title, due, priority, status: 'Pending' });
+  saveData('campus_assignments', assignments);
+  renderAssignments(); renderDashboard();
+  evt.target.reset();
+  togglePanel('assignment-form');
+  showToast('Assignment added.');
+}
+function toggleAssignmentStatus(id) {
+  const a = assignments.find(x => x.id === id);
+  if (!a) return;
+  a.status = a.status === 'Pending' ? 'Submitted' : 'Pending';
+  saveData('campus_assignments', assignments);
+  renderAssignments(); renderDashboard();
+}
+function deleteAssignment(id) {
+  assignments = assignments.filter(a => a.id !== id);
+  saveData('campus_assignments', assignments);
+  renderAssignments(); renderDashboard();
+  showToast('Assignment removed.');
+}
+function renderAssignments() {
+  const list = document.getElementById('assignments-list');
+  list.innerHTML = '';
+  if (assignments.length === 0) {
+    list.innerHTML = `<p class="text-sm text-ink-600">No assignments yet — nice and clear!</p>`;
+    return;
+  }
+  const sorted = [...assignments].sort((a,b) => new Date(a.due) - new Date(b.due));
+  const prioColor = { High: 'bg-rose-50 text-rose-500', Medium: 'bg-amber-50 text-amber-600', Low: 'bg-emerald2-50 text-emerald2-600' };
+  sorted.forEach(a => {
+    const days = daysUntil(a.due);
+    const overdue = days < 0 && a.status === 'Pending';
+    const row = document.createElement('div');
+    row.className = 'bg-white rounded-2xl border border-ink-100 p-4 flex items-center justify-between gap-4 shadow-sm';
+    row.innerHTML = `
+      <div class="flex items-center gap-4 min-w-0">
+        <input type="checkbox" ${a.status === 'Submitted' ? 'checked' : ''} onchange="toggleAssignmentStatus('${a.id}')" class="w-5 h-5 accent-violet-600 shrink-0">
+        <div class="min-w-0">
+          <p class="font-bold text-sm text-ink-900 ${a.status === 'Submitted' ? 'line-through text-ink-600' : ''}">${a.title}</p>
+          <p class="text-[11px] text-ink-600">${a.subject} · Due ${fmtDate(a.due)} ${overdue ? '<span class="text-rose-500 font-bold">· Overdue</span>' : (a.status==='Pending' ? `· ${days>=0? days+' day(s) left':''}` : '')}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${prioColor[a.priority] || prioColor.Medium}">${a.priority}</span>
+        <button onclick="deleteAssignment('${a.id}')" class="text-ink-600/40 hover:text-rose-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ============================================================
+// NOTES VAULT
+// ============================================================
+function handleAddNote(evt) {
+  evt.preventDefault();
+  const subject = document.getElementById('note-subject').value.trim();
+  const title = document.getElementById('note-title').value.trim();
+  const content = document.getElementById('note-content').value.trim();
+  if (!subject || !title) { showToast('Please fill in subject and title.', 'error'); return; }
+  notes.unshift({ id: 'note-' + Date.now(), subject, title, content, date: today() });
+  saveData('campus_notes', notes);
+  renderNotes();
+  evt.target.reset();
+  togglePanel('notes-form');
+  showToast('Note saved.');
+}
+function deleteNote(id) {
+  notes = notes.filter(n => n.id !== id);
+  saveData('campus_notes', notes);
+  renderNotes();
+  showToast('Note deleted.');
+}
+function renderNotes() {
+  const grid = document.getElementById('notes-grid');
+  grid.innerHTML = '';
+  if (notes.length === 0) { grid.innerHTML = `<p class="text-sm text-ink-600 col-span-full">No notes yet.</p>`; return; }
+  notes.forEach(n => {
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl border border-ink-100 p-5 shadow-sm flex flex-col';
+    card.innerHTML = `
+      <div class="flex justify-between items-start mb-2">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-violet-600 bg-violet-50 px-2 py-0.5 rounded">${n.subject}</span>
+        <button onclick="deleteNote('${n.id}')" class="text-ink-600/40 hover:text-rose-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+      <h4 class="font-display font-bold text-base text-ink-900 mb-1">${n.title}</h4>
+      <p class="text-xs text-ink-700 flex-1 whitespace-pre-line">${n.content || 'No content added.'}</p>
+      <p class="text-[10px] text-ink-600 mt-3">${fmtDate(n.date)}</p>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ============================================================
+// EXAMS & CGPA
+// ============================================================
+function handleAddGrade(evt) {
+  evt.preventDefault();
+  const subject = document.getElementById('grade-subject').value.trim();
+  const credits = parseInt(document.getElementById('grade-credits').value) || 0;
+  const grade = parseInt(document.getElementById('grade-grade').value);
+  if (!subject || !credits) { showToast('Please fill in subject and credits.', 'error'); return; }
+  grades.push({ id: 'g-' + Date.now(), subject, credits, grade });
+  saveData('campus_grades', grades);
+  renderGrades();
+  evt.target.reset();
+  togglePanel('grade-form');
+  showToast('Subject added to CGPA calculation.');
+}
+function deleteGrade(id) {
+  grades = grades.filter(g => g.id !== id);
+  saveData('campus_grades', grades);
+  renderGrades();
+}
+function computeCGPA() {
+  const totalCredits = grades.reduce((s,g) => s + g.credits, 0);
+  const totalPoints = grades.reduce((s,g) => s + g.credits * g.grade, 0);
+  return totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
+}
+function renderGrades() {
+  document.getElementById('cgpa-value').innerText = computeCGPA();
+  const list = document.getElementById('grades-list');
+  list.innerHTML = '';
+  if (grades.length === 0) { list.innerHTML = `<p class="text-ink-600 text-xs">No subjects added yet.</p>`; return; }
+  const gradeLabel = { 10:'O', 9:'A+', 8:'A', 7:'B+', 6:'B', 5:'C', 0:'F' };
+  grades.forEach(g => {
+    const row = document.createElement('div');
+    row.className = 'flex items-center justify-between bg-paper-100 rounded-xl px-4 py-2.5';
+    row.innerHTML = `
+      <div><p class="font-bold text-ink-900">${g.subject}</p><p class="text-[11px] text-ink-600">${g.credits} credits</p></div>
+      <div class="flex items-center gap-3">
+        <span class="font-mono font-bold text-violet-600">${gradeLabel[g.grade] || g.grade}</span>
+        <button onclick="deleteGrade('${g.id}')" class="text-ink-600/40 hover:text-rose-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+function handleAddExam(evt) {
+  evt.preventDefault();
+  const subject = document.getElementById('exam-subject').value.trim();
+  const date = document.getElementById('exam-date').value;
+  const time = document.getElementById('exam-time').value.trim();
+  const room = document.getElementById('exam-room').value.trim();
+  if (!subject || !date) { showToast('Please fill in subject and date.', 'error'); return; }
+  examSchedule.push({ id: 'ex-' + Date.now(), subject, date, time, room });
+  saveData('campus_examSchedule', examSchedule);
+  renderExamSchedule(); renderDashboard();
+  evt.target.reset();
+  togglePanel('exam-form');
+  showToast('Exam added to schedule.');
+}
+function deleteExam(id) {
+  examSchedule = examSchedule.filter(e => e.id !== id);
+  saveData('campus_examSchedule', examSchedule);
+  renderExamSchedule(); renderDashboard();
+}
+function renderExamSchedule() {
+  const list = document.getElementById('exam-schedule-list');
+  list.innerHTML = '';
+  if (examSchedule.length === 0) { list.innerHTML = `<p class="text-ink-600 text-xs">No exams scheduled.</p>`; return; }
+  const sorted = [...examSchedule].sort((a,b) => new Date(a.date) - new Date(b.date));
+  sorted.forEach(e => {
+    const row = document.createElement('div');
+    row.className = 'flex items-center justify-between bg-paper-100 rounded-xl px-4 py-2.5';
+    row.innerHTML = `
+      <div><p class="font-bold text-ink-900">${e.subject}</p><p class="text-[11px] text-ink-600">${fmtDate(e.date)} ${e.time ? '· '+e.time : ''} ${e.room ? '· '+e.room : ''}</p></div>
+      <button onclick="deleteExam('${e.id}')" class="text-ink-600/40 hover:text-rose-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ============================================================
+// FEES
+// ============================================================
+function handleAddFee(evt) {
+  evt.preventDefault();
+  const title = document.getElementById('fee-title').value.trim();
+  const amount = parseInt(document.getElementById('fee-amount').value) || 0;
+  const due = document.getElementById('fee-due').value;
+  if (!title || !due) { showToast('Please fill in title and due date.', 'error'); return; }
+  fees.push({ id: 'fee-' + Date.now(), title, amount, due, status: 'Pending' });
+  saveData('campus_fees', fees);
+  renderFees(); renderDashboard();
+  evt.target.reset();
+  togglePanel('fee-form');
+  showToast('Fee item added.');
+}
+function toggleFeeStatus(id) {
+  const f = fees.find(x => x.id === id);
+  if (!f) return;
+  f.status = f.status === 'Pending' ? 'Paid' : 'Pending';
+  saveData('campus_fees', fees);
+  renderFees(); renderDashboard();
+}
+function deleteFee(id) {
+  fees = fees.filter(f => f.id !== id);
+  saveData('campus_fees', fees);
+  renderFees(); renderDashboard();
+  showToast('Fee item removed.');
+}
+function renderFees() {
+  const body = document.getElementById('fees-body');
+  body.innerHTML = '';
+  if (fees.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-ink-600 text-xs">No fee items yet.</td></tr>`; }
+  fees.forEach(f => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b border-ink-100';
+    tr.innerHTML = `
+      <td class="p-3 font-bold text-ink-900">${f.title}</td>
+      <td class="p-3 font-mono">₹${f.amount.toLocaleString('en-IN')}</td>
+      <td class="p-3">${fmtDate(f.due)}</td>
+      <td class="p-3">
+        <button onclick="toggleFeeStatus('${f.id}')" class="text-[10px] font-bold px-2.5 py-1 rounded-full ${f.status === 'Paid' ? 'bg-emerald2-50 text-emerald2-600' : 'bg-rose-50 text-rose-500'}">${f.status}</button>
+      </td>
+      <td class="p-3"><button onclick="deleteFee('${f.id}')" class="text-ink-600/40 hover:text-rose-500 transition"><i class="fa-solid fa-trash-can"></i></button></td>
+    `;
+    body.appendChild(tr);
+  });
+  const totalDue = fees.filter(f => f.status === 'Pending').reduce((s,f) => s + f.amount, 0);
+  document.getElementById('fees-total-due').innerText = `₹${totalDue.toLocaleString('en-IN')}`;
+}
+
+// ============================================================
+// NOTICES
+// ============================================================
+function handleAddNotice(evt) {
+  evt.preventDefault();
+  const title = document.getElementById('notice-title').value.trim();
+  const body = document.getElementById('notice-body').value.trim();
+  const pinned = document.getElementById('notice-pinned').checked;
+  if (!title) { showToast('Please enter a title.', 'error'); return; }
+  notices.unshift({ id: 'no-' + Date.now(), title, body, date: today(), pinned });
+  saveData('campus_notices', notices);
+  renderNotices(); renderDashboard();
+  evt.target.reset();
+  togglePanel('notice-form');
+  showToast('Notice posted.');
+}
+function deleteNotice(id) {
+  notices = notices.filter(n => n.id !== id);
+  saveData('campus_notices', notices);
+  renderNotices(); renderDashboard();
+  showToast('Notice removed.');
+}
+function renderNotices() {
+  const grid = document.getElementById('notices-grid');
+  grid.innerHTML = '';
+  if (notices.length === 0) { grid.innerHTML = `<p class="text-sm text-ink-600 col-span-full">No notices posted.</p>`; return; }
+  notices.forEach(n => {
+    const card = document.createElement('div');
+    card.className = 'relative bg-amber-50 border border-amber-100 rounded-2xl p-5 shadow-sm pin';
+    card.innerHTML = `
+      <div class="flex justify-between items-start mb-2">
+        ${n.pinned ? `<span class="text-[10px] font-bold uppercase tracking-wider text-amber-600"><i class="fa-solid fa-thumbtack"></i> Pinned</span>` : `<span class="text-[10px] text-ink-600">${fmtDate(n.date)}</span>`}
+        <button onclick="deleteNotice('${n.id}')" class="text-ink-600/40 hover:text-rose-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+      <h4 class="font-display font-bold text-base text-ink-900 mb-1">${n.title}</h4>
+      <p class="text-xs text-ink-700">${n.body || ''}</p>
+      ${n.pinned ? `<p class="text-[10px] text-ink-600 mt-3">${fmtDate(n.date)}</p>` : ''}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ============================================================
+// COMPLAINTS
+// ============================================================
+function handleAddComplaint(evt) {
+  evt.preventDefault();
+  const category = document.getElementById('comp-category').value;
+  const title = document.getElementById('comp-title').value.trim();
+  const description = document.getElementById('comp-desc').value.trim();
+  if (!title) { showToast('Please enter a title.', 'error'); return; }
+  complaints.unshift({ id: 'c-' + Date.now(), category, title, description, date: today(), status: 'Pending' });
+  saveData('campus_complaints', complaints);
+  renderComplaints(); renderDashboard();
+  evt.target.reset();
+  togglePanel('complaint-form');
+  showToast('Complaint submitted.');
+}
+function cycleComplaintStatus(id) {
+  const order = ['Pending', 'In Progress', 'Resolved'];
+  const c = complaints.find(x => x.id === id);
+  if (!c) return;
+  c.status = order[(order.indexOf(c.status) + 1) % order.length];
+  saveData('campus_complaints', complaints);
+  renderComplaints(); renderDashboard();
+}
+function deleteComplaint(id) {
+  complaints = complaints.filter(c => c.id !== id);
+  saveData('campus_complaints', complaints);
+  renderComplaints(); renderDashboard();
+  showToast('Complaint removed.');
+}
+function renderComplaints() {
+  const list = document.getElementById('complaints-list');
+  list.innerHTML = '';
+  if (complaints.length === 0) { list.innerHTML = `<p class="text-sm text-ink-600">No complaints raised.</p>`; return; }
+  const statusColor = { Pending: 'bg-rose-50 text-rose-500', 'In Progress': 'bg-amber-50 text-amber-600', Resolved: 'bg-emerald2-50 text-emerald2-600' };
+  complaints.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'bg-white rounded-2xl border border-ink-100 p-4 flex items-center justify-between gap-4 shadow-sm';
+    row.innerHTML = `
+      <div class="min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-violet-600 bg-violet-50 px-2 py-0.5 rounded">${c.category}</span>
+          <span class="text-[10px] text-ink-600">${fmtDate(c.date)}</span>
+        </div>
+        <p class="font-bold text-sm text-ink-900">${c.title}</p>
+        <p class="text-xs text-ink-600">${c.description || ''}</p>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <button onclick="cycleComplaintStatus('${c.id}')" class="text-[10px] font-bold px-2.5 py-1 rounded-full ${statusColor[c.status]}">${c.status}</button>
+        <button onclick="deleteComplaint('${c.id}')" class="text-ink-600/40 hover:text-rose-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ============================================================
+// LOST & FOUND
+// ============================================================
+function handleAddLostFound(evt) {
+  evt.preventDefault();
+  const type = document.getElementById('lf-type').value;
+  const item = document.getElementById('lf-item').value.trim();
+  const location = document.getElementById('lf-location').value.trim();
+  const contact = document.getElementById('lf-contact').value.trim();
+  if (!item) { showToast('Please enter the item.', 'error'); return; }
+  lostfound.unshift({ id: 'lf-' + Date.now(), type, item, location, contact, date: today() });
+  saveData('campus_lostfound', lostfound);
+  renderLostFound();
+  evt.target.reset();
+  togglePanel('lf-form');
+  showToast('Post added.');
+}
+function deleteLostFound(id) {
+  lostfound = lostfound.filter(l => l.id !== id);
+  saveData('campus_lostfound', lostfound);
+  renderLostFound();
+  showToast('Post removed.');
+}
+function renderLostFound() {
+  const grid = document.getElementById('lostfound-grid');
+  grid.innerHTML = '';
+  if (lostfound.length === 0) { grid.innerHTML = `<p class="text-sm text-ink-600 col-span-full">No posts yet.</p>`; return; }
+  lostfound.forEach(l => {
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl border border-ink-100 p-5 shadow-sm';
+    const badge = l.type === 'Lost' ? 'bg-rose-50 text-rose-500' : 'bg-emerald2-50 text-emerald2-600';
+    card.innerHTML = `
+      <div class="flex justify-between items-start mb-2">
+        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${badge}">${l.type}</span>
+        <button onclick="deleteLostFound('${l.id}')" class="text-ink-600/40 hover:text-rose-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+      <h4 class="font-display font-bold text-base text-ink-900 mb-1">${l.item}</h4>
+      <p class="text-xs text-ink-600"><i class="fa-solid fa-location-dot"></i> ${l.location || 'Not specified'}</p>
+      <p class="text-xs text-ink-600 mt-1"><i class="fa-solid fa-phone"></i> ${l.contact || 'Not specified'}</p>
+      <p class="text-[10px] text-ink-600 mt-3">${fmtDate(l.date)}</p>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ============================================================
+// EVENTS
+// ============================================================
+function handleAddEvent(evt) {
+  evt.preventDefault();
+  const title = document.getElementById('ev-title').value.trim();
+  const date = document.getElementById('ev-date').value;
+  const location = document.getElementById('ev-location').value.trim();
+  const description = document.getElementById('ev-desc').value.trim();
+  if (!title || !date) { showToast('Please fill in title and date.', 'error'); return; }
+  events.push({ id: 'ev-' + Date.now(), title, date, location, description });
+  saveData('campus_events', events);
+  renderEvents();
+  evt.target.reset();
+  togglePanel('event-form');
+  showToast('Event added.');
+}
+function deleteEvent(id) {
+  events = events.filter(e => e.id !== id);
+  saveData('campus_events', events);
+  renderEvents();
+  showToast('Event removed.');
+}
+function renderEvents() {
+  const list = document.getElementById('events-list');
+  list.innerHTML = '';
+  if (events.length === 0) { list.innerHTML = `<p class="text-sm text-ink-600">No events yet.</p>`; return; }
+  const sorted = [...events].sort((a,b) => new Date(a.date) - new Date(b.date));
+  sorted.forEach(e => {
+    const row = document.createElement('div');
+    row.className = 'bg-white rounded-2xl border border-ink-100 p-4 flex items-center justify-between gap-4 shadow-sm';
+    row.innerHTML = `
+      <div class="flex items-center gap-4 min-w-0">
+        <div class="w-14 h-14 rounded-xl bg-violet-600 text-white flex flex-col items-center justify-center shrink-0 font-mono">
+          <span class="text-[10px] uppercase">${new Date(e.date+'T00:00:00').toLocaleDateString('en-IN',{month:'short'})}</span>
+          <span class="font-bold text-lg leading-none">${new Date(e.date+'T00:00:00').getDate()}</span>
+        </div>
+        <div class="min-w-0">
+          <p class="font-bold text-sm text-ink-900">${e.title}</p>
+          <p class="text-[11px] text-ink-600">${e.location || 'TBA'} ${e.description ? '· ' + e.description : ''}</p>
+        </div>
+      </div>
+      <button onclick="deleteEvent('${e.id}')" class="text-ink-600/40 hover:text-rose-500 transition shrink-0"><i class="fa-solid fa-trash-can"></i></button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ============================================================
+// LIBRARY
+// ============================================================
+function handleAddBook(evt) {
+  evt.preventDefault();
+  const title = document.getElementById('lib-title').value.trim();
+  const author = document.getElementById('lib-author').value.trim();
+  const issue = document.getElementById('lib-issue').value;
+  const due = document.getElementById('lib-due').value;
+  if (!title || !issue || !due) { showToast('Please fill in required fields.', 'error'); return; }
+  library.push({ id: 'lib-' + Date.now(), title, author, issue, due, status: 'Issued' });
+  saveData('campus_library', library);
+  renderLibrary();
+  evt.target.reset();
+  togglePanel('lib-form');
+  showToast('Book added.');
+}
+function returnBook(id) {
+  const b = library.find(x => x.id === id);
+  if (!b) return;
+  b.status = b.status === 'Issued' ? 'Returned' : 'Issued';
+  saveData('campus_library', library);
+  renderLibrary();
+}
+function deleteBook(id) {
+  library = library.filter(b => b.id !== id);
+  saveData('campus_library', library);
+  renderLibrary();
+  showToast('Record removed.');
+}
+function renderLibrary() {
+  const body = document.getElementById('library-body');
+  body.innerHTML = '';
+  if (library.length === 0) { body.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-ink-600 text-xs">No books issued.</td></tr>`; return; }
+  library.forEach(b => {
+    const overdue = b.status === 'Issued' && daysUntil(b.due) < 0;
+    const tr = document.createElement('tr');
+    tr.className = 'border-b border-ink-100';
+    tr.innerHTML = `
+      <td class="p-3 font-bold text-ink-900">${b.title}</td>
+      <td class="p-3 text-ink-600">${b.author || '—'}</td>
+      <td class="p-3">${fmtDate(b.issue)}</td>
+      <td class="p-3">${fmtDate(b.due)}</td>
+      <td class="p-3">
+        <button onclick="returnBook('${b.id}')" class="text-[10px] font-bold px-2.5 py-1 rounded-full ${b.status === 'Returned' ? 'bg-emerald2-50 text-emerald2-600' : (overdue ? 'bg-rose-50 text-rose-500' : 'bg-amber-50 text-amber-600')}">${overdue && b.status==='Issued' ? 'Overdue' : b.status}</button>
+      </td>
+      <td class="p-3"><button onclick="deleteBook('${b.id}')" class="text-ink-600/40 hover:text-rose-500 transition"><i class="fa-solid fa-trash-can"></i></button></td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+// ============================================================
+// DASHBOARD (aggregates everything above)
+// ============================================================
+function renderDashboard() {
+  // Attendance ring
+  const totalHeld = subjects.reduce((s,x) => s + x.total, 0);
+  const totalAttended = subjects.reduce((s,x) => s + x.attended, 0);
+  const overallPct = totalHeld > 0 ? Math.round((totalAttended / totalHeld) * 100) : 0;
+  const circumference = 2 * Math.PI * 30;
+  const offset = circumference - (overallPct / 100) * circumference;
+  document.getElementById('dash-att-ring').style.strokeDasharray = circumference;
+  document.getElementById('dash-att-ring').style.strokeDashoffset = offset;
+  document.getElementById('dash-att-ring').style.stroke = overallPct < 75 ? '#F0475B' : '#6C63EE';
+  document.getElementById('dash-att-text').innerText = overallPct + '%';
+  document.getElementById('dash-att-status').innerHTML = overallPct < 75
+    ? '<span class="text-rose-500">Below safe threshold</span>'
+    : '<span class="text-emerald2-600">Healthy standing</span>';
+
+  // Pending assignments
+  document.getElementById('dash-assignments').innerText = assignments.filter(a => a.status === 'Pending').length;
+
+  // Fee due
+  const totalDue = fees.filter(f => f.status === 'Pending').reduce((s,f) => s + f.amount, 0);
+  document.getElementById('dash-fees').innerText = `₹${totalDue.toLocaleString('en-IN')}`;
+
+  // Open complaints
+  document.getElementById('dash-complaints').innerText = complaints.filter(c => c.status !== 'Resolved').length;
+
+  // Today's schedule
+  const dayName = DAYS[(new Date().getDay() + 6) % 7] || 'Monday'; // getDay: 0=Sun
+  const todaysClasses = timetable.filter(t => t.day === dayName).sort((a,b) => a.time.localeCompare(b.time));
+  const scheduleEl = document.getElementById('dash-today-schedule');
+  if (todaysClasses.length === 0) {
+    scheduleEl.innerHTML = `<p class="text-ink-600 text-xs">No classes scheduled for today (${dayName}).</p>`;
+  } else {
+    scheduleEl.innerHTML = todaysClasses.map(c => `
+      <div class="flex items-center justify-between bg-paper-100 rounded-xl px-4 py-2.5">
+        <div><p class="font-bold text-ink-900">${c.subject}</p><p class="text-[11px] text-ink-600">${c.room || ''}</p></div>
+        <span class="font-mono text-xs font-bold text-violet-600">${c.time}</span>
+      </div>
+    `).join('');
+  }
+
+  // Upcoming exams (next 14 days)
+  const upcoming = examSchedule.filter(e => daysUntil(e.date) >= 0 && daysUntil(e.date) <= 30).sort((a,b) => new Date(a.date) - new Date(b.date)).slice(0,4);
+  const examsEl = document.getElementById('dash-upcoming-exams');
+  examsEl.innerHTML = upcoming.length === 0
+    ? `<p class="text-ink-600 text-xs">No exams in the next 30 days.</p>`
+    : upcoming.map(e => `
+        <div class="flex items-center justify-between">
+          <div><p class="font-bold text-ink-900 text-xs">${e.subject}</p><p class="text-[10px] text-ink-600">${fmtDate(e.date)}</p></div>
+          <span class="text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">${daysUntil(e.date)}d</span>
+        </div>
+      `).join('');
+
+  // Pinned notices
+  const pinned = notices.filter(n => n.pinned).slice(0,3);
+  const noticesEl = document.getElementById('dash-notices');
+  noticesEl.innerHTML = pinned.length === 0
+    ? `<p class="text-violet-200 text-xs">No pinned notices.</p>`
+    : pinned.map(n => `
+        <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+          <p class="font-bold text-white text-sm mb-1">${n.title}</p>
+          <p class="text-violet-200 text-xs">${n.body || ''}</p>
+        </div>
+      `).join('');
+}
+
+// ============================================================
+// Init
+// ============================================================
+function renderAll() {
+  renderAttendance();
+  renderTimetable();
+  renderAssignments();
+  renderNotes();
+  renderGrades();
+  renderExamSchedule();
+  renderFees();
+  renderNotices();
+  renderComplaints();
+  renderLostFound();
+  renderEvents();
+  renderLibrary();
+  renderDashboard();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadAll();
+  renderAll();
+});
+</script>
+</body>
+</html>
