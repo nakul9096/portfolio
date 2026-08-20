@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoYatra India Studio - Professional Eco-Adventure & Travel Planner</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS Print Styles for clean export */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; font-size: 11pt; }
+            .print-container { width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; box-shadow: none !important; }
+            .page-break { page-break-after: always; }
+            .editable-field { border: none !important; background: transparent !important; }
+            .rich-toolbar { display: none !important; }
+        }
+        
+        .editable-field:focus {
+            outline: 2px dashed #16a34a;
+            background-color: rgba(220, 252, 231, 0.4);
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+
+        /* Drag and Drop Visual Cues */
+        .dragging {
+            opacity: 0.4;
+            border: 2px dashed #16a34a !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- Top Sticky Header -->
+    <header class="bg-brand-900 text-white sticky top-0 z-50 shadow-xl no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <div class="bg-emerald-500 text-slate-900 p-2 rounded-xl flex items-center justify-center font-black text-xl shadow-inner">
+                    <i class="fa-solid fa-mountain-sun"></i>
+                </div>
+                <div>
+                    <span class="text-2xl font-black tracking-tight text-white">EcoYatra<span class="text-emerald-400">.Studio</span></span>
+                    <span class="block text-[10px] text-emerald-300 font-medium tracking-widest uppercase -mt-1">Advanced Travel Planner</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="hidden xl:flex items-center space-x-6 text-xs font-bold uppercase tracking-wider">
+                <a href="#destinations" class="hover:text-emerald-400 transition flex items-center gap-1.5"><i class="fa-solid fa-compass text-emerald-400"></i> Destinations</a>
+                <a href="#itinerary-builder" class="hover:text-emerald-400 transition flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square text-emerald-400"></i> Editor & Studio</a>
+                <a href="#expense-tracker" class="hover:text-emerald-400 transition flex items-center gap-1.5"><i class="fa-solid fa-wallet text-emerald-400"></i> Live Budget Log</a>
+                <a href="#checklist-section" class="hover:text-emerald-400 transition flex items-center gap-1.5"><i class="fa-solid fa-list-check text-emerald-400"></i> Eco Packing</a>
+                <a href="#culinary-matrix" class="hover:text-emerald-400 transition flex items-center gap-1.5"><i class="fa-solid fa-utensils text-emerald-400"></i> Food Matrix</a>
+            </nav>
+
+            <!-- Action Controls -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <button onclick="exportItineraryToJSON()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-download"></i> Export JSON
+                </button>
+                <label class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer transition">
+                    <i class="fa-solid fa-upload"></i> Import JSON
+                    <input type="file" id="import-file-input" onchange="importItineraryFromJSON(event)" class="hidden" accept=".json">
+                </label>
+                <button onclick="window.print()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-2 shadow-md transition transform active:scale-95">
+                    <i class="fa-solid fa-print"></i> Export PDF / Print
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Floating Formatting Toolbar for Rich Text Editing (No-Print) -->
+    <div id="rich-editor-toolbar" class="sticky top-16 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-md py-2 px-4 no-print flex flex-wrap items-center justify-center gap-2 text-xs">
+        <span class="font-bold text-slate-400 uppercase text-[10px] mr-2"><i class="fa-solid fa-wand-magic-sparkles text-brand-600"></i> Text Formatting Toolbar:</span>
+        <button onclick="applyFormatting('bold')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-2.5 py-1.5 rounded-lg font-bold" title="Bold Selected Text"><i class="fa-solid fa-bold"></i></button>
+        <button onclick="applyFormatting('italic')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-2.5 py-1.5 rounded-lg italic" title="Italicize Selected Text"><i class="fa-solid fa-italic"></i></button>
+        <button onclick="applyFormatting('underline')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-2.5 py-1.5 rounded-lg underline" title="Underline Selected Text"><i class="fa-solid fa-underline"></i></button>
+        <button onclick="applyFormatting('hiliteColor', '#fef08a')" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-900 px-2.5 py-1.5 rounded-lg font-semibold" title="Yellow Highlight"><i class="fa-solid fa-highlighter"></i> Yellow</button>
+        <button onclick="applyFormatting('hiliteColor', '#bbf7d0')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 px-2.5 py-1.5 rounded-lg font-semibold" title="Green Highlight"><i class="fa-solid fa-highlighter"></i> Green</button>
+        <button onclick="applyFormatting('removeFormat')" class="bg-red-50 hover:bg-red-100 text-red-700 px-2.5 py-1.5 rounded-lg font-semibold" title="Clear Formatting"><i class="fa-solid fa-eraser"></i> Clear</button>
+    </div>
+
+    <!-- Main Content Wrapper -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-12">
+
+        <!-- Search & Filter Controls -->
+        <section id="destinations" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 no-print">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-compass text-brand-600"></i> Explore India Eco-Destinations
+                    </h2>
+                    <p class="text-slate-500 text-sm">Select destinations to load custom presets into your live-editing studio.</p>
+                </div>
+                <button onclick="resetFilters()" class="text-xs text-brand-700 font-bold hover:underline flex items-center gap-1">
+                    <i class="fa-solid fa-rotate-left"></i> Reset All Filters
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Region Zone</label>
+                    <select id="filter-region" onchange="filterDestinations()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="all">All Regions in India</option>
+                        <option value="North">North (Himalayas & Valleys)</option>
+                        <option value="South">South (Ghats & Backwaters)</option>
+                        <option value="East">East & North-East Wilderness</option>
+                        <option value="West">West & Coastal Eco-Zones</option>
+                        <option value="Central">Central (Tiger Reserves & Heritage)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Diet Focus</label>
+                    <select id="filter-diet" onchange="filterDestinations()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="all">Veg & Non-Veg Friendly</option>
+                        <option value="pure-veg">Strict Pure-Veg / Sattvic Highlights</option>
+                        <option value="seafood-meat">Coastal Seafood & Local Meat Specialties</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Adventure Type</label>
+                    <select id="filter-activity" onchange="filterDestinations()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="all">All Activity Types</option>
+                        <option value="trekking">High Trekking & Wildlife Trails</option>
+                        <option value="water-sports">Kayaking, Rafting & Scuba</option>
+                        <option value="cultural">Tribal Heritage & Eco-Festivals</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Max Daily Cost / Person</label>
+                    <select id="filter-budget" onchange="filterDestinations()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="all">Any Daily Budget</option>
+                        <option value="2500">Under ₹2,500 / day</option>
+                        <option value="4500">Under ₹4,500 / day</option>
+                        <option value="7500">Under ₹7,500 / day</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" onkeyup="filterDestinations()" placeholder="Search by state name, destination, activity or local food..." class="w-full bg-slate-50 border border-slate-300 pl-10 pr-4 py-2.5 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+            </div>
+        </section>
+
+        <!-- Destination Cards Grid -->
+        <section class="no-print">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-slate-900">Featured Eco-Adventure Destinations</h3>
+                <span id="results-count" class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">Showing 10 destinations</span>
+            </div>
+            <div id="destinations-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Javascript will inject destination cards -->
+            </div>
+        </section>
+
+        <!-- Dynamic Printable & Editable Itinerary Studio -->
+        <section id="itinerary-builder" class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 print-container">
+            
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-slate-200 pb-5 mb-6 gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-black text-brand-600 uppercase tracking-widest bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md">
+                            Live Itinerary Studio
+                        </span>
+                        <span class="text-xs text-slate-400 font-semibold no-print"><i class="fa-solid fa-hand-pointer"></i> Highlight text to edit formatting</span>
+                    </div>
+                    <h2 id="trip-master-title" class="text-3xl font-black text-slate-900 mt-2 editable-field" contenteditable="true">
+                        Custom India Eco-Adventure Expedition
+                    </h2>
+                    <p class="text-slate-500 text-xs sm:text-sm mt-1">
+                        Use drag handles <i class="fa-solid fa-grip-vertical text-slate-400"></i> to reorder days. Edit text directly in the fields below.
+                    </p>
+                </div>
+                
+                <div class="flex flex-wrap gap-2 no-print">
+                    <button onclick="addItineraryDay()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition">
+                        <i class="fa-solid fa-plus"></i> Add New Day
+                    </button>
+                    <button onclick="saveTripToStorage()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Local Plan
+                    </button>
+                    <button onclick="resetItineraryToDefault()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 transition">
+                        <i class="fa-solid fa-rotate-left"></i> Reset Default
+                    </button>
+                </div>
+            </div>
+
+            <!-- Header Info Bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-8">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Target Region</p>
+                    <p id="planner-target-location" class="font-bold text-slate-800 text-sm sm:text-base editable-field" contenteditable="true">Meghalaya & Kaziranga</p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trip Duration</p>
+                    <p id="planner-target-duration" class="font-bold text-slate-800 text-sm sm:text-base editable-field" contenteditable="true">5 Days / 4 Nights</p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Est. Budget / Person</p>
+                    <p id="planner-target-cost" class="font-bold text-emerald-700 text-sm sm:text-base editable-field" contenteditable="true">₹17,500 INR</p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pace & Style</p>
+                    <p id="planner-target-style" class="font-bold text-slate-800 text-sm sm:text-base editable-field" contenteditable="true">Active Eco-Adventure</p>
+                </div>
+            </div>
+
+            <!-- Drag & Drop Reorderable Itinerary Days Container -->
+            <div id="itinerary-days-container" class="space-y-6">
+                <!-- Javascript dynamic rendering -->
+            </div>
+        </section>
+
+        <!-- Live Expense & Budget Breakdown Calculator -->
+        <section id="expense-tracker" class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 no-print">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 pb-4 mb-6 gap-2">
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-wallet text-brand-600"></i> Dynamic Expense & Budget Log
+                    </h3>
+                    <p class="text-slate-500 text-sm">Add itemized line expenses to track live total spend against budget target.</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Live Total Spent</span>
+                    <span id="expense-total-display" class="text-2xl font-black text-brand-700 block">₹0 INR</span>
+                </div>
+            </div>
+
+            <!-- Expense Items Input Table -->
+            <div class="overflow-x-auto mb-4">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-100 text-slate-800 uppercase text-[11px] font-bold tracking-wider">
+                        <tr>
+                            <th class="p-3">Category</th>
+                            <th class="p-3">Item Description</th>
+                            <th class="p-3">Estimated Cost (₹)</th>
+                            <th class="p-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expense-items-body" class="divide-y divide-slate-200">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+                <button onclick="addExpenseRow('Stay / Homestay', 'Eco Lodge accommodation', 2500)" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1">
+                    <i class="fa-solid fa-plus text-brand-600"></i> Add Accommodation Line
+                </button>
+                <button onclick="addExpenseRow('Local Food', 'Authentic regional meal', 600)" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1">
+                    <i class="fa-solid fa-plus text-amber-600"></i> Add Food Line
+                </button>
+                <button onclick="addExpenseRow('Activity / Permit', 'Eco-park / Rafting permit', 1200)" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1">
+                    <i class="fa-solid fa-plus text-purple-600"></i> Add Activity Line
+                </button>
+            </div>
+        </section>
+
+        <!-- Interactive Eco-Packing Checklist -->
+        <section id="checklist-section" class="bg-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-xl no-print">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-4 mb-6 gap-2">
+                <div>
+                    <h3 class="text-2xl font-bold flex items-center gap-2 text-emerald-400">
+                        <i class="fa-solid fa-list-check"></i> Eco-Friendly Adventure Packing Checklist
+                    </h3>
+                    <p class="text-slate-300 text-sm">Essential green gear for responsible travel across India.</p>
+                </div>
+                <div class="w-full md:w-48 bg-slate-800 p-2 rounded-xl border border-slate-700">
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span class="text-slate-400">Packed Progress</span>
+                        <span id="checklist-progress-text" class="text-emerald-400">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+                        <div id="checklist-progress-bar" class="bg-emerald-400 h-2 w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="checklist-items-container">
+                <!-- Javascript populated checklist -->
+            </div>
+
+            <div class="mt-6 flex gap-2">
+                <input type="text" id="new-packing-item-input" placeholder="Add custom gear item (e.g. Biodegradable Soap)..." class="bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2 flex-grow focus:ring-2 focus:ring-emerald-400 outline-none">
+                <button onclick="addCustomPackingItem()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs sm:text-sm">
+                    Add Gear
+                </button>
+            </div>
+        </section>
+
+        <!-- Regional Culinary Table -->
+        <section id="culinary-matrix" class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 no-print">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-2">
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-utensils text-amber-500"></i> Indian Regional Culinary Matrix
+                    </h3>
+                    <p class="text-slate-500 text-sm">Budget dining highlights catering to both vegetarians and meat lovers.</p>
+                </div>
+                <span class="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-full font-semibold">
+                    <i class="fa-solid fa-circle-check text-emerald-600"></i> Authentic Regional Flavors
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600 border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-800 uppercase text-[11px] font-bold tracking-wider">
+                            <th class="p-3.5 rounded-l-lg">Region / Hub</th>
+                            <th class="p-3.5">Budget Dining Spot</th>
+                            <th class="p-3.5">Vegetarian Specialty</th>
+                            <th class="p-3.5">Non-Vegetarian Specialty</th>
+                            <th class="p-3.5">Avg Cost / Meal</th>
+                            <th class="p-3.5 rounded-r-lg">Eco Practice</th>
+                        </tr>
+                    </thead>
+                    <tbody id="culinary-table-body" class="divide-y divide-slate-200">
+                        <!-- Javascript populated table -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Saved Plans Drawer -->
+        <section id="saved-trips" class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 no-print">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-bookmark text-emerald-600"></i> Local Browser Saved Itineraries
+                </h3>
+                <button onclick="clearAllSavedTrips()" class="text-xs text-red-600 font-semibold hover:underline">Clear Saved History</button>
+            </div>
+            <div id="saved-plans-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                <!-- Javascript rendered saved items -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-sm py-10 border-t border-slate-800 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-500 text-slate-900 p-1.5 rounded-lg font-black text-sm">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <span class="text-lg font-bold text-white">EcoYatra Studio</span>
+            </div>
+            <p class="text-xs text-slate-500 text-center md:text-left">
+                © 2026 EcoYatra. Built for eco-conscious adventurers, food lovers, and smart budget travel in India.
+            </p>
+            <div class="flex space-x-4 text-xs font-semibold">
+                <a href="#destinations" class="hover:text-white transition">Destinations</a>
+                <a href="#itinerary-builder" class="hover:text-white transition">Studio</a>
+                <a href="#expense-tracker" class="hover:text-white transition">Budget Log</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Complete Application Logic Script -->
+    <script>
+        // ==========================================
+        // 1. Destination Dataset (Expanded India)
+        // ==========================================
+        const indiaDestinationsData = [
+            {
+                id: "meghalaya-living-roots",
+                title: "Living Root Bridges & Dawki",
+                state: "Meghalaya",
+                region: "East",
+                activityType: "trekking",
+                dietFocus: "both",
+                pricePerDay: 2800,
+                rating: 4.9,
+                image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80",
+                badge: "Bio-Engineering",
+                description: "Explore double-decker living root bridges, glass-like Dawki waters, and clean Khasi eco-villages.",
+                activities: ["Root Bridge Trek", "Dawki Kayaking", "Liat Prah Caving"],
+                vegHighlights: "Jaintia bamboo shoot curry, fermented soy paste",
+                nonVegHighlights: "Khasi pork with black sesame (Dohneiiong), river fish"
+            },
+            {
+                id: "rishikesh-eco-rapids",
+                title: "Rishikesh Eco-Valley & Rapids",
+                state: "Uttarakhand",
+                region: "North",
+                activityType: "water-sports",
+                dietFocus: "pure-veg",
+                pricePerDay: 2200,
+                rating: 4.8,
+                image: "https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=800&q=80",
+                badge: "River Adventure",
+                description: "White-water Ganges rafting, waterfall treks in Rajaji forest, and peaceful sattvic food hubs.",
+                activities: ["Grade IV Rafting", "Neer Garh Hike", "Ganga Ganga Aarti"],
+                vegHighlights: "Garhwali Thali, Aloo ke Gutke, Ayurvedic Sattvic food",
+                nonVegHighlights: "Pure-veg holy zone; non-veg outside municipal limits."
+            },
+            {
+                id: "spiti-cold-desert",
+                title: "Spiti High Desert & Monasteries",
+                state: "Himachal Pradesh",
+                region: "North",
+                activityType: "trekking",
+                dietFocus: "both",
+                pricePerDay: 3200,
+                rating: 4.9,
+                image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=800&q=80",
+                badge: "Remote Wilderness",
+                description: "Monastery circuits, star-gazing homestays, and fossil village walks in high altitude terrain.",
+                activities: ["Chandratal Lake Trek", "Key Monastery Trail", "Fossil Hunting"],
+                vegHighlights: "Steamed Veg Momos, Butter Tea, Tsampa Barley Soup",
+                nonVegHighlights: "Traditional Himalayan Mutton Thukpa & Yak Cheese"
+            },
+            {
+                id: "wayanad-rainforest",
+                title: "Wayanad Rainforest & Peaks",
+                state: "Kerala",
+                region: "South",
+                activityType: "trekking",
+                dietFocus: "seafood-meat",
+                pricePerDay: 3500,
+                rating: 4.7,
+                image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80",
+                badge: "Western Ghats",
+                description: "Heart-shaped peak treks, bamboo rafting in Kuruva islands, and organic tea estate cottages.",
+                activities: ["Chembra Peak Hike", "Bamboo Rafting", "Wildlife Safari"],
+                vegHighlights: "Kerala Sadya on banana leaf, Appam with Veg Stew",
+                nonVegHighlights: "Malabar Chicken Curry, Banana Leaf Grilled Fish"
+            },
+            {
+                id: "coorg-coffee-highlands",
+                title: "Coorg Highland Trails & Rapids",
+                state: "Karnataka",
+                region: "South",
+                activityType: "trekking",
+                dietFocus: "both",
+                pricePerDay: 3000,
+                rating: 4.8,
+                image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=800&q=80",
+                badge: "Coffee Trail",
+                description: "Trek Tadiandamol peak, white-water raft Barapole river, and stay at shade-grown coffee estates.",
+                activities: ["Tadiandamol Peak Trek", "Barapole Rafting", "Coffee Walk"],
+                vegHighlights: "Akki Roti, Bamboo Shoot Curry (Kani Curry)",
+                nonVegHighlights: "Famous Kodava Pandi Curry (Pork with wild vinegar)"
+            },
+            {
+                id: "goa-backwater-mangroves",
+                title: "Divar Island & Mangroves",
+                state: "Goa",
+                region: "West",
+                activityType: "water-sports",
+                dietFocus: "seafood-meat",
+                pricePerDay: 2500,
+                rating: 4.6,
+                image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80",
+                badge: "Eco Backwaters",
+                description: "Quiet Goan backwaters, mangrove crocodile kayaking, and electric-bike island heritage rides.",
+                activities: ["Mangrove Kayaking", "E-bike Island Tour", "Birdwatching"],
+                vegHighlights: "Goan Mushroom Xacuti, Vegetable Caldin Curry",
+                nonVegHighlights: "Rava Fried Prawns, Goan Fish Curry Rice, Pork Vindaloo"
+            },
+            {
+                id: "kanha-tiger-eco-reserve",
+                title: "Kanha Tiger Reserve & Tribal Trails",
+                state: "Madhya Pradesh",
+                region: "Central",
+                activityType: "cultural",
+                dietFocus: "both",
+                pricePerDay: 3800,
+                rating: 4.9,
+                image: "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?auto=format&fit=crop&w=800&q=80",
+                badge: "Tiger Sanctuary",
+                description: "Lush Sal forest safaris, Baiga tribal village walks, and community-led conservation lodges.",
+                activities: ["Jeep Safari", "Baiga Village Walk", "Nature Night Trail"],
+                vegHighlights: "Poha, Bhutte ka Kees, Dal Bafla with Ghee",
+                nonVegHighlights: "Desi Chicken Curry with Bajra Roti"
+            },
+            {
+                id: "sikkim-organic-valleys",
+                title: "Yumthang Valley & Dzongri",
+                state: "Sikkim",
+                region: "East",
+                activityType: "trekking",
+                dietFocus: "both",
+                pricePerDay: 3400,
+                rating: 4.9,
+                image: "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=800&q=80",
+                badge: "100% Organic State",
+                description: "Rhododendron sanctuary hikes, organic village stays, and natural hot spring dips.",
+                activities: ["Hot Springs Dip", "Dzongri Viewpoint Trek", "Monastery Chants"],
+                vegHighlights: "Sel Roti, Gundruk Soup, Veg Shyaphaley",
+                nonVegHighlights: "Local Smoked Pork Curry, Chicken Thukpa"
+            }
+        ];
+
+        // ==========================================
+        // 2. Culinary Matrix Dataset
+        // ==========================================
+        const culinaryData = [
+            { region: "Meghalaya (Cherrapunji)", spot: "Trattoria Stalls", veg: "Jaintia Rice with Bamboo Shoot", nonVeg: "Dohneiiong (Pork in Black Sesame)", cost: "₹120 - ₹250", ecoFeature: "Leaf wrappers & forest herbs" },
+            { region: "Uttarakhand (Rishikesh)", spot: "Chotiwala Pure Veg", veg: "Garhwali Thali (Gahat Dal, Mandua Roti)", nonVeg: "N/A (Holy Sanctuary Zone)", cost: "₹150 - ₹300", ecoFeature: "Clay pot serving (Kulhad)" },
+            { region: "Himachal (Spiti Valley)", spot: "Shenky Homestay", veg: "Tsampa Porridge & Seabuckthorn Tea", nonVeg: "Yak Meat Momos & Smoked Mutton", cost: "₹100 - ₹220", ecoFeature: "100% Solar-cooked meals" },
+            { region: "Kerala (Wayanad)", spot: "1980's Nostalgic Diner", veg: "Kerala Sadya on Banana Leaf", nonVeg: "Karimeen Pollichathu (Grilled Fish)", cost: "₹180 - ₹380", ecoFeature: "Biodegradable leaf serving" },
+            { region: "Karnataka (Coorg)", spot: "Coorg Home Mess", veg: "Kadambuttu & Wild Mushroom Curry", nonVeg: "Pandi Curry (Pork in wild vinegar)", cost: "₹160 - ₹350", ecoFeature: "Estate woodfire cooking" },
+            { region: "Goa (Divar Island)", spot: "Bhatti Village", veg: "Goan Mushroom Caldin", nonVeg: "Fresh Kingfish Rava Fry & Vindaloo", cost: "₹200 - ₹450", ecoFeature: "Sustainably line-caught fish" }
+        ];
+
+        // ==========================================
+        // 3. Default Itinerary Dataset
+        // ==========================================
+        const defaultItineraryDays = [
+            {
+                dayNum: 1,
+                title: "Guwahati Arrival & Scenic Drive to Cherrapunji (Sohra)",
+                activity: "Drive through mist-covered Khasi hills. Visit Elephant Falls and Shillong Peak.",
+                food: "Highway stall: Jaintia Rice with Bamboo Shoot (Veg) or Khasi Chicken Fry (Non-Veg).",
+                culture: "Evening eco-lodge bonfire with Khasi folk songs and ginger tea."
+            },
+            {
+                dayNum: 2,
+                title: "Double-Decker Living Root Bridge Trek (Nongriat)",
+                activity: "Descend 3,000 steps into the rainforest canyon. Swim in turquoise natural rock pools.",
+                food: "Packed eco-lunch: Sweet potatoes, wild berries, and spicy rice in banana leaf.",
+                culture: "Meet Khasi village elders maintaining century-old living root bridges."
+            },
+            {
+                dayNum: 3,
+                title: "Dawki Crystal River Kayaking & Mawlynnong Eco-Village",
+                activity: "Kayaking on glass-clear Umngot River in Dawki. Visit Asia's cleanest village.",
+                food: "River-side dining: Organic local vegetable salad, dal, or freshly grilled river fish.",
+                culture: "Explore village bamboo garbage filtration and orchid gardens."
+            },
+            {
+                dayNum: 4,
+                title: "Kaziranga Forest Ridge & Elephant Pepper Trail Walk",
+                activity: "Transfer towards Kaziranga border eco-zone. Tea garden fringe walk with birdwatching.",
+                food: "Assamese Bamboo Mess: Assamese Veg Thali or Local Duck Curry with Ash Gourd.",
+                culture: "Bihu traditional dance performance at village cultural center."
+            }
+        ];
+
+        // ==========================================
+        // 4. Default Packing Checklist Data
+        // ==========================================
+        let packingChecklist = [
+            { id: 1, text: "Reusable Stainless Steel Water Bottle with Filter", packed: true },
+            { id: 2, text: "Biodegradable & Reef-Safe Sunscreen / Soap", packed: false },
+            { id: 3, text: "Quick-Dry Microfiber Towel & Rain Poncho", packed: true },
+            { id: 4, text: "Solar-Powered Power Bank for remote treks", packed: false },
+            { id: 5, text: "Cloth Tote Bags for Plastic-Free Shopping", packed: true },
+            { id: 6, text: "Sturdy Waterproof Trekking Boots & Woolen Socks", packed: false }
+        ];
+
+        // ==========================================
+        // 5. Default Expense Items Data
+        // ==========================================
+        let expenseItems = [
+            { id: 1, category: "Stay / Homestay", desc: "Eco Lodge 4 nights", cost: 6000 },
+            { id: 2, category: "Local Food", desc: "Regional meals & street food", cost: 3500 },
+            { id: 3, category: "Activity / Permit", desc: "Kayaking & Root bridge entry fee", cost: 2500 },
+            { id: 4, category: "Local Commute", desc: "Shared eco-cab transfers", cost: 4000 }
+        ];
+
+        // ==========================================
+        // 6. Formatting & Rich Text Toolbar Logic
+        // ==========================================
+        function applyFormatting(command, value = null) {
+            document.execCommand(command, false, value);
+        }
+
+        // ==========================================
+        // 7. Drag and Drop Day Reordering Logic
+        // ==========================================
+        let draggedItem = null;
+
+        function initDragAndDrop() {
+            const container = document.getElementById('itinerary-days-container');
+            const cards = container.querySelectorAll('.day-card');
+
+            cards.forEach(card => {
+                card.addEventListener('dragstart', (e) => {
+                    draggedItem = card;
+                    setTimeout(() => card.classList.add('dragging'), 0);
+                });
+
+                card.addEventListener('dragend', (e) => {
+                    card.classList.remove('dragging');
+                    draggedItem = null;
+                    reindexDays();
+                });
+
+                card.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    const afterElement = getDragAfterElement(container, e.clientY);
+                    if (afterElement == null) {
+                        container.appendChild(draggedItem);
+                    } else {
+                        container.insertBefore(draggedItem, afterElement);
+                    }
+                });
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.day-card:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function reindexDays() {
+            const cards = document.querySelectorAll('.day-card');
+            cards.forEach((card, index) => {
+                const badge = card.querySelector('.day-badge');
+                if (badge) badge.innerText = `Day ${index + 1}`;
+            });
+        }
+
+        // ==========================================
+        // 8. Dynamic Itinerary Renderer
+        // ==========================================
+        function renderItineraryDays(daysArray) {
+            const container = document.getElementById('itinerary-days-container');
+            container.innerHTML = '';
+
+            daysArray.forEach((day, index) => {
+                const dayCard = document.createElement('div');
+                dayCard.className = "day-card border border-slate-200 rounded-2xl p-5 relative bg-white shadow-sm hover:border-slate-300 transition cursor-grab active:cursor-grabbing";
+                dayCard.draggable = true;
+
+                dayCard.innerHTML = `
+                    <div class="flex items-center justify-between gap-3 mb-4">
+                        <div class="flex items-center gap-3 flex-grow">
+                            <span class="text-slate-300 hover:text-slate-500 transition no-print" title="Drag to reorder day">
+                                <i class="fa-solid fa-grip-vertical text-lg"></i>
+                            </span>
+                            <span class="day-badge bg-brand-600 text-white font-black px-3 py-1 rounded-lg text-xs tracking-wide">
+                                Day ${index + 1}
+                            </span>
+                            <h4 class="text-base sm:text-lg font-bold text-slate-900 editable-field flex-grow" contenteditable="true">
+                                ${day.title}
+                            </h4>
+                        </div>
+                        <button onclick="deleteItineraryDay(this)" class="text-slate-300 hover:text-red-500 transition no-print p-1" title="Delete Day">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                            <span class="font-bold text-brand-700 block mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-person-hiking"></i> Adventure & Nature Trail
+                            </span>
+                            <p class="editable-field text-slate-700" contenteditable="true">${day.activity}</p>
+                        </div>
+
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                            <span class="font-bold text-amber-700 block mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-utensils"></i> Local Dining Spot (Veg & Non-Veg)
+                            </span>
+                            <p class="editable-field text-slate-700" contenteditable="true">${day.food}</p>
+                        </div>
+
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                            <span class="font-bold text-purple-700 block mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-masks-theater"></i> Culture, Nightlife & Eco-Relax
+                            </span>
+                            <p class="editable-field text-slate-700" contenteditable="true">${day.culture}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(dayCard);
+            });
+
+            initDragAndDrop();
+        }
+
+        function addItineraryDay() {
+            const container = document.getElementById('itinerary-days-container');
+            const totalDays = container.querySelectorAll('.day-card').length + 1;
+
+            const dayCard = document.createElement('div');
+            dayCard.className = "day-card border border-slate-200 rounded-2xl p-5 relative bg-white shadow-sm hover:border-slate-300 transition cursor-grab active:cursor-grabbing";
+            dayCard.draggable = true;
+
+            dayCard.innerHTML = `
+                <div class="flex items-center justify-between gap-3 mb-4">
+                    <div class="flex items-center gap-3 flex-grow">
+                        <span class="text-slate-300 hover:text-slate-500 transition no-print">
+                            <i class="fa-solid fa-grip-vertical text-lg"></i>
+                        </span>
+                        <span class="day-badge bg-brand-600 text-white font-black px-3 py-1 rounded-lg text-xs tracking-wide">
+                            Day ${totalDays}
+                        </span>
+                        <h4 class="text-base sm:text-lg font-bold text-slate-900 editable-field flex-grow" contenteditable="true">
+                            Click to edit day title (e.g. River Kayaking & Local Heritage Market)
+                        </h4>
+                    </div>
+                    <button onclick="deleteItineraryDay(this)" class="text-slate-300 hover:text-red-500 transition no-print p-1">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                        <span class="font-bold text-brand-700 block mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-person-hiking"></i> Adventure & Nature Trail
+                        </span>
+                        <p class="editable-field text-slate-700" contenteditable="true">Add morning trek or activity details...</p>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                        <span class="font-bold text-amber-700 block mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-utensils"></i> Local Dining Spot (Veg & Non-Veg)
+                        </span>
+                        <p class="editable-field text-slate-700" contenteditable="true">Add dhaba or local food spot...</p>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                        <span class="font-bold text-purple-700 block mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-masks-theater"></i> Culture, Nightlife & Eco-Relax
+                        </span>
+                        <p class="editable-field text-slate-700" contenteditable="true">Add evening event or relaxation plan...</p>
+                    </div>
+                </div>
+            `;
+            container.appendChild(dayCard);
+            initDragAndDrop();
+        }
+
+        function deleteItineraryDay(button) {
+            button.closest('.day-card').remove();
+            reindexDays();
+        }
+
+        // ==========================================
+        // 9. Dynamic Expense Tracker Logic
+        // ==========================================
+        function renderExpenses() {
+            const tbody = document.getElementById('expense-items-body');
+            tbody.innerHTML = '';
+            let total = 0;
+
+            expenseItems.forEach((item, index) => {
+                total += item.cost;
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-slate-800">${item.category}</td>
+                    <td class="p-3 text-slate-700">${item.desc}</td>
+                    <td class="p-3 font-black text-slate-900">₹${item.cost.toLocaleString('en-IN')}</td>
+                    <td class="p-3">
+                        <button onclick="deleteExpenseRow(${index})" class="text-slate-300 hover:text-red-500 transition">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('expense-total-display').innerText = `₹${total.toLocaleString('en-IN')} INR`;
+        }
+
+        function addExpenseRow(defaultCat, defaultDesc, defaultCost) {
+            const category = prompt("Enter Expense Category:", defaultCat) || defaultCat;
+            const desc = prompt("Enter Description:", defaultDesc) || defaultDesc;
+            const costInput = prompt("Enter Amount in INR (₹):", defaultCost);
+            const cost = parseInt(costInput) || 0;
+
+            expenseItems.push({ id: Date.now(), category, desc, cost });
+            renderExpenses();
+        }
+
+        function deleteExpenseRow(index) {
+            expenseItems.splice(index, 1);
+            renderExpenses();
+        }
+
+        // ==========================================
+        // 10. Packing Checklist Logic
+        // ==========================================
+        function renderChecklist() {
+            const container = document.getElementById('checklist-items-container');
+            container.innerHTML = '';
+            let packedCount = 0;
+
+            packingChecklist.forEach((item, index) => {
+                if(item.packed) packedCount++;
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between bg-slate-800 p-3 rounded-xl border border-slate-700";
+                div.innerHTML = `
+                    <label class="flex items-center gap-2 text-xs sm:text-sm font-medium cursor-pointer flex-grow">
+                        <input type="checkbox" ${item.packed ? 'checked' : ''} onchange="toggleChecklistItem(${index})" class="w-4 h-4 text-emerald-500 rounded focus:ring-0">
+                        <span class="${item.packed ? 'line-through text-slate-400' : 'text-slate-200'}">${item.text}</span>
+                    </label>
+                    <button onclick="deleteChecklistItem(${index})" class="text-slate-500 hover:text-red-400 text-xs pl-2">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+
+            // Update progress
+            const percentage = packingChecklist.length > 0 ? Math.round((packedCount / packingChecklist.length) * 100) : 0;
+            document.getElementById('checklist-progress-text').innerText = `${percentage}%`;
+            document.getElementById('checklist-progress-bar').style.width = `${percentage}%`;
+        }
+
+        function toggleChecklistItem(index) {
+            packingChecklist[index].packed = !packingChecklist[index].packed;
+            renderChecklist();
+        }
+
+        function deleteChecklistItem(index) {
+            packingChecklist.splice(index, 1);
+            renderChecklist();
+        }
+
+        function addCustomPackingItem() {
+            const input = document.getElementById('new-packing-item-input');
+            const text = input.value.trim();
+            if(text) {
+                packingChecklist.push({ id: Date.now(), text, packed: false });
+                input.value = '';
+                renderChecklist();
+            }
+        }
+
+        // ==========================================
+        // 11. JSON Import / Export Features
+        // ==========================================
+        function exportItineraryToJSON() {
+            const data = {
+                title: document.getElementById('trip-master-title').innerText,
+                location: document.getElementById('planner-target-location').innerText,
+                duration: document.getElementById('planner-target-duration').innerText,
+                budget: document.getElementById('planner-target-cost').innerText,
+                expenses: expenseItems,
+                checklist: packingChecklist,
+                exportedAt: new Date().toISOString()
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `EcoYatra_Trip_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importItineraryFromJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if(imported.title) document.getElementById('trip-master-title').innerText = imported.title;
+                    if(imported.location) document.getElementById('planner-target-location').innerText = imported.location;
+                    if(imported.duration) document.getElementById('planner-target-duration').innerText = imported.duration;
+                    if(imported.budget) document.getElementById('planner-target-cost').innerText = imported.budget;
+                    if(imported.expenses) { expenseItems = imported.expenses; renderExpenses(); }
+                    if(imported.checklist) { packingChecklist = imported.checklist; renderChecklist(); }
+
+                    alert("Trip itinerary imported successfully!");
+                } catch(err) {
+                    alert("Invalid JSON file format.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ==========================================
+        // 12. Filtering & Destination Rendering
+        // ==========================================
+        function renderDestinations(items) {
+            const container = document.getElementById('destinations-grid');
+            const countLabel = document.getElementById('results-count');
+            container.innerHTML = '';
+            
+            if(countLabel) countLabel.innerText = `Showing ${items.length} destinations`;
+
+            if(items.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-slate-400 text-center py-8">No destinations found matching selected criteria.</div>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="relative h-44 overflow-hidden">
+                            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover">
+                            <span class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur text-white text-[10px] font-bold px-2 py-0.5 rounded">${item.badge}</span>
+                            <span class="absolute top-3 right-3 bg-emerald-500 text-slate-950 font-black text-xs px-2 py-0.5 rounded"><i class="fa-solid fa-star text-[10px]"></i> ${item.rating}</span>
+                        </div>
+                        <div class="p-4 space-y-2">
+                            <h4 class="font-bold text-slate-900">${item.title}</h4>
+                            <p class="text-xs font-semibold text-brand-700"><i class="fa-solid fa-location-dot"></i> ${item.state}, ${item.region} India</p>
+                            <p class="text-xs text-slate-600 line-clamp-2">${item.description}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-slate-100 flex items-center justify-between">
+                        <span class="font-black text-slate-900 text-sm">₹${item.pricePerDay}<span class="text-[10px] font-normal text-slate-400">/day</span></span>
+                        <button onclick="loadDestinationToPlanner('${item.title} (${item.state})', 5, ${item.pricePerDay * 5})" class="bg-slate-900 hover:bg-brand-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                            Load Studio
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterDestinations() {
+            const region = document.getElementById('filter-region').value;
+            const diet = document.getElementById('filter-diet').value;
+            const activity = document.getElementById('filter-activity').value;
+            const maxBudget = document.getElementById('filter-budget').value;
+            const search = document.getElementById('search-input').value.toLowerCase().trim();
+
+            const filtered = indiaDestinationsData.filter(item => {
+                const matchRegion = (region === 'all' || item.region === region);
+                const matchDiet = (diet === 'all' || item.dietFocus === 'both' || item.dietFocus === diet);
+                const matchActivity = (activity === 'all' || item.activityType === activity);
+                const matchBudget = (maxBudget === 'all' || item.pricePerDay <= parseInt(maxBudget));
+                const matchSearch = item.title.toLowerCase().includes(search) || item.state.toLowerCase().includes(search);
+
+                return matchRegion && matchDiet && matchActivity && matchBudget && matchSearch;
+            });
+
+            renderDestinations(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-region').value = 'all';
+            document.getElementById('filter-diet').value = 'all';
+            document.getElementById('filter-activity').value = 'all';
+            document.getElementById('filter-budget').value = 'all';
+            document.getElementById('search-input').value = '';
+            renderDestinations(indiaDestinationsData);
+        }
+
+        function renderCulinaryTable() {
+            const tbody = document.getElementById('culinary-table-body');
+            tbody.innerHTML = '';
+            culinaryData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-slate-800">${row.region}</td>
+                    <td class="p-3 font-semibold text-emerald-800">${row.spot}</td>
+                    <td class="p-3 text-slate-700">${row.veg}</td>
+                    <td class="p-3 text-slate-700">${row.nonVeg}</td>
+                    <td class="p-3 font-black text-slate-900">${row.cost}</td>
+                    <td class="p-3 text-xs text-slate-500">${row.ecoFeature}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function loadDestinationToPlanner(titleState, defaultDays, totalCost) {
+            document.getElementById('planner-target-location').innerText = titleState;
+            document.getElementById('planner-target-duration').innerText = `${defaultDays} Days / ${defaultDays - 1} Nights`;
+            document.getElementById('planner-target-cost').innerText = `₹${totalCost.toLocaleString('en-IN')} INR`;
+            document.getElementById('itinerary-builder').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetItineraryToDefault() {
+            renderItineraryDays(defaultItineraryDays);
+            document.getElementById('trip-master-title').innerText = "Custom India Eco-Adventure Expedition";
+            document.getElementById('planner-target-location').innerText = "Meghalaya & Kaziranga";
+            document.getElementById('planner-target-duration').innerText = "5 Days / 4 Nights";
+            document.getElementById('planner-target-cost').innerText = "₹17,500 INR";
+        }
+
+        // Local Storage Saving
+        function saveTripToStorage() {
+            const trip = {
+                id: Date.now(),
+                title: document.getElementById('trip-master-title').innerText,
+                location: document.getElementById('planner-target-location').innerText,
+                cost: document.getElementById('planner-target-cost').innerText,
+                savedAt: new Date().toLocaleDateString('en-IN')
+            };
+
+            let saved = JSON.parse(localStorage.getItem('ecoYatraStudioTrips') || '[]');
+            saved.unshift(trip);
+            localStorage.setItem('ecoYatraStudioTrips', JSON.stringify(saved));
+            renderSavedTrips();
+            alert("Trip saved to browser local storage!");
+        }
+
+        function renderSavedTrips() {
+            const container = document.getElementById('saved-plans-container');
+            const saved = JSON.parse(localStorage.getItem('ecoYatraStudioTrips') || '[]');
+
+            if(saved.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-slate-400 text-xs py-2">No saved plans found in local storage.</div>`;
+                return;
+            }
+
+            container.innerHTML = saved.map((t, idx) => `
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <div>
+                        <h5 class="font-bold text-slate-900 text-xs sm:text-sm">${t.title}</h5>
+                        <p class="text-xs text-slate-500">${t.location} • <span class="font-bold text-emerald-700">${t.cost}</span></p>
+                    </div>
+                    <button onclick="deleteSavedTrip(${idx})" class="text-slate-400 hover:text-red-500 p-1"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function deleteSavedTrip(idx) {
+            let saved = JSON.parse(localStorage.getItem('ecoYatraStudioTrips') || '[]');
+            saved.splice(idx, 1);
+            localStorage.setItem('ecoYatraStudioTrips', JSON.stringify(saved));
+            renderSavedTrips();
+        }
+
+        function clearAllSavedTrips() {
+            localStorage.removeItem('ecoYatraStudioTrips');
+            renderSavedTrips();
+        }
+
+        // Initializer
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDestinations(indiaDestinationsData);
+            renderCulinaryTable();
+            renderItineraryDays(defaultItineraryDays);
+            renderExpenses();
+            renderChecklist();
+            renderSavedTrips();
+        });
+    </script>
+</body>
+</html>
