@@ -270,10 +270,10 @@
     </main>
 
     <script>
-        // Supabase Client Config (Replace with your own Supabase project details)
+        // Supabase Client Config - Variable renamed to avoid global namespace collision
         const SUPABASE_URL = 'https://mtlwhftvndqguofxhhcc.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_uchg-Fclifz45WyCpgBgQw_bq6x3Z06';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let activeAuthMode = 'login';
         let currentUser = null;
@@ -309,12 +309,12 @@
 
             try {
                 if (activeAuthMode === 'signup') {
-                    const { data, error } = await supabase.auth.signUp({ email, password });
+                    const { data, error } = await supabaseClient.auth.signUp({ email, password });
                     if (error) throw error;
                     alert('Registration complete! Check your email or sign in directly.');
                     switchAuthTab('login');
                 } else {
-                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     checkSession();
                 }
@@ -325,7 +325,7 @@
 
         // Check Auth Session
         async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 currentUser = session.user;
                 document.getElementById('auth-screen').classList.add('hidden');
@@ -338,7 +338,7 @@
         }
 
         async function handleSignOut() {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             window.location.reload();
         }
 
@@ -382,7 +382,7 @@
                 updated_at: new Date()
             };
 
-            const { error } = await supabase.from('profiles').upsert(profilePayload);
+            const { error } = await supabaseClient.from('profiles').upsert(profilePayload);
             if (error) {
                 alert('Database Save Error: ' + error.message);
             } else {
@@ -393,7 +393,7 @@
         // Load Database Profile
         async function fetchProfileData() {
             if (!currentUser) return;
-            const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+            const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
             if (data) {
                 if (data.full_name) document.getElementById('p-name').value = data.full_name;
                 if (data.phone) document.getElementById('p-phone').value = data.phone;
