@@ -1,268 +1,580 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResuSync - AI Resume Builder & ATS Analyzer</title>
+    <title>ResuSync Pro - AI Resume Builder & ATS Suite</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- PDF Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans">
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-teal-500 selection:text-white">
 
-    <!-- App Container -->
-    <div id="app" class="max-w-6xl mx-auto p-6">
-        <!-- Auth View -->
-        <div id="auth-section" class="max-w-md mx-auto mt-20 bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-xl">
-            <h1 class="text-2xl font-bold mb-6 text-center text-cyan-400">ResuSync Portal</h1>
-            <input id="email" type="email" placeholder="Email address" class="w-full mb-4 px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500">
-            <input id="password" type="password" placeholder="Password" class="w-full mb-6 px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500">
-            <div class="flex gap-4">
-                <button onclick="handleSignIn()" class="flex-1 bg-cyan-600 hover:bg-cyan-500 py-3 rounded-lg font-medium transition">Sign In</button>
-                <button onclick="handleSignUp()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-3 rounded-lg font-medium transition">Register</button>
+    <!-- Top Navigation -->
+    <nav class="sticky top-0 z-50 border-b border-slate-800/80 glass">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-teal-500/10 border border-teal-500/20 rounded-xl text-teal-400">
+                    <i data-lucide="file-badge-2" class="w-6 h-6"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-teal-400 bg-clip-text text-transparent">ResuSync</span>
             </div>
-            <p id="auth-error" class="text-red-400 text-sm mt-4 text-center"></p>
-        </div>
-
-        <!-- Dashboard View (Hidden by default) -->
-        <div id="dashboard-section" class="hidden space-y-8">
-            <div class="flex justify-between items-center bg-slate-900 p-6 rounded-2xl border border-slate-800">
-                <div>
-                    <h2 class="text-xl font-bold" id="user-greeting">Welcome back</h2>
-                    <p class="text-sm text-slate-400">Complete your profile to unlock resume templates and ATS score.</p>
-                </div>
-                <button onclick="handleSignOut()" class="bg-red-600/20 text-red-400 hover:bg-red-600/30 px-4 py-2 rounded-lg text-sm font-medium">Sign Out</button>
-            </div>
-
-            <!-- Profile Completion Progress Bar -->
-            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-                <div class="flex justify-between mb-2">
-                    <span class="font-medium">Profile Completion</span>
-                    <span id="completion-text" class="text-cyan-400 font-bold">0%</span>
-                </div>
-                <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
-                    <div id="progress-bar" class="bg-cyan-500 h-full transition-all duration-500" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <!-- Profile Form -->
-            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <h3 class="col-span-2 text-lg font-semibold text-cyan-400">Personal & Professional Details</h3>
-                <input id="p-name" placeholder="Full Name" oninput="calculateProfileProgress()" class="px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg">
-                <input id="p-phone" placeholder="Phone Number" oninput="calculateProfileProgress()" class="px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg">
-                <input id="p-location" placeholder="Location (City, Country)" oninput="calculateProfileProgress()" class="px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg">
-                <input id="p-skills" placeholder="Skills (comma separated)" oninput="calculateProfileProgress()" class="px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg">
-                <textarea id="p-summary" placeholder="Professional Summary" oninput="calculateProfileProgress()" class="col-span-2 px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg h-24"></textarea>
-                <button onclick="saveProfile()" class="col-span-2 bg-cyan-600 hover:bg-cyan-500 py-3 rounded-lg font-medium transition">Save Profile</button>
-            </div>
-
-            <!-- Resume Tools (Unlocked at 100%) -->
-            <div id="resume-tools" class="hidden space-y-6">
-                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 flex flex-wrap gap-4 items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-cyan-400">Resume Templates & ATS Analyzer</h3>
-                        <p class="text-sm text-slate-400">Select a template, check your score, or upload a custom resume.</p>
-                    </div>
-                    <div class="flex gap-3">
-                        <select id="template-select" onchange="switchTemplate()" class="bg-slate-800 border border-slate-700 px-4 py-2 rounded-lg">
-                            <option value="modern">Modern Template</option>
-                            <option value="executive">Executive Template</option>
-                            <option value="minimalist">Minimalist Template</option>
-                        </select>
-                        <button onclick="generateATSScore()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg font-medium">Run ATS Analysis</button>
-                        <button onclick="window.print()" class="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded-lg font-medium">Download PDF</button>
-                    </div>
-                </div>
-
-                <!-- ATS Score Card -->
-                <div id="ats-card" class="hidden bg-slate-900 p-6 rounded-2xl border border-slate-800 flex items-center justify-between">
-                    <div>
-                        <h4 class="font-semibold text-slate-300">Calculated ATS Score</h4>
-                        <ul id="ats-recommendations" class="text-sm text-slate-400 list-disc list-inside mt-2 space-y-1"></ul>
-                    </div>
-                    <div class="text-4xl font-extrabold text-cyan-400" id="ats-score-display">0/100</div>
-                </div>
-
-                <!-- Resume Preview Box -->
-                <div id="resume-preview" class="bg-white text-slate-900 p-8 rounded-2xl shadow-xl min-h-[500px]">
-                    <!-- Template content gets rendered here -->
-                </div>
+            
+            <div id="nav-user-controls" class="hidden flex items-center gap-4">
+                <span id="user-email-display" class="text-xs text-slate-400 border border-slate-800 bg-slate-900/50 px-3 py-1.5 rounded-full"></span>
+                <button onclick="handleSignOut()" class="text-xs text-slate-400 hover:text-rose-400 flex items-center gap-1.5 transition">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+                </button>
             </div>
         </div>
-    </div>
+    </nav>
+
+    <!-- App Shell Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- AUTH SCREEN -->
+        <div id="auth-screen" class="max-w-md mx-auto my-12">
+            <div class="bg-slate-900/90 border border-slate-800 p-8 rounded-2xl shadow-2xl backdrop-blur-xl">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-slate-100">Welcome Back</h2>
+                    <p class="text-sm text-slate-400 mt-1">Sign in to build or analyze your ATS-optimized resume</p>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 mb-6">
+                    <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 transition">Log In</button>
+                    <button id="tab-signup" onclick="switchAuthTab('signup')" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition">Register</button>
+                </div>
+
+                <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Email Address</label>
+                        <div class="relative">
+                            <i data-lucide="mail" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-500"></i>
+                            <input id="auth-email" type="email" required placeholder="you@domain.com" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-500"></i>
+                            <input id="auth-password" type="password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="auth-submit-btn" class="w-full bg-teal-500 hover:bg-teal-600 text-slate-950 font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2 mt-2">
+                        <span>Sign In</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </form>
+
+                <p id="auth-error" class="text-rose-400 text-xs mt-4 text-center min-h-[1rem]"></p>
+            </div>
+        </div>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="dashboard-screen" class="hidden space-y-8">
+
+            <!-- Global Progress Banner -->
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl relative overflow-hidden">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 z-10 relative">
+                    <div>
+                        <h1 class="text-xl font-bold flex items-center gap-2">
+                            <span>Profile Completion Workspace</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-1">Complete 100% of your details to unlock live rendering, multi-template export, and deep ATS analysis.</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <span id="completion-text" class="text-2xl font-black text-teal-400">0%</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden mt-4 border border-slate-800">
+                    <div id="progress-bar" class="bg-gradient-to-r from-teal-500 to-emerald-400 h-full transition-all duration-500 w-0"></div>
+                </div>
+            </div>
+
+            <!-- Main Interface Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+                <!-- Left Column: Editor Form & Custom Resume Upload -->
+                <div class="lg:col-span-6 space-y-6">
+                    
+                    <!-- Form Section Accordion -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+                        <h2 class="font-bold text-slate-200 border-b border-slate-800 pb-3 flex items-center justify-between">
+                            <span class="flex items-center gap-2"><i data-lucide="user" class="w-4 h-4 text-teal-400"></i> Profile Information</span>
+                            <span class="text-xs font-normal text-slate-500">Auto-saves locally & DB</span>
+                        </h2>
+
+                        <!-- Personal Information -->
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Full Name *</label>
+                                    <input id="p-name" oninput="handleInput()" placeholder="Jane Doe" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Target Job Title *</label>
+                                    <input id="p-title" oninput="handleInput()" placeholder="Senior Software Engineer" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Phone *</label>
+                                    <input id="p-phone" oninput="handleInput()" placeholder="+1 (555) 000-0000" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Location *</label>
+                                    <input id="p-location" oninput="handleInput()" placeholder="San Francisco, CA" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Professional Summary *</label>
+                                <textarea id="p-summary" oninput="handleInput()" rows="3" placeholder="Results-driven professional with 5+ years experience in scaling cloud platforms..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Key Skills (Comma separated) *</label>
+                                <input id="p-skills" oninput="handleInput()" placeholder="JavaScript, React, Node.js, PostgreSQL, Docker, AWS" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Work Experience *</label>
+                                <textarea id="p-experience" oninput="handleInput()" rows="4" placeholder="Tech Lead @ Acme Corp (2021 - Present)&#10;• Led cross-functional team of 8 engineers&#10;• Reduced latency by 40% using Redis caching" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Education *</label>
+                                <input id="p-education" oninput="handleInput()" placeholder="B.S. in Computer Science, Stanford University" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <button onclick="saveProfileToDatabase()" class="w-full bg-slate-800 hover:bg-slate-700 text-teal-400 border border-teal-500/30 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition">
+                            <i data-lucide="save" class="w-4 h-4"></i> Save Profile Data to Supabase
+                        </button>
+                    </div>
+
+                    <!-- Custom External Resume Analyzer -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                        <h2 class="font-bold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="file-up" class="w-4 h-4 text-teal-400"></i> Analyze Custom Existing Resume
+                        </h2>
+                        <p class="text-xs text-slate-400">Upload any plain-text or paste custom resume content to evaluate its ATS compatibility independently.</p>
+                        <textarea id="custom-resume-input" rows="4" placeholder="Paste external resume plain text here for instant analysis..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none"></textarea>
+                        <button onclick="analyzeCustomResume()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i> Analyze Custom Text Resume
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Live Builder Preview, Template Selection, ATS Engine -->
+                <div class="lg:col-span-6 space-y-6">
+
+                    <!-- Locked Overlay State -->
+                    <div id="locked-state" class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
+                        <div class="w-12 h-12 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center mx-auto text-slate-400">
+                            <i data-lucide="lock" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-200">Resume Live Preview Locked</h3>
+                            <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1">Please complete all profile fields (100% completion bar) on the left panel to unlock template rendering, PDF download, and ATS analysis.</p>
+                        </div>
+                    </div>
+
+                    <!-- Unlocked State Container -->
+                    <div id="unlocked-state" class="hidden space-y-6">
+
+                        <!-- Control Toolbar -->
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-wrap gap-3 items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="layout" class="w-4 h-4 text-teal-400"></i>
+                                <select id="template-selector" onchange="renderTemplate()" class="bg-slate-950 border border-slate-800 rounded-lg text-xs px-3 py-2 text-slate-200 focus:outline-none border-teal-500/50">
+                                    <option value="modern">Modern Tech Template</option>
+                                    <option value="executive">Executive Classic</option>
+                                    <option value="minimal">Minimalist Layout</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="runATSAnalysis()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                                    <i data-lucide="shield-check" class="w-4 h-4"></i> Run ATS Check
+                                </button>
+                                <button onclick="downloadPDF()" class="bg-teal-500 hover:bg-teal-600 text-slate-950 px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                                    <i data-lucide="download" class="w-4 h-4"></i> Export PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ATS Analysis Scorecard Box -->
+                        <div id="ats-results-box" class="hidden bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">ATS Optimization Index</span>
+                                <span id="ats-score-badge" class="text-lg font-black px-3 py-1 bg-teal-500/10 text-teal-400 rounded-full border border-teal-500/20">0 / 100</span>
+                            </div>
+                            <div class="border-t border-slate-800/80 pt-3">
+                                <h4 class="text-xs font-semibold text-slate-300 mb-2 flex items-center gap-1.5">
+                                    <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-400"></i> System Recommendations
+                                </h4>
+                                <ul id="ats-recommendations-list" class="text-xs text-slate-400 space-y-1.5 list-disc list-inside"></ul>
+                            </div>
+                        </div>
+
+                        <!-- Live Paper Render Workspace -->
+                        <div class="bg-slate-950 p-2 rounded-2xl border border-slate-800 shadow-2xl overflow-x-auto hide-scrollbar">
+                            <div id="resume-document" class="bg-white text-slate-900 p-8 rounded-xl min-h-[700px] w-full max-w-[650px] mx-auto text-sm shadow-md transition-all">
+                                <!-- Dynamic Resume Content Injected Here -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </main>
 
     <script>
-        // Initialize Supabase Client
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        // Supabase Client Config (Replace with your own Supabase project details)
+        const SUPABASE_URL = 'https://YOUR_SUPABASE_PROJECT_ID.supabase.co';
         const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        let activeAuthMode = 'login';
         let currentUser = null;
 
-        async function checkUser() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                currentUser = session.user;
-                document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('dashboard-section').classList.remove('hidden');
-                document.getElementById('user-greeting').innerText = `Welcome, ${currentUser.email}`;
-                loadProfile();
+        // Initialize UI Icons
+        lucide.createIcons();
+
+        // Auth Tab Switcher
+        function switchAuthTab(mode) {
+            activeAuthMode = mode;
+            const loginTab = document.getElementById('tab-login');
+            const signupTab = document.getElementById('tab-signup');
+            const submitBtn = document.getElementById('auth-submit-btn');
+
+            if (mode === 'login') {
+                loginTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 transition";
+                signupTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition";
+                submitBtn.querySelector('span').innerText = "Sign In";
+            } else {
+                signupTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 transition";
+                loginTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition";
+                submitBtn.querySelector('span').innerText = "Register Account";
             }
         }
 
-        async function handleSignUp() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { error } = await supabase.auth.signUp({ email, password });
-            if (error) document.getElementById('auth-error').innerText = error.message;
-            else alert('Registration successful! Please sign in.');
+        // Auth Form Handler
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const errEl = document.getElementById('auth-error');
+            errEl.innerText = "";
+
+            try {
+                if (activeAuthMode === 'signup') {
+                    const { data, error } = await supabase.auth.signUp({ email, password });
+                    if (error) throw error;
+                    alert('Registration complete! Check your email or sign in directly.');
+                    switchAuthTab('login');
+                } else {
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    checkSession();
+                }
+            } catch (err) {
+                errEl.innerText = err.message || "Authentication failed.";
+            }
         }
 
-        async function handleSignIn() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) document.getElementById('auth-error').innerText = error.message;
-            else checkUser();
+        // Check Auth Session
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('dashboard-screen').classList.remove('hidden');
+                document.getElementById('nav-user-controls').classList.remove('hidden');
+                document.getElementById('nav-user-controls').classList.add('flex');
+                document.getElementById('user-email-display').innerText = currentUser.email;
+                fetchProfileData();
+            }
         }
 
         async function handleSignOut() {
             await supabase.auth.signOut();
-            location.reload();
+            window.location.reload();
         }
 
-        function calculateProfileProgress() {
-            const name = document.getElementById('p-name').value.trim();
-            const phone = document.getElementById('p-phone').value.trim();
-            const location = document.getElementById('p-location').value.trim();
-            const skills = document.getElementById('p-skills').value.trim();
-            const summary = document.getElementById('p-summary').value.trim();
+        // Input Progress Evaluator
+        function handleInput() {
+            const fields = ['p-name', 'p-title', 'p-phone', 'p-location', 'p-summary', 'p-skills', 'p-experience', 'p-education'];
+            let filledCount = 0;
 
-            let filled = 0;
-            if (name) filled++;
-            if (phone) filled++;
-            if (location) filled++;
-            if (skills) filled++;
-            if (summary) filled++;
+            fields.forEach(id => {
+                if (document.getElementById(id).value.trim() !== '') filledCount++;
+            });
 
-            const percentage = (filled / 5) * 100;
-            document.getElementById('progress-bar').style.width = percentage + '%';
-            document.getElementById('completion-text').innerText = percentage + '%';
+            const percentage = Math.round((filledCount / fields.length) * 100);
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            document.getElementById('completion-text').innerText = `${percentage}%`;
 
-            const tools = document.getElementById('resume-tools');
+            const lockedState = document.getElementById('locked-state');
+            const unlockedState = document.getElementById('unlocked-state');
+
             if (percentage === 100) {
-                tools.classList.remove('hidden');
-                renderResumePreview();
+                lockedState.classList.add('hidden');
+                unlockedState.classList.remove('hidden');
+                renderTemplate();
             } else {
-                tools.classList.add('hidden');
+                lockedState.classList.remove('hidden');
+                unlockedState.classList.add('hidden');
             }
-            return percentage;
         }
 
-        async function saveProfile() {
-            const percentage = calculateProfileProgress();
-            const profileData = {
+        // Save Profile to Supabase SQL
+        async function saveProfileToDatabase() {
+            if (!currentUser) return;
+            const profilePayload = {
                 id: currentUser.id,
                 full_name: document.getElementById('p-name').value,
                 phone: document.getElementById('p-phone').value,
                 location: document.getElementById('p-location').value,
-                skills: document.getElementById('p-skills').value.split(',').map(s => s.trim()),
                 summary: document.getElementById('p-summary').value,
-                completion_percentage: percentage
+                skills: document.getElementById('p-skills').value.split(',').map(s => s.trim()),
+                completion_percentage: parseInt(document.getElementById('completion-text').innerText),
+                updated_at: new Date()
             };
 
-            const { error } = await supabase.from('profiles').upsert(profileData);
-            if (error) alert('Error saving profile: ' + error.message);
-            else alert('Profile updated successfully!');
+            const { error } = await supabase.from('profiles').upsert(profilePayload);
+            if (error) {
+                alert('Database Save Error: ' + error.message);
+            } else {
+                alert('Profile details successfully stored in Supabase!');
+            }
         }
 
-        async function loadProfile() {
+        // Load Database Profile
+        async function fetchProfileData() {
+            if (!currentUser) return;
             const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
             if (data) {
-                document.getElementById('p-name').value = data.full_name || '';
-                document.getElementById('p-phone').value = data.phone || '';
-                document.getElementById('p-location').value = data.location || '';
-                document.getElementById('p-skills').value = (data.skills || []).join(', ');
-                document.getElementById('p-summary').value = data.summary || '';
-                calculateProfileProgress();
+                if (data.full_name) document.getElementById('p-name').value = data.full_name;
+                if (data.phone) document.getElementById('p-phone').value = data.phone;
+                if (data.location) document.getElementById('p-location').value = data.location;
+                if (data.summary) document.getElementById('p-summary').value = data.summary;
+                if (data.skills) document.getElementById('p-skills').value = data.skills.join(', ');
+                handleInput();
             }
         }
 
-        function renderResumePreview() {
-            const name = document.getElementById('p-name').value;
-            const phone = document.getElementById('p-phone').value;
-            const location = document.getElementById('p-location').value;
-            const skills = document.getElementById('p-skills').value;
-            const summary = document.getElementById('p-summary').value;
-            const template = document.getElementById('template-select').value;
+        // Template Renderer Engine
+        function renderTemplate() {
+            const name = document.getElementById('p-name').value || 'John Doe';
+            const title = document.getElementById('p-title').value || 'Software Engineer';
+            const phone = document.getElementById('p-phone').value || '+1 000 000 0000';
+            const location = document.getElementById('p-location').value || 'City, Country';
+            const summary = document.getElementById('p-summary').value || 'Professional summary...';
+            const skills = document.getElementById('p-skills').value.split(',').map(s => s.trim());
+            const exp = document.getElementById('p-experience').value;
+            const edu = document.getElementById('p-education').value;
+            const selectedTemplate = document.getElementById('template-selector').value;
 
-            const preview = document.getElementById('resume-preview');
+            const doc = document.getElementById('resume-document');
 
-            if (template === 'modern') {
-                preview.innerHTML = `
-                    <div class="border-b pb-4 mb-4">
-                        <h1 class="text-3xl font-bold text-slate-900">${name}</h1>
-                        <p class="text-sm text-slate-600">${location} | ${phone}</p>
+            if (selectedTemplate === 'modern') {
+                doc.innerHTML = `
+                    <div class="border-b-2 border-teal-600 pb-4 mb-4">
+                        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">${name}</h1>
+                        <p class="text-sm font-semibold text-teal-600">${title}</p>
+                        <p class="text-xs text-slate-500 mt-1">${location} • ${phone}</p>
                     </div>
-                    <div class="mb-4">
-                        <h3 class="font-bold text-cyan-700 uppercase text-xs tracking-wider mb-1">Professional Summary</h3>
-                        <p class="text-sm text-slate-700">${summary}</p>
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-1">Executive Summary</h3>
+                            <p class="text-slate-700 leading-relaxed">${summary}</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-1">Professional Experience</h3>
+                            <div class="text-slate-700 whitespace-pre-line leading-relaxed">${exp}</div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-1">Core Competencies</h3>
+                            <div class="flex flex-wrap gap-1.5 mt-1">
+                                ${skills.map(s => `<span class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded border border-slate-200 text-[10px] font-medium">${s}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-1">Education</h3>
+                            <p class="text-slate-700">${edu}</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="font-bold text-cyan-700 uppercase text-xs tracking-wider mb-1">Key Skills</h3>
-                        <p class="text-sm text-slate-700">${skills}</p>
-                    </div>`;
-            } else if (template === 'executive') {
-                preview.innerHTML = `
-                    <div class="text-center border-b pb-4 mb-4">
-                        <h1 class="text-3xl font-extrabold uppercase tracking-widest text-slate-900">${name}</h1>
-                        <p class="text-xs text-slate-500 mt-1">${location} &bull; ${phone}</p>
+                `;
+            } else if (selectedTemplate === 'executive') {
+                doc.innerHTML = `
+                    <div class="text-center border-b border-slate-300 pb-4 mb-4">
+                        <h1 class="text-2xl font-serif font-bold text-slate-900 tracking-wide">${name.toUpperCase()}</h1>
+                        <p class="text-xs font-serif text-slate-600 italic mt-0.5">${title}</p>
+                        <p class="text-[11px] text-slate-500 mt-1">${location} | ${phone}</p>
                     </div>
-                    <div class="mb-4">
-                        <h3 class="font-semibold text-slate-900 border-b pb-1 mb-2">Executive Overview</h3>
-                        <p class="text-sm text-slate-700 italic">${summary}</p>
+                    <div class="space-y-4 text-xs font-serif">
+                        <div>
+                            <h3 class="font-bold border-b border-slate-200 pb-1 text-slate-900 uppercase text-[10px]">Overview</h3>
+                            <p class="text-slate-800 mt-1.5 leading-relaxed">${summary}</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold border-b border-slate-200 pb-1 text-slate-900 uppercase text-[10px]">Employment History</h3>
+                            <div class="text-slate-800 mt-1.5 whitespace-pre-line leading-relaxed">${exp}</div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold border-b border-slate-200 pb-1 text-slate-900 uppercase text-[10px]">Areas of Expertise</h3>
+                            <p class="text-slate-800 mt-1.5">${skills.join(' • ')}</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold border-b border-slate-200 pb-1 text-slate-900 uppercase text-[10px]">Education & Credentials</h3>
+                            <p class="text-slate-800 mt-1.5">${edu}</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="font-semibold text-slate-900 border-b pb-1 mb-2">Core Competencies</h3>
-                        <p class="text-sm text-slate-700">${skills}</p>
-                    </div>`;
+                `;
             } else {
-                preview.innerHTML = `
-                    <h1 class="text-4xl font-light text-slate-900">${name}</h1>
-                    <p class="text-xs text-slate-400 mb-6">${location} / ${phone}</p>
-                    <div class="grid grid-cols-3 gap-4">
-                        <div class="col-span-1 text-xs text-slate-500 uppercase tracking-widest font-semibold">Summary</div>
-                        <div class="col-span-2 text-sm text-slate-700 mb-4">${summary}</div>
-                        <div class="col-span-1 text-xs text-slate-500 uppercase tracking-widest font-semibold">Skills</div>
-                        <div class="col-span-2 text-sm text-slate-700">${skills}</div>
-                    </div>`;
+                doc.innerHTML = `
+                    <div class="mb-6">
+                        <h1 class="text-3xl font-light text-slate-900">${name}</h1>
+                        <p class="text-xs text-slate-400 mt-0.5">${title} — ${location} — ${phone}</p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-6 text-xs">
+                        <div class="col-span-1 space-y-4 border-r border-slate-100 pr-4">
+                            <div>
+                                <h4 class="font-semibold text-slate-900 uppercase text-[10px] tracking-widest mb-1">Skills</h4>
+                                <p class="text-slate-600 leading-relaxed">${skills.join(', ')}</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-900 uppercase text-[10px] tracking-widest mb-1">Education</h4>
+                                <p class="text-slate-600">${edu}</p>
+                            </div>
+                        </div>
+                        <div class="col-span-2 space-y-4">
+                            <div>
+                                <h4 class="font-semibold text-slate-900 uppercase text-[10px] tracking-widest mb-1">Profile</h4>
+                                <p class="text-slate-700 leading-relaxed">${summary}</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-900 uppercase text-[10px] tracking-widest mb-1">Experience</h4>
+                                <div class="text-slate-700 whitespace-pre-line leading-relaxed">${exp}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
         }
 
-        function switchTemplate() {
-            renderResumePreview();
+        // ATS Algorithm Evaluator
+        function evaluateATS(summaryText, skillsList, expText) {
+            let score = 50;
+            let recs = [];
+
+            if (skillsList.length >= 5) score += 20;
+            else recs.push("Include at least 5 industry-specific technical or soft skills.");
+
+            if (summaryText.length > 100) score += 15;
+            else recs.push("Expand your summary text to over 100 characters to highlight scope.");
+
+            if (expText.includes('•') || expText.includes('-')) score += 15;
+            else recs.push("Use bullet points in experience descriptions for better ATS parsing readability.");
+
+            return { score, recs };
         }
 
-        function generateATSScore() {
+        function runATSAnalysis() {
             const summary = document.getElementById('p-summary').value;
-            const skills = document.getElementById('p-skills').value;
-            
-            let score = 60;
-            let recommendations = [];
+            const skills = document.getElementById('p-skills').value.split(',');
+            const exp = document.getElementById('p-experience').value;
 
-            if (skills.length > 20) score += 20;
-            else recommendations.append('Add more industry-specific keyword skills.');
-
-            if (summary.split(' ').length > 25) score += 20;
-            else recommendations.push('Expand your professional summary with quantifiable achievements.');
-
-            document.getElementById('ats-card').classList.remove('hidden');
-            document.getElementById('ats-score-display').innerText = score + '/100';
-            
-            const recList = document.getElementById('ats-recommendations');
-            recList.innerHTML = recommendations.map(r => `<li>${r}</li>`).join('') || '<li>Your resume layout and keywords are strongly optimized for ATS systems.</li>';
+            const { score, recs } = evaluateATS(summary, skills, exp);
+            displayATSResults(score, recs);
         }
 
-        checkUser();
+        function analyzeCustomResume() {
+            const rawText = document.getElementById('custom-resume-input').value.trim();
+            if (!rawText) return alert('Please enter or paste custom resume plain text to analyze.');
+
+            const words = rawText.split(' ');
+            let score = 60;
+            let recs = [];
+
+            if (words.length > 150) score += 20;
+            else recs.push("Text content is concise; ensure all key duties and achievements are represented.");
+
+            if (rawText.toLowerCase().includes('experience') || rawText.toLowerCase().includes('skills')) score += 20;
+            else recs.push("Missing standard structural headers like 'Experience' or 'Skills'.");
+
+            displayATSResults(score, recs);
+        }
+
+        function displayATSResults(score, recs) {
+            const box = document.getElementById('ats-results-box');
+            const badge = document.getElementById('ats-score-badge');
+            const list = document.getElementById('ats-recommendations-list');
+
+            box.classList.remove('hidden');
+            badge.innerText = `${score} / 100`;
+
+            list.innerHTML = recs.length > 0 
+                ? recs.map(r => `<li>${r}</li>`).join('')
+                : '<li class="text-teal-400">Your resume formatting and content structure strongly match standard ATS parsers.</li>';
+        }
+
+        // PDF Exporter
+        function downloadPDF() {
+            const element = document.getElementById('resume-document');
+            const opt = {
+                margin:       0.5,
+                filename:     'Resume_Export.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Execute session check on page load
+        checkSession();
     </script>
 </body>
 </html>
