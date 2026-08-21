@@ -1,0 +1,2435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartCampus — Your Campus, Reimagined</title>
+
+    <meta
+        name="description"
+        content="SmartCampus — an intelligent digital campus platform connecting students, faculty and campus services."
+    >
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        /* =========================================================
+           RESET
+        ========================================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "DM Sans", sans-serif;
+            background: #070a0f;
+            color: #f5f7fb;
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        /* =========================================================
+           VARIABLES
+        ========================================================= */
+
+        :root {
+            --bg: #070a0f;
+            --bg-soft: #0c1119;
+            --card: rgba(255,255,255,0.045);
+            --border: rgba(255,255,255,0.09);
+
+            --text: #f5f7fb;
+            --muted: #8d98aa;
+
+            --primary: #7c5cff;
+            --primary-2: #9d7cff;
+            --cyan: #37d6ff;
+            --green: #4ade80;
+
+            --radius-lg: 26px;
+            --radius-md: 18px;
+        }
+
+        /* =========================================================
+           BACKGROUND
+        ========================================================= */
+
+        .background {
+            position: fixed;
+            inset: 0;
+            z-index: -10;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: .25;
+        }
+
+        .orb.one {
+            width: 500px;
+            height: 500px;
+            background: #633cff;
+            top: -200px;
+            left: -150px;
+        }
+
+        .orb.two {
+            width: 450px;
+            height: 450px;
+            background: #00bfff;
+            top: 20%;
+            right: -200px;
+        }
+
+        .orb.three {
+            width: 400px;
+            height: 400px;
+            background: #9333ea;
+            bottom: -150px;
+            left: 35%;
+        }
+
+        .grid {
+            position: absolute;
+            inset: 0;
+
+            background-image:
+                linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+
+            background-size: 70px 70px;
+
+            mask-image: linear-gradient(
+                to bottom,
+                black 0%,
+                rgba(0,0,0,.5) 50%,
+                transparent 100%
+            );
+        }
+
+        /* =========================================================
+           NAVBAR
+        ========================================================= */
+
+        nav {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            width: min(1180px, calc(100% - 32px));
+
+            padding: 12px 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: rgba(10,13,20,.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+
+            border: 1px solid var(--border);
+            border-radius: 18px;
+
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            font-family: "Manrope", sans-serif;
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(135deg, #8b5cf6, #4f46e5);
+
+            box-shadow:
+                0 8px 25px rgba(124,92,255,.35);
+        }
+
+        .logo-mark span {
+            font-size: 17px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #aab3c2;
+            font-size: 14px;
+            transition: .25s ease;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .login {
+            padding: 10px 15px;
+            color: #c5cbd6;
+            font-size: 14px;
+        }
+
+        .nav-btn {
+            padding: 10px 16px;
+
+            border: 0;
+            border-radius: 11px;
+
+            background: white;
+            color: #090b10;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: .25s ease;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255,255,255,.12);
+        }
+
+        .menu {
+            display: none;
+            background: transparent;
+            border: 0;
+            color: white;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        /* =========================================================
+           HERO
+        ========================================================= */
+
+        .hero {
+            min-height: 900px;
+
+            width: min(1180px, calc(100% - 32px));
+            margin: auto;
+
+            padding-top: 190px;
+
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 70px;
+
+            align-items: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 7px 11px;
+
+            border-radius: 100px;
+
+            background: rgba(124,92,255,.10);
+            border: 1px solid rgba(124,92,255,.25);
+
+            color: #b7a7ff;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            margin-bottom: 24px;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+
+            background: #4ade80;
+            border-radius: 50%;
+
+            box-shadow: 0 0 12px #4ade80;
+        }
+
+        h1 {
+            font-family: "Manrope", sans-serif;
+
+            font-size: clamp(48px, 6vw, 78px);
+            line-height: .98;
+
+            letter-spacing: -4px;
+
+            max-width: 680px;
+        }
+
+        h1 .gradient {
+            background: linear-gradient(
+                100deg,
+                #fff 0%,
+                #a995ff 45%,
+                #5de0ff 100%
+            );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero-description {
+            margin-top: 28px;
+
+            max-width: 560px;
+
+            color: var(--muted);
+
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 12px;
+
+            margin-top: 34px;
+        }
+
+        .primary-btn,
+        .secondary-btn {
+            padding: 14px 20px;
+
+            border-radius: 13px;
+
+            font-weight: 700;
+            font-size: 14px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+
+            cursor: pointer;
+
+            transition: .25s ease;
+        }
+
+        .primary-btn {
+            border: 0;
+
+            color: white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #8065ff,
+                    #6244ed
+                );
+
+            box-shadow:
+                0 15px 35px rgba(108,77,255,.25);
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 20px 45px rgba(108,77,255,.35);
+        }
+
+        .secondary-btn {
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,.04);
+            color: #d9dee8;
+        }
+
+        .secondary-btn:hover {
+            background: rgba(255,255,255,.08);
+            transform: translateY(-3px);
+        }
+
+        .hero-trust {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+
+            margin-top: 32px;
+
+            color: #727d8e;
+            font-size: 12px;
+        }
+
+        .avatars {
+            display: flex;
+        }
+
+        .avatar {
+            width: 27px;
+            height: 27px;
+
+            border-radius: 50%;
+
+            border: 2px solid #090c12;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #8b5cf6,
+                    #22d3ee
+                );
+
+            margin-left: -7px;
+        }
+
+        .avatar:first-child {
+            margin-left: 0;
+        }
+
+        /* =========================================================
+           AI CARD
+        ========================================================= */
+
+        .hero-visual {
+            position: relative;
+        }
+
+        .ai-card {
+            position: relative;
+
+            padding: 18px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.09),
+                    rgba(255,255,255,.025)
+                );
+
+            border: 1px solid rgba(255,255,255,.12);
+
+            border-radius: 28px;
+
+            box-shadow:
+                0 40px 100px rgba(0,0,0,.45),
+                inset 0 1px rgba(255,255,255,.06);
+
+            transform: perspective(1200px) rotateY(-4deg) rotateX(2deg);
+
+            transition: .5s ease;
+        }
+
+        .ai-card:hover {
+            transform:
+                perspective(1200px)
+                rotateY(0deg)
+                rotateX(0deg)
+                translateY(-8px);
+        }
+
+        .window-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 4px 4px 16px;
+        }
+
+        .window-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .window-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: #3c4350;
+        }
+
+        .window-title {
+            color: #7e8999;
+            font-size: 11px;
+        }
+
+        .ai-body {
+            padding: 28px 24px 24px;
+
+            background: rgba(5,8,13,.75);
+
+            border-radius: 19px;
+
+            min-height: 440px;
+        }
+
+        .ai-label {
+            color: #927cff;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .ai-heading {
+            margin-top: 10px;
+
+            font-family: "Manrope";
+            font-size: 27px;
+            font-weight: 700;
+        }
+
+        .ai-sub {
+            margin-top: 7px;
+
+            color: #707b8d;
+
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .ai-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            margin-top: 25px;
+
+            padding: 13px 14px;
+
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 12px;
+
+            background: rgba(255,255,255,.035);
+
+            color: #687384;
+            font-size: 12px;
+        }
+
+        .ai-send {
+            margin-left: auto;
+
+            width: 28px;
+            height: 28px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 8px;
+
+            background: #7659ff;
+            color: white;
+        }
+
+        .suggestions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+
+            gap: 9px;
+
+            margin-top: 13px;
+        }
+
+        .suggestion {
+            padding: 12px;
+
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 10px;
+
+            background: rgba(255,255,255,.025);
+
+            color: #a7afbd;
+
+            font-size: 10px;
+
+            transition: .2s;
+        }
+
+        .suggestion:hover {
+            background: rgba(124,92,255,.09);
+            border-color: rgba(124,92,255,.2);
+        }
+
+        .ai-answer {
+            margin-top: 24px;
+
+            padding: 14px;
+
+            border-left: 2px solid #7c5cff;
+
+            background: rgba(124,92,255,.06);
+
+            border-radius: 0 11px 11px 0;
+
+            color: #aab3c1;
+
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        /* =========================================================
+           STATS
+        ========================================================= */
+
+        .stats {
+            width: min(1180px, calc(100% - 32px));
+            margin: -20px auto 100px;
+
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat {
+            padding: 28px 20px;
+
+            text-align: center;
+
+            border-right: 1px solid var(--border);
+        }
+
+        .stat:last-child {
+            border-right: 0;
+        }
+
+        .stat-number {
+            font-family: "Manrope";
+            font-size: 29px;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            margin-top: 5px;
+
+            color: #697587;
+
+            font-size: 11px;
+        }
+
+        /* =========================================================
+           SECTIONS
+        ========================================================= */
+
+        section {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto 150px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+
+            margin-bottom: 45px;
+        }
+
+        .section-label {
+            color: #8e78ff;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .section-title {
+            margin-top: 10px;
+
+            font-family: "Manrope";
+
+            font-size: clamp(30px, 4vw, 46px);
+
+            letter-spacing: -2px;
+        }
+
+        .section-description {
+            max-width: 430px;
+
+            color: #727e8f;
+
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* =========================================================
+           FEATURES
+        ========================================================= */
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 15px;
+        }
+
+        .feature {
+            position: relative;
+
+            padding: 27px;
+
+            min-height: 220px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.055),
+                    rgba(255,255,255,.02)
+                );
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+
+            overflow: hidden;
+
+            transition: .35s ease;
+        }
+
+        .feature::after {
+            content: "";
+
+            position: absolute;
+
+            width: 130px;
+            height: 130px;
+
+            right: -60px;
+            bottom: -60px;
+
+            border-radius: 50%;
+
+            background: rgba(124,92,255,.12);
+
+            filter: blur(20px);
+        }
+
+        .feature:hover {
+            transform: translateY(-7px);
+
+            border-color: rgba(124,92,255,.3);
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(124,92,255,.09),
+                    rgba(255,255,255,.025)
+                );
+        }
+
+        .feature-icon {
+            width: 44px;
+            height: 44px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 13px;
+
+            background: rgba(124,92,255,.12);
+
+            border: 1px solid rgba(124,92,255,.18);
+
+            font-size: 20px;
+        }
+
+        .feature h3 {
+            margin-top: 22px;
+
+            font-family: "Manrope";
+            font-size: 18px;
+        }
+
+        .feature p {
+            margin-top: 9px;
+
+            color: #778294;
+
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        /* =========================================================
+           DASHBOARD
+        ========================================================= */
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 18px;
+        }
+
+        .dashboard-main,
+        .dashboard-side {
+            background: rgba(255,255,255,.035);
+
+            border: 1px solid var(--border);
+
+            border-radius: 25px;
+
+            padding: 25px;
+        }
+
+        .dash-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dash-title {
+            font-family: "Manrope";
+            font-weight: 700;
+        }
+
+        .dash-date {
+            color: #6e7a8b;
+            font-size: 11px;
+        }
+
+        .welcome {
+            margin-top: 25px;
+
+            padding: 22px;
+
+            border-radius: 18px;
+
+            background:
+                linear-gradient(
+                    110deg,
+                    rgba(124,92,255,.18),
+                    rgba(55,214,255,.06)
+                );
+
+            border: 1px solid rgba(124,92,255,.13);
+        }
+
+        .welcome small {
+            color: #9b8cff;
+            font-size: 11px;
+        }
+
+        .welcome h3 {
+            margin-top: 6px;
+
+            font-family: "Manrope";
+            font-size: 24px;
+        }
+
+        .schedule {
+            margin-top: 20px;
+
+            display: grid;
+            gap: 9px;
+        }
+
+        .class {
+            display: grid;
+            grid-template-columns: 65px 1fr auto;
+
+            align-items: center;
+
+            padding: 13px;
+
+            background: rgba(255,255,255,.025);
+
+            border: 1px solid rgba(255,255,255,.05);
+
+            border-radius: 12px;
+        }
+
+        .time {
+            color: #8f7cff;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .class-name {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .class-room {
+            color: #667285;
+            font-size: 10px;
+        }
+
+        .attendance {
+            padding: 20px;
+
+            border-radius: 17px;
+
+            background: rgba(255,255,255,.025);
+
+            border: 1px solid rgba(255,255,255,.06);
+        }
+
+        .attendance-title {
+            color: #7b8798;
+            font-size: 11px;
+        }
+
+        .attendance-number {
+            margin-top: 10px;
+
+            font-family: "Manrope";
+            font-size: 38px;
+            font-weight: 800;
+        }
+
+        .progress {
+            height: 6px;
+
+            margin-top: 15px;
+
+            background: rgba(255,255,255,.07);
+
+            border-radius: 100px;
+
+            overflow: hidden;
+        }
+
+        .progress span {
+            display: block;
+
+            width: 82%;
+            height: 100%;
+
+            border-radius: inherit;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #8065ff,
+                    #4fd9ff
+                );
+        }
+
+        .attendance-note {
+            margin-top: 9px;
+
+            color: #677386;
+
+            font-size: 10px;
+        }
+
+        .quick {
+            margin-top: 15px;
+
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+
+            gap: 10px;
+        }
+
+        .quick-item {
+            padding: 14px;
+
+            border-radius: 14px;
+
+            background: rgba(255,255,255,.025);
+
+            border: 1px solid rgba(255,255,255,.06);
+        }
+
+        .quick-item strong {
+            font-family: "Manrope";
+            font-size: 17px;
+        }
+
+        .quick-item span {
+            display: block;
+
+            margin-top: 4px;
+
+            color: #687487;
+
+            font-size: 9px;
+        }
+
+        /* =========================================================
+           EVENTS
+        ========================================================= */
+
+        .events {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 15px;
+        }
+
+        .event {
+            overflow: hidden;
+
+            border-radius: 21px;
+
+            border: 1px solid var(--border);
+
+            background: rgba(255,255,255,.035);
+
+            transition: .3s;
+        }
+
+        .event:hover {
+            transform: translateY(-6px);
+        }
+
+        .event-image {
+            height: 170px;
+
+            display: grid;
+            place-items: center;
+
+            font-size: 50px;
+
+            background:
+                radial-gradient(
+                    circle at 50% 30%,
+                    rgba(124,92,255,.3),
+                    transparent 60%
+                ),
+                #101521;
+        }
+
+        .event-body {
+            padding: 20px;
+        }
+
+        .event-date {
+            color: #8d79ff;
+
+            font-size: 10px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+        }
+
+        .event h3 {
+            margin-top: 7px;
+
+            font-family: "Manrope";
+            font-size: 17px;
+        }
+
+        .event p {
+            margin-top: 7px;
+
+            color: #707c8e;
+
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        /* =========================================================
+           CAMPUS
+        ========================================================= */
+
+        .campus {
+            display: grid;
+            grid-template-columns: .8fr 1.2fr;
+            gap: 18px;
+        }
+
+        .campus-info {
+            padding: 35px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            border: 1px solid var(--border);
+            border-radius: 25px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(124,92,255,.09),
+                    rgba(255,255,255,.02)
+                );
+        }
+
+        .campus-info h2 {
+            margin-top: 12px;
+
+            font-family: "Manrope";
+            font-size: 34px;
+            letter-spacing: -1.5px;
+        }
+
+        .campus-info p {
+            margin-top: 14px;
+
+            color: #747f90;
+
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .map {
+            position: relative;
+
+            min-height: 400px;
+
+            overflow: hidden;
+
+            border-radius: 25px;
+
+            border: 1px solid var(--border);
+
+            background:
+                linear-gradient(
+                    120deg,
+                    rgba(40,50,65,.3),
+                    rgba(14,19,28,.8)
+                );
+        }
+
+        .map-grid {
+            position: absolute;
+            inset: 0;
+
+            background-image:
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.04) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    rgba(255,255,255,.04) 1px,
+                    transparent 1px
+                );
+
+            background-size: 40px 40px;
+        }
+
+        .road {
+            position: absolute;
+
+            height: 7px;
+
+            background: rgba(255,255,255,.08);
+
+            border-radius: 100px;
+
+            transform: rotate(-18deg);
+        }
+
+        .road.r1 {
+            width: 90%;
+            top: 40%;
+            left: -10%;
+        }
+
+        .road.r2 {
+            width: 80%;
+            top: 65%;
+            left: 15%;
+            transform: rotate(25deg);
+        }
+
+        .building {
+            position: absolute;
+
+            width: 85px;
+            height: 60px;
+
+            display: grid;
+            place-items: center;
+
+            background: rgba(124,92,255,.18);
+
+            border: 1px solid rgba(124,92,255,.3);
+
+            border-radius: 12px;
+
+            color: #b9afff;
+
+            font-size: 9px;
+            font-weight: 700;
+
+            text-align: center;
+
+            backdrop-filter: blur(5px);
+        }
+
+        .b1 {
+            top: 18%;
+            left: 20%;
+        }
+
+        .b2 {
+            top: 30%;
+            right: 18%;
+        }
+
+        .b3 {
+            bottom: 18%;
+            left: 28%;
+        }
+
+        .b4 {
+            bottom: 20%;
+            right: 20%;
+        }
+
+        .location-dot {
+            position: absolute;
+
+            width: 13px;
+            height: 13px;
+
+            border-radius: 50%;
+
+            background: #4ade80;
+
+            box-shadow:
+                0 0 0 7px rgba(74,222,128,.08),
+                0 0 25px rgba(74,222,128,.7);
+
+            top: 48%;
+            left: 50%;
+        }
+
+        /* =========================================================
+           CTA
+        ========================================================= */
+
+        .cta {
+            position: relative;
+
+            padding: 80px 40px;
+
+            text-align: center;
+
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+            border-radius: 30px;
+
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(124,92,255,.18),
+                    transparent 55%
+                ),
+                rgba(255,255,255,.025);
+        }
+
+        .cta h2 {
+            position: relative;
+
+            font-family: "Manrope";
+
+            font-size: clamp(34px,5vw,55px);
+
+            letter-spacing: -2px;
+        }
+
+        .cta p {
+            position: relative;
+
+            max-width: 530px;
+
+            margin: 16px auto 30px;
+
+            color: #778294;
+
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+
+        footer {
+            width: min(1180px, calc(100% - 32px));
+
+            margin: auto;
+
+            padding: 35px 0 45px;
+
+            border-top: 1px solid var(--border);
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        footer p {
+            color: #5f6a7b;
+            font-size: 11px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: #6e7989;
+            font-size: 11px;
+        }
+
+        /* =========================================================
+           REVEAL ANIMATION
+        ========================================================= */
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(25px);
+
+            transition:
+                opacity .7s ease,
+                transform .7s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media(max-width: 900px) {
+
+            .nav-links,
+            .nav-actions {
+                display: none;
+            }
+
+            .menu {
+                display: block;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+
+                padding-top: 150px;
+
+                min-height: auto;
+
+                gap: 60px;
+            }
+
+            .hero-visual {
+                max-width: 650px;
+                margin: auto;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2,1fr);
+            }
+
+            .stat:nth-child(2) {
+                border-right: 0;
+            }
+
+            .stat:nth-child(-n+2) {
+                border-bottom: 1px solid var(--border);
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .dashboard,
+            .campus {
+                grid-template-columns: 1fr;
+            }
+
+            .events {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media(max-width: 600px) {
+
+            nav {
+                top: 10px;
+            }
+
+            .hero {
+                width: calc(100% - 28px);
+                padding-top: 125px;
+            }
+
+            h1 {
+                font-size: 48px;
+                letter-spacing: -3px;
+            }
+
+            .hero-description {
+                font-size: 15px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .primary-btn,
+            .secondary-btn {
+                width: 100%;
+            }
+
+            .ai-card {
+                transform: none;
+            }
+
+            .ai-body {
+                min-height: 400px;
+            }
+
+            .stats {
+                width: calc(100% - 28px);
+            }
+
+            section {
+                width: calc(100% - 28px);
+                margin-bottom: 100px;
+            }
+
+            .section-header {
+                display: block;
+            }
+
+            .section-description {
+                margin-top: 15px;
+            }
+
+            .features-grid,
+            .events {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-main,
+            .dashboard-side {
+                padding: 17px;
+            }
+
+            .class {
+                grid-template-columns: 55px 1fr;
+            }
+
+            .class-room {
+                display: none;
+            }
+
+            .campus-info {
+                padding: 27px;
+            }
+
+            .cta {
+                padding: 60px 22px;
+            }
+
+            footer {
+                display: block;
+            }
+
+            .footer-links {
+                margin-top: 15px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================================================
+         BACKGROUND
+    ========================================================== -->
+
+    <div class="background">
+        <div class="orb one"></div>
+        <div class="orb two"></div>
+        <div class="orb three"></div>
+        <div class="grid"></div>
+    </div>
+
+
+    <!-- =========================================================
+         NAVBAR
+    ========================================================== -->
+
+    <nav>
+
+        <a href="#" class="logo">
+
+            <div class="logo-mark">
+                <span>✦</span>
+            </div>
+
+            SmartCampus
+
+        </a>
+
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#dashboard">Dashboard</a>
+            <a href="#events">Events</a>
+            <a href="#campus">Campus</a>
+        </div>
+
+        <div class="nav-actions">
+
+            <a href="#" class="login">
+                Login
+            </a>
+
+         <a href="login.html" class="nav-btn">Get Started</a>
+
+        </div>
+
+        <button class="menu" id="menuBtn">
+            ☰
+        </button>
+
+    </nav>
+
+
+    <!-- =========================================================
+         HERO
+    ========================================================== -->
+
+    <main>
+
+        <section class="hero">
+
+            <div class="hero-content reveal">
+
+                <div class="eyebrow">
+                    <span class="live-dot"></span>
+                    The future of campus is here
+                </div>
+
+                <h1>
+                    Your entire
+                    <span class="gradient">
+                        campus.
+                    </span>
+                    <br>
+                    One intelligent platform.
+                </h1>
+
+                <p class="hero-description">
+                    SmartCampus connects students, faculty and campus
+                    services into one beautiful digital experience —
+                    powered by intelligent technology.
+                </p>
+
+                <div class="hero-buttons">
+
+                    <a href="#dashboard" class="primary-btn">
+                        Explore Campus
+                        <span>→</span>
+                    </a>
+
+                    <a href="#features" class="secondary-btn">
+                        Discover Features
+                    </a>
+
+                </div>
+
+                <div class="hero-trust">
+
+                    <div class="avatars">
+                        <div class="avatar"></div>
+                        <div class="avatar"></div>
+                        <div class="avatar"></div>
+                        <div class="avatar"></div>
+                    </div>
+
+                    <span>
+                        Built for the modern student experience
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- AI ASSISTANT -->
+
+            <div class="hero-visual reveal">
+
+                <div class="ai-card">
+
+                    <div class="window-top">
+
+                        <div class="window-dots">
+                            <span class="window-dot"></span>
+                            <span class="window-dot"></span>
+                            <span class="window-dot"></span>
+                        </div>
+
+                        <div class="window-title">
+                            SmartCampus AI
+                        </div>
+
+                    </div>
+
+                    <div class="ai-body">
+
+                        <div class="ai-label">
+                            AI Campus Assistant
+                        </div>
+
+                        <div class="ai-heading">
+                            How can I help you?
+                        </div>
+
+                        <div class="ai-sub">
+                            Ask anything about your college,
+                            classes, events or campus.
+                        </div>
+
+                        <div class="ai-input">
+
+                            <span>
+                                Ask SmartCampus anything...
+                            </span>
+
+                            <div class="ai-send">
+                                ↑
+                            </div>
+
+                        </div>
+
+                        <div class="suggestions">
+
+                            <div class="suggestion">
+                                📚 Show my timetable
+                            </div>
+
+                            <div class="suggestion">
+                                📝 Upcoming exams
+                            </div>
+
+                            <div class="suggestion">
+                                🎯 Find internships
+                            </div>
+
+                            <div class="suggestion">
+                                🗺️ Find my classroom
+                            </div>
+
+                        </div>
+
+                        <div class="ai-answer">
+
+                            <strong>
+                                ✦ SmartCampus
+                            </strong>
+
+                            <br>
+
+                            Your next class is
+                            <strong>Database Management Systems</strong>
+                            at 11:00 AM in Room A-204.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             STATS
+        ====================================================== -->
+
+        <div class="stats reveal">
+
+            <div class="stat">
+                <div class="stat-number">24K+</div>
+                <div class="stat-label">Students</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-number">850+</div>
+                <div class="stat-label">Faculty Members</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-number">42</div>
+                <div class="stat-label">Departments</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-number">98%</div>
+                <div class="stat-label">Student Satisfaction</div>
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             FEATURES
+        ====================================================== -->
+
+        <section id="features">
+
+            <div class="section-header reveal">
+
+                <div>
+                    <div class="section-label">
+                        Everything connected
+                    </div>
+
+                    <h2 class="section-title">
+                        One platform.
+                        <br>
+                        Endless possibilities.
+                    </h2>
+                </div>
+
+                <p class="section-description">
+                    From your first class in the morning to your
+                    placement interview, SmartCampus keeps everything
+                    you need in one intelligent ecosystem.
+                </p>
+
+            </div>
+
+
+            <div class="features-grid">
+
+                <div class="feature reveal">
+
+                    <div class="feature-icon">
+                        ✦
+                    </div>
+
+                    <h3>
+                        AI Campus Assistant
+                    </h3>
+
+                    <p>
+                        Ask questions about timetables, exams,
+                        faculty, departments, events and campus
+                        services using natural language.
+                    </p>
+
+                </div>
+
+
+                <div class="feature reveal">
+
+                    <div class="feature-icon">
+                        ◉
+                    </div>
+
+                    <h3>
+                        Smart Dashboard
+                    </h3>
+
+                    <p>
+                        Your classes, assignments, attendance,
+                        announcements and important deadlines —
+                        all in one personalized dashboard.
+                    </p>
+
+                </div>
+
+
+                <div class="feature reveal">
+
+                    <div class="feature-icon">
+                        ◎
+                    </div>
+
+                    <h3>
+                        Campus Navigation
+                    </h3>
+
+                    <p>
+                        Find classrooms, laboratories, offices,
+                        libraries and facilities using an interactive
+                        digital campus map.
+                    </p>
+
+                </div>
+
+
+                <div class="feature reveal">
+
+                    <div class="feature-icon">
+                        ↗
+                    </div>
+
+                    <h3>
+                        Placement Intelligence
+                    </h3>
+
+                    <p>
+                        Discover opportunities matched to your
+                        skills and identify exactly what you need
+                        to learn for your dream role.
+                    </p>
+
+                </div>
+
+
+                <div class="feature reveal">
+
+                    <div class="feature-icon">
+                        ◌
+                    </div>
+
+                    <h3>
+                        Smart Study Planner
+                    </h3>
+
+                    <p>
+                        Generate personalized study plans based
+                        on your subjects, exams, timetable and
+                        available study time.
+                    </p>
+
+                </div>
+
+
+                <div class="feature reveal">
+
+                    <div class="feature-icon">
+                        ♢
+                    </div>
+
+                    <h3>
+                        Campus Community
+                    </h3>
+
+                    <p>
+                        Discover events, clubs, hackathons,
+                        workshops, competitions and opportunities
+                        happening around campus.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             DASHBOARD
+        ====================================================== -->
+
+        <section id="dashboard">
+
+            <div class="section-header reveal">
+
+                <div>
+
+                    <div class="section-label">
+                        Personalized experience
+                    </div>
+
+                    <h2 class="section-title">
+                        Your campus,
+                        <br>
+                        your way.
+                    </h2>
+
+                </div>
+
+                <p class="section-description">
+                    Every student gets a personalized digital
+                    workspace designed around their academic life.
+                </p>
+
+            </div>
+
+
+            <div class="dashboard reveal">
+
+                <div class="dashboard-main">
+
+                    <div class="dash-top">
+
+                        <div class="dash-title">
+                            Student Dashboard
+                        </div>
+
+                        <div class="dash-date">
+                            Friday · Aug 21
+                        </div>
+
+                    </div>
+
+
+                    <div class="welcome">
+
+                        <small>
+                            GOOD MORNING
+                        </small>
+
+                        <h3>
+                            Ready for a great day?
+                        </h3>
+
+                    </div>
+
+
+                    <div class="schedule">
+
+                        <div class="class">
+
+                            <div class="time">
+                                09:00
+                            </div>
+
+                            <div class="class-name">
+                                Computer Networks
+                            </div>
+
+                            <div class="class-room">
+                                B-302
+                            </div>
+
+                        </div>
+
+                        <div class="class">
+
+                            <div class="time">
+                                11:00
+                            </div>
+
+                            <div class="class-name">
+                                Database Management
+                            </div>
+
+                            <div class="class-room">
+                                A-204
+                            </div>
+
+                        </div>
+
+                        <div class="class">
+
+                            <div class="time">
+                                14:00
+                            </div>
+
+                            <div class="class-name">
+                                Artificial Intelligence
+                            </div>
+
+                            <div class="class-room">
+                                AI Lab
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-side">
+
+                    <div class="attendance">
+
+                        <div class="attendance-title">
+                            OVERALL ATTENDANCE
+                        </div>
+
+                        <div class="attendance-number">
+                            82%
+                        </div>
+
+                        <div class="progress">
+                            <span></span>
+                        </div>
+
+                        <div class="attendance-note">
+                            You can miss 4 more classes this month.
+                        </div>
+
+                    </div>
+
+
+                    <div class="quick">
+
+                        <div class="quick-item">
+                            <strong>12</strong>
+                            <span>Assignments</span>
+                        </div>
+
+                        <div class="quick-item">
+                            <strong>04</strong>
+                            <span>Upcoming Exams</span>
+                        </div>
+
+                        <div class="quick-item">
+                            <strong>07</strong>
+                            <span>Events</span>
+                        </div>
+
+                        <div class="quick-item">
+                            <strong>03</strong>
+                            <span>Certificates</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             EVENTS
+        ====================================================== -->
+
+        <section id="events">
+
+            <div class="section-header reveal">
+
+                <div>
+
+                    <div class="section-label">
+                        What's happening
+                    </div>
+
+                    <h2 class="section-title">
+                        Never miss
+                        <br>
+                        campus life.
+                    </h2>
+
+                </div>
+
+                <p class="section-description">
+                    From technical workshops to cultural festivals,
+                    discover everything happening around campus.
+                </p>
+
+            </div>
+
+
+            <div class="events">
+
+                <div class="event reveal">
+
+                    <div class="event-image">
+                        🤖
+                    </div>
+
+                    <div class="event-body">
+
+                        <div class="event-date">
+                            Aug 27 · Technical
+                        </div>
+
+                        <h3>
+                            Generative AI Workshop
+                        </h3>
+
+                        <p>
+                            Learn how modern AI systems work
+                            and build your first GenAI application.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="event reveal">
+
+                    <div class="event-image">
+                        💻
+                    </div>
+
+                    <div class="event-body">
+
+                        <div class="event-date">
+                            Sep 03 · Hackathon
+                        </div>
+
+                        <h3>
+                            Campus CodeFest 2026
+                        </h3>
+
+                        <p>
+                            Build, innovate and compete with
+                            students from across the campus.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="event reveal">
+
+                    <div class="event-image">
+                        🎨
+                    </div>
+
+                    <div class="event-body">
+
+                        <div class="event-date">
+                            Sep 12 · Cultural
+                        </div>
+
+                        <h3>
+                            Annual College Fest
+                        </h3>
+
+                        <p>
+                            Music, art, performances and
+                            unforgettable campus memories.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             SMART CAMPUS MAP
+        ====================================================== -->
+
+        <section id="campus">
+
+            <div class="campus">
+
+                <div class="campus-info reveal">
+
+                    <div class="section-label">
+                        Explore your campus
+                    </div>
+
+                    <h2>
+                        Find it.
+                        <br>
+                        Fast.
+                    </h2>
+
+                    <p>
+                        Stop searching for classrooms and offices.
+                        Use the interactive campus map to instantly
+                        find buildings, labs, faculty rooms and
+                        campus facilities.
+                    </p>
+
+                    <div style="margin-top:25px;">
+                        <a href="#" class="primary-btn">
+                            Open Campus Map →
+                        </a>
+                    </div>
+
+                </div>
+
+
+                <div class="map reveal">
+
+                    <div class="map-grid"></div>
+
+                    <div class="road r1"></div>
+                    <div class="road r2"></div>
+
+                    <div class="building b1">
+                        ENGINEERING<br>BLOCK
+                    </div>
+
+                    <div class="building b2">
+                        CENTRAL<br>LIBRARY
+                    </div>
+
+                    <div class="building b3">
+                        AI & ML<br>LAB
+                    </div>
+
+                    <div class="building b4">
+                        ADMIN<br>BLOCK
+                    </div>
+
+                    <div class="location-dot"></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             CTA
+        ====================================================== -->
+
+        <section>
+
+            <div class="cta reveal">
+
+                <div class="section-label">
+                    The campus of tomorrow
+                </div>
+
+                <h2>
+                    Ready to experience
+                    <br>
+                    <span class="gradient">
+                        smarter campus life?
+                    </span>
+                </h2>
+
+                <p>
+                    One login. One platform. Everything you need
+                    to make your college experience simpler,
+                    smarter and more connected.
+                </p>
+
+                <a href="#" class="primary-btn">
+                    Enter SmartCampus →
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
+    <footer>
+
+        <p>
+            © 2026 SmartCampus. Built for the future of education.
+        </p>
+
+        <div class="footer-links">
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Contact</a>
+        </div>
+
+    </footer>
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+    ========================================================== -->
+
+    <script>
+
+        /* =====================================================
+           SCROLL REVEAL
+        ====================================================== */
+
+        const revealElements =
+            document.querySelectorAll(".reveal");
+
+        const observer =
+            new IntersectionObserver(
+                (entries) => {
+
+                    entries.forEach(entry => {
+
+                        if (entry.isIntersecting) {
+
+                            entry.target.classList.add("visible");
+
+                        }
+
+                    });
+
+                },
+                {
+                    threshold: 0.12
+                }
+            );
+
+
+        revealElements.forEach(element => {
+            observer.observe(element);
+        });
+
+
+        /* =====================================================
+           MOBILE MENU
+        ====================================================== */
+
+        const menuBtn =
+            document.getElementById("menuBtn");
+
+        menuBtn.addEventListener("click", () => {
+
+            const links =
+                document.querySelector(".nav-links");
+
+            if (links.style.display === "flex") {
+
+                links.style.display = "none";
+
+            } else {
+
+                links.style.display = "flex";
+
+                links.style.position = "absolute";
+                links.style.top = "65px";
+                links.style.left = "0";
+                links.style.right = "0";
+
+                links.style.padding = "20px";
+
+                links.style.flexDirection = "column";
+
+                links.style.background =
+                    "rgba(10,13,20,.95)";
+
+                links.style.border =
+                    "1px solid rgba(255,255,255,.08)";
+
+                links.style.borderRadius = "15px";
+
+                links.style.backdropFilter =
+                    "blur(20px)";
+
+            }
+
+        });
+
+
+        /* =====================================================
+           AI SUGGESTIONS
+        ====================================================== */
+
+        const suggestions =
+            document.querySelectorAll(".suggestion");
+
+        const aiInput =
+            document.querySelector(".ai-input span");
+
+        suggestions.forEach(item => {
+
+            item.addEventListener("click", () => {
+
+                aiInput.textContent =
+                    item.textContent.trim();
+
+            });
+
+        });
+
+
+        /* =====================================================
+           BUTTON RIPPLE
+        ====================================================== */
+
+        document
+            .querySelectorAll(".primary-btn, .nav-btn")
+            .forEach(button => {
+
+                button.addEventListener("click", () => {
+
+                    button.style.transform =
+                        "scale(.97)";
+
+                    setTimeout(() => {
+
+                        button.style.transform = "";
+
+                    }, 120);
+
+                });
+
+            });
+
+
+        /* =====================================================
+           NAVBAR SCROLL EFFECT
+        ====================================================== */
+
+        window.addEventListener("scroll", () => {
+
+            const nav =
+                document.querySelector("nav");
+
+            if (window.scrollY > 40) {
+
+                nav.style.background =
+                    "rgba(7,10,15,.88)";
+
+                nav.style.boxShadow =
+                    "0 15px 40px rgba(0,0,0,.18)";
+
+            } else {
+
+                nav.style.background =
+                    "rgba(10,13,20,.72)";
+
+                nav.style.boxShadow = "none";
+
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>
