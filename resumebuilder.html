@@ -16,13 +16,7 @@
                         mono: ['"JetBrains Mono"', 'monospace'],
                     },
                     colors: {
-                        ink: {
-                            950: '#0A0E1A',
-                            900: '#0F1424',
-                            800: '#161C30',
-                            700: '#1E2540',
-                            600: '#2A3352',
-                        }
+                        ink: { 950: '#0A0E1A', 900: '#0F1424', 800: '#161C30', 700: '#1E2540', 600: '#2A3352' }
                     }
                 }
             }
@@ -34,48 +28,35 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-        :root {
-            --accent: 109,93,246;
-            --accent-hex: #6D5DF6;
-        }
+        :root { --accent: 109,93,246; --accent-hex: #6D5DF6; }
         body { font-family: 'Inter', sans-serif; }
-
         .bg-accent { background-color: var(--accent-hex); }
         .text-accent { color: var(--accent-hex); }
         .border-accent { border-color: var(--accent-hex); }
-        .ring-accent { box-shadow: 0 0 0 3px rgba(var(--accent), 0.25); }
         .bg-accent-soft { background-color: rgba(var(--accent), 0.12); }
         .bg-accent-softer { background-color: rgba(var(--accent), 0.06); }
-        .hover-accent-soft:hover { background-color: rgba(var(--accent), 0.14); }
-        .fill-accent-gradient { background: linear-gradient(90deg, var(--accent-hex), rgba(var(--accent),0.55)); }
         input:focus, textarea:focus, select:focus { border-color: var(--accent-hex) !important; box-shadow: 0 0 0 3px rgba(var(--accent), 0.15); }
-
         .glass { background: rgba(10, 14, 26, 0.82); backdrop-filter: blur(14px); }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .font-display { font-family: 'Fraunces', serif; }
         .font-mono-ui { font-family: 'JetBrains Mono', monospace; }
-
         .paper-shadow { box-shadow: 0 1px 2px rgba(0,0,0,0.35), 0 20px 45px -20px rgba(0,0,0,0.65); }
-
         .thumb-card { position: relative; }
         .thumb-fold { position: absolute; top: 0; right: 0; width: 0; height: 0; border-style: solid; border-width: 0 14px 14px 0; border-color: transparent rgba(255,255,255,0.08) transparent transparent; }
-
         ::selection { background: var(--accent-hex); color: white; }
     </style>
 </head>
 <body class="bg-ink-950 text-slate-100 min-h-screen antialiased">
 
-    <!-- Top Navigation -->
     <nav class="sticky top-0 z-50 border-b border-white/[0.06] glass">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-md bg-accent-soft border border-accent/20 flex items-center justify-center text-accent">
+                <div class="w-8 h-8 rounded-md bg-accent-soft border border-accent/20 flex items-center justify-center">
                     <i data-lucide="scroll-text" class="w-4 h-4 text-accent"></i>
                 </div>
                 <span class="font-display font-semibold text-xl tracking-tight text-slate-50">ResuSync <span class="text-accent italic font-normal">Studio</span></span>
             </div>
-
             <div id="nav-user-controls" class="hidden items-center gap-4">
                 <span id="user-email-display" class="font-mono-ui text-[11px] text-slate-400 border border-white/10 bg-white/[0.03] px-3 py-1.5 rounded-full"></span>
                 <button onclick="handleSignOut()" class="text-xs text-slate-400 hover:text-rose-400 flex items-center gap-1.5 transition">
@@ -85,22 +66,19 @@
         </div>
     </nav>
 
-    <!-- App Shell -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        <!-- AUTH SCREEN -->
+        <!-- AUTH -->
         <div id="auth-screen" class="max-w-md mx-auto my-12">
             <div class="bg-ink-900 border border-white/[0.07] p-8 rounded-2xl shadow-2xl">
                 <div class="text-center mb-8">
                     <h2 class="font-display text-2xl font-semibold text-slate-50">Welcome back</h2>
                     <p class="text-sm text-slate-400 mt-1.5">Sign in to build a resume that actually gets read.</p>
                 </div>
-
                 <div class="flex bg-ink-950 p-1 rounded-xl border border-white/[0.07] mb-6">
                     <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-accent-soft text-accent border border-accent/25 transition">Log in</button>
                     <button id="tab-signup" onclick="switchAuthTab('signup')" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition">Register</button>
                 </div>
-
                 <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Email address</label>
@@ -116,13 +94,11 @@
                             <input id="auth-password" type="password" required placeholder="••••••••" class="w-full bg-ink-950 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition">
                         </div>
                     </div>
-
                     <button type="submit" id="auth-submit-btn" class="w-full bg-accent text-white font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2 mt-2 hover:opacity-90">
                         <span>Sign in</span>
                         <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </button>
                 </form>
-
                 <p id="auth-error" class="text-rose-400 text-xs mt-4 text-center min-h-[1rem]"></p>
             </div>
         </div>
@@ -130,12 +106,11 @@
         <!-- DASHBOARD -->
         <div id="dashboard-screen" class="hidden space-y-8">
 
-            <!-- Progress + Theme banner -->
             <div class="bg-ink-900 border border-white/[0.07] p-6 rounded-2xl relative overflow-hidden">
                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 relative z-10">
                     <div>
                         <h1 class="font-display text-xl font-semibold text-slate-50">Profile workspace</h1>
-                        <p class="text-xs text-slate-400 mt-1">Fill in the required fields to unlock live rendering, template switching, and ATS analysis.</p>
+                        <p class="text-xs text-slate-400 mt-1">Fill the required fields to unlock live rendering, and add as many experience, project, education, certification, and achievement entries as you need.</p>
                     </div>
                     <div class="flex items-center gap-6">
                         <div>
@@ -148,7 +123,7 @@
                     </div>
                 </div>
                 <div class="w-full bg-ink-950 h-1.5 rounded-full overflow-hidden mt-5 border border-white/[0.06]">
-                    <div id="progress-bar" class="fill-accent-gradient h-full transition-all duration-500 w-0"></div>
+                    <div id="progress-bar" class="h-full transition-all duration-500 w-0" style="background:linear-gradient(90deg,var(--accent-hex),rgba(var(--accent),0.5));"></div>
                 </div>
             </div>
 
@@ -157,104 +132,86 @@
                 <!-- LEFT: Editor -->
                 <div class="lg:col-span-5 space-y-6">
 
-                    <div class="bg-ink-900 border border-white/[0.07] rounded-2xl p-6 space-y-6">
+                    <!-- Personal -->
+                    <div class="bg-ink-900 border border-white/[0.07] rounded-2xl p-6 space-y-4">
                         <h2 class="font-semibold text-slate-200 border-b border-white/[0.07] pb-3 flex items-center gap-2">
                             <i data-lucide="user-round" class="w-4 h-4 text-accent"></i> Personal information
                         </h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div><label class="block text-xs text-slate-400 mb-1">Full name *</label><input id="p-name" oninput="handleInput()" placeholder="Jane Doe" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></div>
+                            <div><label class="block text-xs text-slate-400 mb-1">Target job title *</label><input id="p-title" oninput="handleInput()" placeholder="Senior Software Engineer" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div><label class="block text-xs text-slate-400 mb-1">Email *</label><input id="p-email" oninput="handleInput()" placeholder="jane@domain.com" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></div>
+                            <div><label class="block text-xs text-slate-400 mb-1">Phone *</label><input id="p-phone" oninput="handleInput()" placeholder="+1 (555) 000-0000" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></div>
+                        </div>
+                        <div><label class="block text-xs text-slate-400 mb-1">Location *</label><input id="p-location" oninput="handleInput()" placeholder="San Francisco, CA" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></div>
 
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs text-slate-400 mb-1">Full name *</label>
-                                    <input id="p-name" oninput="handleInput()" placeholder="Jane Doe" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-slate-400 mb-1">Target job title *</label>
-                                    <input id="p-title" oninput="handleInput()" placeholder="Senior Software Engineer" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs text-slate-400 mb-1">Email *</label>
-                                    <input id="p-email" oninput="handleInput()" placeholder="jane@domain.com" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-slate-400 mb-1">Phone *</label>
-                                    <input id="p-phone" oninput="handleInput()" placeholder="+1 (555) 000-0000" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1">Location *</label>
-                                <input id="p-location" oninput="handleInput()" placeholder="San Francisco, CA" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
-                            </div>
-
-                            <div class="pt-1 border-t border-white/[0.06]">
-                                <p class="font-mono-ui text-[10px] uppercase tracking-widest text-slate-500 mb-2 mt-3">Links (optional)</p>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    <div>
-                                        <label class="block text-[11px] text-slate-500 mb-1">LinkedIn</label>
-                                        <input id="p-linkedin" oninput="handleInput()" placeholder="linkedin.com/in/jane" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2 text-xs focus:outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[11px] text-slate-500 mb-1">GitHub</label>
-                                        <input id="p-github" oninput="handleInput()" placeholder="github.com/jane" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2 text-xs focus:outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[11px] text-slate-500 mb-1">Portfolio</label>
-                                        <input id="p-portfolio" oninput="handleInput()" placeholder="jane.dev" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2 text-xs focus:outline-none">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1">Professional summary *</label>
-                                <textarea id="p-summary" oninput="handleInput()" rows="3" placeholder="Results-driven professional with 5+ years experience scaling cloud platforms..." class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></textarea>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1">Key skills, comma separated *</label>
-                                <input id="p-skills" oninput="handleInput()" placeholder="JavaScript, React, Node.js, PostgreSQL, Docker, AWS" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1">Work experience *</label>
-                                <textarea id="p-experience" oninput="handleInput()" rows="4" placeholder="Tech Lead @ Acme Corp (2021 - Present)&#10;• Led cross-functional team of 8 engineers&#10;• Reduced latency by 40% using Redis caching" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></textarea>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1">Projects (optional)</label>
-                                <textarea id="p-projects" oninput="handleInput()" rows="3" placeholder="Resume Sync Engine — React, Supabase&#10;• Built a live-preview resume builder used by 2k+ job seekers" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></textarea>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs text-slate-400 mb-1">Certifications (optional)</label>
-                                    <textarea id="p-certifications" oninput="handleInput()" rows="2" placeholder="AWS Certified Solutions Architect (2023)" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-xs focus:outline-none"></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-slate-400 mb-1">Achievements (optional)</label>
-                                    <textarea id="p-achievements" oninput="handleInput()" rows="2" placeholder="1st place, Acme Hackathon 2022" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-xs focus:outline-none"></textarea>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1">Education *</label>
-                                <input id="p-education" oninput="handleInput()" placeholder="B.S. in Computer Science, Stanford University" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
+                        <div class="pt-1 border-t border-white/[0.06]">
+                            <p class="font-mono-ui text-[10px] uppercase tracking-widest text-slate-500 mb-2 mt-3">Links (optional)</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div><label class="block text-[11px] text-slate-500 mb-1">LinkedIn</label><input id="p-linkedin" oninput="handleInput()" placeholder="linkedin.com/in/jane" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2 text-xs focus:outline-none"></div>
+                                <div><label class="block text-[11px] text-slate-500 mb-1">GitHub</label><input id="p-github" oninput="handleInput()" placeholder="github.com/jane" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2 text-xs focus:outline-none"></div>
+                                <div><label class="block text-[11px] text-slate-500 mb-1">Portfolio</label><input id="p-portfolio" oninput="handleInput()" placeholder="jane.dev" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2 text-xs focus:outline-none"></div>
                             </div>
                         </div>
+
+                        <div><label class="block text-xs text-slate-400 mb-1">Professional summary *</label><textarea id="p-summary" oninput="handleInput()" rows="3" placeholder="Results-driven professional with 5+ years experience scaling cloud platforms..." class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></textarea></div>
+                        <div><label class="block text-xs text-slate-400 mb-1">Key skills, comma separated *</label><input id="p-skills" oninput="handleInput()" placeholder="JavaScript, React, Node.js, PostgreSQL, Docker, AWS" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></div>
 
                         <button onclick="saveProfileToDatabase()" class="w-full bg-white/[0.04] hover:bg-white/[0.07] text-accent border border-accent/25 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition">
                             <i data-lucide="save" class="w-4 h-4"></i> Save profile to database
                         </button>
                     </div>
 
+                    <!-- Experience -->
+                    <div class="bg-ink-900 border border-white/[0.07] rounded-2xl p-6 space-y-3">
+                        <div class="flex items-center justify-between border-b border-white/[0.07] pb-3">
+                            <h2 class="font-semibold text-slate-200 flex items-center gap-2"><i data-lucide="briefcase" class="w-4 h-4 text-accent"></i> Work experience *</h2>
+                            <button onclick="addEntry('experience')" class="text-xs font-semibold text-accent flex items-center gap-1 hover:opacity-80"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add role</button>
+                        </div>
+                        <div id="list-experience"></div>
+                    </div>
+
+                    <!-- Projects -->
+                    <div class="bg-ink-900 border border-white/[0.07] rounded-2xl p-6 space-y-3">
+                        <div class="flex items-center justify-between border-b border-white/[0.07] pb-3">
+                            <h2 class="font-semibold text-slate-200 flex items-center gap-2"><i data-lucide="folder-git-2" class="w-4 h-4 text-accent"></i> Projects</h2>
+                            <button onclick="addEntry('projects')" class="text-xs font-semibold text-accent flex items-center gap-1 hover:opacity-80"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add project</button>
+                        </div>
+                        <div id="list-projects"></div>
+                    </div>
+
+                    <!-- Education -->
+                    <div class="bg-ink-900 border border-white/[0.07] rounded-2xl p-6 space-y-3">
+                        <div class="flex items-center justify-between border-b border-white/[0.07] pb-3">
+                            <h2 class="font-semibold text-slate-200 flex items-center gap-2"><i data-lucide="graduation-cap" class="w-4 h-4 text-accent"></i> Education *</h2>
+                            <button onclick="addEntry('education')" class="text-xs font-semibold text-accent flex items-center gap-1 hover:opacity-80"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add school</button>
+                        </div>
+                        <div id="list-education"></div>
+                    </div>
+
+                    <!-- Certifications -->
+                    <div class="bg-ink-900 border border-white/[0.07] rounded-2xl p-6 space-y-3">
+                        <div class="flex items-center justify-between border-b border-white/[0.07] pb-3">
+                            <h2 class="font-semibold text-slate-200 flex items-center gap-2"><i data-lucide="badge-check" class="w-4 h-4 text-accent"></i> Certifications</h2>
+                            <button onclick="addEntry('certifications')" class="text-xs font-semibold text-accent flex items-center gap-1 hover:opacity-80"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add certification</button>
+                        </div>
+                        <div id="list-certifications"></div>
+                    </div>
+
+                    <!-- Achievements -->
+                    <div class="bg-ink-900 border border-white/[0.07] rounded-2xl p-6 space-y-3">
+                        <div class="flex items-center justify-between border-b border-white/[0.07] pb-3">
+                            <h2 class="font-semibold text-slate-200 flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4 text-accent"></i> Achievements</h2>
+                            <button onclick="addEntry('achievements')" class="text-xs font-semibold text-accent flex items-center gap-1 hover:opacity-80"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Add achievement</button>
+                        </div>
+                        <div id="list-achievements"></div>
+                    </div>
+
                     <!-- Custom Resume Analyzer -->
                     <div class="bg-ink-900 border border-white/[0.07] rounded-2xl p-6 space-y-4">
-                        <h2 class="font-semibold text-slate-200 flex items-center gap-2">
-                            <i data-lucide="file-up" class="w-4 h-4 text-accent"></i> Analyze an existing resume
-                        </h2>
+                        <h2 class="font-semibold text-slate-200 flex items-center gap-2"><i data-lucide="file-up" class="w-4 h-4 text-accent"></i> Analyze an existing resume</h2>
                         <p class="text-xs text-slate-400">Paste plain text from any resume to score its ATS compatibility independently.</p>
                         <textarea id="custom-resume-input" rows="4" placeholder="Paste resume text here for instant analysis..." class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></textarea>
                         <button onclick="analyzeCustomResume()" class="w-full bg-white/[0.04] hover:bg-white/[0.07] text-slate-200 border border-white/10 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition">
@@ -267,48 +224,36 @@
                 <div class="lg:col-span-7 space-y-6">
 
                     <div id="locked-state" class="bg-ink-900 border border-white/[0.07] rounded-2xl p-10 text-center space-y-4">
-                        <div class="w-12 h-12 bg-white/[0.04] border border-white/10 rounded-full flex items-center justify-center mx-auto text-slate-400">
-                            <i data-lucide="lock" class="w-6 h-6"></i>
-                        </div>
+                        <div class="w-12 h-12 bg-white/[0.04] border border-white/10 rounded-full flex items-center justify-center mx-auto text-slate-400"><i data-lucide="lock" class="w-6 h-6"></i></div>
                         <div>
                             <h3 class="font-display text-lg font-semibold text-slate-200">Live preview locked</h3>
-                            <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1">Complete the required fields marked with * on the left to unlock template rendering, PDF export, and ATS analysis.</p>
+                            <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1">Complete the fields marked with * (personal info, summary, skills, at least one role, at least one school) to unlock rendering, PDF export, and ATS analysis.</p>
                         </div>
                     </div>
 
                     <div id="unlocked-state" class="hidden space-y-6">
 
-                        <!-- Template thumbnail picker -->
                         <div class="bg-ink-900 border border-white/[0.07] p-5 rounded-2xl">
                             <p class="font-mono-ui text-[10px] uppercase tracking-widest text-slate-500 mb-3">Choose a layout</p>
                             <div id="template-picker" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
                         </div>
 
-                        <!-- Toolbar -->
                         <div class="bg-ink-900 border border-white/[0.07] p-4 rounded-2xl flex flex-wrap gap-3 items-center justify-end">
-                            <button onclick="runATSAnalysis()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-                                <i data-lucide="shield-check" class="w-4 h-4"></i> Run ATS check
-                            </button>
-                            <button onclick="downloadPDF()" class="bg-accent text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition hover:opacity-90">
-                                <i data-lucide="download" class="w-4 h-4"></i> Export PDF
-                            </button>
+                            <button onclick="runATSAnalysis()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"><i data-lucide="shield-check" class="w-4 h-4"></i> Run ATS check</button>
+                            <button onclick="downloadPDF()" class="bg-accent text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition hover:opacity-90"><i data-lucide="download" class="w-4 h-4"></i> Export PDF</button>
                         </div>
 
-                        <!-- ATS scorecard -->
                         <div id="ats-results-box" class="hidden bg-ink-900 border border-white/[0.07] p-5 rounded-2xl space-y-3">
                             <div class="flex items-center justify-between">
                                 <span class="font-mono-ui text-[10px] font-semibold text-slate-400 uppercase tracking-widest">ATS optimization index</span>
                                 <span id="ats-score-badge" class="text-lg font-black px-3 py-1 bg-accent-soft text-accent rounded-full border border-accent/20">0 / 100</span>
                             </div>
                             <div class="border-t border-white/[0.06] pt-3">
-                                <h4 class="text-xs font-semibold text-slate-300 mb-2 flex items-center gap-1.5">
-                                    <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-400"></i> System recommendations
-                                </h4>
+                                <h4 class="text-xs font-semibold text-slate-300 mb-2 flex items-center gap-1.5"><i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-400"></i> System recommendations</h4>
                                 <ul id="ats-recommendations-list" class="text-xs text-slate-400 space-y-1.5 list-disc list-inside"></ul>
                             </div>
                         </div>
 
-                        <!-- Live paper render -->
                         <div class="bg-ink-950 p-3 rounded-2xl border border-white/[0.07] overflow-x-auto hide-scrollbar">
                             <div id="resume-document" class="paper-shadow bg-white text-slate-900 min-h-[700px] w-full max-w-[680px] mx-auto text-sm transition-all"></div>
                         </div>
@@ -316,7 +261,6 @@
                     </div>
 
                 </div>
-
             </div>
         </div>
 
@@ -330,8 +274,21 @@
         let activeAuthMode = 'login';
         let currentUser = null;
         let activeTemplate = 'modern';
+        let idCounter = 0;
+        function newId() { return 'e' + (++idCounter); }
 
-        const REQUIRED_FIELDS = ['p-name', 'p-title', 'p-email', 'p-phone', 'p-location', 'p-summary', 'p-skills', 'p-experience', 'p-education'];
+        // ---------- Repeatable section state ----------
+        let state = { experience: [], projects: [], education: [], certifications: [], achievements: [] };
+
+        const DEFAULTS = {
+            experience: { company: '', role: '', location: '', start: '', end: '', current: false, bullets: '' },
+            projects: { title: '', organization: '', role: '', start: '', end: '', current: false, link: '', tech: '', bullets: '' },
+            education: { institution: '', degree: '', field: '', location: '', start: '', end: '', current: false, gpa: '', bullets: '' },
+            certifications: { name: '', issuer: '', date: '', credentialId: '', link: '' },
+            achievements: { title: '', issuer: '', date: '', description: '' },
+        };
+
+        const CORE_FIELDS = ['p-name', 'p-title', 'p-email', 'p-phone', 'p-location', 'p-summary', 'p-skills'];
 
         const ACCENTS = [
             { name: 'Violet', hex: '#6D5DF6', rgb: '109,93,246' },
@@ -351,44 +308,38 @@
 
         lucide.createIcons();
 
-        // ---------- Accent theme ----------
+        // ---------- Escaping ----------
+        function esc(str) { const d = document.createElement('div'); d.innerText = str || ''; return d.innerHTML; }
+        function escAttr(str) { return esc(str).replace(/"/g, '&quot;'); }
+
+        // ---------- Accent + template pickers ----------
         function renderAccentSwatches() {
-            const wrap = document.getElementById('accent-swatches');
-            wrap.innerHTML = ACCENTS.map(a => `
-                <button title="${a.name}" onclick="setAccent('${a.hex}','${a.rgb}')"
-                    class="w-6 h-6 rounded-full border-2 border-white/20 hover:scale-110 transition"
-                    style="background:${a.hex}"></button>
+            document.getElementById('accent-swatches').innerHTML = ACCENTS.map(a => `
+                <button title="${a.name}" onclick="setAccent('${a.hex}','${a.rgb}')" class="w-6 h-6 rounded-full border-2 border-white/20 hover:scale-110 transition" style="background:${a.hex}"></button>
             `).join('');
         }
         function setAccent(hex, rgb) {
             document.documentElement.style.setProperty('--accent-hex', hex);
             document.documentElement.style.setProperty('--accent', rgb);
         }
-
-        // ---------- Template thumbnails ----------
         function renderTemplatePicker() {
-            const wrap = document.getElementById('template-picker');
             const thumbs = {
                 modern: `<div class="flex h-full gap-[3px]"><div class="w-[30%] bg-current opacity-20 rounded-sm"></div><div class="flex-1 space-y-[3px]"><div class="h-[6px] bg-current opacity-30 rounded-sm w-3/4"></div><div class="h-[3px] bg-current opacity-15 rounded-sm"></div><div class="h-[3px] bg-current opacity-15 rounded-sm"></div><div class="h-[3px] bg-current opacity-15 rounded-sm w-5/6"></div></div></div>`,
                 executive: `<div class="h-full flex flex-col items-center gap-[4px] pt-[4px]"><div class="h-[6px] w-1/2 bg-current opacity-30 rounded-sm"></div><div class="h-[2px] w-2/3 bg-current opacity-15 rounded-sm"></div><div class="w-full h-px bg-current opacity-20 my-[2px]"></div><div class="h-[3px] w-full bg-current opacity-15 rounded-sm"></div><div class="h-[3px] w-full bg-current opacity-15 rounded-sm"></div><div class="h-[3px] w-5/6 bg-current opacity-15 rounded-sm"></div></div>`,
                 minimal: `<div class="flex h-full gap-[3px]"><div class="w-[25%] space-y-[3px]"><div class="h-[3px] bg-current opacity-25 rounded-sm"></div><div class="h-[3px] bg-current opacity-15 rounded-sm"></div></div><div class="w-[45%] space-y-[3px]"><div class="h-[3px] bg-current opacity-25 rounded-sm"></div><div class="h-[3px] bg-current opacity-15 rounded-sm"></div><div class="h-[3px] bg-current opacity-15 rounded-sm w-2/3"></div></div><div class="w-[25%] space-y-[3px]"><div class="h-[3px] bg-current opacity-25 rounded-sm"></div><div class="h-[3px] bg-current opacity-15 rounded-sm"></div></div></div>`,
                 overleaf: `<div class="h-full flex flex-col items-center gap-[3px] pt-[3px]"><div class="h-[5px] w-2/3 bg-current opacity-35 rounded-sm"></div><div class="h-[2px] w-1/2 bg-current opacity-15 rounded-sm"></div><div class="w-full h-px bg-current opacity-25 my-[2px]"></div><div class="flex justify-between w-full"><div class="h-[2px] w-1/3 bg-current opacity-25 rounded-sm"></div><div class="h-[2px] w-1/5 bg-current opacity-15 rounded-sm"></div></div><div class="h-[2px] w-full bg-current opacity-15 rounded-sm"></div><div class="h-[2px] w-5/6 bg-current opacity-15 rounded-sm"></div></div>`,
             };
-            wrap.innerHTML = TEMPLATES.map(t => `
-                <button onclick="selectTemplate('${t.id}')" data-template="${t.id}"
-                    class="thumb-card text-left border rounded-xl p-3 transition ${activeTemplate === t.id ? 'border-accent bg-accent-softer' : 'border-white/10 bg-white/[0.02] hover:border-white/25'}">
+            document.getElementById('template-picker').innerHTML = TEMPLATES.map(t => `
+                <button onclick="selectTemplate('${t.id}')" class="thumb-card text-left border rounded-xl p-3 transition ${activeTemplate === t.id ? 'border-accent bg-accent-softer' : 'border-white/10 bg-white/[0.02] hover:border-white/25'}">
                     <div class="thumb-fold"></div>
                     <div class="w-full h-16 rounded-md bg-ink-950 border border-white/10 p-2 text-slate-300 mb-2">${thumbs[t.id]}</div>
                     <p class="text-xs font-semibold ${activeTemplate === t.id ? 'text-accent' : 'text-slate-200'}">${t.label}</p>
                     <p class="text-[10px] text-slate-500 font-mono-ui">${t.desc}</p>
                 </button>
             `).join('');
+            lucide.createIcons();
         }
-        function selectTemplate(id) {
-            activeTemplate = id;
-            renderTemplatePicker();
-            renderTemplate();
-        }
+        function selectTemplate(id) { activeTemplate = id; renderTemplatePicker(); renderTemplate(); }
 
         // ---------- Auth ----------
         function switchAuthTab(mode) {
@@ -440,23 +391,151 @@
                 document.getElementById('user-email-display').innerText = currentUser.email;
                 renderAccentSwatches();
                 renderTemplatePicker();
+                ['experience', 'projects', 'education', 'certifications', 'achievements'].forEach(renderEntries);
                 fetchProfileData();
             }
         }
 
-        async function handleSignOut() {
-            await supabaseClient.auth.signOut();
-            window.location.reload();
+        async function handleSignOut() { await supabaseClient.auth.signOut(); window.location.reload(); }
+
+        // ---------- Entry field templates ----------
+        function fi(section, id, field, label, value, placeholder, span2) {
+            return `<div class="${span2 ? 'col-span-2' : ''}">
+                <label class="block text-[10px] text-slate-500 mb-1">${label}</label>
+                <input value="${escAttr(value)}" placeholder="${placeholder || ''}" oninput="updateField('${section}','${id}','${field}',this.value)" class="w-full bg-ink-900 border border-white/10 rounded-lg p-2 text-xs focus:outline-none">
+            </div>`;
+        }
+        function ta(section, id, field, label, value, placeholder) {
+            return `<div>
+                <label class="block text-[10px] text-slate-500 mb-1">${label}</label>
+                <textarea rows="2" placeholder="${placeholder || ''}" oninput="updateField('${section}','${id}','${field}',this.value)" class="w-full bg-ink-900 border border-white/10 rounded-lg p-2 text-xs focus:outline-none">${esc(value)}</textarea>
+            </div>`;
+        }
+        function removeBtn(section, id) {
+            return `<button onclick="removeEntry('${section}','${id}')" class="absolute top-3 right-3 text-slate-500 hover:text-rose-400" aria-label="Remove entry"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>`;
+        }
+        function currentToggle(section, id, checked, label) {
+            return `<label class="flex items-center gap-1.5 text-[10px] text-slate-400 mt-2">
+                <input type="checkbox" ${checked ? 'checked' : ''} onchange="updateCurrent('${section}','${id}',this.checked)"> ${label}
+            </label>`;
+        }
+
+        const ENTRY_FORM_RENDERERS = {
+            experience: (e) => `<div class="relative border border-white/10 bg-ink-950 rounded-xl p-3 mb-3">
+                ${removeBtn('experience', e.id)}
+                <div class="grid grid-cols-2 gap-2 pr-6">
+                    ${fi('experience', e.id, 'role', 'Role / title', e.role, 'Tech Lead')}
+                    ${fi('experience', e.id, 'company', 'Company', e.company, 'Acme Corp')}
+                    ${fi('experience', e.id, 'location', 'Location', e.location, 'Remote')}
+                    ${fi('experience', e.id, 'start', 'Start date', e.start, 'Jan 2021')}
+                    ${!e.current ? fi('experience', e.id, 'end', 'End date', e.end, 'Mar 2023') : ''}
+                </div>
+                ${currentToggle('experience', e.id, e.current, 'Currently working here')}
+                <div class="mt-2">${ta('experience', e.id, 'bullets', 'Highlights, one per line', e.bullets, '• Led team of 8 engineers\\n• Cut latency by 40%')}</div>
+            </div>`,
+            projects: (e) => `<div class="relative border border-white/10 bg-ink-950 rounded-xl p-3 mb-3">
+                ${removeBtn('projects', e.id)}
+                <div class="grid grid-cols-2 gap-2 pr-6">
+                    ${fi('projects', e.id, 'title', 'Project title', e.title, 'Resume Sync Engine', true)}
+                    ${fi('projects', e.id, 'organization', 'Organization / client', e.organization, 'Personal, Acme Corp, Freelance')}
+                    ${fi('projects', e.id, 'role', 'Your role', e.role, 'Lead developer')}
+                    ${fi('projects', e.id, 'start', 'Start date', e.start, 'Jun 2023')}
+                    ${!e.current ? fi('projects', e.id, 'end', 'End date', e.end, 'Aug 2023') : ''}
+                    ${fi('projects', e.id, 'tech', 'Tech stack', e.tech, 'React, Supabase, Tailwind')}
+                    ${fi('projects', e.id, 'link', 'Link', e.link, 'github.com/jane/project', true)}
+                </div>
+                ${currentToggle('projects', e.id, e.current, 'Ongoing project')}
+                <div class="mt-2">${ta('projects', e.id, 'bullets', 'Highlights, one per line', e.bullets, '• Built a live-preview builder used by 2k+ job seekers')}</div>
+            </div>`,
+            education: (e) => `<div class="relative border border-white/10 bg-ink-950 rounded-xl p-3 mb-3">
+                ${removeBtn('education', e.id)}
+                <div class="grid grid-cols-2 gap-2 pr-6">
+                    ${fi('education', e.id, 'institution', 'Institution', e.institution, 'Stanford University', true)}
+                    ${fi('education', e.id, 'degree', 'Degree', e.degree, 'B.S. Computer Science')}
+                    ${fi('education', e.id, 'field', 'Field of study', e.field, 'Computer Science')}
+                    ${fi('education', e.id, 'location', 'Location', e.location, 'Stanford, CA')}
+                    ${fi('education', e.id, 'gpa', 'GPA / score', e.gpa, '3.8 / 4.0')}
+                    ${fi('education', e.id, 'start', 'Start date', e.start, 'Aug 2016')}
+                    ${!e.current ? fi('education', e.id, 'end', 'End date', e.end, 'May 2020') : ''}
+                </div>
+                ${currentToggle('education', e.id, e.current, 'Currently studying here')}
+                <div class="mt-2">${ta('education', e.id, 'bullets', 'Honors, coursework, activities', e.bullets, "Dean's list, 2019\\nRelevant coursework: Algorithms, Distributed Systems")}</div>
+            </div>`,
+            certifications: (e) => `<div class="relative border border-white/10 bg-ink-950 rounded-xl p-3 mb-3">
+                ${removeBtn('certifications', e.id)}
+                <div class="grid grid-cols-2 gap-2 pr-6">
+                    ${fi('certifications', e.id, 'name', 'Certification name', e.name, 'AWS Certified Solutions Architect', true)}
+                    ${fi('certifications', e.id, 'issuer', 'Issuing organization', e.issuer, 'Amazon Web Services')}
+                    ${fi('certifications', e.id, 'date', 'Date earned', e.date, 'Sep 2023')}
+                    ${fi('certifications', e.id, 'credentialId', 'Credential ID', e.credentialId, 'ABC123')}
+                    ${fi('certifications', e.id, 'link', 'Verification link', e.link, 'credly.com/badges/...')}
+                </div>
+            </div>`,
+            achievements: (e) => `<div class="relative border border-white/10 bg-ink-950 rounded-xl p-3 mb-3">
+                ${removeBtn('achievements', e.id)}
+                <div class="grid grid-cols-2 gap-2 pr-6">
+                    ${fi('achievements', e.id, 'title', 'Achievement title', e.title, '1st place, Acme Hackathon', true)}
+                    ${fi('achievements', e.id, 'issuer', 'Issuer / event', e.issuer, 'Acme Corp')}
+                    ${fi('achievements', e.id, 'date', 'Date', e.date, 'Nov 2022')}
+                </div>
+                <div class="mt-2">${ta('achievements', e.id, 'description', 'Description', e.description, 'Built a winning prototype in 24 hours across a 40-team field.')}</div>
+            </div>`,
+        };
+
+        const EMPTY_LABEL = {
+            experience: 'No roles yet — add your most recent job first.',
+            projects: 'No projects yet — great for showing applied work.',
+            education: 'No schools yet — add your highest degree first.',
+            certifications: 'No certifications yet.',
+            achievements: 'No achievements yet.',
+        };
+
+        function renderEntries(section) {
+            const container = document.getElementById('list-' + section);
+            const list = state[section];
+            container.innerHTML = list.length
+                ? list.map(ENTRY_FORM_RENDERERS[section]).join('')
+                : `<p class="text-xs text-slate-500 italic">${EMPTY_LABEL[section]}</p>`;
+            lucide.createIcons();
+        }
+
+        function addEntry(section) {
+            state[section].push({ id: newId(), ...DEFAULTS[section] });
+            renderEntries(section);
+            handleInput();
+        }
+        function removeEntry(section, id) {
+            state[section] = state[section].filter(e => e.id !== id);
+            renderEntries(section);
+            handleInput();
+        }
+        function updateField(section, id, field, value) {
+            const entry = state[section].find(e => e.id === id);
+            if (entry) entry[field] = value;
+            handleInput();
+        }
+        function updateCurrent(section, id, checked) {
+            const entry = state[section].find(e => e.id === id);
+            if (entry) entry.current = checked;
+            renderEntries(section);
+            handleInput();
         }
 
         // ---------- Progress ----------
+        function computeCompletion() {
+            let filled = 0;
+            CORE_FIELDS.forEach(id => { if (document.getElementById(id).value.trim() !== '') filled++; });
+            const hasExp = state.experience.some(e => e.company && e.role);
+            const hasEdu = state.education.some(e => e.institution && e.degree);
+            if (hasExp) filled++;
+            if (hasEdu) filled++;
+            return Math.round((filled / (CORE_FIELDS.length + 2)) * 100);
+        }
+
         function handleInput() {
-            let filledCount = 0;
-            REQUIRED_FIELDS.forEach(id => { if (document.getElementById(id).value.trim() !== '') filledCount++; });
-            const percentage = Math.round((filledCount / REQUIRED_FIELDS.length) * 100);
+            const percentage = computeCompletion();
             document.getElementById('progress-bar').style.width = `${percentage}%`;
             document.getElementById('completion-text').innerText = `${percentage}%`;
-
             const lockedState = document.getElementById('locked-state');
             const unlockedState = document.getElementById('unlocked-state');
             if (percentage === 100) {
@@ -479,17 +558,17 @@
                 email: document.getElementById('p-email').value,
                 phone: document.getElementById('p-phone').value,
                 location: document.getElementById('p-location').value,
-                summary: document.getElementById('p-summary').value,
-                skills: document.getElementById('p-skills').value.split(',').map(s => s.trim()).filter(Boolean),
-                experience: document.getElementById('p-experience').value,
-                projects: document.getElementById('p-projects').value,
-                certifications: document.getElementById('p-certifications').value,
-                achievements: document.getElementById('p-achievements').value,
-                education: document.getElementById('p-education').value,
                 linkedin: document.getElementById('p-linkedin').value,
                 github: document.getElementById('p-github').value,
                 portfolio: document.getElementById('p-portfolio').value,
-                completion_percentage: parseInt(document.getElementById('completion-text').innerText),
+                summary: document.getElementById('p-summary').value,
+                skills: document.getElementById('p-skills').value.split(',').map(s => s.trim()).filter(Boolean),
+                experience: state.experience,
+                projects: state.projects,
+                education: state.education,
+                certifications: state.certifications,
+                achievements: state.achievements,
+                completion_percentage: computeCompletion(),
                 updated_at: new Date()
             };
             const { error } = await supabaseClient.from('profiles').upsert(profilePayload);
@@ -506,25 +585,79 @@
                 if (data.email) document.getElementById('p-email').value = data.email;
                 if (data.phone) document.getElementById('p-phone').value = data.phone;
                 if (data.location) document.getElementById('p-location').value = data.location;
-                if (data.summary) document.getElementById('p-summary').value = data.summary;
-                if (data.skills) document.getElementById('p-skills').value = data.skills.join(', ');
-                if (data.experience) document.getElementById('p-experience').value = data.experience;
-                if (data.projects) document.getElementById('p-projects').value = data.projects;
-                if (data.certifications) document.getElementById('p-certifications').value = data.certifications;
-                if (data.achievements) document.getElementById('p-achievements').value = data.achievements;
-                if (data.education) document.getElementById('p-education').value = data.education;
                 if (data.linkedin) document.getElementById('p-linkedin').value = data.linkedin;
                 if (data.github) document.getElementById('p-github').value = data.github;
                 if (data.portfolio) document.getElementById('p-portfolio').value = data.portfolio;
+                if (data.summary) document.getElementById('p-summary').value = data.summary;
+                if (data.skills) document.getElementById('p-skills').value = data.skills.join(', ');
+                ['experience', 'projects', 'education', 'certifications', 'achievements'].forEach(section => {
+                    if (Array.isArray(data[section]) && data[section].length) {
+                        state[section] = data[section].map(e => ({ id: e.id || newId(), ...DEFAULTS[section], ...e }));
+                    }
+                    renderEntries(section);
+                });
                 handleInput();
             }
         }
 
-        // ---------- Data collection ----------
-        function esc(str) {
-            const d = document.createElement('div');
-            d.innerText = str || '';
-            return d.innerHTML;
+        // ---------- Entry -> preview HTML ----------
+        function formatDate(e) {
+            const start = e.start || '';
+            const end = e.current ? 'Present' : (e.end || '');
+            if (start && end) return `${start} – ${end}`;
+            return start || end || '';
+        }
+        function entryBlock(primary, secondary, dateStr, bullets) {
+            if (!primary) return '';
+            return `<div style="margin-bottom:11px;">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">
+                    <span style="font-weight:600;">${primary}</span>
+                    ${dateStr ? `<span style="font-size:9.5px;color:#64748b;white-space:nowrap;">${esc(dateStr)}</span>` : ''}
+                </div>
+                ${secondary ? `<div style="font-size:10.5px;font-style:italic;color:#475569;margin-top:1px;">${secondary}</div>` : ''}
+                ${bullets ? `<div style="font-size:11px;line-height:1.6;white-space:pre-line;margin-top:3px;">${esc(bullets)}</div>` : ''}
+            </div>`;
+        }
+        function renderExperienceHTML(list) {
+            return list.filter(e => e.company || e.role).map(e => {
+                const primary = esc([e.role, e.company].filter(Boolean).join(' — '));
+                const secondary = e.location ? esc(e.location) : '';
+                return entryBlock(primary, secondary, formatDate(e), e.bullets);
+            }).join('');
+        }
+        function renderProjectsHTML(list) {
+            return list.filter(p => p.title).map(p => {
+                const primary = esc(p.title) + (p.link ? ` <span style="font-weight:400;color:#64748b;">(${esc(p.link)})</span>` : '');
+                const secondary = esc([p.organization, p.role, p.tech].filter(Boolean).join(' · '));
+                return entryBlock(primary, secondary, formatDate(p), p.bullets);
+            }).join('');
+        }
+        function renderEducationHTML(list) {
+            return list.filter(e => e.institution || e.degree).map(e => {
+                const primary = esc([e.degree, e.field].filter(Boolean).join(', ')) || esc(e.institution);
+                const secondary = esc([e.institution, e.location, e.gpa ? `GPA: ${e.gpa}` : ''].filter(Boolean).join(' · '));
+                return entryBlock(primary, secondary, formatDate(e), e.bullets);
+            }).join('');
+        }
+        function renderCertificationsHTML(list) {
+            return list.filter(c => c.name).map(c => {
+                const secondary = esc([c.issuer, c.credentialId ? `ID: ${c.credentialId}` : '', c.link].filter(Boolean).join(' · '));
+                return entryBlock(esc(c.name), secondary, esc(c.date), '');
+            }).join('');
+        }
+        function renderAchievementsHTML(list) {
+            return list.filter(a => a.title).map(a => entryBlock(esc(a.title), esc(a.issuer), esc(a.date), a.description)).join('');
+        }
+
+        function contactItems(d) {
+            const items = [];
+            if (d.location) items.push(d.location);
+            if (d.phone) items.push(d.phone);
+            if (d.email) items.push(d.email);
+            if (d.linkedin) items.push(d.linkedin);
+            if (d.github) items.push(d.github);
+            if (d.portfolio) items.push(d.portfolio);
+            return items;
         }
 
         function collectData() {
@@ -539,40 +672,21 @@
                 portfolio: esc(document.getElementById('p-portfolio').value),
                 summary: esc(document.getElementById('p-summary').value),
                 skills: document.getElementById('p-skills').value.split(',').map(s => s.trim()).filter(Boolean),
-                experience: esc(document.getElementById('p-experience').value),
-                projects: esc(document.getElementById('p-projects').value),
-                certifications: esc(document.getElementById('p-certifications').value),
-                achievements: esc(document.getElementById('p-achievements').value),
-                education: esc(document.getElementById('p-education').value),
+                experienceHTML: renderExperienceHTML(state.experience),
+                projectsHTML: renderProjectsHTML(state.projects),
+                educationHTML: renderEducationHTML(state.education),
+                certificationsHTML: renderCertificationsHTML(state.certifications),
+                achievementsHTML: renderAchievementsHTML(state.achievements),
             };
-        }
-
-        function contactItems(d, withLabels) {
-            const items = [];
-            if (d.location) items.push(d.location);
-            if (d.phone) items.push(d.phone);
-            if (d.email) items.push(d.email);
-            if (d.linkedin) items.push(withLabels ? `LinkedIn: ${d.linkedin}` : d.linkedin);
-            if (d.github) items.push(withLabels ? `GitHub: ${d.github}` : d.github);
-            if (d.portfolio) items.push(d.portfolio);
-            return items;
-        }
-
-        function block(title, content, cls) {
-            if (!content) return '';
-            return `<div class="${cls || ''}"><h3 class="section-h">${title}</h3>${content}</div>`;
         }
 
         // ---------- Template renderers ----------
         function renderModern(d) {
             const links = [d.linkedin, d.github, d.portfolio].filter(Boolean);
             return `
-            <style>
-                .rm-h3{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0f172a;margin-bottom:6px;padding-bottom:4px;border-bottom:1.5px solid var(--accent-hex,#6D5DF6);}
-                .rm-side h3{color:#fff;border-bottom-color:rgba(255,255,255,0.35);}
-            </style>
+            <style>.rm-h3{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0f172a;margin-bottom:6px;padding-bottom:4px;border-bottom:1.5px solid var(--accent-hex,#6D5DF6);}</style>
             <div style="display:grid;grid-template-columns:34% 66%;min-height:700px;">
-                <div class="rm-side" style="background:var(--accent-hex,#6D5DF6);color:#fff;padding:28px 20px;">
+                <div style="background:var(--accent-hex,#6D5DF6);color:#fff;padding:28px 20px;">
                     <h1 style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;line-height:1.15;">${d.name}</h1>
                     <p style="font-size:11px;opacity:.9;margin-top:4px;">${d.title}</p>
                     <div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div>
@@ -583,25 +697,25 @@
                         ${d.email ? `<div>${d.email}</div>` : ''}
                     </div>
                     ${links.length ? `<div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div><h3 style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Links</h3><div style="font-size:10.5px;line-height:1.9;opacity:.95;">${links.map(l => `<div>${l}</div>`).join('')}</div>` : ''}
-                    ${d.skills.length ? `<div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div><h3 style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Skills</h3><div style="display:flex;flex-wrap:wrap;gap:5px;">${d.skills.map(s => `<span style="font-size:9.5px;background:rgba(255,255,255,0.18);padding:3px 8px;border-radius:999px;">${s}</span>`).join('')}</div>` : ''}
-                    ${d.certifications ? `<div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div><h3 style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Certifications</h3><div style="font-size:10.5px;line-height:1.7;white-space:pre-line;opacity:.95;">${d.certifications}</div>` : ''}
-                    ${d.achievements ? `<div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div><h3 style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Achievements</h3><div style="font-size:10.5px;line-height:1.7;white-space:pre-line;opacity:.95;">${d.achievements}</div>` : ''}
+                    ${d.skills.length ? `<div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div><h3 style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Skills</h3><div style="display:flex;flex-wrap:wrap;gap:5px;">${d.skills.map(s => `<span style="font-size:9.5px;background:rgba(255,255,255,0.18);padding:3px 8px;border-radius:999px;">${esc(s)}</span>`).join('')}</div>` : ''}
+                    ${d.certificationsHTML ? `<div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div><h3 style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Certifications</h3><div style="font-size:10.5px;line-height:1.5;opacity:.95;">${d.certificationsHTML}</div>` : ''}
+                    ${d.achievementsHTML ? `<div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div><h3 style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Achievements</h3><div style="font-size:10.5px;line-height:1.5;opacity:.95;">${d.achievementsHTML}</div>` : ''}
                 </div>
                 <div style="padding:28px 24px;color:#1e293b;">
                     ${d.summary ? `<div style="margin-bottom:18px;"><h3 class="rm-h3">Summary</h3><p style="font-size:11.5px;line-height:1.6;color:#334155;">${d.summary}</p></div>` : ''}
-                    ${d.experience ? `<div style="margin-bottom:18px;"><h3 class="rm-h3">Experience</h3><div style="font-size:11.5px;line-height:1.65;white-space:pre-line;color:#334155;">${d.experience}</div></div>` : ''}
-                    ${d.projects ? `<div style="margin-bottom:18px;"><h3 class="rm-h3">Projects</h3><div style="font-size:11.5px;line-height:1.65;white-space:pre-line;color:#334155;">${d.projects}</div></div>` : ''}
-                    ${d.education ? `<div><h3 class="rm-h3">Education</h3><p style="font-size:11.5px;line-height:1.6;color:#334155;">${d.education}</p></div>` : ''}
+                    ${d.experienceHTML ? `<div style="margin-bottom:18px;"><h3 class="rm-h3">Experience</h3><div style="color:#334155;">${d.experienceHTML}</div></div>` : ''}
+                    ${d.projectsHTML ? `<div style="margin-bottom:18px;"><h3 class="rm-h3">Projects</h3><div style="color:#334155;">${d.projectsHTML}</div></div>` : ''}
+                    ${d.educationHTML ? `<div><h3 class="rm-h3">Education</h3><div style="color:#334155;">${d.educationHTML}</div></div>` : ''}
                 </div>
             </div>`;
         }
 
         function renderExecutive(d) {
-            const contact = contactItems(d, false).join('  •  ');
-            const sec = (title, content, mono) => content ? `
+            const contact = contactItems(d).join('  •  ');
+            const sec = (title, content) => content ? `
                 <div style="margin-bottom:16px;">
                     <h3 style="font-family:'Fraunces',serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #cbd5e1;padding-bottom:5px;margin-bottom:8px;color:#0f172a;">${title}</h3>
-                    <div style="font-size:11.5px;line-height:1.7;white-space:${mono ? 'pre-line' : 'normal'};color:#334155;font-family:'Fraunces',serif;">${content}</div>
+                    <div style="font-size:11.5px;line-height:1.7;color:#334155;font-family:'Fraunces',serif;">${content}</div>
                 </div>` : '';
             return `
             <div style="padding:36px 40px;color:#1e293b;">
@@ -610,13 +724,13 @@
                     <p style="font-family:'Fraunces',serif;font-style:italic;font-size:12.5px;color:var(--accent-hex,#6D5DF6);margin-top:4px;">${d.title}</p>
                     <p style="font-size:10.5px;color:#64748b;margin-top:6px;">${contact}</p>
                 </div>
-                ${sec('Summary', d.summary)}
-                ${sec('Professional experience', d.experience, true)}
-                ${sec('Projects', d.projects, true)}
-                ${d.skills.length ? sec('Core competencies', d.skills.join('  •  ')) : ''}
-                ${sec('Certifications', d.certifications, true)}
-                ${sec('Achievements', d.achievements, true)}
-                ${sec('Education', d.education)}
+                ${sec('Summary', `<p>${d.summary}</p>`)}
+                ${sec('Professional experience', d.experienceHTML)}
+                ${sec('Projects', d.projectsHTML)}
+                ${d.skills.length ? sec('Core competencies', `<p>${d.skills.map(esc).join('  •  ')}</p>`) : ''}
+                ${sec('Certifications', d.certificationsHTML)}
+                ${sec('Achievements', d.achievementsHTML)}
+                ${sec('Education', d.educationHTML)}
             </div>`;
         }
 
@@ -631,26 +745,26 @@
                 <div style="display:grid;grid-template-columns:26% 74%;gap:24px;">
                     <div style="border-right:1px solid #e2e8f0;padding-right:16px;">
                         ${d.email || d.linkedin || d.github || d.portfolio ? `${h4('Contact')}<div style="font-size:10px;color:#475569;line-height:1.8;margin-bottom:16px;">${[d.email, d.linkedin, d.github, d.portfolio].filter(Boolean).map(c => `<div>${c}</div>`).join('')}</div>` : ''}
-                        ${d.skills.length ? `${h4('Skills')}<p style="font-size:10.5px;color:#475569;line-height:1.7;margin-bottom:16px;">${d.skills.join(', ')}</p>` : ''}
-                        ${d.certifications ? `${h4('Certifications')}<div style="font-size:10px;color:#475569;line-height:1.7;white-space:pre-line;margin-bottom:16px;">${d.certifications}</div>` : ''}
-                        ${d.education ? `${h4('Education')}<p style="font-size:10.5px;color:#475569;line-height:1.7;">${d.education}</p>` : ''}
+                        ${d.skills.length ? `${h4('Skills')}<p style="font-size:10.5px;color:#475569;line-height:1.7;margin-bottom:16px;">${d.skills.map(esc).join(', ')}</p>` : ''}
+                        ${d.certificationsHTML ? `${h4('Certifications')}<div style="font-size:10px;color:#475569;line-height:1.5;margin-bottom:16px;">${d.certificationsHTML}</div>` : ''}
+                        ${d.educationHTML ? `${h4('Education')}<div style="font-size:10.5px;color:#475569;line-height:1.5;">${d.educationHTML}</div>` : ''}
                     </div>
                     <div>
                         ${d.summary ? `${h4('Profile')}<p style="font-size:11.5px;color:#334155;line-height:1.65;margin-bottom:16px;">${d.summary}</p>` : ''}
-                        ${d.experience ? `${h4('Experience')}<div style="font-size:11.5px;color:#334155;line-height:1.65;white-space:pre-line;margin-bottom:16px;">${d.experience}</div>` : ''}
-                        ${d.projects ? `${h4('Projects')}<div style="font-size:11.5px;color:#334155;line-height:1.65;white-space:pre-line;margin-bottom:16px;">${d.projects}</div>` : ''}
-                        ${d.achievements ? `${h4('Achievements')}<div style="font-size:11.5px;color:#334155;line-height:1.65;white-space:pre-line;">${d.achievements}</div>` : ''}
+                        ${d.experienceHTML ? `${h4('Experience')}<div style="color:#334155;margin-bottom:16px;">${d.experienceHTML}</div>` : ''}
+                        ${d.projectsHTML ? `${h4('Projects')}<div style="color:#334155;margin-bottom:16px;">${d.projectsHTML}</div>` : ''}
+                        ${d.achievementsHTML ? `${h4('Achievements')}<div style="color:#334155;">${d.achievementsHTML}</div>` : ''}
                     </div>
                 </div>
             </div>`;
         }
 
         function renderOverleaf(d) {
-            const contact = contactItems(d, false).map(c => `<span style="color:#0645AD;">${c}</span>`).join(' <span style="color:#94a3b8;">|</span> ');
+            const contact = contactItems(d).map(c => `<span style="color:#0645AD;">${c}</span>`).join(' <span style="color:#94a3b8;">|</span> ');
             const sec = (title, content) => content ? `
                 <div style="margin-bottom:14px;">
                     <h3 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.75px solid #1e293b;padding-bottom:3px;margin-bottom:7px;color:#111827;font-family:Georgia,'Times New Roman',serif;">${title}</h3>
-                    <div style="font-size:11px;line-height:1.55;white-space:pre-line;color:#1f2937;font-family:Georgia,'Times New Roman',serif;">${content}</div>
+                    <div style="font-size:11px;line-height:1.55;color:#1f2937;font-family:Georgia,'Times New Roman',serif;">${content}</div>
                 </div>` : '';
             return `
             <div style="padding:34px 42px;color:#1f2937;font-family:Georgia,'Times New Roman',serif;">
@@ -658,43 +772,42 @@
                     <h1 style="font-size:19px;font-weight:700;letter-spacing:.02em;color:#111827;">${d.name}</h1>
                     <p style="font-size:10.5px;margin-top:4px;">${contact}</p>
                 </div>
-                ${sec('Objective', d.summary)}
-                ${sec('Experience', d.experience)}
-                ${sec('Projects', d.projects)}
-                ${sec('Education', d.education)}
-                ${d.skills.length ? sec('Technical skills', d.skills.join(', ')) : ''}
-                ${sec('Certifications', d.certifications)}
-                ${sec('Honors and awards', d.achievements)}
+                ${sec('Objective', `<p>${d.summary}</p>`)}
+                ${sec('Experience', d.experienceHTML)}
+                ${sec('Projects', d.projectsHTML)}
+                ${sec('Education', d.educationHTML)}
+                ${d.skills.length ? sec('Technical skills', `<p>${d.skills.map(esc).join(', ')}</p>`) : ''}
+                ${sec('Certifications', d.certificationsHTML)}
+                ${sec('Honors and awards', d.achievementsHTML)}
             </div>`;
         }
 
         const RENDERERS = { modern: renderModern, executive: renderExecutive, minimal: renderMinimal, overleaf: renderOverleaf };
 
         function renderTemplate() {
-            const doc = document.getElementById('resume-document');
-            const data = collectData();
-            doc.innerHTML = RENDERERS[activeTemplate](data);
+            document.getElementById('resume-document').innerHTML = RENDERERS[activeTemplate](collectData());
         }
 
         // ---------- ATS ----------
-        function evaluateATS(summaryText, skillsList, expText, extras) {
+        function evaluateATS(summaryText, skillsList, hasBulletedExp, extras) {
             let score = 40;
             let recs = [];
             if (skillsList.length >= 5) score += 15; else recs.push("Include at least 5 industry-specific technical or soft skills.");
             if (summaryText.length > 100) score += 15; else recs.push("Expand your summary to over 100 characters to highlight scope.");
-            if (expText.includes('•') || expText.includes('-')) score += 15; else recs.push("Use bullet points in experience descriptions for cleaner ATS parsing.");
-            if (extras && extras.projects) score += 8; else recs.push("Add a projects section to show applied, concrete work.");
-            if (extras && extras.certifications) score += 7; else recs.push("List relevant certifications if you have any.");
+            if (hasBulletedExp) score += 15; else recs.push("Use bullet points in experience highlights for cleaner ATS parsing.");
+            if (extras.hasProjects) score += 8; else recs.push("Add a project entry to show applied, concrete work.");
+            if (extras.hasCerts) score += 7; else recs.push("List relevant certifications if you have any.");
             return { score: Math.min(score, 100), recs };
         }
 
         function runATSAnalysis() {
             const summary = document.getElementById('p-summary').value;
             const skills = document.getElementById('p-skills').value.split(',').filter(Boolean);
-            const exp = document.getElementById('p-experience').value;
-            const projects = document.getElementById('p-projects').value;
-            const certifications = document.getElementById('p-certifications').value;
-            const { score, recs } = evaluateATS(summary, skills, exp, { projects, certifications });
+            const hasBulletedExp = state.experience.some(e => (e.bullets || '').includes('•') || (e.bullets || '').includes('-'));
+            const { score, recs } = evaluateATS(summary, skills, hasBulletedExp, {
+                hasProjects: state.projects.some(p => p.title),
+                hasCerts: state.certifications.some(c => c.name),
+            });
             displayATSResults(score, recs);
         }
 
@@ -712,11 +825,9 @@
 
         function displayATSResults(score, recs) {
             const box = document.getElementById('ats-results-box');
-            const badge = document.getElementById('ats-score-badge');
-            const list = document.getElementById('ats-recommendations-list');
             box.classList.remove('hidden');
-            badge.innerText = `${score} / 100`;
-            list.innerHTML = recs.length > 0
+            document.getElementById('ats-score-badge').innerText = `${score} / 100`;
+            document.getElementById('ats-recommendations-list').innerHTML = recs.length > 0
                 ? recs.map(r => `<li>${r}</li>`).join('')
                 : '<li class="text-accent">Your resume formatting and content structure strongly match standard ATS parsers.</li>';
         }
