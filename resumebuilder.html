@@ -3,97 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResuSync Pro - AI Resume Builder & ATS Suite</title>
-    <!-- Tailwind CSS CDN -->
+    <title>ResuSync Studio - AI Resume Builder & ATS Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        display: ['"Fraunces"', 'serif'],
+                        body: ['"Inter"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
                     colors: {
-                        brand: {
-                            50: '#f0fdfa',
-                            100: '#ccfbf1',
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            700: '#0f766e',
+                        ink: {
+                            950: '#0A0E1A',
+                            900: '#0F1424',
+                            800: '#161C30',
+                            700: '#1E2540',
+                            600: '#2A3352',
                         }
                     }
                 }
             }
         }
     </script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- PDF Generation Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        :root {
+            --accent: 109,93,246;
+            --accent-hex: #6D5DF6;
+        }
         body { font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); }
+
+        .bg-accent { background-color: var(--accent-hex); }
+        .text-accent { color: var(--accent-hex); }
+        .border-accent { border-color: var(--accent-hex); }
+        .ring-accent { box-shadow: 0 0 0 3px rgba(var(--accent), 0.25); }
+        .bg-accent-soft { background-color: rgba(var(--accent), 0.12); }
+        .bg-accent-softer { background-color: rgba(var(--accent), 0.06); }
+        .hover-accent-soft:hover { background-color: rgba(var(--accent), 0.14); }
+        .fill-accent-gradient { background: linear-gradient(90deg, var(--accent-hex), rgba(var(--accent),0.55)); }
+        input:focus, textarea:focus, select:focus { border-color: var(--accent-hex) !important; box-shadow: 0 0 0 3px rgba(var(--accent), 0.15); }
+
+        .glass { background: rgba(10, 14, 26, 0.82); backdrop-filter: blur(14px); }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .font-display { font-family: 'Fraunces', serif; }
+        .font-mono-ui { font-family: 'JetBrains Mono', monospace; }
+
+        .paper-shadow { box-shadow: 0 1px 2px rgba(0,0,0,0.35), 0 20px 45px -20px rgba(0,0,0,0.65); }
+
+        .thumb-card { position: relative; }
+        .thumb-fold { position: absolute; top: 0; right: 0; width: 0; height: 0; border-style: solid; border-width: 0 14px 14px 0; border-color: transparent rgba(255,255,255,0.08) transparent transparent; }
+
+        ::selection { background: var(--accent-hex); color: white; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-teal-500 selection:text-white">
+<body class="bg-ink-950 text-slate-100 min-h-screen antialiased">
 
     <!-- Top Navigation -->
-    <nav class="sticky top-0 z-50 border-b border-slate-800/80 glass">
+    <nav class="sticky top-0 z-50 border-b border-white/[0.06] glass">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-teal-500/10 border border-teal-500/20 rounded-xl text-teal-400">
-                    <i data-lucide="file-badge-2" class="w-6 h-6"></i>
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-md bg-accent-soft border border-accent/20 flex items-center justify-center text-accent">
+                    <i data-lucide="scroll-text" class="w-4 h-4 text-accent"></i>
                 </div>
-                <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-teal-400 bg-clip-text text-transparent">ResuSync</span>
+                <span class="font-display font-semibold text-xl tracking-tight text-slate-50">ResuSync <span class="text-accent italic font-normal">Studio</span></span>
             </div>
-            
-            <div id="nav-user-controls" class="hidden flex items-center gap-4">
-                <span id="user-email-display" class="text-xs text-slate-400 border border-slate-800 bg-slate-900/50 px-3 py-1.5 rounded-full"></span>
+
+            <div id="nav-user-controls" class="hidden items-center gap-4">
+                <span id="user-email-display" class="font-mono-ui text-[11px] text-slate-400 border border-white/10 bg-white/[0.03] px-3 py-1.5 rounded-full"></span>
                 <button onclick="handleSignOut()" class="text-xs text-slate-400 hover:text-rose-400 flex items-center gap-1.5 transition">
-                    <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Sign out
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- App Shell Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- App Shell -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         <!-- AUTH SCREEN -->
         <div id="auth-screen" class="max-w-md mx-auto my-12">
-            <div class="bg-slate-900/90 border border-slate-800 p-8 rounded-2xl shadow-2xl backdrop-blur-xl">
+            <div class="bg-ink-900 border border-white/[0.07] p-8 rounded-2xl shadow-2xl">
                 <div class="text-center mb-8">
-                    <h2 class="text-2xl font-bold text-slate-100">Welcome Back</h2>
-                    <p class="text-sm text-slate-400 mt-1">Sign in to build or analyze your ATS-optimized resume</p>
+                    <h2 class="font-display text-2xl font-semibold text-slate-50">Welcome back</h2>
+                    <p class="text-sm text-slate-400 mt-1.5">Sign in to build a resume that actually gets read.</p>
                 </div>
 
-                <!-- Tabs -->
-                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 mb-6">
-                    <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 transition">Log In</button>
+                <div class="flex bg-ink-950 p-1 rounded-xl border border-white/[0.07] mb-6">
+                    <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-accent-soft text-accent border border-accent/25 transition">Log in</button>
                     <button id="tab-signup" onclick="switchAuthTab('signup')" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition">Register</button>
                 </div>
 
                 <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Email Address</label>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Email address</label>
                         <div class="relative">
                             <i data-lucide="mail" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-500"></i>
-                            <input id="auth-email" type="email" required placeholder="you@domain.com" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition">
+                            <input id="auth-email" type="email" required placeholder="you@domain.com" class="w-full bg-ink-950 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
                         <div class="relative">
                             <i data-lucide="lock" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-500"></i>
-                            <input id="auth-password" type="password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition">
+                            <input id="auth-password" type="password" required placeholder="••••••••" class="w-full bg-ink-950 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none transition">
                         </div>
                     </div>
 
-                    <button type="submit" id="auth-submit-btn" class="w-full bg-teal-500 hover:bg-teal-600 text-slate-950 font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2 mt-2">
-                        <span>Sign In</span>
+                    <button type="submit" id="auth-submit-btn" class="w-full bg-accent text-white font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2 mt-2 hover:opacity-90">
+                        <span>Sign in</span>
                         <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </button>
                 </form>
@@ -102,162 +127,190 @@
             </div>
         </div>
 
-        <!-- DASHBOARD VIEW -->
+        <!-- DASHBOARD -->
         <div id="dashboard-screen" class="hidden space-y-8">
 
-            <!-- Global Progress Banner -->
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl relative overflow-hidden">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 z-10 relative">
+            <!-- Progress + Theme banner -->
+            <div class="bg-ink-900 border border-white/[0.07] p-6 rounded-2xl relative overflow-hidden">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 relative z-10">
                     <div>
-                        <h1 class="text-xl font-bold flex items-center gap-2">
-                            <span>Profile Completion Workspace</span>
-                        </h1>
-                        <p class="text-xs text-slate-400 mt-1">Complete 100% of your details to unlock live rendering, multi-template export, and deep ATS analysis.</p>
+                        <h1 class="font-display text-xl font-semibold text-slate-50">Profile workspace</h1>
+                        <p class="text-xs text-slate-400 mt-1">Fill in the required fields to unlock live rendering, template switching, and ATS analysis.</p>
                     </div>
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-6">
+                        <div>
+                            <p class="font-mono-ui text-[10px] uppercase tracking-widest text-slate-500 mb-1.5">Accent theme</p>
+                            <div id="accent-swatches" class="flex items-center gap-2"></div>
+                        </div>
                         <div class="text-right">
-                            <span id="completion-text" class="text-2xl font-black text-teal-400">0%</span>
+                            <span id="completion-text" class="font-display text-2xl font-bold text-accent">0%</span>
                         </div>
                     </div>
                 </div>
-                <!-- Progress Bar -->
-                <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden mt-4 border border-slate-800">
-                    <div id="progress-bar" class="bg-gradient-to-r from-teal-500 to-emerald-400 h-full transition-all duration-500 w-0"></div>
+                <div class="w-full bg-ink-950 h-1.5 rounded-full overflow-hidden mt-5 border border-white/[0.06]">
+                    <div id="progress-bar" class="fill-accent-gradient h-full transition-all duration-500 w-0"></div>
                 </div>
             </div>
 
-            <!-- Main Interface Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-                <!-- Left Column: Editor Form & Custom Resume Upload -->
-                <div class="lg:col-span-6 space-y-6">
-                    
-                    <!-- Form Section Accordion -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
-                        <h2 class="font-bold text-slate-200 border-b border-slate-800 pb-3 flex items-center justify-between">
-                            <span class="flex items-center gap-2"><i data-lucide="user" class="w-4 h-4 text-teal-400"></i> Profile Information</span>
-                            <span class="text-xs font-normal text-slate-500">Auto-saves locally & DB</span>
+                <!-- LEFT: Editor -->
+                <div class="lg:col-span-5 space-y-6">
+
+                    <div class="bg-ink-900 border border-white/[0.07] rounded-2xl p-6 space-y-6">
+                        <h2 class="font-semibold text-slate-200 border-b border-white/[0.07] pb-3 flex items-center gap-2">
+                            <i data-lucide="user-round" class="w-4 h-4 text-accent"></i> Personal information
                         </h2>
 
-                        <!-- Personal Information -->
                         <div class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs text-slate-400 mb-1">Full Name *</label>
-                                    <input id="p-name" oninput="handleInput()" placeholder="Jane Doe" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none">
+                                    <label class="block text-xs text-slate-400 mb-1">Full name *</label>
+                                    <input id="p-name" oninput="handleInput()" placeholder="Jane Doe" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-slate-400 mb-1">Target Job Title *</label>
-                                    <input id="p-title" oninput="handleInput()" placeholder="Senior Software Engineer" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none">
+                                    <label class="block text-xs text-slate-400 mb-1">Target job title *</label>
+                                    <input id="p-title" oninput="handleInput()" placeholder="Senior Software Engineer" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs text-slate-400 mb-1">Phone *</label>
-                                    <input id="p-phone" oninput="handleInput()" placeholder="+1 (555) 000-0000" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none">
+                                    <label class="block text-xs text-slate-400 mb-1">Email *</label>
+                                    <input id="p-email" oninput="handleInput()" placeholder="jane@domain.com" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-slate-400 mb-1">Location *</label>
-                                    <input id="p-location" oninput="handleInput()" placeholder="San Francisco, CA" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none">
+                                    <label class="block text-xs text-slate-400 mb-1">Phone *</label>
+                                    <input id="p-phone" oninput="handleInput()" placeholder="+1 (555) 000-0000" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-xs text-slate-400 mb-1">Professional Summary *</label>
-                                <textarea id="p-summary" oninput="handleInput()" rows="3" placeholder="Results-driven professional with 5+ years experience in scaling cloud platforms..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none"></textarea>
+                                <label class="block text-xs text-slate-400 mb-1">Location *</label>
+                                <input id="p-location" oninput="handleInput()" placeholder="San Francisco, CA" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
+                            </div>
+
+                            <div class="pt-1 border-t border-white/[0.06]">
+                                <p class="font-mono-ui text-[10px] uppercase tracking-widest text-slate-500 mb-2 mt-3">Links (optional)</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] text-slate-500 mb-1">LinkedIn</label>
+                                        <input id="p-linkedin" oninput="handleInput()" placeholder="linkedin.com/in/jane" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2 text-xs focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] text-slate-500 mb-1">GitHub</label>
+                                        <input id="p-github" oninput="handleInput()" placeholder="github.com/jane" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2 text-xs focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] text-slate-500 mb-1">Portfolio</label>
+                                        <input id="p-portfolio" oninput="handleInput()" placeholder="jane.dev" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2 text-xs focus:outline-none">
+                                    </div>
+                                </div>
                             </div>
 
                             <div>
-                                <label class="block text-xs text-slate-400 mb-1">Key Skills (Comma separated) *</label>
-                                <input id="p-skills" oninput="handleInput()" placeholder="JavaScript, React, Node.js, PostgreSQL, Docker, AWS" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none">
+                                <label class="block text-xs text-slate-400 mb-1">Professional summary *</label>
+                                <textarea id="p-summary" oninput="handleInput()" rows="3" placeholder="Results-driven professional with 5+ years experience scaling cloud platforms..." class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></textarea>
                             </div>
 
                             <div>
-                                <label class="block text-xs text-slate-400 mb-1">Work Experience *</label>
-                                <textarea id="p-experience" oninput="handleInput()" rows="4" placeholder="Tech Lead @ Acme Corp (2021 - Present)&#10;• Led cross-functional team of 8 engineers&#10;• Reduced latency by 40% using Redis caching" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none"></textarea>
+                                <label class="block text-xs text-slate-400 mb-1">Key skills, comma separated *</label>
+                                <input id="p-skills" oninput="handleInput()" placeholder="JavaScript, React, Node.js, PostgreSQL, Docker, AWS" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Work experience *</label>
+                                <textarea id="p-experience" oninput="handleInput()" rows="4" placeholder="Tech Lead @ Acme Corp (2021 - Present)&#10;• Led cross-functional team of 8 engineers&#10;• Reduced latency by 40% using Redis caching" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Projects (optional)</label>
+                                <textarea id="p-projects" oninput="handleInput()" rows="3" placeholder="Resume Sync Engine — React, Supabase&#10;• Built a live-preview resume builder used by 2k+ job seekers" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Certifications (optional)</label>
+                                    <textarea id="p-certifications" oninput="handleInput()" rows="2" placeholder="AWS Certified Solutions Architect (2023)" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-xs focus:outline-none"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Achievements (optional)</label>
+                                    <textarea id="p-achievements" oninput="handleInput()" rows="2" placeholder="1st place, Acme Hackathon 2022" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-xs focus:outline-none"></textarea>
+                                </div>
                             </div>
 
                             <div>
                                 <label class="block text-xs text-slate-400 mb-1">Education *</label>
-                                <input id="p-education" oninput="handleInput()" placeholder="B.S. in Computer Science, Stanford University" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none">
+                                <input id="p-education" oninput="handleInput()" placeholder="B.S. in Computer Science, Stanford University" class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none">
                             </div>
                         </div>
 
-                        <button onclick="saveProfileToDatabase()" class="w-full bg-slate-800 hover:bg-slate-700 text-teal-400 border border-teal-500/30 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition">
-                            <i data-lucide="save" class="w-4 h-4"></i> Save Profile Data to Supabase
+                        <button onclick="saveProfileToDatabase()" class="w-full bg-white/[0.04] hover:bg-white/[0.07] text-accent border border-accent/25 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition">
+                            <i data-lucide="save" class="w-4 h-4"></i> Save profile to database
                         </button>
                     </div>
 
-                    <!-- Custom External Resume Analyzer -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-                        <h2 class="font-bold text-slate-200 flex items-center gap-2">
-                            <i data-lucide="file-up" class="w-4 h-4 text-teal-400"></i> Analyze Custom Existing Resume
+                    <!-- Custom Resume Analyzer -->
+                    <div class="bg-ink-900 border border-white/[0.07] rounded-2xl p-6 space-y-4">
+                        <h2 class="font-semibold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="file-up" class="w-4 h-4 text-accent"></i> Analyze an existing resume
                         </h2>
-                        <p class="text-xs text-slate-400">Upload any plain-text or paste custom resume content to evaluate its ATS compatibility independently.</p>
-                        <textarea id="custom-resume-input" rows="4" placeholder="Paste external resume plain text here for instant analysis..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:border-teal-500 focus:outline-none"></textarea>
-                        <button onclick="analyzeCustomResume()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i> Analyze Custom Text Resume
+                        <p class="text-xs text-slate-400">Paste plain text from any resume to score its ATS compatibility independently.</p>
+                        <textarea id="custom-resume-input" rows="4" placeholder="Paste resume text here for instant analysis..." class="w-full bg-ink-950 border border-white/10 rounded-xl p-2.5 text-sm focus:outline-none"></textarea>
+                        <button onclick="analyzeCustomResume()" class="w-full bg-white/[0.04] hover:bg-white/[0.07] text-slate-200 border border-white/10 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i> Analyze text
                         </button>
                     </div>
                 </div>
 
-                <!-- Right Column: Live Builder Preview, Template Selection, ATS Engine -->
-                <div class="lg:col-span-6 space-y-6">
+                <!-- RIGHT: Preview -->
+                <div class="lg:col-span-7 space-y-6">
 
-                    <!-- Locked Overlay State -->
-                    <div id="locked-state" class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
-                        <div class="w-12 h-12 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center mx-auto text-slate-400">
+                    <div id="locked-state" class="bg-ink-900 border border-white/[0.07] rounded-2xl p-10 text-center space-y-4">
+                        <div class="w-12 h-12 bg-white/[0.04] border border-white/10 rounded-full flex items-center justify-center mx-auto text-slate-400">
                             <i data-lucide="lock" class="w-6 h-6"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-slate-200">Resume Live Preview Locked</h3>
-                            <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1">Please complete all profile fields (100% completion bar) on the left panel to unlock template rendering, PDF download, and ATS analysis.</p>
+                            <h3 class="font-display text-lg font-semibold text-slate-200">Live preview locked</h3>
+                            <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1">Complete the required fields marked with * on the left to unlock template rendering, PDF export, and ATS analysis.</p>
                         </div>
                     </div>
 
-                    <!-- Unlocked State Container -->
                     <div id="unlocked-state" class="hidden space-y-6">
 
-                        <!-- Control Toolbar -->
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-wrap gap-3 items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="layout" class="w-4 h-4 text-teal-400"></i>
-                                <select id="template-selector" onchange="renderTemplate()" class="bg-slate-950 border border-slate-800 rounded-lg text-xs px-3 py-2 text-slate-200 focus:outline-none border-teal-500/50">
-                                    <option value="modern">Modern Tech Template</option>
-                                    <option value="executive">Executive Classic</option>
-                                    <option value="minimal">Minimalist Layout</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="runATSAnalysis()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-                                    <i data-lucide="shield-check" class="w-4 h-4"></i> Run ATS Check
-                                </button>
-                                <button onclick="downloadPDF()" class="bg-teal-500 hover:bg-teal-600 text-slate-950 px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-                                    <i data-lucide="download" class="w-4 h-4"></i> Export PDF
-                                </button>
-                            </div>
+                        <!-- Template thumbnail picker -->
+                        <div class="bg-ink-900 border border-white/[0.07] p-5 rounded-2xl">
+                            <p class="font-mono-ui text-[10px] uppercase tracking-widest text-slate-500 mb-3">Choose a layout</p>
+                            <div id="template-picker" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
                         </div>
 
-                        <!-- ATS Analysis Scorecard Box -->
-                        <div id="ats-results-box" class="hidden bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
+                        <!-- Toolbar -->
+                        <div class="bg-ink-900 border border-white/[0.07] p-4 rounded-2xl flex flex-wrap gap-3 items-center justify-end">
+                            <button onclick="runATSAnalysis()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                                <i data-lucide="shield-check" class="w-4 h-4"></i> Run ATS check
+                            </button>
+                            <button onclick="downloadPDF()" class="bg-accent text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition hover:opacity-90">
+                                <i data-lucide="download" class="w-4 h-4"></i> Export PDF
+                            </button>
+                        </div>
+
+                        <!-- ATS scorecard -->
+                        <div id="ats-results-box" class="hidden bg-ink-900 border border-white/[0.07] p-5 rounded-2xl space-y-3">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">ATS Optimization Index</span>
-                                <span id="ats-score-badge" class="text-lg font-black px-3 py-1 bg-teal-500/10 text-teal-400 rounded-full border border-teal-500/20">0 / 100</span>
+                                <span class="font-mono-ui text-[10px] font-semibold text-slate-400 uppercase tracking-widest">ATS optimization index</span>
+                                <span id="ats-score-badge" class="text-lg font-black px-3 py-1 bg-accent-soft text-accent rounded-full border border-accent/20">0 / 100</span>
                             </div>
-                            <div class="border-t border-slate-800/80 pt-3">
+                            <div class="border-t border-white/[0.06] pt-3">
                                 <h4 class="text-xs font-semibold text-slate-300 mb-2 flex items-center gap-1.5">
-                                    <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-400"></i> System Recommendations
+                                    <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-400"></i> System recommendations
                                 </h4>
                                 <ul id="ats-recommendations-list" class="text-xs text-slate-400 space-y-1.5 list-disc list-inside"></ul>
                             </div>
                         </div>
 
-                        <!-- Live Paper Render Workspace -->
-                        <div class="bg-slate-950 p-2 rounded-2xl border border-slate-800 shadow-2xl overflow-x-auto hide-scrollbar">
-                            <div id="resume-document" class="bg-white text-slate-900 p-8 rounded-xl min-h-[700px] w-full max-w-[650px] mx-auto text-sm shadow-md transition-all">
-                                <!-- Dynamic Resume Content Injected Here -->
-                            </div>
+                        <!-- Live paper render -->
+                        <div class="bg-ink-950 p-3 rounded-2xl border border-white/[0.07] overflow-x-auto hide-scrollbar">
+                            <div id="resume-document" class="paper-shadow bg-white text-slate-900 min-h-[700px] w-full max-w-[680px] mx-auto text-sm transition-all"></div>
                         </div>
 
                     </div>
@@ -270,51 +323,104 @@
     </main>
 
     <script>
-        // Supabase Client Config - Variable renamed to avoid global namespace collision
         const SUPABASE_URL = 'https://mtlwhftvndqguofxhhcc.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_uchg-Fclifz45WyCpgBgQw_bq6x3Z06';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let activeAuthMode = 'login';
         let currentUser = null;
+        let activeTemplate = 'modern';
 
-        // Initialize UI Icons
+        const REQUIRED_FIELDS = ['p-name', 'p-title', 'p-email', 'p-phone', 'p-location', 'p-summary', 'p-skills', 'p-experience', 'p-education'];
+
+        const ACCENTS = [
+            { name: 'Violet', hex: '#6D5DF6', rgb: '109,93,246' },
+            { name: 'Teal', hex: '#14B8A6', rgb: '20,184,166' },
+            { name: 'Crimson', hex: '#DC2626', rgb: '220,38,38' },
+            { name: 'Forest', hex: '#15803D', rgb: '21,128,61' },
+            { name: 'Amber', hex: '#B45309', rgb: '180,83,9' },
+            { name: 'Cobalt', hex: '#2563EB', rgb: '37,99,235' },
+        ];
+
+        const TEMPLATES = [
+            { id: 'modern', label: 'Modern sidebar', desc: 'Two-column' },
+            { id: 'executive', label: 'Executive', desc: 'Centered serif' },
+            { id: 'minimal', label: 'Minimalist', desc: 'Three-column' },
+            { id: 'overleaf', label: 'Overleaf CV', desc: 'LaTeX academic' },
+        ];
+
         lucide.createIcons();
 
-        // Auth Tab Switcher
+        // ---------- Accent theme ----------
+        function renderAccentSwatches() {
+            const wrap = document.getElementById('accent-swatches');
+            wrap.innerHTML = ACCENTS.map(a => `
+                <button title="${a.name}" onclick="setAccent('${a.hex}','${a.rgb}')"
+                    class="w-6 h-6 rounded-full border-2 border-white/20 hover:scale-110 transition"
+                    style="background:${a.hex}"></button>
+            `).join('');
+        }
+        function setAccent(hex, rgb) {
+            document.documentElement.style.setProperty('--accent-hex', hex);
+            document.documentElement.style.setProperty('--accent', rgb);
+        }
+
+        // ---------- Template thumbnails ----------
+        function renderTemplatePicker() {
+            const wrap = document.getElementById('template-picker');
+            const thumbs = {
+                modern: `<div class="flex h-full gap-[3px]"><div class="w-[30%] bg-current opacity-20 rounded-sm"></div><div class="flex-1 space-y-[3px]"><div class="h-[6px] bg-current opacity-30 rounded-sm w-3/4"></div><div class="h-[3px] bg-current opacity-15 rounded-sm"></div><div class="h-[3px] bg-current opacity-15 rounded-sm"></div><div class="h-[3px] bg-current opacity-15 rounded-sm w-5/6"></div></div></div>`,
+                executive: `<div class="h-full flex flex-col items-center gap-[4px] pt-[4px]"><div class="h-[6px] w-1/2 bg-current opacity-30 rounded-sm"></div><div class="h-[2px] w-2/3 bg-current opacity-15 rounded-sm"></div><div class="w-full h-px bg-current opacity-20 my-[2px]"></div><div class="h-[3px] w-full bg-current opacity-15 rounded-sm"></div><div class="h-[3px] w-full bg-current opacity-15 rounded-sm"></div><div class="h-[3px] w-5/6 bg-current opacity-15 rounded-sm"></div></div>`,
+                minimal: `<div class="flex h-full gap-[3px]"><div class="w-[25%] space-y-[3px]"><div class="h-[3px] bg-current opacity-25 rounded-sm"></div><div class="h-[3px] bg-current opacity-15 rounded-sm"></div></div><div class="w-[45%] space-y-[3px]"><div class="h-[3px] bg-current opacity-25 rounded-sm"></div><div class="h-[3px] bg-current opacity-15 rounded-sm"></div><div class="h-[3px] bg-current opacity-15 rounded-sm w-2/3"></div></div><div class="w-[25%] space-y-[3px]"><div class="h-[3px] bg-current opacity-25 rounded-sm"></div><div class="h-[3px] bg-current opacity-15 rounded-sm"></div></div></div>`,
+                overleaf: `<div class="h-full flex flex-col items-center gap-[3px] pt-[3px]"><div class="h-[5px] w-2/3 bg-current opacity-35 rounded-sm"></div><div class="h-[2px] w-1/2 bg-current opacity-15 rounded-sm"></div><div class="w-full h-px bg-current opacity-25 my-[2px]"></div><div class="flex justify-between w-full"><div class="h-[2px] w-1/3 bg-current opacity-25 rounded-sm"></div><div class="h-[2px] w-1/5 bg-current opacity-15 rounded-sm"></div></div><div class="h-[2px] w-full bg-current opacity-15 rounded-sm"></div><div class="h-[2px] w-5/6 bg-current opacity-15 rounded-sm"></div></div>`,
+            };
+            wrap.innerHTML = TEMPLATES.map(t => `
+                <button onclick="selectTemplate('${t.id}')" data-template="${t.id}"
+                    class="thumb-card text-left border rounded-xl p-3 transition ${activeTemplate === t.id ? 'border-accent bg-accent-softer' : 'border-white/10 bg-white/[0.02] hover:border-white/25'}">
+                    <div class="thumb-fold"></div>
+                    <div class="w-full h-16 rounded-md bg-ink-950 border border-white/10 p-2 text-slate-300 mb-2">${thumbs[t.id]}</div>
+                    <p class="text-xs font-semibold ${activeTemplate === t.id ? 'text-accent' : 'text-slate-200'}">${t.label}</p>
+                    <p class="text-[10px] text-slate-500 font-mono-ui">${t.desc}</p>
+                </button>
+            `).join('');
+        }
+        function selectTemplate(id) {
+            activeTemplate = id;
+            renderTemplatePicker();
+            renderTemplate();
+        }
+
+        // ---------- Auth ----------
         function switchAuthTab(mode) {
             activeAuthMode = mode;
             const loginTab = document.getElementById('tab-login');
             const signupTab = document.getElementById('tab-signup');
             const submitBtn = document.getElementById('auth-submit-btn');
-
             if (mode === 'login') {
-                loginTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 transition";
+                loginTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-accent-soft text-accent border border-accent/25 transition";
                 signupTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition";
-                submitBtn.querySelector('span').innerText = "Sign In";
+                submitBtn.querySelector('span').innerText = "Sign in";
             } else {
-                signupTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 transition";
+                signupTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-accent-soft text-accent border border-accent/25 transition";
                 loginTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition";
-                submitBtn.querySelector('span').innerText = "Register Account";
+                submitBtn.querySelector('span').innerText = "Register account";
             }
         }
 
-        // Auth Form Handler
         async function handleAuthSubmit(e) {
             e.preventDefault();
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             const errEl = document.getElementById('auth-error');
             errEl.innerText = "";
-
             try {
                 if (activeAuthMode === 'signup') {
-                    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                    const { error } = await supabaseClient.auth.signUp({ email, password });
                     if (error) throw error;
-                    alert('Registration complete! Check your email or sign in directly.');
+                    alert('Registration complete. Check your email or sign in directly.');
                     switchAuthTab('login');
                 } else {
-                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     checkSession();
                 }
@@ -323,7 +429,6 @@
             }
         }
 
-        // Check Auth Session
         async function checkSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
@@ -333,6 +438,8 @@
                 document.getElementById('nav-user-controls').classList.remove('hidden');
                 document.getElementById('nav-user-controls').classList.add('flex');
                 document.getElementById('user-email-display').innerText = currentUser.email;
+                renderAccentSwatches();
+                renderTemplatePicker();
                 fetchProfileData();
             }
         }
@@ -342,22 +449,16 @@
             window.location.reload();
         }
 
-        // Input Progress Evaluator
+        // ---------- Progress ----------
         function handleInput() {
-            const fields = ['p-name', 'p-title', 'p-phone', 'p-location', 'p-summary', 'p-skills', 'p-experience', 'p-education'];
             let filledCount = 0;
-
-            fields.forEach(id => {
-                if (document.getElementById(id).value.trim() !== '') filledCount++;
-            });
-
-            const percentage = Math.round((filledCount / fields.length) * 100);
+            REQUIRED_FIELDS.forEach(id => { if (document.getElementById(id).value.trim() !== '') filledCount++; });
+            const percentage = Math.round((filledCount / REQUIRED_FIELDS.length) * 100);
             document.getElementById('progress-bar').style.width = `${percentage}%`;
             document.getElementById('completion-text').innerText = `${percentage}%`;
 
             const lockedState = document.getElementById('locked-state');
             const unlockedState = document.getElementById('unlocked-state');
-
             if (percentage === 100) {
                 lockedState.classList.add('hidden');
                 unlockedState.classList.remove('hidden');
@@ -368,182 +469,244 @@
             }
         }
 
-        // Save Profile to Supabase SQL
+        // ---------- Database ----------
         async function saveProfileToDatabase() {
             if (!currentUser) return;
             const profilePayload = {
                 id: currentUser.id,
                 full_name: document.getElementById('p-name').value,
+                title: document.getElementById('p-title').value,
+                email: document.getElementById('p-email').value,
                 phone: document.getElementById('p-phone').value,
                 location: document.getElementById('p-location').value,
                 summary: document.getElementById('p-summary').value,
-                skills: document.getElementById('p-skills').value.split(',').map(s => s.trim()),
+                skills: document.getElementById('p-skills').value.split(',').map(s => s.trim()).filter(Boolean),
+                experience: document.getElementById('p-experience').value,
+                projects: document.getElementById('p-projects').value,
+                certifications: document.getElementById('p-certifications').value,
+                achievements: document.getElementById('p-achievements').value,
+                education: document.getElementById('p-education').value,
+                linkedin: document.getElementById('p-linkedin').value,
+                github: document.getElementById('p-github').value,
+                portfolio: document.getElementById('p-portfolio').value,
                 completion_percentage: parseInt(document.getElementById('completion-text').innerText),
                 updated_at: new Date()
             };
-
             const { error } = await supabaseClient.from('profiles').upsert(profilePayload);
-            if (error) {
-                alert('Database Save Error: ' + error.message);
-            } else {
-                alert('Profile details successfully stored in Supabase!');
-            }
+            if (error) alert('Database save error: ' + error.message);
+            else alert('Profile saved to Supabase.');
         }
 
-        // Load Database Profile
         async function fetchProfileData() {
             if (!currentUser) return;
-            const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
+            const { data } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
             if (data) {
                 if (data.full_name) document.getElementById('p-name').value = data.full_name;
+                if (data.title) document.getElementById('p-title').value = data.title;
+                if (data.email) document.getElementById('p-email').value = data.email;
                 if (data.phone) document.getElementById('p-phone').value = data.phone;
                 if (data.location) document.getElementById('p-location').value = data.location;
                 if (data.summary) document.getElementById('p-summary').value = data.summary;
                 if (data.skills) document.getElementById('p-skills').value = data.skills.join(', ');
+                if (data.experience) document.getElementById('p-experience').value = data.experience;
+                if (data.projects) document.getElementById('p-projects').value = data.projects;
+                if (data.certifications) document.getElementById('p-certifications').value = data.certifications;
+                if (data.achievements) document.getElementById('p-achievements').value = data.achievements;
+                if (data.education) document.getElementById('p-education').value = data.education;
+                if (data.linkedin) document.getElementById('p-linkedin').value = data.linkedin;
+                if (data.github) document.getElementById('p-github').value = data.github;
+                if (data.portfolio) document.getElementById('p-portfolio').value = data.portfolio;
                 handleInput();
             }
         }
 
-        // Template Renderer Engine
-        function renderTemplate() {
-            const name = document.getElementById('p-name').value || 'John Doe';
-            const title = document.getElementById('p-title').value || 'Software Engineer';
-            const phone = document.getElementById('p-phone').value || '+1 000 000 0000';
-            const location = document.getElementById('p-location').value || 'City, Country';
-            const summary = document.getElementById('p-summary').value || 'Professional summary...';
-            const skills = document.getElementById('p-skills').value.split(',').map(s => s.trim());
-            const exp = document.getElementById('p-experience').value;
-            const edu = document.getElementById('p-education').value;
-            const selectedTemplate = document.getElementById('template-selector').value;
-
-            const doc = document.getElementById('resume-document');
-
-            if (selectedTemplate === 'modern') {
-                doc.innerHTML = `
-                    <div class="border-b-2 border-teal-600 pb-4 mb-4">
-                        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">${name}</h1>
-                        <p class="text-sm font-semibold text-teal-600">${title}</p>
-                        <p class="text-xs text-slate-500 mt-1">${location} • ${phone}</p>
-                    </div>
-                    <div class="space-y-4 text-xs">
-                        <div>
-                            <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-1">Executive Summary</h3>
-                            <p class="text-slate-700 leading-relaxed">${summary}</p>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-1">Professional Experience</h3>
-                            <div class="text-slate-700 whitespace-pre-line leading-relaxed">${exp}</div>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-1">Core Competencies</h3>
-                            <div class="flex flex-wrap gap-1.5 mt-1">
-                                ${skills.map(s => `<span class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded border border-slate-200 text-[10px] font-medium">${s}</span>`).join('')}
-                            </div>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] mb-1">Education</h3>
-                            <p class="text-slate-700">${edu}</p>
-                        </div>
-                    </div>
-                `;
-            } else if (selectedTemplate === 'executive') {
-                doc.innerHTML = `
-                    <div class="text-center border-b border-slate-300 pb-4 mb-4">
-                        <h1 class="text-2xl font-serif font-bold text-slate-900 tracking-wide">${name.toUpperCase()}</h1>
-                        <p class="text-xs font-serif text-slate-600 italic mt-0.5">${title}</p>
-                        <p class="text-[11px] text-slate-500 mt-1">${location} | ${phone}</p>
-                    </div>
-                    <div class="space-y-4 text-xs font-serif">
-                        <div>
-                            <h3 class="font-bold border-b border-slate-200 pb-1 text-slate-900 uppercase text-[10px]">Overview</h3>
-                            <p class="text-slate-800 mt-1.5 leading-relaxed">${summary}</p>
-                        </div>
-                        <div>
-                            <h3 class="font-bold border-b border-slate-200 pb-1 text-slate-900 uppercase text-[10px]">Employment History</h3>
-                            <div class="text-slate-800 mt-1.5 whitespace-pre-line leading-relaxed">${exp}</div>
-                        </div>
-                        <div>
-                            <h3 class="font-bold border-b border-slate-200 pb-1 text-slate-900 uppercase text-[10px]">Areas of Expertise</h3>
-                            <p class="text-slate-800 mt-1.5">${skills.join(' • ')}</p>
-                        </div>
-                        <div>
-                            <h3 class="font-bold border-b border-slate-200 pb-1 text-slate-900 uppercase text-[10px]">Education & Credentials</h3>
-                            <p class="text-slate-800 mt-1.5">${edu}</p>
-                        </div>
-                    </div>
-                `;
-            } else {
-                doc.innerHTML = `
-                    <div class="mb-6">
-                        <h1 class="text-3xl font-light text-slate-900">${name}</h1>
-                        <p class="text-xs text-slate-400 mt-0.5">${title} — ${location} — ${phone}</p>
-                    </div>
-                    <div class="grid grid-cols-3 gap-6 text-xs">
-                        <div class="col-span-1 space-y-4 border-r border-slate-100 pr-4">
-                            <div>
-                                <h4 class="font-semibold text-slate-900 uppercase text-[10px] tracking-widest mb-1">Skills</h4>
-                                <p class="text-slate-600 leading-relaxed">${skills.join(', ')}</p>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-slate-900 uppercase text-[10px] tracking-widest mb-1">Education</h4>
-                                <p class="text-slate-600">${edu}</p>
-                            </div>
-                        </div>
-                        <div class="col-span-2 space-y-4">
-                            <div>
-                                <h4 class="font-semibold text-slate-900 uppercase text-[10px] tracking-widest mb-1">Profile</h4>
-                                <p class="text-slate-700 leading-relaxed">${summary}</p>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-slate-900 uppercase text-[10px] tracking-widest mb-1">Experience</h4>
-                                <div class="text-slate-700 whitespace-pre-line leading-relaxed">${exp}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
+        // ---------- Data collection ----------
+        function esc(str) {
+            const d = document.createElement('div');
+            d.innerText = str || '';
+            return d.innerHTML;
         }
 
-        // ATS Algorithm Evaluator
-        function evaluateATS(summaryText, skillsList, expText) {
-            let score = 50;
+        function collectData() {
+            return {
+                name: esc(document.getElementById('p-name').value) || 'John Doe',
+                title: esc(document.getElementById('p-title').value) || 'Software Engineer',
+                email: esc(document.getElementById('p-email').value),
+                phone: esc(document.getElementById('p-phone').value),
+                location: esc(document.getElementById('p-location').value),
+                linkedin: esc(document.getElementById('p-linkedin').value),
+                github: esc(document.getElementById('p-github').value),
+                portfolio: esc(document.getElementById('p-portfolio').value),
+                summary: esc(document.getElementById('p-summary').value),
+                skills: document.getElementById('p-skills').value.split(',').map(s => s.trim()).filter(Boolean),
+                experience: esc(document.getElementById('p-experience').value),
+                projects: esc(document.getElementById('p-projects').value),
+                certifications: esc(document.getElementById('p-certifications').value),
+                achievements: esc(document.getElementById('p-achievements').value),
+                education: esc(document.getElementById('p-education').value),
+            };
+        }
+
+        function contactItems(d, withLabels) {
+            const items = [];
+            if (d.location) items.push(d.location);
+            if (d.phone) items.push(d.phone);
+            if (d.email) items.push(d.email);
+            if (d.linkedin) items.push(withLabels ? `LinkedIn: ${d.linkedin}` : d.linkedin);
+            if (d.github) items.push(withLabels ? `GitHub: ${d.github}` : d.github);
+            if (d.portfolio) items.push(d.portfolio);
+            return items;
+        }
+
+        function block(title, content, cls) {
+            if (!content) return '';
+            return `<div class="${cls || ''}"><h3 class="section-h">${title}</h3>${content}</div>`;
+        }
+
+        // ---------- Template renderers ----------
+        function renderModern(d) {
+            const links = [d.linkedin, d.github, d.portfolio].filter(Boolean);
+            return `
+            <style>
+                .rm-h3{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0f172a;margin-bottom:6px;padding-bottom:4px;border-bottom:1.5px solid var(--accent-hex,#6D5DF6);}
+                .rm-side h3{color:#fff;border-bottom-color:rgba(255,255,255,0.35);}
+            </style>
+            <div style="display:grid;grid-template-columns:34% 66%;min-height:700px;">
+                <div class="rm-side" style="background:var(--accent-hex,#6D5DF6);color:#fff;padding:28px 20px;">
+                    <h1 style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;line-height:1.15;">${d.name}</h1>
+                    <p style="font-size:11px;opacity:.9;margin-top:4px;">${d.title}</p>
+                    <div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div>
+                    <h3 style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Contact</h3>
+                    <div style="font-size:10.5px;line-height:1.9;opacity:.95;">
+                        ${d.location ? `<div>${d.location}</div>` : ''}
+                        ${d.phone ? `<div>${d.phone}</div>` : ''}
+                        ${d.email ? `<div>${d.email}</div>` : ''}
+                    </div>
+                    ${links.length ? `<div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div><h3 style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Links</h3><div style="font-size:10.5px;line-height:1.9;opacity:.95;">${links.map(l => `<div>${l}</div>`).join('')}</div>` : ''}
+                    ${d.skills.length ? `<div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div><h3 style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Skills</h3><div style="display:flex;flex-wrap:wrap;gap:5px;">${d.skills.map(s => `<span style="font-size:9.5px;background:rgba(255,255,255,0.18);padding:3px 8px;border-radius:999px;">${s}</span>`).join('')}</div>` : ''}
+                    ${d.certifications ? `<div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div><h3 style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Certifications</h3><div style="font-size:10.5px;line-height:1.7;white-space:pre-line;opacity:.95;">${d.certifications}</div>` : ''}
+                    ${d.achievements ? `<div style="height:1px;background:rgba(255,255,255,0.35);margin:16px 0;"></div><h3 style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Achievements</h3><div style="font-size:10.5px;line-height:1.7;white-space:pre-line;opacity:.95;">${d.achievements}</div>` : ''}
+                </div>
+                <div style="padding:28px 24px;color:#1e293b;">
+                    ${d.summary ? `<div style="margin-bottom:18px;"><h3 class="rm-h3">Summary</h3><p style="font-size:11.5px;line-height:1.6;color:#334155;">${d.summary}</p></div>` : ''}
+                    ${d.experience ? `<div style="margin-bottom:18px;"><h3 class="rm-h3">Experience</h3><div style="font-size:11.5px;line-height:1.65;white-space:pre-line;color:#334155;">${d.experience}</div></div>` : ''}
+                    ${d.projects ? `<div style="margin-bottom:18px;"><h3 class="rm-h3">Projects</h3><div style="font-size:11.5px;line-height:1.65;white-space:pre-line;color:#334155;">${d.projects}</div></div>` : ''}
+                    ${d.education ? `<div><h3 class="rm-h3">Education</h3><p style="font-size:11.5px;line-height:1.6;color:#334155;">${d.education}</p></div>` : ''}
+                </div>
+            </div>`;
+        }
+
+        function renderExecutive(d) {
+            const contact = contactItems(d, false).join('  •  ');
+            const sec = (title, content, mono) => content ? `
+                <div style="margin-bottom:16px;">
+                    <h3 style="font-family:'Fraunces',serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #cbd5e1;padding-bottom:5px;margin-bottom:8px;color:#0f172a;">${title}</h3>
+                    <div style="font-size:11.5px;line-height:1.7;white-space:${mono ? 'pre-line' : 'normal'};color:#334155;font-family:'Fraunces',serif;">${content}</div>
+                </div>` : '';
+            return `
+            <div style="padding:36px 40px;color:#1e293b;">
+                <div style="text-align:center;border-bottom:2px solid #0f172a;padding-bottom:16px;margin-bottom:20px;">
+                    <h1 style="font-family:'Fraunces',serif;font-size:26px;font-weight:700;letter-spacing:.03em;color:#0f172a;">${d.name.toUpperCase()}</h1>
+                    <p style="font-family:'Fraunces',serif;font-style:italic;font-size:12.5px;color:var(--accent-hex,#6D5DF6);margin-top:4px;">${d.title}</p>
+                    <p style="font-size:10.5px;color:#64748b;margin-top:6px;">${contact}</p>
+                </div>
+                ${sec('Summary', d.summary)}
+                ${sec('Professional experience', d.experience, true)}
+                ${sec('Projects', d.projects, true)}
+                ${d.skills.length ? sec('Core competencies', d.skills.join('  •  ')) : ''}
+                ${sec('Certifications', d.certifications, true)}
+                ${sec('Achievements', d.achievements, true)}
+                ${sec('Education', d.education)}
+            </div>`;
+        }
+
+        function renderMinimal(d) {
+            const h4 = (t) => `<h4 style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#0f172a;margin-bottom:6px;">${t}</h4>`;
+            return `
+            <div style="padding:32px 30px;color:#1e293b;">
+                <div style="margin-bottom:20px;">
+                    <h1 style="font-family:'Fraunces',serif;font-size:24px;font-weight:500;color:#0f172a;">${d.name}</h1>
+                    <p style="font-size:10.5px;color:#64748b;margin-top:3px;">${[d.title, d.location, d.phone].filter(Boolean).join(' — ')}</p>
+                </div>
+                <div style="display:grid;grid-template-columns:26% 74%;gap:24px;">
+                    <div style="border-right:1px solid #e2e8f0;padding-right:16px;">
+                        ${d.email || d.linkedin || d.github || d.portfolio ? `${h4('Contact')}<div style="font-size:10px;color:#475569;line-height:1.8;margin-bottom:16px;">${[d.email, d.linkedin, d.github, d.portfolio].filter(Boolean).map(c => `<div>${c}</div>`).join('')}</div>` : ''}
+                        ${d.skills.length ? `${h4('Skills')}<p style="font-size:10.5px;color:#475569;line-height:1.7;margin-bottom:16px;">${d.skills.join(', ')}</p>` : ''}
+                        ${d.certifications ? `${h4('Certifications')}<div style="font-size:10px;color:#475569;line-height:1.7;white-space:pre-line;margin-bottom:16px;">${d.certifications}</div>` : ''}
+                        ${d.education ? `${h4('Education')}<p style="font-size:10.5px;color:#475569;line-height:1.7;">${d.education}</p>` : ''}
+                    </div>
+                    <div>
+                        ${d.summary ? `${h4('Profile')}<p style="font-size:11.5px;color:#334155;line-height:1.65;margin-bottom:16px;">${d.summary}</p>` : ''}
+                        ${d.experience ? `${h4('Experience')}<div style="font-size:11.5px;color:#334155;line-height:1.65;white-space:pre-line;margin-bottom:16px;">${d.experience}</div>` : ''}
+                        ${d.projects ? `${h4('Projects')}<div style="font-size:11.5px;color:#334155;line-height:1.65;white-space:pre-line;margin-bottom:16px;">${d.projects}</div>` : ''}
+                        ${d.achievements ? `${h4('Achievements')}<div style="font-size:11.5px;color:#334155;line-height:1.65;white-space:pre-line;">${d.achievements}</div>` : ''}
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderOverleaf(d) {
+            const contact = contactItems(d, false).map(c => `<span style="color:#0645AD;">${c}</span>`).join(' <span style="color:#94a3b8;">|</span> ');
+            const sec = (title, content) => content ? `
+                <div style="margin-bottom:14px;">
+                    <h3 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.75px solid #1e293b;padding-bottom:3px;margin-bottom:7px;color:#111827;font-family:Georgia,'Times New Roman',serif;">${title}</h3>
+                    <div style="font-size:11px;line-height:1.55;white-space:pre-line;color:#1f2937;font-family:Georgia,'Times New Roman',serif;">${content}</div>
+                </div>` : '';
+            return `
+            <div style="padding:34px 42px;color:#1f2937;font-family:Georgia,'Times New Roman',serif;">
+                <div style="text-align:center;margin-bottom:14px;">
+                    <h1 style="font-size:19px;font-weight:700;letter-spacing:.02em;color:#111827;">${d.name}</h1>
+                    <p style="font-size:10.5px;margin-top:4px;">${contact}</p>
+                </div>
+                ${sec('Objective', d.summary)}
+                ${sec('Experience', d.experience)}
+                ${sec('Projects', d.projects)}
+                ${sec('Education', d.education)}
+                ${d.skills.length ? sec('Technical skills', d.skills.join(', ')) : ''}
+                ${sec('Certifications', d.certifications)}
+                ${sec('Honors and awards', d.achievements)}
+            </div>`;
+        }
+
+        const RENDERERS = { modern: renderModern, executive: renderExecutive, minimal: renderMinimal, overleaf: renderOverleaf };
+
+        function renderTemplate() {
+            const doc = document.getElementById('resume-document');
+            const data = collectData();
+            doc.innerHTML = RENDERERS[activeTemplate](data);
+        }
+
+        // ---------- ATS ----------
+        function evaluateATS(summaryText, skillsList, expText, extras) {
+            let score = 40;
             let recs = [];
-
-            if (skillsList.length >= 5) score += 20;
-            else recs.push("Include at least 5 industry-specific technical or soft skills.");
-
-            if (summaryText.length > 100) score += 15;
-            else recs.push("Expand your summary text to over 100 characters to highlight scope.");
-
-            if (expText.includes('•') || expText.includes('-')) score += 15;
-            else recs.push("Use bullet points in experience descriptions for better ATS parsing readability.");
-
-            return { score, recs };
+            if (skillsList.length >= 5) score += 15; else recs.push("Include at least 5 industry-specific technical or soft skills.");
+            if (summaryText.length > 100) score += 15; else recs.push("Expand your summary to over 100 characters to highlight scope.");
+            if (expText.includes('•') || expText.includes('-')) score += 15; else recs.push("Use bullet points in experience descriptions for cleaner ATS parsing.");
+            if (extras && extras.projects) score += 8; else recs.push("Add a projects section to show applied, concrete work.");
+            if (extras && extras.certifications) score += 7; else recs.push("List relevant certifications if you have any.");
+            return { score: Math.min(score, 100), recs };
         }
 
         function runATSAnalysis() {
             const summary = document.getElementById('p-summary').value;
-            const skills = document.getElementById('p-skills').value.split(',');
+            const skills = document.getElementById('p-skills').value.split(',').filter(Boolean);
             const exp = document.getElementById('p-experience').value;
-
-            const { score, recs } = evaluateATS(summary, skills, exp);
+            const projects = document.getElementById('p-projects').value;
+            const certifications = document.getElementById('p-certifications').value;
+            const { score, recs } = evaluateATS(summary, skills, exp, { projects, certifications });
             displayATSResults(score, recs);
         }
 
         function analyzeCustomResume() {
             const rawText = document.getElementById('custom-resume-input').value.trim();
-            if (!rawText) return alert('Please enter or paste custom resume plain text to analyze.');
-
+            if (!rawText) return alert('Paste resume text to analyze first.');
             const words = rawText.split(' ');
-            let score = 60;
+            let score = 55;
             let recs = [];
-
-            if (words.length > 150) score += 20;
-            else recs.push("Text content is concise; ensure all key duties and achievements are represented.");
-
-            if (rawText.toLowerCase().includes('experience') || rawText.toLowerCase().includes('skills')) score += 20;
+            if (words.length > 150) score += 20; else recs.push("Text is short; make sure all key duties and achievements are represented.");
+            if (rawText.toLowerCase().includes('experience') || rawText.toLowerCase().includes('skills')) score += 25;
             else recs.push("Missing standard structural headers like 'Experience' or 'Skills'.");
-
             displayATSResults(score, recs);
         }
 
@@ -551,29 +714,26 @@
             const box = document.getElementById('ats-results-box');
             const badge = document.getElementById('ats-score-badge');
             const list = document.getElementById('ats-recommendations-list');
-
             box.classList.remove('hidden');
             badge.innerText = `${score} / 100`;
-
-            list.innerHTML = recs.length > 0 
+            list.innerHTML = recs.length > 0
                 ? recs.map(r => `<li>${r}</li>`).join('')
-                : '<li class="text-teal-400">Your resume formatting and content structure strongly match standard ATS parsers.</li>';
+                : '<li class="text-accent">Your resume formatting and content structure strongly match standard ATS parsers.</li>';
         }
 
-        // PDF Exporter
+        // ---------- PDF ----------
         function downloadPDF() {
             const element = document.getElementById('resume-document');
             const opt = {
-                margin:       0.5,
-                filename:     'Resume_Export.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                margin: 0,
+                filename: 'Resume_Export.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
             html2pdf().set(opt).from(element).save();
         }
 
-        // Execute session check on page load
         checkSession();
     </script>
 </body>
