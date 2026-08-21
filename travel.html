@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,13 +15,21 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            800: '#166534',
-                            900: '#14532d',
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            950: '#022c22'
+                        },
+                        darkbg: {
+                            900: '#0b0f17',
+                            800: '#111827',
+                            700: '#1f2937',
+                            600: '#374151'
                         }
                     }
                 }
@@ -33,30 +41,30 @@
         @media print {
             .no-print { display: none !important; }
             body { background: white !important; color: black !important; font-size: 11pt; }
-            .print-container { width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; box-shadow: none !important; }
+            .print-container { width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; box-shadow: none !important; background: white !important; color: black !important; }
             .page-break { page-break-after: always; }
             .editable-field { border: none !important; background: transparent !important; }
             .rich-toolbar { display: none !important; }
         }
 
         .editable-field:focus {
-            outline: 2px dashed #16a34a;
-            background-color: rgba(220, 252, 231, 0.4);
-            border-radius: 4px;
-            padding: 2px 4px;
+            outline: 2px dashed #10b981;
+            background-color: rgba(16, 185, 129, 0.15);
+            border-radius: 6px;
+            padding: 2px 6px;
         }
 
         /* Drag and Drop Visual Cues */
         .dragging {
             opacity: 0.4;
-            border: 2px dashed #16a34a !important;
+            border: 2px dashed #10b981 !important;
         }
 
-        /* Custom Scrollbar */
+        /* Custom Modern Dark Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        ::-webkit-scrollbar-track { background: #0b0f17; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 6px; border: 1px solid #374151; }
+        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
 
         /* Slide-down panel animation for inline forms */
         .form-panel {
@@ -75,8 +83,8 @@
             font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #64748b;
+            letter-spacing: 0.05em;
+            color: #9ca3af;
             margin-bottom: 4px;
         }
 
@@ -89,101 +97,109 @@
             transform: translateY(0);
             opacity: 1;
         }
+
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+<body class="bg-darkbg-900 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-black">
 
-    <!-- Toast Notification (replaces alert()) -->
-    <div id="toast-notification" class="toast fixed bottom-6 right-6 z-[100] bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm font-semibold flex items-center gap-2 no-print">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="toast fixed bottom-6 right-6 z-[100] glass-panel text-white px-5 py-3 rounded-xl shadow-2xl text-sm font-semibold flex items-center gap-3 border border-brand-500/30 no-print">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-brand-400 text-lg"></i>
         <span id="toast-message">Saved!</span>
     </div>
 
     <!-- Top Sticky Header -->
-    <header class="bg-brand-900 text-white sticky top-0 z-50 shadow-xl no-print">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-                <div class="bg-emerald-500 text-slate-900 p-2 rounded-xl flex items-center justify-center font-black text-xl shadow-inner">
+    <header class="glass-panel sticky top-0 z-50 shadow-2xl no-print border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer group" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <div class="bg-gradient-to-br from-brand-400 to-brand-600 text-slate-950 p-2.5 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-brand-500/20 group-hover:scale-105 transition transform">
                     <i class="fa-solid fa-mountain-sun"></i>
                 </div>
                 <div>
-                    <span class="text-2xl font-black tracking-tight text-white">EcoYatra<span class="text-emerald-400">.Studio</span></span>
-                    <span class="block text-[10px] text-emerald-300 font-medium tracking-widest uppercase -mt-1">Advanced Travel Planner</span>
+                    <span class="text-2xl font-black tracking-tight text-white">EcoYatra<span class="text-brand-400">.Studio</span></span>
+                    <span class="block text-[10px] text-brand-400/80 font-semibold tracking-widest uppercase -mt-1">Advanced Eco-Travel Studio</span>
                 </div>
             </div>
 
             <!-- Navigation Links -->
-            <nav class="hidden xl:flex items-center space-x-6 text-xs font-bold uppercase tracking-wider">
-                <a href="#destinations" class="hover:text-emerald-400 transition flex items-center gap-1.5"><i class="fa-solid fa-compass text-emerald-400"></i> Destinations</a>
-                <a href="#itinerary-builder" class="hover:text-emerald-400 transition flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square text-emerald-400"></i> Editor & Studio</a>
-                <a href="#expense-tracker" class="hover:text-emerald-400 transition flex items-center gap-1.5"><i class="fa-solid fa-wallet text-emerald-400"></i> Live Budget Log</a>
-                <a href="#checklist-section" class="hover:text-emerald-400 transition flex items-center gap-1.5"><i class="fa-solid fa-list-check text-emerald-400"></i> Eco Packing</a>
-                <a href="#culinary-matrix" class="hover:text-emerald-400 transition flex items-center gap-1.5"><i class="fa-solid fa-utensils text-emerald-400"></i> Food Matrix</a>
+            <nav class="hidden xl:flex items-center space-x-6 text-xs font-bold uppercase tracking-wider text-slate-300">
+                <a href="#destinations" class="hover:text-brand-400 transition flex items-center gap-1.5"><i class="fa-solid fa-compass text-brand-400"></i> Destinations</a>
+                <a href="#itinerary-builder" class="hover:text-brand-400 transition flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square text-brand-400"></i> Editor & Studio</a>
+                <a href="#expense-tracker" class="hover:text-brand-400 transition flex items-center gap-1.5"><i class="fa-solid fa-wallet text-brand-400"></i> Live Budget Log</a>
+                <a href="#checklist-section" class="hover:text-brand-400 transition flex items-center gap-1.5"><i class="fa-solid fa-list-check text-brand-400"></i> Eco Packing</a>
+                <a href="#culinary-matrix" class="hover:text-brand-400 transition flex items-center gap-1.5"><i class="fa-solid fa-utensils text-brand-400"></i> Food Matrix</a>
             </nav>
 
             <!-- Action Controls -->
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <button onclick="exportItineraryToJSON()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-download"></i> Export JSON
+                <button onclick="exportItineraryToJSON()" class="bg-darkbg-800 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-download text-brand-400"></i> Export JSON
                 </button>
-                <label class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer transition">
-                    <i class="fa-solid fa-upload"></i> Import JSON
+                <label class="bg-darkbg-800 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer transition">
+                    <i class="fa-solid fa-upload text-brand-400"></i> Import JSON
                     <input type="file" id="import-file-input" onchange="importItineraryFromJSON(event)" class="hidden" accept=".json">
                 </label>
-                <button onclick="window.print()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-2 shadow-md transition transform active:scale-95">
+                <button onclick="window.print()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-amber-500/10 transition transform active:scale-95">
                     <i class="fa-solid fa-print"></i> Export PDF / Print
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Floating Formatting Toolbar for Rich Text Editing (No-Print) -->
-    <div id="rich-editor-toolbar" class="sticky top-16 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-md py-2 px-4 no-print flex flex-wrap items-center justify-center gap-2 text-xs">
-        <span class="font-bold text-slate-400 uppercase text-[10px] mr-2"><i class="fa-solid fa-wand-magic-sparkles text-brand-600"></i> Text Formatting Toolbar:</span>
-        <button onclick="applyFormatting('bold')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-2.5 py-1.5 rounded-lg font-bold" title="Bold Selected Text"><i class="fa-solid fa-bold"></i></button>
-        <button onclick="applyFormatting('italic')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-2.5 py-1.5 rounded-lg italic" title="Italicize Selected Text"><i class="fa-solid fa-italic"></i></button>
-        <button onclick="applyFormatting('underline')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-2.5 py-1.5 rounded-lg underline" title="Underline Selected Text"><i class="fa-solid fa-underline"></i></button>
-        <button onclick="applyFormatting('hiliteColor', '#fef08a')" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-900 px-2.5 py-1.5 rounded-lg font-semibold" title="Yellow Highlight"><i class="fa-solid fa-highlighter"></i> Yellow</button>
-        <button onclick="applyFormatting('hiliteColor', '#bbf7d0')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 px-2.5 py-1.5 rounded-lg font-semibold" title="Green Highlight"><i class="fa-solid fa-highlighter"></i> Green</button>
-        <button onclick="applyFormatting('removeFormat')" class="bg-red-50 hover:bg-red-100 text-red-700 px-2.5 py-1.5 rounded-lg font-semibold" title="Clear Formatting"><i class="fa-solid fa-eraser"></i> Clear</button>
+    <!-- Floating Formatting Toolbar for Rich Text Editing -->
+    <div id="rich-editor-toolbar" class="sticky top-16 z-40 glass-panel border-b border-slate-800 shadow-xl py-2 px-4 no-print flex flex-wrap items-center justify-center gap-2 text-xs">
+        <span class="font-bold text-slate-400 uppercase text-[10px] mr-2"><i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i> Text Formatting Toolbar:</span>
+        <button onclick="applyFormatting('bold')" class="bg-darkbg-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg font-bold transition" title="Bold Selected Text"><i class="fa-solid fa-bold"></i></button>
+        <button onclick="applyFormatting('italic')" class="bg-darkbg-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg italic transition" title="Italicize Selected Text"><i class="fa-solid fa-italic"></i></button>
+        <button onclick="applyFormatting('underline')" class="bg-darkbg-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg underline transition" title="Underline Selected Text"><i class="fa-solid fa-underline"></i></button>
+        <button onclick="applyFormatting('hiliteColor', '#854d0e')" class="bg-amber-950/80 hover:bg-amber-900 text-amber-200 border border-amber-800 px-3 py-1.5 rounded-lg font-semibold transition" title="Yellow Highlight"><i class="fa-solid fa-highlighter text-amber-400"></i> Yellow</button>
+        <button onclick="applyFormatting('hiliteColor', '#064e3b')" class="bg-emerald-950/80 hover:bg-emerald-900 text-emerald-200 border border-emerald-800 px-3 py-1.5 rounded-lg font-semibold transition" title="Green Highlight"><i class="fa-solid fa-highlighter text-emerald-400"></i> Green</button>
+        <button onclick="applyFormatting('removeFormat')" class="bg-red-950/50 hover:bg-red-900/80 text-red-300 border border-red-800 px-3 py-1.5 rounded-lg font-semibold transition" title="Clear Formatting"><i class="fa-solid fa-eraser"></i> Clear</button>
     </div>
 
     <!-- Main Content Wrapper -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-12">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-10">
 
         <!-- Search & Filter Controls -->
-        <section id="destinations" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 no-print">
+        <section id="destinations" class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl no-print">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div>
-                    <h2 class="text-2xl font-black text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-compass text-brand-600"></i> Explore India Eco-Destinations
+                    <h2 class="text-2xl font-black text-white flex items-center gap-2.5">
+                        <i class="fa-solid fa-compass text-brand-400"></i> Explore India Eco-Destinations
                     </h2>
-                    <p class="text-slate-500 text-sm">Select destinations to load custom presets into your live-editing studio.</p>
+                    <p class="text-slate-400 text-sm mt-1">Select destinations to load custom presets into your live-editing studio.</p>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="toggleDestinationForm()" id="add-destination-toggle-btn" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition">
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="toggleDestinationForm()" id="add-destination-toggle-btn" class="bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-brand-500/20 transition transform active:scale-95">
                         <i class="fa-solid fa-plus"></i> Add Custom Destination
                     </button>
-                    <button onclick="resetDestinationsToDefault()" class="text-xs text-brand-700 font-bold hover:underline flex items-center gap-1 px-2">
-                        <i class="fa-solid fa-rotate-left"></i> Reset All Destinations
+                    <button onclick="resetDestinationsToDefault()" class="text-xs text-slate-400 hover:text-brand-400 font-bold flex items-center gap-1.5 px-2 transition">
+                        <i class="fa-solid fa-rotate-left"></i> Reset All
                     </button>
                 </div>
             </div>
 
             <!-- Inline Add Custom Destination Form Panel -->
-            <div id="add-destination-panel" class="form-panel bg-slate-50 border border-slate-200 rounded-2xl mb-6">
-                <form id="add-destination-form" onsubmit="handleAddDestination(event)" class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div id="add-destination-panel" class="form-panel bg-darkbg-800/80 border border-slate-700/80 rounded-2xl mb-6">
+                <form id="add-destination-form" onsubmit="handleAddDestination(event)" class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="lg:col-span-2">
                         <label class="field-label">Destination Title *</label>
-                        <input required type="text" id="dest-title" placeholder="e.g. Andaman Coral Trails" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input required type="text" id="dest-title" placeholder="e.g. Andaman Coral Trails" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                     </div>
                     <div>
                         <label class="field-label">State *</label>
-                        <input required type="text" id="dest-state" placeholder="e.g. Andaman & Nicobar" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input required type="text" id="dest-state" placeholder="e.g. Andaman & Nicobar" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                     </div>
                     <div>
                         <label class="field-label">Region Zone *</label>
-                        <select required id="dest-region" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <select required id="dest-region" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                             <option value="North">North (Himalayas & Valleys)</option>
                             <option value="South">South (Ghats & Backwaters)</option>
                             <option value="East">East & North-East Wilderness</option>
@@ -194,7 +210,7 @@
 
                     <div>
                         <label class="field-label">Adventure Type *</label>
-                        <select required id="dest-activity" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <select required id="dest-activity" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                             <option value="trekking">High Trekking & Wildlife Trails</option>
                             <option value="water-sports">Kayaking, Rafting & Scuba</option>
                             <option value="cultural">Tribal Heritage & Eco-Festivals</option>
@@ -202,7 +218,7 @@
                     </div>
                     <div>
                         <label class="field-label">Diet Focus *</label>
-                        <select required id="dest-diet" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <select required id="dest-diet" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                             <option value="both">Veg & Non-Veg Friendly</option>
                             <option value="pure-veg">Strict Pure-Veg / Sattvic</option>
                             <option value="seafood-meat">Coastal Seafood & Local Meat</option>
@@ -210,53 +226,53 @@
                     </div>
                     <div>
                         <label class="field-label">Price / Day (₹) *</label>
-                        <input required type="number" min="0" id="dest-price" placeholder="e.g. 3000" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input required type="number" min="0" id="dest-price" placeholder="e.g. 3000" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                     </div>
                     <div>
                         <label class="field-label">Badge Label</label>
-                        <input type="text" id="dest-badge" placeholder="e.g. Island Escape" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input type="text" id="dest-badge" placeholder="e.g. Island Escape" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                     </div>
 
                     <div class="lg:col-span-4">
                         <label class="field-label">Short Description *</label>
-                        <textarea required id="dest-description" rows="2" placeholder="One or two sentences describing the trip highlight..." class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                        <textarea required id="dest-description" rows="2" placeholder="One or two sentences describing the trip highlight..." class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none"></textarea>
                     </div>
 
                     <div class="lg:col-span-2">
                         <label class="field-label">Vegetarian Highlights</label>
-                        <input type="text" id="dest-veg" placeholder="e.g. Local dal, foraged greens" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input type="text" id="dest-veg" placeholder="e.g. Local dal, foraged greens" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                     </div>
                     <div class="lg:col-span-2">
                         <label class="field-label">Non-Vegetarian Highlights</label>
-                        <input type="text" id="dest-nonveg" placeholder="e.g. Coastal grilled fish" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input type="text" id="dest-nonveg" placeholder="e.g. Coastal grilled fish" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                     </div>
 
                     <div class="lg:col-span-4">
-                        <label class="field-label">Image URL (optional — a themed placeholder is used if left blank)</label>
-                        <input type="url" id="dest-image" placeholder="https://..." class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <label class="field-label">Image URL (optional — default visual used if blank)</label>
+                        <input type="url" id="dest-image" placeholder="https://..." class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                     </div>
 
-                    <div class="lg:col-span-4 flex gap-3 pt-1">
-                        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 transition">
-                            <i class="fa-solid fa-check"></i> Add Destination
+                    <div class="lg:col-span-4 flex gap-3 pt-2">
+                        <button type="submit" class="bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-sm flex items-center gap-2 transition">
+                            <i class="fa-solid fa-check"></i> Save Destination
                         </button>
-                        <button type="button" onclick="toggleDestinationForm()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-xl text-sm transition">
+                        <button type="button" onclick="toggleDestinationForm()" class="bg-darkbg-700 hover:bg-slate-700 text-slate-300 font-bold px-6 py-2.5 rounded-xl text-sm transition">
                             Cancel
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
-                <button onclick="resetFilters()" class="text-xs text-brand-700 font-bold hover:underline flex items-center gap-1">
+            <div class="flex justify-end mb-3">
+                <button onclick="resetFilters()" class="text-xs text-brand-400 font-bold hover:underline flex items-center gap-1">
                     <i class="fa-solid fa-rotate-left"></i> Reset All Filters
                 </button>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Region Zone</label>
-                    <select id="filter-region" onchange="filterDestinations()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <label class="field-label">Region Zone</label>
+                    <select id="filter-region" onchange="filterDestinations()" class="w-full bg-darkbg-800 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-brand-400 outline-none">
                         <option value="all">All Regions in India</option>
                         <option value="North">North (Himalayas & Valleys)</option>
                         <option value="South">South (Ghats & Backwaters)</option>
@@ -267,8 +283,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Diet Focus</label>
-                    <select id="filter-diet" onchange="filterDestinations()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <label class="field-label">Diet Focus</label>
+                    <select id="filter-diet" onchange="filterDestinations()" class="w-full bg-darkbg-800 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-brand-400 outline-none">
                         <option value="all">Veg & Non-Veg Friendly</option>
                         <option value="pure-veg">Strict Pure-Veg / Sattvic Highlights</option>
                         <option value="seafood-meat">Coastal Seafood & Local Meat Specialties</option>
@@ -276,8 +292,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Adventure Type</label>
-                    <select id="filter-activity" onchange="filterDestinations()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <label class="field-label">Adventure Type</label>
+                    <select id="filter-activity" onchange="filterDestinations()" class="w-full bg-darkbg-800 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-brand-400 outline-none">
                         <option value="all">All Activity Types</option>
                         <option value="trekking">High Trekking & Wildlife Trails</option>
                         <option value="water-sports">Kayaking, Rafting & Scuba</option>
@@ -286,8 +302,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Max Daily Cost / Person</label>
-                    <select id="filter-budget" onchange="filterDestinations()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <label class="field-label">Max Daily Cost / Person</label>
+                    <select id="filter-budget" onchange="filterDestinations()" class="w-full bg-darkbg-800 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-brand-400 outline-none">
                         <option value="all">Any Daily Budget</option>
                         <option value="2500">Under ₹2,500 / day</option>
                         <option value="4500">Under ₹4,500 / day</option>
@@ -298,8 +314,8 @@
 
             <div class="mt-4">
                 <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
-                    <input type="text" id="search-input" onkeyup="filterDestinations()" placeholder="Search by state name, destination, activity or local food..." class="w-full bg-slate-50 border border-slate-300 pl-10 pr-4 py-2.5 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500 text-sm"></i>
+                    <input type="text" id="search-input" onkeyup="filterDestinations()" placeholder="Search by state name, destination, activity or local food..." class="w-full bg-darkbg-800 border border-slate-700 text-white pl-11 pr-4 py-3 rounded-xl text-sm font-medium focus:ring-2 focus:ring-brand-400 outline-none">
                 </div>
             </div>
         </section>
@@ -307,8 +323,8 @@
         <!-- Destination Cards Grid -->
         <section class="no-print">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-slate-900">Featured Eco-Adventure Destinations</h3>
-                <span id="results-count" class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">Showing 10 destinations</span>
+                <h3 class="text-xl font-bold text-white">Featured Eco-Adventure Destinations</h3>
+                <span id="results-count" class="text-xs font-semibold bg-brand-950 text-brand-400 border border-brand-800 px-3 py-1 rounded-full">Showing destinations</span>
             </div>
             <div id="destinations-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Javascript will inject destination cards -->
@@ -316,54 +332,54 @@
         </section>
 
         <!-- Dynamic Printable & Editable Itinerary Studio -->
-        <section id="itinerary-builder" class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 print-container">
+        <section id="itinerary-builder" class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl print-container">
 
-            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-slate-200 pb-5 mb-6 gap-4">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-slate-800 pb-6 mb-6 gap-4">
                 <div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-black text-brand-600 uppercase tracking-widest bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-black text-brand-400 uppercase tracking-widest bg-brand-950/80 border border-brand-800 px-3 py-1 rounded-lg">
                             Live Itinerary Studio
                         </span>
-                        <span class="text-xs text-slate-400 font-semibold no-print"><i class="fa-solid fa-hand-pointer"></i> Highlight text to edit formatting</span>
+                        <span class="text-xs text-slate-400 font-medium no-print"><i class="fa-solid fa-hand-pointer text-brand-400"></i> Highlight text to edit formatting</span>
                     </div>
-                    <h2 id="trip-master-title" class="text-3xl font-black text-slate-900 mt-2 editable-field" contenteditable="true">
+                    <h2 id="trip-master-title" class="text-3xl font-black text-white mt-3 editable-field" contenteditable="true">
                         Custom India Eco-Adventure Expedition
                     </h2>
-                    <p class="text-slate-500 text-xs sm:text-sm mt-1">
-                        Use drag handles <i class="fa-solid fa-grip-vertical text-slate-400"></i> to reorder days. Edit text directly in the fields below.
+                    <p class="text-slate-400 text-xs sm:text-sm mt-1">
+                        Use drag handles <i class="fa-solid fa-grip-vertical text-slate-500"></i> to reorder days. Edit text directly in the fields below.
                     </p>
                 </div>
 
-                <div class="flex flex-wrap gap-2 no-print">
-                    <button onclick="addItineraryDay()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition">
+                <div class="flex flex-wrap gap-2.5 no-print">
+                    <button onclick="addItineraryDay()" class="bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition shadow-lg shadow-brand-500/10">
                         <i class="fa-solid fa-plus"></i> Add New Day
                     </button>
-                    <button onclick="saveTripToStorage()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition">
-                        <i class="fa-solid fa-floppy-disk"></i> Save Local Plan
+                    <button onclick="saveTripToStorage()" class="bg-darkbg-700 hover:bg-slate-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 border border-slate-600 transition">
+                        <i class="fa-solid fa-floppy-disk text-brand-400"></i> Save Local Plan
                     </button>
-                    <button onclick="resetItineraryToDefault()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 transition">
-                        <i class="fa-solid fa-rotate-left"></i> Reset Default
+                    <button onclick="resetItineraryToDefault()" class="bg-darkbg-800 hover:bg-slate-800 text-slate-300 font-bold px-3.5 py-2.5 rounded-xl text-xs border border-slate-700 transition">
+                        <i class="fa-solid fa-rotate-left"></i> Reset
                     </button>
                 </div>
             </div>
 
             <!-- Header Info Bar -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-8">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-darkbg-800/80 p-4 rounded-2xl border border-slate-700/60 mb-8">
                 <div>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Target Region</p>
-                    <p id="planner-target-location" class="font-bold text-slate-800 text-sm sm:text-base editable-field" contenteditable="true">Meghalaya & Kaziranga</p>
+                    <p id="planner-target-location" class="font-bold text-white text-sm sm:text-base editable-field mt-0.5" contenteditable="true">Meghalaya & Kaziranga</p>
                 </div>
                 <div>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trip Duration</p>
-                    <p id="planner-target-duration" class="font-bold text-slate-800 text-sm sm:text-base editable-field" contenteditable="true">5 Days / 4 Nights</p>
+                    <p id="planner-target-duration" class="font-bold text-white text-sm sm:text-base editable-field mt-0.5" contenteditable="true">5 Days / 4 Nights</p>
                 </div>
                 <div>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Est. Budget / Person</p>
-                    <p id="planner-target-cost" class="font-bold text-emerald-700 text-sm sm:text-base editable-field" contenteditable="true">₹17,500 INR</p>
+                    <p id="planner-target-cost" class="font-bold text-brand-400 text-sm sm:text-base editable-field mt-0.5" contenteditable="true">₹17,500 INR</p>
                 </div>
                 <div>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pace & Style</p>
-                    <p id="planner-target-style" class="font-bold text-slate-800 text-sm sm:text-base editable-field" contenteditable="true">Active Eco-Adventure</p>
+                    <p id="planner-target-style" class="font-bold text-white text-sm sm:text-base editable-field mt-0.5" contenteditable="true">Active Eco-Adventure</p>
                 </div>
             </div>
 
@@ -374,42 +390,42 @@
         </section>
 
         <!-- Live Expense & Budget Breakdown Calculator -->
-        <section id="expense-tracker" class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 no-print">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 pb-4 mb-6 gap-2">
+        <section id="expense-tracker" class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl no-print">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-5 mb-6 gap-3">
                 <div>
-                    <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-wallet text-brand-600"></i> Dynamic Expense & Budget Log
+                    <h3 class="text-2xl font-bold text-white flex items-center gap-2.5">
+                        <i class="fa-solid fa-wallet text-brand-400"></i> Dynamic Expense & Budget Log
                     </h3>
-                    <p class="text-slate-500 text-sm">Add itemized line expenses to track live total spend against budget target.</p>
+                    <p class="text-slate-400 text-sm mt-0.5">Add itemized line expenses to track live total spend against budget target.</p>
                 </div>
-                <div class="text-right">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Live Total Spent</span>
-                    <span id="expense-total-display" class="text-2xl font-black text-brand-700 block">₹0 INR</span>
+                <div class="text-right bg-darkbg-800/80 px-4 py-2 rounded-2xl border border-slate-700/60">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Live Total Spent</span>
+                    <span id="expense-total-display" class="text-2xl font-black text-brand-400 block">₹0 INR</span>
                 </div>
             </div>
 
             <!-- Expense Items Input Table -->
-            <div class="overflow-x-auto mb-4">
-                <table class="w-full text-left text-sm text-slate-600">
-                    <thead class="bg-slate-100 text-slate-800 uppercase text-[11px] font-bold tracking-wider">
+            <div class="overflow-x-auto mb-6 rounded-2xl border border-slate-800">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-darkbg-800 text-slate-400 uppercase text-[11px] font-bold tracking-wider border-b border-slate-800">
                         <tr>
-                            <th class="p-3">Category</th>
-                            <th class="p-3">Item Description</th>
-                            <th class="p-3">Estimated Cost (₹)</th>
-                            <th class="p-3">Action</th>
+                            <th class="p-4">Category</th>
+                            <th class="p-4">Item Description</th>
+                            <th class="p-4">Estimated Cost (₹)</th>
+                            <th class="p-4">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="expense-items-body" class="divide-y divide-slate-200">
+                    <tbody id="expense-items-body" class="divide-y divide-slate-800/60 bg-darkbg-900/40">
                         <!-- Populated dynamically -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- Inline Add Expense Form (replaces prompt()) -->
-            <form onsubmit="handleAddExpense(event)" class="bg-slate-50 border border-slate-200 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+            <!-- Inline Add Expense Form -->
+            <form onsubmit="handleAddExpense(event)" class="bg-darkbg-800/80 border border-slate-700/80 rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
                 <div>
                     <label class="field-label">Category</label>
-                    <select id="expense-category" onchange="toggleCustomCategoryField()" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <select id="expense-category" onchange="toggleCustomCategoryField()" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                         <option value="Stay / Homestay">Stay / Homestay</option>
                         <option value="Local Food">Local Food</option>
                         <option value="Activity / Permit">Activity / Permit</option>
@@ -417,38 +433,38 @@
                         <option value="Gear / Shopping">Gear / Shopping</option>
                         <option value="__custom__">Other (type below)</option>
                     </select>
-                    <input type="text" id="expense-category-custom" placeholder="Custom category name" class="hidden w-full mt-2 bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="text" id="expense-category-custom" placeholder="Custom category name" class="hidden w-full mt-2 bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                 </div>
                 <div>
                     <label class="field-label">Item Description</label>
-                    <input required type="text" id="expense-desc" placeholder="e.g. Eco lodge, 2 nights" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input required type="text" id="expense-desc" placeholder="e.g. Eco lodge, 2 nights" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                 </div>
                 <div>
                     <label class="field-label">Cost (₹)</label>
-                    <input required type="number" min="0" id="expense-cost" placeholder="e.g. 1500" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input required type="number" min="0" id="expense-cost" placeholder="e.g. 1500" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                 </div>
-                <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition">
+                <button type="submit" class="bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold px-4 py-3 rounded-xl text-sm flex items-center justify-center gap-2 transition shadow-lg shadow-brand-500/10">
                     <i class="fa-solid fa-plus"></i> Add Expense
                 </button>
             </form>
         </section>
 
         <!-- Interactive Eco-Packing Checklist -->
-        <section id="checklist-section" class="bg-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-xl no-print">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-4 mb-6 gap-2">
+        <section id="checklist-section" class="glass-panel text-white p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl no-print">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-5 mb-6 gap-3">
                 <div>
-                    <h3 class="text-2xl font-bold flex items-center gap-2 text-emerald-400">
+                    <h3 class="text-2xl font-bold flex items-center gap-2.5 text-brand-400">
                         <i class="fa-solid fa-list-check"></i> Eco-Friendly Adventure Packing Checklist
                     </h3>
-                    <p class="text-slate-300 text-sm">Essential green gear for responsible travel across India.</p>
+                    <p class="text-slate-400 text-sm mt-0.5">Essential green gear for responsible travel across India.</p>
                 </div>
-                <div class="w-full md:w-48 bg-slate-800 p-2 rounded-xl border border-slate-700">
-                    <div class="flex justify-between text-xs font-bold mb-1">
-                        <span class="text-slate-400">Packed Progress</span>
-                        <span id="checklist-progress-text" class="text-emerald-400">0%</span>
+                <div class="w-full md:w-52 bg-darkbg-800 p-3 rounded-2xl border border-slate-700/80">
+                    <div class="flex justify-between text-xs font-bold mb-1.5">
+                        <span class="text-slate-400 uppercase tracking-wider text-[10px]">Packed Progress</span>
+                        <span id="checklist-progress-text" class="text-brand-400">0%</span>
                     </div>
-                    <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
-                        <div id="checklist-progress-bar" class="bg-emerald-400 h-2 w-0 transition-all duration-300"></div>
+                    <div class="w-full bg-darkbg-900 rounded-full h-2 overflow-hidden border border-slate-700">
+                        <div id="checklist-progress-bar" class="bg-gradient-to-r from-brand-500 to-brand-400 h-2 w-0 transition-all duration-300"></div>
                     </div>
                 </div>
             </div>
@@ -457,80 +473,80 @@
                 <!-- Javascript populated checklist -->
             </div>
 
-            <div class="mt-6 flex gap-2">
-                <input type="text" id="new-packing-item-input" placeholder="Add custom gear item (e.g. Biodegradable Soap)..." class="bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2 flex-grow focus:ring-2 focus:ring-emerald-400 outline-none">
-                <button onclick="addCustomPackingItem()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs sm:text-sm">
+            <div class="mt-6 flex gap-3">
+                <input type="text" id="new-packing-item-input" placeholder="Add custom gear item (e.g. Biodegradable Soap)..." class="bg-darkbg-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-3 flex-grow focus:ring-2 focus:ring-brand-400 outline-none">
+                <button onclick="addCustomPackingItem()" class="bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold px-5 py-3 rounded-xl text-xs sm:text-sm shrink-0 transition">
                     Add Gear
                 </button>
             </div>
         </section>
 
         <!-- Regional Culinary Table -->
-        <section id="culinary-matrix" class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 no-print">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-2">
+        <section id="culinary-matrix" class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl no-print">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
                 <div>
-                    <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-utensils text-amber-500"></i> Indian Regional Culinary Matrix
+                    <h3 class="text-2xl font-bold text-white flex items-center gap-2.5">
+                        <i class="fa-solid fa-utensils text-amber-400"></i> Indian Regional Culinary Matrix
                     </h3>
-                    <p class="text-slate-500 text-sm">Budget dining highlights catering to both vegetarians and meat lovers.</p>
+                    <p class="text-slate-400 text-sm mt-0.5">Budget dining highlights catering to both vegetarians and meat lovers.</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-full font-semibold">
-                        <i class="fa-solid fa-circle-check text-emerald-600"></i> Authentic Regional Flavors
+                <div class="flex items-center gap-3">
+                    <span class="text-xs bg-amber-950/60 text-amber-300 border border-amber-800/80 px-3.5 py-1.5 rounded-full font-semibold">
+                        <i class="fa-solid fa-circle-check text-brand-400"></i> Authentic Regional Flavors
                     </span>
-                    <button onclick="resetCulinaryToDefault()" class="text-xs text-brand-700 font-bold hover:underline flex items-center gap-1 px-1" title="Reset to default rows">
+                    <button onclick="resetCulinaryToDefault()" class="text-xs text-slate-400 hover:text-brand-400 font-bold flex items-center gap-1 transition" title="Reset to default rows">
                         <i class="fa-solid fa-rotate-left"></i> Reset
                     </button>
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-slate-600 border-collapse">
+            <div class="overflow-x-auto rounded-2xl border border-slate-800">
+                <table class="w-full text-left text-sm text-slate-300 border-collapse">
                     <thead>
-                        <tr class="bg-slate-100 text-slate-800 uppercase text-[11px] font-bold tracking-wider">
-                            <th class="p-3.5 rounded-l-lg">Region / Hub</th>
-                            <th class="p-3.5">Budget Dining Spot</th>
-                            <th class="p-3.5">Vegetarian Specialty</th>
-                            <th class="p-3.5">Non-Vegetarian Specialty</th>
-                            <th class="p-3.5">Avg Cost / Meal</th>
-                            <th class="p-3.5">Eco Practice</th>
-                            <th class="p-3.5 rounded-r-lg">Action</th>
+                        <tr class="bg-darkbg-800 text-slate-400 uppercase text-[11px] font-bold tracking-wider border-b border-slate-800">
+                            <th class="p-4">Region / Hub</th>
+                            <th class="p-4">Budget Dining Spot</th>
+                            <th class="p-4">Vegetarian Specialty</th>
+                            <th class="p-4">Non-Vegetarian Specialty</th>
+                            <th class="p-4">Avg Cost / Meal</th>
+                            <th class="p-4">Eco Practice</th>
+                            <th class="p-4">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="culinary-table-body" class="divide-y divide-slate-200">
+                    <tbody id="culinary-table-body" class="divide-y divide-slate-800/60 bg-darkbg-900/40">
                         <!-- Javascript populated table -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- Inline Add Culinary Row Form (replaces prompt()) -->
-            <form onsubmit="handleAddCulinaryRow(event)" class="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
+            <!-- Inline Add Culinary Row Form -->
+            <form onsubmit="handleAddCulinaryRow(event)" class="mt-5 bg-darkbg-800/80 border border-slate-700/80 rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
                 <div>
                     <label class="field-label">Region / Hub</label>
-                    <input required type="text" id="culinary-region" placeholder="e.g. Goa (Palolem)" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input required type="text" id="culinary-region" placeholder="e.g. Goa (Palolem)" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                 </div>
                 <div>
                     <label class="field-label">Dining Spot</label>
-                    <input required type="text" id="culinary-spot" placeholder="e.g. Beach Shack Co-op" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input required type="text" id="culinary-spot" placeholder="e.g. Beach Shack Co-op" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                 </div>
                 <div>
                     <label class="field-label">Veg Specialty</label>
-                    <input type="text" id="culinary-veg" placeholder="e.g. Veg Xacuti" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="text" id="culinary-veg" placeholder="e.g. Veg Xacuti" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                 </div>
                 <div>
                     <label class="field-label">Non-Veg Specialty</label>
-                    <input type="text" id="culinary-nonveg" placeholder="e.g. Grilled Kingfish" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="text" id="culinary-nonveg" placeholder="e.g. Grilled Kingfish" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                 </div>
                 <div>
                     <label class="field-label">Avg Cost / Meal</label>
-                    <input required type="text" id="culinary-cost" placeholder="e.g. ₹150 - ₹300" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input required type="text" id="culinary-cost" placeholder="e.g. ₹150 - ₹300" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                 </div>
                 <div class="flex gap-2">
                     <div class="flex-grow">
                         <label class="field-label">Eco Practice</label>
-                        <input type="text" id="culinary-eco" placeholder="e.g. Leaf plates" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input type="text" id="culinary-eco" placeholder="e.g. Leaf plates" class="w-full bg-darkbg-900 border border-slate-700 text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-400 outline-none">
                     </div>
-                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition shrink-0 self-end">
+                    <button type="submit" class="bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold px-4 py-3 rounded-xl text-sm flex items-center justify-center gap-2 transition shrink-0 self-end">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
@@ -538,12 +554,12 @@
         </section>
 
         <!-- Saved Plans Drawer -->
-        <section id="saved-trips" class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 no-print">
+        <section id="saved-trips" class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl no-print">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-                    <i class="fa-solid fa-bookmark text-emerald-600"></i> Local Browser Saved Itineraries
+                <h3 class="text-xl font-bold text-white flex items-center gap-2.5">
+                    <i class="fa-solid fa-bookmark text-brand-400"></i> Local Browser Saved Itineraries
                 </h3>
-                <button onclick="clearAllSavedTrips()" class="text-xs text-red-600 font-semibold hover:underline">Clear Saved History</button>
+                <button onclick="clearAllSavedTrips()" class="text-xs text-red-400 font-semibold hover:underline">Clear Saved History</button>
             </div>
             <div id="saved-plans-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                 <!-- Javascript rendered saved items -->
@@ -553,10 +569,10 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 text-sm py-10 border-t border-slate-800 no-print">
+    <footer class="bg-darkbg-950 text-slate-400 text-sm py-10 border-t border-slate-800/80 no-print mt-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
-                <div class="bg-emerald-500 text-slate-900 p-1.5 rounded-lg font-black text-sm">
+                <div class="bg-brand-500 text-slate-950 p-2 rounded-xl font-black text-sm">
                     <i class="fa-solid fa-leaf"></i>
                 </div>
                 <span class="text-lg font-bold text-white">EcoYatra Studio</span>
@@ -564,10 +580,10 @@
             <p class="text-xs text-slate-500 text-center md:text-left">
                 © 2026 EcoYatra. Built for eco-conscious adventurers, food lovers, and smart budget travel in India.
             </p>
-            <div class="flex space-x-4 text-xs font-semibold">
-                <a href="#destinations" class="hover:text-white transition">Destinations</a>
-                <a href="#itinerary-builder" class="hover:text-white transition">Studio</a>
-                <a href="#expense-tracker" class="hover:text-white transition">Budget Log</a>
+            <div class="flex space-x-5 text-xs font-semibold">
+                <a href="#destinations" class="hover:text-brand-400 transition">Destinations</a>
+                <a href="#itinerary-builder" class="hover:text-brand-400 transition">Studio</a>
+                <a href="#expense-tracker" class="hover:text-brand-400 transition">Budget Log</a>
             </div>
         </div>
     </footer>
@@ -575,7 +591,7 @@
     <!-- Complete Application Logic Script -->
     <script>
         // ==========================================
-        // 0. Toast Helper (replaces alert())
+        // 0. Toast Helper
         // ==========================================
         let toastTimer = null;
         function showToast(message, type = 'success') {
@@ -583,7 +599,7 @@
             const icon = document.getElementById('toast-icon');
             document.getElementById('toast-message').innerText = message;
             icon.className = type === 'success'
-                ? 'fa-solid fa-circle-check text-emerald-400'
+                ? 'fa-solid fa-circle-check text-brand-400'
                 : 'fa-solid fa-circle-exclamation text-red-400';
             toast.classList.add('show');
             clearTimeout(toastTimer);
@@ -591,7 +607,7 @@
         }
 
         // ==========================================
-        // 1. Destination Dataset (Expanded India)
+        // 1. Destination Dataset
         // ==========================================
         const defaultIndiaDestinationsData = [
             {
@@ -867,47 +883,47 @@
 
             daysArray.forEach((day, index) => {
                 const dayCard = document.createElement('div');
-                dayCard.className = "day-card border border-slate-200 rounded-2xl p-5 relative bg-white shadow-sm hover:border-slate-300 transition cursor-grab active:cursor-grabbing";
+                dayCard.className = "day-card border border-slate-800 rounded-2xl p-5 relative bg-darkbg-800/60 hover:border-slate-700 transition cursor-grab active:cursor-grabbing shadow-lg";
                 dayCard.draggable = true;
 
                 dayCard.innerHTML = `
                     <div class="flex items-center justify-between gap-3 mb-4">
                         <div class="flex items-center gap-3 flex-grow">
-                            <span class="text-slate-300 hover:text-slate-500 transition no-print" title="Drag to reorder day">
+                            <span class="text-slate-500 hover:text-brand-400 transition no-print" title="Drag to reorder day">
                                 <i class="fa-solid fa-grip-vertical text-lg"></i>
                             </span>
-                            <span class="day-badge bg-brand-600 text-white font-black px-3 py-1 rounded-lg text-xs tracking-wide">
+                            <span class="day-badge bg-brand-500 text-slate-950 font-black px-3 py-1 rounded-lg text-xs tracking-wide shadow-md shadow-brand-500/20">
                                 Day ${index + 1}
                             </span>
-                            <h4 class="text-base sm:text-lg font-bold text-slate-900 editable-field flex-grow" contenteditable="true">
+                            <h4 class="text-base sm:text-lg font-bold text-white editable-field flex-grow" contenteditable="true">
                                 ${day.title}
                             </h4>
                         </div>
-                        <button onclick="deleteItineraryDay(this)" class="text-slate-300 hover:text-red-500 transition no-print p-1" title="Delete Day">
+                        <button onclick="deleteItineraryDay(this)" class="text-slate-500 hover:text-red-400 transition no-print p-1" title="Delete Day">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
-                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                            <span class="font-bold text-brand-700 block mb-1.5 flex items-center gap-1.5">
+                        <div class="bg-darkbg-900/80 p-4 rounded-xl border border-slate-800/80">
+                            <span class="font-bold text-brand-400 block mb-2 flex items-center gap-2">
                                 <i class="fa-solid fa-person-hiking"></i> Adventure & Nature Trail
                             </span>
-                            <p class="editable-field text-slate-700" contenteditable="true">${day.activity}</p>
+                            <p class="editable-field text-slate-300" contenteditable="true">${day.activity}</p>
                         </div>
 
-                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                            <span class="font-bold text-amber-700 block mb-1.5 flex items-center gap-1.5">
+                        <div class="bg-darkbg-900/80 p-4 rounded-xl border border-slate-800/80">
+                            <span class="font-bold text-amber-400 block mb-2 flex items-center gap-2">
                                 <i class="fa-solid fa-utensils"></i> Local Dining Spot (Veg & Non-Veg)
                             </span>
-                            <p class="editable-field text-slate-700" contenteditable="true">${day.food}</p>
+                            <p class="editable-field text-slate-300" contenteditable="true">${day.food}</p>
                         </div>
 
-                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                            <span class="font-bold text-purple-700 block mb-1.5 flex items-center gap-1.5">
+                        <div class="bg-darkbg-900/80 p-4 rounded-xl border border-slate-800/80">
+                            <span class="font-bold text-purple-400 block mb-2 flex items-center gap-2">
                                 <i class="fa-solid fa-masks-theater"></i> Culture, Nightlife & Eco-Relax
                             </span>
-                            <p class="editable-field text-slate-700" contenteditable="true">${day.culture}</p>
+                            <p class="editable-field text-slate-300" contenteditable="true">${day.culture}</p>
                         </div>
                     </div>
                 `;
@@ -922,47 +938,47 @@
             const totalDays = container.querySelectorAll('.day-card').length + 1;
 
             const dayCard = document.createElement('div');
-            dayCard.className = "day-card border border-slate-200 rounded-2xl p-5 relative bg-white shadow-sm hover:border-slate-300 transition cursor-grab active:cursor-grabbing";
+            dayCard.className = "day-card border border-slate-800 rounded-2xl p-5 relative bg-darkbg-800/60 hover:border-slate-700 transition cursor-grab active:cursor-grabbing shadow-lg";
             dayCard.draggable = true;
 
             dayCard.innerHTML = `
                 <div class="flex items-center justify-between gap-3 mb-4">
                     <div class="flex items-center gap-3 flex-grow">
-                        <span class="text-slate-300 hover:text-slate-500 transition no-print">
+                        <span class="text-slate-500 hover:text-brand-400 transition no-print">
                             <i class="fa-solid fa-grip-vertical text-lg"></i>
                         </span>
-                        <span class="day-badge bg-brand-600 text-white font-black px-3 py-1 rounded-lg text-xs tracking-wide">
+                        <span class="day-badge bg-brand-500 text-slate-950 font-black px-3 py-1 rounded-lg text-xs tracking-wide">
                             Day ${totalDays}
                         </span>
-                        <h4 class="text-base sm:text-lg font-bold text-slate-900 editable-field flex-grow" contenteditable="true">
+                        <h4 class="text-base sm:text-lg font-bold text-white editable-field flex-grow" contenteditable="true">
                             Click to edit day title (e.g. River Kayaking & Local Heritage Market)
                         </h4>
                     </div>
-                    <button onclick="deleteItineraryDay(this)" class="text-slate-300 hover:text-red-500 transition no-print p-1">
+                    <button onclick="deleteItineraryDay(this)" class="text-slate-500 hover:text-red-400 transition no-print p-1">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
-                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                        <span class="font-bold text-brand-700 block mb-1.5 flex items-center gap-1.5">
+                    <div class="bg-darkbg-900/80 p-4 rounded-xl border border-slate-800/80">
+                        <span class="font-bold text-brand-400 block mb-2 flex items-center gap-2">
                             <i class="fa-solid fa-person-hiking"></i> Adventure & Nature Trail
                         </span>
-                        <p class="editable-field text-slate-700" contenteditable="true">Add morning trek or activity details...</p>
+                        <p class="editable-field text-slate-300" contenteditable="true">Add morning trek or activity details...</p>
                     </div>
 
-                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                        <span class="font-bold text-amber-700 block mb-1.5 flex items-center gap-1.5">
+                    <div class="bg-darkbg-900/80 p-4 rounded-xl border border-slate-800/80">
+                        <span class="font-bold text-amber-400 block mb-2 flex items-center gap-2">
                             <i class="fa-solid fa-utensils"></i> Local Dining Spot (Veg & Non-Veg)
                         </span>
-                        <p class="editable-field text-slate-700" contenteditable="true">Add dhaba or local food spot...</p>
+                        <p class="editable-field text-slate-300" contenteditable="true">Add dhaba or local food spot...</p>
                     </div>
 
-                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                        <span class="font-bold text-purple-700 block mb-1.5 flex items-center gap-1.5">
+                    <div class="bg-darkbg-900/80 p-4 rounded-xl border border-slate-800/80">
+                        <span class="font-bold text-purple-400 block mb-2 flex items-center gap-2">
                             <i class="fa-solid fa-masks-theater"></i> Culture, Nightlife & Eco-Relax
                         </span>
-                        <p class="editable-field text-slate-700" contenteditable="true">Add evening event or relaxation plan...</p>
+                        <p class="editable-field text-slate-300" contenteditable="true">Add evening event or relaxation plan...</p>
                     </div>
                 </div>
             `;
@@ -976,7 +992,7 @@
         }
 
         // ==========================================
-        // 9. Dynamic Expense Tracker Logic (inline form, no prompts)
+        // 9. Dynamic Expense Tracker Logic
         // ==========================================
         function renderExpenses() {
             const tbody = document.getElementById('expense-items-body');
@@ -984,19 +1000,19 @@
             let total = 0;
 
             if (expenseItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400 text-xs">No expenses logged yet — add one below.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 text-xs">No expenses logged yet — add one below.</td></tr>`;
             }
 
             expenseItems.forEach((item, index) => {
                 total += item.cost;
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 border-b border-slate-100";
+                tr.className = "hover:bg-darkbg-800/50 transition";
                 tr.innerHTML = `
-                    <td class="p-3 font-bold text-slate-800">${item.category}</td>
-                    <td class="p-3 text-slate-700">${item.desc}</td>
-                    <td class="p-3 font-black text-slate-900">₹${item.cost.toLocaleString('en-IN')}</td>
-                    <td class="p-3">
-                        <button onclick="deleteExpenseRow(${index})" class="text-slate-300 hover:text-red-500 transition" title="Delete expense">
+                    <td class="p-4 font-bold text-white">${item.category}</td>
+                    <td class="p-4 text-slate-300">${item.desc}</td>
+                    <td class="p-4 font-black text-brand-400">₹${item.cost.toLocaleString('en-IN')}</td>
+                    <td class="p-4">
+                        <button onclick="deleteExpenseRow(${index})" class="text-slate-500 hover:text-red-400 transition" title="Delete expense">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </td>
@@ -1062,11 +1078,11 @@
             packingChecklist.forEach((item, index) => {
                 if(item.packed) packedCount++;
                 const div = document.createElement('div');
-                div.className = "flex items-center justify-between bg-slate-800 p-3 rounded-xl border border-slate-700";
+                div.className = "flex items-center justify-between bg-darkbg-800/80 p-3.5 rounded-2xl border border-slate-700/70";
                 div.innerHTML = `
-                    <label class="flex items-center gap-2 text-xs sm:text-sm font-medium cursor-pointer flex-grow">
-                        <input type="checkbox" ${item.packed ? 'checked' : ''} onchange="toggleChecklistItem(${index})" class="w-4 h-4 text-emerald-500 rounded focus:ring-0">
-                        <span class="${item.packed ? 'line-through text-slate-400' : 'text-slate-200'}">${item.text}</span>
+                    <label class="flex items-center gap-3 text-xs sm:text-sm font-medium cursor-pointer flex-grow">
+                        <input type="checkbox" ${item.packed ? 'checked' : ''} onchange="toggleChecklistItem(${index})" class="w-4 h-4 text-brand-500 rounded bg-darkbg-900 border-slate-600 focus:ring-0">
+                        <span class="${item.packed ? 'line-through text-slate-500' : 'text-slate-200'}">${item.text}</span>
                     </label>
                     <button onclick="deleteChecklistItem(${index})" class="text-slate-500 hover:text-red-400 text-xs pl-2">
                         <i class="fa-solid fa-xmark"></i>
@@ -1075,7 +1091,6 @@
                 container.appendChild(div);
             });
 
-            // Update progress
             const percentage = packingChecklist.length > 0 ? Math.round((packedCount / packingChecklist.length) * 100) : 0;
             document.getElementById('checklist-progress-text').innerText = `${percentage}%`;
             document.getElementById('checklist-progress-bar').style.width = `${percentage}%`;
@@ -1153,7 +1168,7 @@
         }
 
         // ==========================================
-        // 12. Filtering & Destination Rendering (with Add/Delete)
+        // 12. Filtering & Destination Rendering
         // ==========================================
         function saveDestinations() {
             localStorage.setItem('ecoYatraDestinationsData', JSON.stringify(indiaDestinationsData));
@@ -1230,32 +1245,32 @@
             if(countLabel) countLabel.innerText = `Showing ${items.length} destinations`;
 
             if(items.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-slate-400 text-center py-8">No destinations found matching selected criteria.</div>`;
+                container.innerHTML = `<div class="col-span-full text-slate-500 text-center py-8">No destinations found matching selected criteria.</div>`;
                 return;
             }
 
             items.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between relative group";
+                card.className = "glass-panel border border-slate-800 rounded-3xl overflow-hidden shadow-xl hover:border-slate-700 hover:shadow-2xl transition flex flex-col justify-between relative group";
                 card.innerHTML = `
                     <div>
-                        <div class="relative h-44 overflow-hidden">
-                            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover">
-                            <span class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur text-white text-[10px] font-bold px-2 py-0.5 rounded">${item.badge}</span>
-                            <span class="absolute top-3 right-3 bg-emerald-500 text-slate-950 font-black text-xs px-2 py-0.5 rounded"><i class="fa-solid fa-star text-[10px]"></i> ${item.rating}</span>
-                            <button onclick="deleteDestination('${item.id}')" class="absolute bottom-3 right-3 bg-white/90 hover:bg-red-500 hover:text-white text-red-500 w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow" title="Remove destination">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <span class="absolute top-3 left-3 bg-darkbg-900/80 backdrop-blur border border-slate-700/80 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">${item.badge}</span>
+                            <span class="absolute top-3 right-3 bg-brand-500 text-slate-950 font-black text-xs px-2.5 py-1 rounded-lg shadow-md"><i class="fa-solid fa-star text-[10px]"></i> ${item.rating}</span>
+                            <button onclick="deleteDestination('${item.id}')" class="absolute bottom-3 right-3 bg-darkbg-900/90 hover:bg-red-500 text-red-400 hover:text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow" title="Remove destination">
                                 <i class="fa-solid fa-trash-can text-xs"></i>
                             </button>
                         </div>
-                        <div class="p-4 space-y-2">
-                            <h4 class="font-bold text-slate-900">${item.title}</h4>
-                            <p class="text-xs font-semibold text-brand-700"><i class="fa-solid fa-location-dot"></i> ${item.state}, ${item.region} India</p>
-                            <p class="text-xs text-slate-600 line-clamp-2">${item.description}</p>
+                        <div class="p-5 space-y-2">
+                            <h4 class="font-bold text-white text-base">${item.title}</h4>
+                            <p class="text-xs font-semibold text-brand-400"><i class="fa-solid fa-location-dot"></i> ${item.state}, ${item.region} India</p>
+                            <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">${item.description}</p>
                         </div>
                     </div>
-                    <div class="p-4 border-t border-slate-100 flex items-center justify-between">
-                        <span class="font-black text-slate-900 text-sm">₹${item.pricePerDay}<span class="text-[10px] font-normal text-slate-400">/day</span></span>
-                        <button onclick="loadDestinationToPlanner('${item.title} (${item.state})', 5, ${item.pricePerDay * 5})" class="bg-slate-900 hover:bg-brand-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                    <div class="p-5 border-t border-slate-800/80 flex items-center justify-between bg-darkbg-900/40">
+                        <span class="font-black text-white text-sm">₹${item.pricePerDay}<span class="text-[10px] font-normal text-slate-500">/day</span></span>
+                        <button onclick="loadDestinationToPlanner('${item.title} (${item.state})', 5, ${item.pricePerDay * 5})" class="bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs transition shadow-md shadow-brand-500/10">
                             Load Studio
                         </button>
                     </div>
@@ -1294,7 +1309,7 @@
         }
 
         // ==========================================
-        // 13. Culinary Matrix Logic (with Add/Delete)
+        // 13. Culinary Matrix Logic
         // ==========================================
         function saveCulinary() {
             localStorage.setItem('ecoYatraCulinaryData', JSON.stringify(culinaryData));
@@ -1317,22 +1332,22 @@
             tbody.innerHTML = '';
 
             if (culinaryData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400 text-xs">No culinary entries yet — add one below.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-500 text-xs">No culinary entries yet — add one below.</td></tr>`;
                 return;
             }
 
             culinaryData.forEach((row) => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 border-b border-slate-100";
+                tr.className = "hover:bg-darkbg-800/50 transition";
                 tr.innerHTML = `
-                    <td class="p-3 font-bold text-slate-800">${row.region}</td>
-                    <td class="p-3 font-semibold text-emerald-800">${row.spot}</td>
-                    <td class="p-3 text-slate-700">${row.veg || '—'}</td>
-                    <td class="p-3 text-slate-700">${row.nonVeg || '—'}</td>
-                    <td class="p-3 font-black text-slate-900">${row.cost}</td>
-                    <td class="p-3 text-xs text-slate-500">${row.ecoFeature || '—'}</td>
-                    <td class="p-3">
-                        <button onclick="deleteCulinaryRow('${row.id}')" class="text-slate-300 hover:text-red-500 transition" title="Delete row">
+                    <td class="p-4 font-bold text-white">${row.region}</td>
+                    <td class="p-4 font-semibold text-brand-400">${row.spot}</td>
+                    <td class="p-4 text-slate-300">${row.veg || '—'}</td>
+                    <td class="p-4 text-slate-300">${row.nonVeg || '—'}</td>
+                    <td class="p-4 font-black text-amber-400">${row.cost}</td>
+                    <td class="p-4 text-xs text-slate-400">${row.ecoFeature || '—'}</td>
+                    <td class="p-4">
+                        <button onclick="deleteCulinaryRow('${row.id}')" class="text-slate-500 hover:text-red-400 transition" title="Delete row">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </td>
@@ -1407,17 +1422,17 @@
             const saved = JSON.parse(localStorage.getItem('ecoYatraStudioTrips') || '[]');
 
             if(saved.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-slate-400 text-xs py-2">No saved plans found in local storage.</div>`;
+                container.innerHTML = `<div class="col-span-full text-slate-500 text-xs py-2">No saved plans found in local storage.</div>`;
                 return;
             }
 
             container.innerHTML = saved.map((t, idx) => `
-                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex justify-between items-center">
+                <div class="bg-darkbg-800/80 p-4 rounded-2xl border border-slate-700/80 flex justify-between items-center">
                     <div>
-                        <h5 class="font-bold text-slate-900 text-xs sm:text-sm">${t.title}</h5>
-                        <p class="text-xs text-slate-500">${t.location} • <span class="font-bold text-emerald-700">${t.cost}</span></p>
+                        <h5 class="font-bold text-white text-xs sm:text-sm">${t.title}</h5>
+                        <p class="text-xs text-slate-400 mt-0.5">${t.location} • <span class="font-bold text-brand-400">${t.cost}</span></p>
                     </div>
-                    <button onclick="deleteSavedTrip(${idx})" class="text-slate-400 hover:text-red-500 p-1"><i class="fa-solid fa-xmark"></i></button>
+                    <button onclick="deleteSavedTrip(${idx})" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             `).join('');
         }
