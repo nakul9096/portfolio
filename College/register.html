@@ -1,0 +1,2814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SmartCollege | Teacher Admin</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--primary:#2563eb;--primary2:#3b82f6;--bg:#f5f8fc;--card:#fff;
+--text:#172033;--muted:#718096;--border:#e2e8f0;
+--green:#16a34a;--red:#dc3545;--orange:#d97706;--blue:#0284c7;
+--shadow:0 6px 24px rgba(30,64,100,.06)
+}
+body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+
+/* AUTH */
+.auth-page{
+min-height:100vh;display:flex;align-items:center;justify-content:center;
+padding:20px;
+background:radial-gradient(circle at top left,#dbeafe,transparent 35%),
+radial-gradient(circle at bottom right,#e0f2fe,transparent 35%),#f8fafc
+}
+.auth-box{
+width:430px;max-width:100%;background:#fff;border:1px solid var(--border);
+border-radius:22px;padding:32px;box-shadow:0 20px 60px rgba(30,64,100,.1)
+}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:24px}
+.brand-icon{
+width:43px;height:43px;border-radius:12px;display:flex;
+align-items:center;justify-content:center;background:linear-gradient(135deg,var(--primary),var(--primary2));
+color:#fff;font-weight:800
+}
+.brand strong{font-size:17px}.brand span{color:var(--primary)}
+.auth-box h1{font-size:24px;margin-bottom:7px}
+.auth-sub{color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:22px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:10px;font-weight:700;margin-bottom:6px}
+.field input,.field select,.field textarea{
+width:100%;border:1px solid var(--border);border-radius:9px;
+padding:11px 12px;outline:0;font-size:11px;background:#fff
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.08)
+}
+.primary-btn{
+width:100%;border:0;color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary2));
+padding:12px;border-radius:9px;font-size:11px;font-weight:700
+}
+.small-note{color:#9aa4b2;text-align:center;font-size:9px;margin-top:14px}
+
+/* APP */
+.app{min-height:100vh}
+.sidebar{
+position:fixed;left:0;top:0;bottom:0;width:235px;background:#fff;
+border-right:1px solid var(--border);z-index:100;display:flex;
+flex-direction:column;transition:.3s
+}
+.sidebar-brand{
+height:72px;display:flex;align-items:center;gap:10px;padding:0 20px;
+border-bottom:1px solid var(--border)
+}
+.sidebar-brand .brand-icon{width:36px;height:36px;font-size:14px}
+.sidebar-brand strong{font-size:15px}
+.menu-title{
+padding:20px 20px 8px;color:#9aa4b2;font-size:9px;font-weight:800;
+letter-spacing:1px;text-transform:uppercase
+}
+.nav{padding:0 10px;overflow:auto}
+.nav button{
+width:100%;height:41px;border:0;background:transparent;color:#667085;
+display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:9px;
+margin-bottom:4px;text-align:left;font-size:11px;font-weight:600
+}
+.nav button:hover,.nav button.active{background:#eff6ff;color:var(--primary)}
+.nav-icon{width:19px;text-align:center}
+.sidebar-bottom{margin-top:auto;border-top:1px solid var(--border);padding:12px}
+.admin-mini{display:flex;gap:9px;align-items:center;margin-bottom:10px;padding:7px}
+.avatar{
+width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--primary2));
+color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800
+}
+.admin-mini strong{display:block;font-size:10px}
+.admin-mini span{display:block;color:var(--muted);font-size:8px;margin-top:2px}
+.logout{
+width:100%;border:0;background:#fff0f1;color:var(--red);border-radius:8px;
+padding:9px;font-size:10px;font-weight:700
+}
+.main{margin-left:235px;min-height:100vh}
+.topbar{
+height:72px;position:sticky;top:0;z-index:80;background:rgba(255,255,255,.95);
+backdrop-filter:blur(10px);border-bottom:1px solid var(--border);
+display:flex;align-items:center;justify-content:space-between;padding:0 25px
+}
+.menu-mobile{display:none;border:0;background:transparent;font-size:20px}
+.search{
+width:290px;height:38px;border:1px solid var(--border);background:#fafcff;
+border-radius:9px;display:flex;align-items:center;gap:8px;padding:0 11px
+}
+.search span{color:#999}.search input{width:100%;border:0;outline:0;background:transparent;font-size:10px}
+.top-actions{display:flex;gap:9px}.top-btn{
+width:36px;height:36px;border:1px solid var(--border);border-radius:9px;background:#fff
+}
+.content{padding:25px;max-width:1500px}
+.page-title{
+display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:21px
+}
+.page-title h1{font-size:24px;letter-spacing:-.5px}
+.page-title p{color:var(--muted);font-size:10px;margin-top:5px}
+.add-btn{
+border:0;background:var(--primary);color:#fff;padding:10px 14px;
+border-radius:8px;font-size:10px;font-weight:700
+}
+
+/* DASHBOARD */
+.stats{
+display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:17px
+}
+.stat{
+background:#fff;border:1px solid var(--border);border-radius:14px;
+padding:16px;box-shadow:var(--shadow)
+}
+.stat-icon{
+width:33px;height:33px;border-radius:8px;display:flex;
+align-items:center;justify-content:center;margin-bottom:11px
+}
+.stat h2{font-size:22px}.stat p{color:var(--muted);font-size:9px;margin-top:4px}
+.stat.p .stat-icon{background:#eff6ff;color:var(--primary)}
+.stat.g .stat-icon{background:#ecfdf3;color:var(--green)}
+.stat.o .stat-icon{background:#fff7ed;color:var(--orange)}
+.stat.b .stat-icon{background:#e0f2fe;color:var(--blue)}
+
+/* CARDS */
+.card{
+background:#fff;border:1px solid var(--border);border-radius:14px;
+box-shadow:var(--shadow);overflow:hidden;margin-bottom:17px
+}
+.card-head{
+padding:15px 17px;display:flex;justify-content:space-between;
+align-items:center;border-bottom:1px solid var(--border)
+}
+.card-head h3{font-size:12px}.card-head span{color:var(--muted);font-size:9px}
+.card-body{padding:16px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:17px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+
+/* TABLE */
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse}
+th{
+text-align:left;background:#f8fafc;color:#7b8794;font-size:8px;
+padding:10px 13px;white-space:nowrap
+}
+td{
+padding:11px 13px;border-top:1px solid #edf0f4;font-size:9px;white-space:nowrap
+}
+.action{
+border:0;padding:6px 8px;border-radius:6px;font-size:8px;margin-right:3px
+}
+.edit{background:#eff6ff;color:var(--primary)}
+.delete{background:#fff0f1;color:var(--red)}
+.green{background:#ecfdf3;color:var(--green)}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.form-grid .full{grid-column:1/-1}
+.form-actions{display:flex;gap:8px;margin-top:5px}
+.form-actions button{
+border:0;padding:9px 14px;border-radius:8px;font-size:10px;font-weight:700
+}
+.save{background:var(--primary);color:#fff}
+.cancel{background:#eef1f5;color:#555}
+
+/* MODAL */
+.modal{
+position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;
+align-items:center;justify-content:center;z-index:500;padding:20px
+}
+.modal.show{display:flex}
+.modal-box{
+background:#fff;width:650px;max-width:100%;max-height:90vh;
+overflow:auto;border-radius:17px;padding:21px
+}
+.modal-head{
+display:flex;justify-content:space-between;align-items:center;margin-bottom:17px
+}
+.modal-head h3{font-size:15px}
+.close{
+width:30px;height:30px;border:0;border-radius:7px;background:#f1f5f9
+}
+
+/* TOAST */
+.toast{
+position:fixed;right:20px;bottom:20px;background:#172033;color:#fff;
+padding:11px 16px;border-radius:9px;font-size:10px;transform:translateY(30px);
+opacity:0;pointer-events:none;transition:.3s;z-index:1000
+}
+.toast.show{opacity:1;transform:translateY(0)}
+.empty{text-align:center;color:var(--muted);padding:32px;font-size:10px}
+
+/* RESPONSIVE */
+@media(max-width:1050px){
+.stats{grid-template-columns:repeat(2,1fr)}
+.three{grid-template-columns:1fr}
+}
+@media(max-width:800px){
+.sidebar{transform:translateX(-100%)}
+.sidebar.open{transform:translateX(0)}
+.main{margin-left:0}
+.menu-mobile{display:block}
+.topbar{padding:0 14px}
+.search{width:190px}
+.content{padding:17px 13px}
+.two{grid-template-columns:1fr}
+}
+@media(max-width:550px){
+.stats{grid-template-columns:1fr 1fr;gap:8px}
+.stat{padding:12px}.stat h2{font-size:18px}
+.search{display:none}
+.form-grid{grid-template-columns:1fr}
+.page-title{align-items:flex-start}
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     REGISTRATION
+===================================================== -->
+
+<div id="authPage" class="auth-page">
+<div class="auth-box">
+
+<div class="brand">
+<div class="brand-icon">S</div>
+<strong>Smart<span>College</span></strong>
+</div>
+
+<h1>Teacher Registration</h1>
+
+<p class="auth-sub">
+Register as a teacher or administrator to manage students,
+attendance, notes, assignments, examinations and college information.
+</p>
+
+<form id="registerForm" onsubmit="registerTeacher(event)">
+
+<div class="field">
+<label>Full Name</label>
+<input id="regName" required placeholder="Dr. Rahul Sharma">
+</div>
+
+<div class="field">
+<label>Email</label>
+<input id="regEmail" type="email" required placeholder="teacher@college.com">
+</div>
+
+<div class="field">
+<label>Password</label>
+<input id="regPassword" type="password" minlength="6" required placeholder="Minimum 6 characters">
+</div>
+
+<div class="field">
+<label>Role</label>
+<select id="regRole">
+<option value="teacher">Teacher</option>
+<option value="admin">Administrator</option>
+</select>
+</div>
+
+<div class="field">
+<label>Department</label>
+<input id="regDepartment" placeholder="Computer Engineering">
+</div>
+
+<button class="primary-btn">
+Create Teacher Account
+</button>
+
+</form>
+
+<p class="small-note">SmartCollege Management System</p>
+
+</div>
+</div>
+
+
+<!-- =====================================================
+     APPLICATION
+===================================================== -->
+
+<div id="app" class="app hidden">
+
+<aside id="sidebar" class="sidebar">
+
+<div class="sidebar-brand">
+<div class="brand-icon">S</div>
+<strong>Smart<span>College</span></strong>
+</div>
+
+<div class="menu-title">Overview</div>
+
+<nav class="nav">
+<button class="active" onclick="page('dashboard',this)">
+<span class="nav-icon">⌂</span>Dashboard
+</button>
+</nav>
+
+<div class="menu-title">Academic Management</div>
+
+<nav class="nav">
+
+<button onclick="page('students',this)">
+<span class="nav-icon">●</span>Students
+</button>
+
+<button onclick="page('subjects',this)">
+<span class="nav-icon">▦</span>Subjects
+</button>
+
+<button onclick="page('attendance',this)">
+<span class="nav-icon">✓</span>Attendance
+</button>
+
+<button onclick="page('notes',this)">
+<span class="nav-icon">▤</span>Study Notes
+</button>
+
+<button onclick="page('assignments',this)">
+<span class="nav-icon">⌁</span>Assignments
+</button>
+
+<button onclick="page('tests',this)">
+<span class="nav-icon">□</span>Tests & Exams
+</button>
+
+<button onclick="page('results',this)">
+<span class="nav-icon">★</span>Results
+</button>
+
+<button onclick="page('timetable',this)">
+<span class="nav-icon">▣</span>Timetable
+</button>
+
+</nav>
+
+<div class="menu-title">College</div>
+
+<nav class="nav">
+
+<button onclick="page('notices',this)">
+<span class="nav-icon">!</span>Notices
+</button>
+
+<button onclick="page('events',this)">
+<span class="nav-icon">◆</span>Events
+</button>
+
+<button onclick="page('fees',this)">
+<span class="nav-icon">₹</span>Fees
+</button>
+
+</nav>
+
+<div class="sidebar-bottom">
+
+<div class="admin-mini">
+<div id="adminAvatar" class="avatar">A</div>
+<div>
+<strong id="adminName">Administrator</strong>
+<span id="adminRole">Admin</span>
+</div>
+</div>
+
+<button class="logout" onclick="logout()">Logout</button>
+
+</div>
+</aside>
+
+
+<main class="main">
+
+<header class="topbar">
+
+<button class="menu-mobile" onclick="toggleSidebar()">☰</button>
+
+<div class="search">
+<span>⌕</span>
+<input id="globalSearch" placeholder="Search students..." oninput="globalSearch()">
+</div>
+
+<div class="top-actions">
+<button class="top-btn" onclick="loadDashboard()">↻</button>
+<button class="top-btn" onclick="showToast('No new notifications')">♢</button>
+</div>
+
+</header>
+
+
+<section class="content">
+
+<!-- DASHBOARD -->
+<div id="dashboardPage">
+
+<div class="page-title">
+<div>
+<h1>Admin Dashboard</h1>
+<p>Manage your entire college academic system.</p>
+</div>
+<button class="add-btn" onclick="pageByName('students')">+ Add Student</button>
+</div>
+
+<div class="stats">
+
+<div class="stat p">
+<div class="stat-icon">●</div>
+<h2 id="studentCount">0</h2>
+<p>Total Students</p>
+</div>
+
+<div class="stat g">
+<div class="stat-icon">✓</div>
+<h2 id="subjectCount">0</h2>
+<p>Total Subjects</p>
+</div>
+
+<div class="stat o">
+<div class="stat-icon">□</div>
+<h2 id="assignmentCount">0</h2>
+<p>Assignments</p>
+</div>
+
+<div class="stat b">
+<div class="stat-icon">!</div>
+<h2 id="noticeCount">0</h2>
+<p>Notices</p>
+</div>
+
+</div>
+
+<div class="two">
+
+<div class="card">
+<div class="card-head">
+<h3>Recent Students</h3>
+<span>Latest registrations</span>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>Student</th><th>Department</th><th>Semester</th></tr>
+</thead>
+<tbody id="recentStudents"></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<div class="card-head">
+<h3>System Overview</h3>
+<span>Live database</span>
+</div>
+
+<div class="card-body">
+<div class="form-grid">
+
+<div class="field">
+<label>Students</label>
+<input id="overviewStudents" readonly>
+</div>
+
+<div class="field">
+<label>Subjects</label>
+<input id="overviewSubjects" readonly>
+</div>
+
+<div class="field">
+<label>Assignments</label>
+<input id="overviewAssignments" readonly>
+</div>
+
+<div class="field">
+<label>Notices</label>
+<input id="overviewNotices" readonly>
+</div>
+
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+
+<!-- STUDENTS -->
+<div id="studentsPage" class="hidden">
+
+<div class="page-title">
+<div>
+<h1>Students</h1>
+<p>Register and manage students.</p>
+</div>
+<button class="add-btn" onclick="openStudentModal()">+ Register Student</button>
+</div>
+
+<div class="card">
+<div class="card-head">
+<h3>Student Directory</h3>
+<span id="studentTotal"></span>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>ID</th><th>Name</th><th>Email</th><th>Department</th>
+<th>Semester</th><th>Division</th><th>CGPA</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="studentsTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+<!-- SUBJECTS -->
+<div id="subjectsPage" class="hidden">
+
+<div class="page-title">
+<div><h1>Subjects</h1><p>Manage college subjects.</p></div>
+<button class="add-btn" onclick="openSubjectModal()">+ Add Subject</button>
+</div>
+
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Code</th><th>Subject</th><th>Department</th>
+<th>Semester</th><th>Teacher</th><th>Credits</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="subjectsTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+<!-- ATTENDANCE -->
+<div id="attendancePage" class="hidden">
+
+<div class="page-title">
+<div><h1>Attendance</h1><p>Record student attendance.</p></div>
+<button class="add-btn" onclick="openAttendanceModal()">+ Record Attendance</button>
+</div>
+
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Student</th><th>Subject</th><th>Total Classes</th>
+<th>Attended</th><th>Percentage</th>
+</tr>
+</thead>
+<tbody id="attendanceTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+<!-- NOTES -->
+<div id="notesPage" class="hidden">
+
+<div class="page-title">
+<div><h1>Study Notes</h1><p>Upload and manage study materials.</p></div>
+<button class="add-btn" onclick="openNotesModal()">+ Upload Note</button>
+</div>
+
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Title</th><th>Subject</th><th>Description</th>
+<th>File</th><th>Uploaded</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="notesTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+<!-- ASSIGNMENTS -->
+<div id="assignmentsPage" class="hidden">
+
+<div class="page-title">
+<div><h1>Assignments</h1><p>Create and manage assignments.</p></div>
+<button class="add-btn" onclick="openAssignmentModal()">+ New Assignment</button>
+</div>
+
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>Title</th><th>Subject</th><th>Due Date</th><th>Marks</th><th>Action</th></tr>
+</thead>
+<tbody id="assignmentsTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+<!-- TESTS -->
+<div id="testsPage" class="hidden">
+
+<div class="page-title">
+<div><h1>Tests & Exams</h1><p>Schedule college examinations.</p></div>
+<button class="add-btn" onclick="openTestModal()">+ Schedule Test</button>
+</div>
+
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Test</th><th>Subject</th><th>Date</th><th>Marks</th>
+<th>Duration</th><th>Room</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="testsTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+<!-- RESULTS -->
+<div id="resultsPage" class="hidden">
+
+<div class="page-title">
+<div><h1>Results</h1><p>Enter and manage student results.</p></div>
+<button class="add-btn" onclick="openResultModal()">+ Enter Result</button>
+</div>
+
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Student</th><th>Subject</th><th>Marks</th><th>Total</th>
+<th>Grade</th><th>Remarks</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="resultsTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+<!-- TIMETABLE -->
+<div id="timetablePage" class="hidden">
+
+<div class="page-title">
+<div><h1>Timetable</h1><p>Manage class schedules.</p></div>
+<button class="add-btn" onclick="openTimetableModal()">+ Add Class</button>
+</div>
+
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Day</th><th>Time</th><th>Subject</th><th>Teacher</th>
+<th>Room</th><th>Semester</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="timetableTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+<!-- NOTICES -->
+<div id="noticesPage" class="hidden">
+
+<div class="page-title">
+<div><h1>Notices</h1><p>Publish college announcements.</p></div>
+<button class="add-btn" onclick="openNoticeModal()">+ Publish Notice</button>
+</div>
+
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Title</th><th>Category</th><th>Priority</th>
+<th>Date</th><th>Description</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="noticesTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+<!-- EVENTS -->
+<div id="eventsPage" class="hidden">
+
+<div class="page-title">
+<div><h1>Events</h1><p>Manage college events.</p></div>
+<button class="add-btn" onclick="openEventModal()">+ Add Event</button>
+</div>
+
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Event</th><th>Date</th><th>Time</th>
+<th>Venue</th><th>Category</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="eventsTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+<!-- FEES -->
+<div id="feesPage" class="hidden">
+
+<div class="page-title">
+<div><h1>Fees</h1><p>Manage student fee records.</p></div>
+<button class="add-btn" onclick="openFeeModal()">+ Add Fee Record</button>
+</div>
+
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Student</th><th>Total</th><th>Paid</th><th>Remaining</th>
+<th>Status</th><th>Due Date</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="feesTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+</section>
+</main>
+</div>
+
+
+<!-- =====================================================
+     MODALS
+===================================================== -->
+
+<!-- STUDENT -->
+<div class="modal" id="studentModal">
+<div class="modal-box">
+
+<div class="modal-head">
+<h3 id="studentModalTitle">Register Student</h3>
+<button class="close" onclick="closeModal('studentModal')">×</button>
+</div>
+
+<form onsubmit="saveStudent(event)">
+<input type="hidden" id="studentEditId">
+
+<div class="form-grid">
+
+<div class="field">
+<label>Student ID</label>
+<input id="studentId" required placeholder="SC2026CE001">
+</div>
+
+<div class="field">
+<label>Full Name</label>
+<input id="studentName" required placeholder="Student Name">
+</div>
+
+<div class="field">
+<label>Email</label>
+<input id="studentEmail" type="email">
+</div>
+
+<div class="field">
+<label>Phone</label>
+<input id="studentPhone">
+</div>
+
+<div class="field">
+<label>Department</label>
+<input id="studentDepartment">
+</div>
+
+<div class="field">
+<label>Course</label>
+<input id="studentCourse" placeholder="B.Tech">
+</div>
+
+<div class="field">
+<label>Semester</label>
+<select id="studentSemester">
+<option>1</option><option>2</option><option>3</option><option>4</option>
+<option>5</option><option>6</option><option>7</option><option>8</option>
+</select>
+</div>
+
+<div class="field">
+<label>Division</label>
+<input id="studentDivision" placeholder="A">
+</div>
+
+<div class="field">
+<label>Roll Number</label>
+<input id="studentRoll">
+</div>
+
+<div class="field">
+<label>CGPA</label>
+<input id="studentCGPA" type="number" step=".01" min="0" max="10" value="0">
+</div>
+
+<div class="field full">
+<label>Address</label>
+<textarea id="studentAddress" rows="3"></textarea>
+</div>
+
+</div>
+
+<div class="form-actions">
+<button class="save">Save Student</button>
+<button type="button" class="cancel" onclick="closeModal('studentModal')">Cancel</button>
+</div>
+</form>
+</div>
+</div>
+
+
+<!-- SUBJECT -->
+<div class="modal" id="subjectModal">
+<div class="modal-box">
+
+<div class="modal-head">
+<h3>Add Subject</h3>
+<button class="close" onclick="closeModal('subjectModal')">×</button>
+</div>
+
+<form onsubmit="saveSubject(event)">
+
+<div class="form-grid">
+
+<div class="field">
+<label>Subject Code</label>
+<input id="subjectCode" required placeholder="CS501">
+</div>
+
+<div class="field">
+<label>Subject Name</label>
+<input id="subjectName" required placeholder="Data Structures">
+</div>
+
+<div class="field">
+<label>Department</label>
+<input id="subjectDepartment">
+</div>
+
+<div class="field">
+<label>Semester</label>
+<input id="subjectSemester" type="number" min="1" max="8">
+</div>
+
+<div class="field">
+<label>Teacher</label>
+<input id="subjectTeacher">
+</div>
+
+<div class="field">
+<label>Credits</label>
+<input id="subjectCredits" type="number" value="4">
+</div>
+
+</div>
+
+<div class="form-actions">
+<button class="save">Save Subject</button>
+<button type="button" class="cancel" onclick="closeModal('subjectModal')">Cancel</button>
+</div>
+
+</form>
+</div>
+</div>
+
+
+<!-- ATTENDANCE -->
+<div class="modal" id="attendanceModal">
+<div class="modal-box">
+
+<div class="modal-head">
+<h3>Record Attendance</h3>
+<button class="close" onclick="closeModal('attendanceModal')">×</button>
+</div>
+
+<form onsubmit="saveAttendance(event)">
+
+<div class="field">
+<label>Student</label>
+<select id="attendanceStudent" required></select>
+</div>
+
+<div class="field">
+<label>Subject</label>
+<select id="attendanceSubject" required></select>
+</div>
+
+<div class="form-grid">
+
+<div class="field">
+<label>Total Classes</label>
+<input id="attendanceTotal" type="number" min="0" required>
+</div>
+
+<div class="field">
+<label>Attended Classes</label>
+<input id="attendanceAttended" type="number" min="0" required>
+</div>
+
+</div>
+
+<div class="form-actions">
+<button class="save">Save Attendance</button>
+<button type="button" class="cancel" onclick="closeModal('attendanceModal')">Cancel</button>
+</div>
+
+</form>
+</div>
+</div>
+
+
+<!-- NOTES -->
+<div class="modal" id="notesModal">
+<div class="modal-box">
+
+<div class="modal-head">
+<h3>Upload Study Note</h3>
+<button class="close" onclick="closeModal('notesModal')">×</button>
+</div>
+
+<form onsubmit="saveNote(event)">
+
+<div class="field">
+<label>Title</label>
+<input id="noteTitle" required>
+</div>
+
+<div class="field">
+<label>Subject</label>
+<select id="noteSubject"></select>
+</div>
+
+<div class="field">
+<label>Description</label>
+<textarea id="noteDescription" rows="3"></textarea>
+</div>
+
+<div class="field">
+<label>File URL</label>
+<input id="noteUrl" placeholder="https://...">
+</div>
+
+<div class="field">
+<label>File Name</label>
+<input id="noteFile" placeholder="unit1.pdf">
+</div>
+
+<div class="form-actions">
+<button class="save">Upload Note</button>
+<button type="button" class="cancel" onclick="closeModal('notesModal')">Cancel</button>
+</div>
+
+</form>
+</div>
+</div>
+
+
+<!-- ASSIGNMENT -->
+<div class="modal" id="assignmentModal">
+<div class="modal-box">
+
+<div class="modal-head">
+<h3>Create Assignment</h3>
+<button class="close" onclick="closeModal('assignmentModal')">×</button>
+</div>
+
+<form onsubmit="saveAssignment(event)">
+
+<div class="field">
+<label>Title</label>
+<input id="assignmentTitle" required>
+</div>
+
+<div class="field">
+<label>Subject</label>
+<select id="assignmentSubject"></select>
+</div>
+
+<div class="field">
+<label>Description</label>
+<textarea id="assignmentDescription" rows="3"></textarea>
+</div>
+
+<div class="form-grid">
+
+<div class="field">
+<label>Due Date</label>
+<input id="assignmentDue" type="date">
+</div>
+
+<div class="field">
+<label>Maximum Marks</label>
+<input id="assignmentMarks" type="number" value="100">
+</div>
+
+</div>
+
+<div class="field">
+<label>Attachment URL</label>
+<input id="assignmentUrl">
+</div>
+
+<div class="form-actions">
+<button class="save">Create Assignment</button>
+<button type="button" class="cancel" onclick="closeModal('assignmentModal')">Cancel</button>
+</div>
+
+</form>
+</div>
+</div>
+
+
+<!-- TEST -->
+<div class="modal" id="testModal">
+<div class="modal-box">
+
+<div class="modal-head">
+<h3>Schedule Test</h3>
+<button class="close" onclick="closeModal('testModal')">×</button>
+</div>
+
+<form onsubmit="saveTest(event)">
+
+<div class="field">
+<label>Test Name</label>
+<input id="testTitle" required placeholder="Internal Test 1">
+</div>
+
+<div class="field">
+<label>Subject</label>
+<select id="testSubject"></select>
+</div>
+
+<div class="form-grid">
+
+<div class="field">
+<label>Date</label>
+<input id="testDate" type="date">
+</div>
+
+<div class="field">
+<label>Total Marks</label>
+<input id="testMarks" type="number" value="50">
+</div>
+
+<div class="field">
+<label>Duration Minutes</label>
+<input id="testDuration" type="number" value="60">
+</div>
+
+<div class="field">
+<label>Room</label>
+<input id="testRoom">
+</div>
+
+</div>
+
+<div class="field">
+<label>Instructions</label>
+<textarea id="testInstructions" rows="3"></textarea>
+</div>
+
+<div class="form-actions">
+<button class="save">Schedule Test</button>
+<button type="button" class="cancel" onclick="closeModal('testModal')">Cancel</button>
+</div>
+
+</form>
+</div>
+</div>
+
+
+<!-- RESULT -->
+<div class="modal" id="resultModal">
+<div class="modal-box">
+
+<div class="modal-head">
+<h3>Enter Student Result</h3>
+<button class="close" onclick="closeModal('resultModal')">×</button>
+</div>
+
+<form onsubmit="saveResult(event)">
+
+<div class="field">
+<label>Student</label>
+<select id="resultStudent" required></select>
+</div>
+
+<div class="field">
+<label>Subject</label>
+<select id="resultSubject" required></select>
+</div>
+
+<div class="form-grid">
+
+<div class="field">
+<label>Marks</label>
+<input id="resultMarks" type="number" step=".01" required>
+</div>
+
+<div class="field">
+<label>Total Marks</label>
+<input id="resultTotal" type="number" value="100" required>
+</div>
+
+<div class="field">
+<label>Grade</label>
+<select id="resultGrade">
+<option>A+</option><option>A</option><option>B+</option>
+<option>B</option><option>C</option><option>D</option><option>F</option>
+</select>
+</div>
+
+<div class="field">
+<label>Remarks</label>
+<input id="resultRemarks">
+</div>
+
+</div>
+
+<div class="form-actions">
+<button class="save">Save Result</button>
+<button type="button" class="cancel" onclick="closeModal('resultModal')">Cancel</button>
+</div>
+
+</form>
+</div>
+</div>
+
+
+<!-- TIMETABLE -->
+<div class="modal" id="timetableModal">
+<div class="modal-box">
+
+<div class="modal-head">
+<h3>Add Timetable Entry</h3>
+<button class="close" onclick="closeModal('timetableModal')">×</button>
+</div>
+
+<form onsubmit="saveTimetable(event)">
+
+<div class="form-grid">
+
+<div class="field">
+<label>Day</label>
+<select id="timeDay">
+<option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+<option>Thursday</option><option>Friday</option><option>Saturday</option>
+</select>
+</div>
+
+<div class="field">
+<label>Subject</label>
+<select id="timeSubject"></select>
+</div>
+
+<div class="field">
+<label>Start Time</label>
+<input id="timeStart" type="time">
+</div>
+
+<div class="field">
+<label>End Time</label>
+<input id="timeEnd" type="time">
+</div>
+
+<div class="field">
+<label>Department</label>
+<input id="timeDepartment">
+</div>
+
+<div class="field">
+<label>Semester</label>
+<input id="timeSemester" type="number">
+</div>
+
+<div class="field">
+<label>Division</label>
+<input id="timeDivision" value="A">
+</div>
+
+<div class="field">
+<label>Teacher</label>
+<input id="timeTeacher">
+</div>
+
+<div class="field">
+<label>Room</label>
+<input id="timeRoom">
+</div>
+
+</div>
+
+<div class="form-actions">
+<button class="save">Save Class</button>
+<button type="button" class="cancel" onclick="closeModal('timetableModal')">Cancel</button>
+</div>
+
+</form>
+</div>
+</div>
+
+
+<!-- NOTICE -->
+<div class="modal" id="noticeModal">
+<div class="modal-box">
+
+<div class="modal-head">
+<h3>Publish Notice</h3>
+<button class="close" onclick="closeModal('noticeModal')">×</button>
+</div>
+
+<form onsubmit="saveNotice(event)">
+
+<div class="field">
+<label>Title</label>
+<input id="noticeTitle" required>
+</div>
+
+<div class="field">
+<label>Description</label>
+<textarea id="noticeDescription" rows="4"></textarea>
+</div>
+
+<div class="form-grid">
+
+<div class="field">
+<label>Category</label>
+<input id="noticeCategory" value="General">
+</div>
+
+<div class="field">
+<label>Priority</label>
+<select id="noticePriority">
+<option value="low">Low</option>
+<option value="normal" selected>Normal</option>
+<option value="high">High</option>
+</select>
+</div>
+
+<div class="field">
+<label>Publish Date</label>
+<input id="noticeDate" type="date">
+</div>
+
+<div class="field">
+<label>Expiry Date</label>
+<input id="noticeExpiry" type="date">
+</div>
+
+</div>
+
+<div class="form-actions">
+<button class="save">Publish Notice</button>
+<button type="button" class="cancel" onclick="closeModal('noticeModal')">Cancel</button>
+</div>
+
+</form>
+</div>
+</div>
+
+
+<!-- EVENT -->
+<div class="modal" id="eventModal">
+<div class="modal-box">
+
+<div class="modal-head">
+<h3>Add Event</h3>
+<button class="close" onclick="closeModal('eventModal')">×</button>
+</div>
+
+<form onsubmit="saveEvent(event)">
+
+<div class="field">
+<label>Event Title</label>
+<input id="eventTitle" required>
+</div>
+
+<div class="field">
+<label>Description</label>
+<textarea id="eventDescription"></textarea>
+</div>
+
+<div class="form-grid">
+
+<div class="field">
+<label>Date</label>
+<input id="eventDate" type="date">
+</div>
+
+<div class="field">
+<label>Start Time</label>
+<input id="eventStart" type="time">
+</div>
+
+<div class="field">
+<label>End Time</label>
+<input id="eventEnd" type="time">
+</div>
+
+<div class="field">
+<label>Venue</label>
+<input id="eventVenue">
+</div>
+
+<div class="field">
+<label>Category</label>
+<input id="eventCategory">
+</div>
+
+</div>
+
+<div class="form-actions">
+<button class="save">Save Event</button>
+<button type="button" class="cancel" onclick="closeModal('eventModal')">Cancel</button>
+</div>
+
+</form>
+</div>
+</div>
+
+
+<!-- FEES -->
+<div class="modal" id="feeModal">
+<div class="modal-box">
+
+<div class="modal-head">
+<h3>Add Fee Record</h3>
+<button class="close" onclick="closeModal('feeModal')">×</button>
+</div>
+
+<form onsubmit="saveFee(event)">
+
+<div class="field">
+<label>Student</label>
+<select id="feeStudent" required></select>
+</div>
+
+<div class="form-grid">
+
+<div class="field">
+<label>Total Amount</label>
+<input id="feeTotal" type="number" step=".01">
+</div>
+
+<div class="field">
+<label>Paid Amount</label>
+<input id="feePaid" type="number" step=".01">
+</div>
+
+<div class="field">
+<label>Due Date</label>
+<input id="feeDue" type="date">
+</div>
+
+<div class="field">
+<label>Status</label>
+<select id="feeStatus">
+<option value="pending">Pending</option>
+<option value="partial">Partial</option>
+<option value="paid">Paid</option>
+</select>
+</div>
+
+</div>
+
+<div class="form-actions">
+<button class="save">Save Fee</button>
+<button type="button" class="cancel" onclick="closeModal('feeModal')">Cancel</button>
+</div>
+
+</form>
+</div>
+</div>
+
+
+<div id="toast" class="toast">Done</div>
+
+
+<script>
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+const SUPABASE_URL="https://mtlwhftvndqguofxhhcc.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_uchg-Fclifz45WyCpgBgQw_bq6x3Z06";
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+let currentAdmin=null,students=[],subjects=[],searchTimer;
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+const $=id=>document.getElementById(id);
+
+function escapeHTML(v){
+if(v==null)return"";
+return String(v)
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+}
+
+function showToast(msg){
+const t=$("toast");
+t.textContent=msg;
+t.classList.add("show");
+setTimeout(()=>t.classList.remove("show"),2300);
+}
+
+function openModal(id){$(id).classList.add("show")}
+function closeModal(id){$(id).classList.remove("show")}
+
+async function hashPassword(password){
+const data=new TextEncoder().encode(password);
+const hash=await crypto.subtle.digest("SHA-256",data);
+return Array.from(new Uint8Array(hash))
+.map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+
+/* =====================================================
+   REGISTRATION
+===================================================== */
+
+async function registerTeacher(e){
+
+e.preventDefault();
+
+const name=$("regName").value.trim();
+const email=$("regEmail").value.trim().toLowerCase();
+const password=$("regPassword").value;
+const role=$("regRole").value;
+const department=$("regDepartment").value.trim();
+
+if(password.length<6){
+showToast("Password must be at least 6 characters");
+return;
+}
+
+try{
+
+const passwordHash=await hashPassword(password);
+
+const {data,error}=await db
+.from("admins")
+.insert({
+full_name:name,
+email:email,
+password_hash:passwordHash,
+role:role,
+department:department
+})
+.select()
+.single();
+
+if(error)throw error;
+
+/*
+ Registration database logic remains the same.
+ The newly-created account is immediately opened
+ in the admin panel because the login tab was removed.
+*/
+
+currentAdmin=data;
+
+sessionStorage.setItem(
+"smartCollegeAdmin",
+JSON.stringify(data)
+);
+
+$("registerForm").reset();
+
+showToast("Teacher account created");
+
+openApplication();
+
+}catch(error){
+
+console.error(error);
+showToast(error.message||"Registration failed");
+
+}
+}
+
+
+/* =====================================================
+   APPLICATION
+===================================================== */
+
+function openApplication(){
+
+$("authPage").classList.add("hidden");
+$("app").classList.remove("hidden");
+
+$("adminName").textContent=currentAdmin.full_name;
+
+$("adminRole").textContent=
+currentAdmin.role+
+(currentAdmin.department?" • "+currentAdmin.department:"");
+
+$("adminAvatar").textContent=
+currentAdmin.full_name.split(" ")
+.map(x=>x[0]).slice(0,2).join("").toUpperCase();
+
+loadDashboard();
+}
+
+
+/* =====================================================
+   SESSION
+===================================================== */
+
+function restoreSession(){
+
+const saved=sessionStorage.getItem("smartCollegeAdmin");
+
+if(!saved)return;
+
+try{
+currentAdmin=JSON.parse(saved);
+openApplication();
+}catch{
+sessionStorage.removeItem("smartCollegeAdmin");
+}
+
+}
+
+function logout(){
+
+sessionStorage.removeItem("smartCollegeAdmin");
+currentAdmin=null;
+
+$("app").classList.add("hidden");
+$("authPage").classList.remove("hidden");
+
+showToast("Logged out");
+}
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+const pages=[
+"dashboard","students","subjects","attendance","notes",
+"assignments","tests","results","timetable","notices","events","fees"
+];
+
+function page(name,button){
+
+pages.forEach(p=>{
+const el=$(p+"Page");
+if(el)el.classList.add("hidden");
+});
+
+$(name+"Page").classList.remove("hidden");
+
+document.querySelectorAll(".nav button")
+.forEach(b=>b.classList.remove("active"));
+
+if(button)button.classList.add("active");
+
+const loaders={
+dashboard:loadDashboard,
+students:loadStudents,
+subjects:loadSubjects,
+attendance:loadAttendance,
+notes:loadNotes,
+assignments:loadAssignments,
+tests:loadTests,
+results:loadResults,
+timetable:loadTimetable,
+notices:loadNotices,
+events:loadEvents,
+fees:loadFees
+};
+
+if(loaders[name])loaders[name]();
+
+if(innerWidth<=800)toggleSidebar();
+}
+
+function pageByName(name){
+
+let target=null;
+
+document.querySelectorAll(".nav button").forEach(btn=>{
+if(btn.textContent.trim().toLowerCase().includes(name))
+target=btn;
+});
+
+page(name,target);
+}
+
+function toggleSidebar(){
+$("sidebar").classList.toggle("open");
+}
+
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
+
+async function loadDashboard(){
+
+try{
+
+const [st,su,as,no]=await Promise.all([
+db.from("students").select("*"),
+db.from("subjects").select("*"),
+db.from("assignments").select("*"),
+db.from("notices").select("*")
+]);
+
+const sd=st.data||[];
+const sud=su.data||[];
+const ad=as.data||[];
+const nd=no.data||[];
+
+students=sd;
+subjects=sud;
+
+$("studentCount").textContent=sd.length;
+$("subjectCount").textContent=sud.length;
+$("assignmentCount").textContent=ad.length;
+$("noticeCount").textContent=nd.length;
+
+$("overviewStudents").value=sd.length;
+$("overviewSubjects").value=sud.length;
+$("overviewAssignments").value=ad.length;
+$("overviewNotices").value=nd.length;
+
+renderRecentStudents(sd.slice(0,5));
+
+}catch(error){
+
+console.error(error);
+showToast("Could not load dashboard");
+
+}
+}
+
+function renderRecentStudents(data){
+
+const table=$("recentStudents");
+table.innerHTML="";
+
+if(!data.length){
+table.innerHTML=`
+<tr><td colspan="3">
+<div class="empty">No students registered yet.</div>
+</td></tr>`;
+return;
+}
+
+data.forEach(s=>{
+table.innerHTML+=`
+<tr>
+<td>
+<strong>${escapeHTML(s.full_name)}</strong><br>
+<small>${escapeHTML(s.student_id)}</small>
+</td>
+<td>${escapeHTML(s.department||"-")}</td>
+<td>${s.semester||"-"}</td>
+</tr>`;
+});
+}
+
+
+/* =====================================================
+   STUDENTS
+===================================================== */
+
+async function loadStudents(){
+
+const {data,error}=await db
+.from("students")
+.select("*")
+.order("created_at",{ascending:false});
+
+if(error){
+showToast(error.message);
+return;
+}
+
+students=data||[];
+
+$("studentTotal").textContent=students.length+" students";
+
+const table=$("studentsTable");
+table.innerHTML="";
+
+students.forEach(s=>{
+
+table.innerHTML+=`
+<tr>
+<td>${escapeHTML(s.student_id)}</td>
+<td><strong>${escapeHTML(s.full_name)}</strong></td>
+<td>${escapeHTML(s.email||"-")}</td>
+<td>${escapeHTML(s.department||"-")}</td>
+<td>${s.semester||"-"}</td>
+<td>${escapeHTML(s.division||"-")}</td>
+<td>${s.cgpa||"0"}</td>
+<td>
+<button class="action edit" onclick="editStudent('${s.id}')">Edit</button>
+<button class="action delete" onclick="deleteRecord('students','${s.id}',loadStudents)">Delete</button>
+</td>
+</tr>`;
+
+});
+}
+
+function openStudentModal(){
+
+$("studentEditId").value="";
+$("studentModalTitle").textContent="Register Student";
+
+[
+"studentId","studentName","studentEmail","studentPhone",
+"studentDepartment","studentCourse","studentDivision",
+"studentRoll","studentAddress"
+].forEach(id=>$(id).value="");
+
+$("studentSemester").value="1";
+$("studentCGPA").value="0";
+
+openModal("studentModal");
+}
+
+function editStudent(id){
+
+const s=students.find(x=>x.id===id);
+if(!s)return;
+
+$("studentEditId").value=s.id;
+$("studentModalTitle").textContent="Update Student";
+
+$("studentId").value=s.student_id||"";
+$("studentName").value=s.full_name||"";
+$("studentEmail").value=s.email||"";
+$("studentPhone").value=s.phone||"";
+$("studentDepartment").value=s.department||"";
+$("studentCourse").value=s.course||"";
+$("studentSemester").value=s.semester||1;
+$("studentDivision").value=s.division||"";
+$("studentRoll").value=s.roll_number||"";
+$("studentCGPA").value=s.cgpa||0;
+$("studentAddress").value=s.address||"";
+
+openModal("studentModal");
+}
+
+async function saveStudent(e){
+
+e.preventDefault();
+
+const editId=$("studentEditId").value;
+
+const payload={
+student_id:$("studentId").value.trim(),
+full_name:$("studentName").value.trim(),
+email:$("studentEmail").value.trim()||null,
+phone:$("studentPhone").value.trim(),
+department:$("studentDepartment").value.trim(),
+course:$("studentCourse").value.trim(),
+semester:Number($("studentSemester").value),
+division:$("studentDivision").value.trim(),
+roll_number:$("studentRoll").value.trim(),
+cgpa:Number($("studentCGPA").value||0),
+address:$("studentAddress").value.trim()
+};
+
+try{
+
+let result;
+
+if(editId){
+result=await db.from("students").update(payload).eq("id",editId);
+}else{
+result=await db.from("students").insert(payload);
+}
+
+if(result.error)throw result.error;
+
+closeModal("studentModal");
+showToast(editId?"Student updated":"Student registered");
+
+loadStudents();
+loadDashboard();
+
+}catch(error){
+showToast(error.message);
+}
+}
+
+
+/* =====================================================
+   SUBJECTS
+===================================================== */
+
+async function loadSubjects(){
+
+const {data,error}=await db
+.from("subjects")
+.select("*")
+.order("created_at",{ascending:false});
+
+if(error){
+showToast(error.message);
+return;
+}
+
+subjects=data||[];
+
+const table=$("subjectsTable");
+table.innerHTML="";
+
+subjects.forEach(s=>{
+
+table.innerHTML+=`
+<tr>
+<td><strong>${escapeHTML(s.code)}</strong></td>
+<td>${escapeHTML(s.name)}</td>
+<td>${escapeHTML(s.department||"-")}</td>
+<td>${s.semester||"-"}</td>
+<td>${escapeHTML(s.teacher_name||"-")}</td>
+<td>${s.credits||0}</td>
+<td>
+<button class="action delete"
+onclick="deleteRecord('subjects','${s.id}',loadSubjects)">
+Delete
+</button>
+</td>
+</tr>`;
+
+});
+}
+
+function openSubjectModal(){
+
+$("subjectCode").value="";
+$("subjectName").value="";
+$("subjectDepartment").value="";
+$("subjectSemester").value="";
+$("subjectTeacher").value="";
+$("subjectCredits").value="4";
+
+openModal("subjectModal");
+}
+
+async function saveSubject(e){
+
+e.preventDefault();
+
+const payload={
+code:$("subjectCode").value.trim(),
+name:$("subjectName").value.trim(),
+department:$("subjectDepartment").value.trim(),
+semester:Number($("subjectSemester").value||1),
+teacher_name:$("subjectTeacher").value.trim(),
+credits:Number($("subjectCredits").value||4)
+};
+
+const {error}=await db.from("subjects").insert(payload);
+
+if(error){
+showToast(error.message);
+return;
+}
+
+closeModal("subjectModal");
+showToast("Subject added");
+
+loadSubjects();
+loadDashboard();
+}
+
+
+/* =====================================================
+   ATTENDANCE
+===================================================== */
+
+async function loadAttendance(){
+
+const {data,error}=await db
+.from("attendance")
+.select("*,students(full_name,student_id),subjects(name,code)")
+.order("created_at",{ascending:false});
+
+if(error){
+showToast(error.message);
+return;
+}
+
+const table=$("attendanceTable");
+table.innerHTML="";
+
+(data||[]).forEach(a=>{
+
+const percentage=a.total_classes
+?Math.round(a.attended_classes/a.total_classes*100):0;
+
+table.innerHTML+=`
+<tr>
+<td>${escapeHTML(a.students?.full_name||"-")}</td>
+<td>${escapeHTML(a.subjects?.name||"-")}</td>
+<td>${a.total_classes}</td>
+<td>${a.attended_classes}</td>
+<td><strong>${percentage}%</strong></td>
+</tr>`;
+
+});
+}
+
+async function openAttendanceModal(){
+
+await loadSelectData();
+
+$("attendanceTotal").value="";
+$("attendanceAttended").value="";
+
+openModal("attendanceModal");
+}
+
+async function saveAttendance(e){
+
+e.preventDefault();
+
+const total=Number($("attendanceTotal").value);
+const attended=Number($("attendanceAttended").value);
+
+if(attended>total){
+showToast("Attended classes cannot exceed total");
+return;
+}
+
+const {error}=await db
+.from("attendance")
+.upsert({
+student_id:$("attendanceStudent").value,
+subject_id:$("attendanceSubject").value,
+total_classes:total,
+attended_classes:attended
+},{onConflict:"student_id,subject_id,attendance_date"});
+
+if(error){
+showToast(error.message);
+return;
+}
+
+closeModal("attendanceModal");
+showToast("Attendance recorded");
+loadAttendance();
+}
+
+
+/* =====================================================
+   NOTES
+===================================================== */
+
+async function loadNotes(){
+
+const {data,error}=await db
+.from("notes")
+.select("*,subjects(name)")
+.order("created_at",{ascending:false});
+
+if(error){
+showToast(error.message);
+return;
+}
+
+const table=$("notesTable");
+table.innerHTML="";
+
+(data||[]).forEach(n=>{
+
+table.innerHTML+=`
+<tr>
+<td>${escapeHTML(n.title)}</td>
+<td>${escapeHTML(n.subjects?.name||"-")}</td>
+<td>${escapeHTML(n.description||"-")}</td>
+<td>${n.file_url?`<a href="${escapeHTML(n.file_url)}" target="_blank">Open</a>`:"-"}</td>
+<td>${new Date(n.created_at).toLocaleDateString()}</td>
+<td>
+<button class="action delete"
+onclick="deleteRecord('notes','${n.id}',loadNotes)">
+Delete
+</button>
+</td>
+</tr>`;
+
+});
+}
+
+async function openNotesModal(){
+
+await loadSelectData();
+
+$("noteTitle").value="";
+$("noteDescription").value="";
+$("noteUrl").value="";
+$("noteFile").value="";
+
+openModal("notesModal");
+}
+
+async function saveNote(e){
+
+e.preventDefault();
+
+const payload={
+title:$("noteTitle").value.trim(),
+subject_id:$("noteSubject").value||null,
+description:$("noteDescription").value.trim(),
+file_url:$("noteUrl").value.trim(),
+file_name:$("noteFile").value.trim(),
+uploaded_by:currentAdmin.id
+};
+
+const {error}=await db.from("notes").insert(payload);
+
+if(error){
+showToast(error.message);
+return;
+}
+
+closeModal("notesModal");
+showToast("Study note uploaded");
+loadNotes();
+}
+
+
+/* =====================================================
+   ASSIGNMENTS
+===================================================== */
+
+async function loadAssignments(){
+
+const {data,error}=await db
+.from("assignments")
+.select("*,subjects(name)")
+.order("created_at",{ascending:false});
+
+if(error){
+showToast(error.message);
+return;
+}
+
+const table=$("assignmentsTable");
+table.innerHTML="";
+
+(data||[]).forEach(a=>{
+
+table.innerHTML+=`
+<tr>
+<td><strong>${escapeHTML(a.title)}</strong></td>
+<td>${escapeHTML(a.subjects?.name||"-")}</td>
+<td>${a.due_date||"-"}</td>
+<td>${a.max_marks||0}</td>
+<td>
+<button class="action delete"
+onclick="deleteRecord('assignments','${a.id}',loadAssignments)">
+Delete
+</button>
+</td>
+</tr>`;
+
+});
+}
+
+async function openAssignmentModal(){
+
+await loadSelectData();
+
+$("assignmentTitle").value="";
+$("assignmentDescription").value="";
+$("assignmentDue").value="";
+$("assignmentMarks").value="100";
+$("assignmentUrl").value="";
+
+openModal("assignmentModal");
+}
+
+async function saveAssignment(e){
+
+e.preventDefault();
+
+const payload={
+title:$("assignmentTitle").value.trim(),
+description:$("assignmentDescription").value.trim(),
+subject_id:$("assignmentSubject").value||null,
+due_date:$("assignmentDue").value||null,
+max_marks:Number($("assignmentMarks").value||100),
+attachment_url:$("assignmentUrl").value.trim(),
+created_by:currentAdmin.id
+};
+
+const {error}=await db.from("assignments").insert(payload);
+
+if(error){
+showToast(error.message);
+return;
+}
+
+closeModal("assignmentModal");
+showToast("Assignment created");
+
+loadAssignments();
+loadDashboard();
+}
+
+
+/* =====================================================
+   TESTS
+===================================================== */
+
+async function loadTests(){
+
+const {data,error}=await db
+.from("tests")
+.select("*,subjects(name)")
+.order("test_date",{ascending:true});
+
+if(error){
+showToast(error.message);
+return;
+}
+
+const table=$("testsTable");
+table.innerHTML="";
+
+(data||[]).forEach(t=>{
+
+table.innerHTML+=`
+<tr>
+<td>${escapeHTML(t.title)}</td>
+<td>${escapeHTML(t.subjects?.name||"-")}</td>
+<td>${t.test_date||"-"}</td>
+<td>${t.total_marks}</td>
+<td>${t.duration_minutes} min</td>
+<td>${escapeHTML(t.room||"-")}</td>
+<td>
+<button class="action delete"
+onclick="deleteRecord('tests','${t.id}',loadTests)">
+Delete
+</button>
+</td>
+</tr>`;
+
+});
+}
+
+async function openTestModal(){
+
+await loadSelectData();
+
+$("testTitle").value="";
+$("testDate").value="";
+$("testMarks").value="50";
+$("testDuration").value="60";
+$("testRoom").value="";
+$("testInstructions").value="";
+
+openModal("testModal");
+}
+
+async function saveTest(e){
+
+e.preventDefault();
+
+const payload={
+title:$("testTitle").value.trim(),
+subject_id:$("testSubject").value,
+test_date:$("testDate").value||null,
+total_marks:Number($("testMarks").value||100),
+duration_minutes:Number($("testDuration").value||60),
+room:$("testRoom").value.trim(),
+instructions:$("testInstructions").value.trim(),
+created_by:currentAdmin.id
+};
+
+const {error}=await db.from("tests").insert(payload);
+
+if(error){
+showToast(error.message);
+return;
+}
+
+closeModal("testModal");
+showToast("Test scheduled");
+loadTests();
+}
+
+
+/* =====================================================
+   RESULTS
+===================================================== */
+
+async function loadResults(){
+
+const {data,error}=await db
+.from("results")
+.select("*,students(full_name),subjects(name)")
+.order("created_at",{ascending:false});
+
+if(error){
+showToast(error.message);
+return;
+}
+
+const table=$("resultsTable");
+table.innerHTML="";
+
+(data||[]).forEach(r=>{
+
+table.innerHTML+=`
+<tr>
+<td>${escapeHTML(r.students?.full_name||"-")}</td>
+<td>${escapeHTML(r.subjects?.name||"-")}</td>
+<td>${r.marks}</td>
+<td>${r.total_marks}</td>
+<td><strong>${escapeHTML(r.grade||"-")}</strong></td>
+<td>${escapeHTML(r.remarks||"-")}</td>
+<td>
+<button class="action delete"
+onclick="deleteRecord('results','${r.id}',loadResults)">
+Delete
+</button>
+</td>
+</tr>`;
+
+});
+}
+
+async function openResultModal(){
+
+await loadSelectData();
+
+$("resultMarks").value="";
+$("resultTotal").value="100";
+$("resultRemarks").value="";
+
+openModal("resultModal");
+}
+
+async function saveResult(e){
+
+e.preventDefault();
+
+const payload={
+student_id:$("resultStudent").value,
+subject_id:$("resultSubject").value,
+marks:Number($("resultMarks").value),
+total_marks:Number($("resultTotal").value),
+grade:$("resultGrade").value,
+remarks:$("resultRemarks").value.trim()
+};
+
+const {error}=await db.from("results").insert(payload);
+
+if(error){
+showToast(error.message);
+return;
+}
+
+closeModal("resultModal");
+showToast("Result saved");
+loadResults();
+}
+
+
+/* =====================================================
+   TIMETABLE
+===================================================== */
+
+async function loadTimetable(){
+
+const {data,error}=await db
+.from("timetable")
+.select("*,subjects(name)")
+.order("day");
+
+if(error){
+showToast(error.message);
+return;
+}
+
+const table=$("timetableTable");
+table.innerHTML="";
+
+(data||[]).forEach(t=>{
+
+table.innerHTML+=`
+<tr>
+<td>${escapeHTML(t.day)}</td>
+<td>${t.start_time||""} - ${t.end_time||""}</td>
+<td>${escapeHTML(t.subjects?.name||"-")}</td>
+<td>${escapeHTML(t.teacher_name||"-")}</td>
+<td>${escapeHTML(t.room||"-")}</td>
+<td>${t.semester||"-"}</td>
+<td>
+<button class="action delete"
+onclick="deleteRecord('timetable','${t.id}',loadTimetable)">
+Delete
+</button>
+</td>
+</tr>`;
+
+});
+}
+
+async function openTimetableModal(){
+
+await loadSelectData();
+
+$("timeStart").value="";
+$("timeEnd").value="";
+$("timeDepartment").value="";
+$("timeSemester").value="";
+$("timeDivision").value="A";
+$("timeTeacher").value="";
+$("timeRoom").value="";
+
+openModal("timetableModal");
+}
+
+async function saveTimetable(e){
+
+e.preventDefault();
+
+const payload={
+day:$("timeDay").value,
+start_time:$("timeStart").value,
+end_time:$("timeEnd").value,
+subject_id:$("timeSubject").value,
+department:$("timeDepartment").value.trim(),
+semester:Number($("timeSemester").value||1),
+division:$("timeDivision").value.trim(),
+teacher_name:$("timeTeacher").value.trim(),
+room:$("timeRoom").value.trim()
+};
+
+const {error}=await db.from("timetable").insert(payload);
+
+if(error){
+showToast(error.message);
+return;
+}
+
+closeModal("timetableModal");
+showToast("Timetable updated");
+loadTimetable();
+}
+
+
+/* =====================================================
+   NOTICES
+===================================================== */
+
+async function loadNotices(){
+
+const {data,error}=await db
+.from("notices")
+.select("*")
+.order("publish_date",{ascending:false});
+
+if(error){
+showToast(error.message);
+return;
+}
+
+const table=$("noticesTable");
+table.innerHTML="";
+
+(data||[]).forEach(n=>{
+
+const cls=
+n.priority==="high"?"delete":
+n.priority==="low"?"green":"edit";
+
+table.innerHTML+=`
+<tr>
+<td><strong>${escapeHTML(n.title)}</strong></td>
+<td>${escapeHTML(n.category||"-")}</td>
+<td><span class="action ${cls}">${escapeHTML(n.priority)}</span></td>
+<td>${n.publish_date||"-"}</td>
+<td>${escapeHTML(n.description||"-")}</td>
+<td>
+<button class="action delete"
+onclick="deleteRecord('notices','${n.id}',loadNotices)">
+Delete
+</button>
+</td>
+</tr>`;
+
+});
+}
+
+function openNoticeModal(){
+
+$("noticeDate").value=new Date().toISOString().slice(0,10);
+$("noticeTitle").value="";
+$("noticeDescription").value="";
+$("noticeCategory").value="General";
+$("noticePriority").value="normal";
+$("noticeExpiry").value="";
+
+openModal("noticeModal");
+}
+
+async function saveNotice(e){
+
+e.preventDefault();
+
+const payload={
+title:$("noticeTitle").value.trim(),
+description:$("noticeDescription").value.trim(),
+category:$("noticeCategory").value.trim(),
+priority:$("noticePriority").value,
+publish_date:$("noticeDate").value||null,
+expiry_date:$("noticeExpiry").value||null,
+created_by:currentAdmin.id
+};
+
+const {error}=await db.from("notices").insert(payload);
+
+if(error){
+showToast(error.message);
+return;
+}
+
+closeModal("noticeModal");
+showToast("Notice published");
+
+loadNotices();
+loadDashboard();
+}
+
+
+/* =====================================================
+   EVENTS
+===================================================== */
+
+async function loadEvents(){
+
+const {data,error}=await db
+.from("events")
+.select("*")
+.order("event_date");
+
+if(error){
+showToast(error.message);
+return;
+}
+
+const table=$("eventsTable");
+table.innerHTML="";
+
+(data||[]).forEach(event=>{
+
+table.innerHTML+=`
+<tr>
+<td><strong>${escapeHTML(event.title)}</strong></td>
+<td>${event.event_date||"-"}</td>
+<td>${event.start_time||""} - ${event.end_time||""}</td>
+<td>${escapeHTML(event.venue||"-")}</td>
+<td>${escapeHTML(event.category||"-")}</td>
+<td>
+<button class="action delete"
+onclick="deleteRecord('events','${event.id}',loadEvents)">
+Delete
+</button>
+</td>
+</tr>`;
+
+});
+}
+
+function openEventModal(){
+
+[
+"eventTitle","eventDescription","eventDate",
+"eventStart","eventEnd","eventVenue","eventCategory"
+].forEach(id=>$(id).value="");
+
+openModal("eventModal");
+}
+
+async function saveEvent(e){
+
+e.preventDefault();
+
+const payload={
+title:$("eventTitle").value.trim(),
+description:$("eventDescription").value.trim(),
+event_date:$("eventDate").value||null,
+start_time:$("eventStart").value||null,
+end_time:$("eventEnd").value||null,
+venue:$("eventVenue").value.trim(),
+category:$("eventCategory").value.trim(),
+created_by:currentAdmin.id
+};
+
+const {error}=await db.from("events").insert(payload);
+
+if(error){
+showToast(error.message);
+return;
+}
+
+closeModal("eventModal");
+showToast("Event added");
+loadEvents();
+}
+
+
+/* =====================================================
+   FEES
+===================================================== */
+
+async function loadFees(){
+
+const {data,error}=await db
+.from("fees")
+.select("*,students(full_name,student_id)")
+.order("created_at",{ascending:false});
+
+if(error){
+showToast(error.message);
+return;
+}
+
+const table=$("feesTable");
+table.innerHTML="";
+
+(data||[]).forEach(f=>{
+
+const remaining=
+Number(f.total_amount||0)-Number(f.paid_amount||0);
+
+const cls=f.status==="paid"?"green":"edit";
+
+table.innerHTML+=`
+<tr>
+<td>${escapeHTML(f.students?.full_name||"-")}</td>
+<td>₹${f.total_amount}</td>
+<td>₹${f.paid_amount}</td>
+<td>₹${remaining}</td>
+<td><span class="action ${cls}">${escapeHTML(f.status)}</span></td>
+<td>${f.due_date||"-"}</td>
+<td>
+<button class="action delete"
+onclick="deleteRecord('fees','${f.id}',loadFees)">
+Delete
+</button>
+</td>
+</tr>`;
+
+});
+}
+
+async function openFeeModal(){
+
+await loadSelectData();
+
+$("feeTotal").value="";
+$("feePaid").value="";
+$("feeDue").value="";
+$("feeStatus").value="pending";
+
+openModal("feeModal");
+}
+
+async function saveFee(e){
+
+e.preventDefault();
+
+const payload={
+student_id:$("feeStudent").value,
+total_amount:Number($("feeTotal").value||0),
+paid_amount:Number($("feePaid").value||0),
+due_date:$("feeDue").value||null,
+status:$("feeStatus").value
+};
+
+const {error}=await db.from("fees").insert(payload);
+
+if(error){
+showToast(error.message);
+return;
+}
+
+closeModal("feeModal");
+showToast("Fee record saved");
+loadFees();
+}
+
+
+/* =====================================================
+   SELECT DATA
+===================================================== */
+
+async function loadSelectData(){
+
+const studentResult=await db
+.from("students")
+.select("id,student_id,full_name")
+.order("full_name");
+
+const subjectResult=await db
+.from("subjects")
+.select("id,code,name")
+.order("name");
+
+students=studentResult.data||students;
+subjects=subjectResult.data||subjects;
+
+fillSelect("attendanceStudent",students,"full_name","id",true);
+fillSelect("resultStudent",students,"full_name","id",true);
+fillSelect("feeStudent",students,"full_name","id",true);
+
+[
+"attendanceSubject","noteSubject","assignmentSubject",
+"testSubject","resultSubject","timeSubject"
+].forEach(id=>fillSelect(id,subjects,"name","id"));
+}
+
+function fillSelect(id,data,label,value,includeId=false){
+
+const select=$(id);
+if(!select)return;
+
+select.innerHTML='<option value="">Select</option>';
+
+data.forEach(item=>{
+
+const option=document.createElement("option");
+
+option.value=item[value];
+
+option.textContent=includeId
+?`${item[label]} (${item.student_id})`
+:item[label];
+
+select.appendChild(option);
+});
+}
+
+
+/* =====================================================
+   DELETE
+===================================================== */
+
+async function deleteRecord(table,id,reload){
+
+if(!confirm("Are you sure you want to delete this record?"))
+return;
+
+const {error}=await db
+.from(table)
+.delete()
+.eq("id",id);
+
+if(error){
+showToast(error.message);
+return;
+}
+
+showToast("Record deleted");
+
+reload();
+loadDashboard();
+}
+
+
+/* =====================================================
+   GLOBAL SEARCH
+===================================================== */
+
+function globalSearch(){
+
+clearTimeout(searchTimer);
+
+searchTimer=setTimeout(async()=>{
+
+const query=$("globalSearch").value.trim();
+
+if(!query){
+return;
+}
+
+const {data,error}=await db
+.from("students")
+.select("*")
+.or(`full_name.ilike.%${query}%,student_id.ilike.%${query}%,email.ilike.%${query}%`)
+.limit(20);
+
+if(error){
+showToast("Search failed");
+return;
+}
+
+pageByName("students");
+
+const table=$("studentsTable");
+table.innerHTML="";
+
+(data||[]).forEach(s=>{
+
+table.innerHTML+=`
+<tr>
+<td>${escapeHTML(s.student_id)}</td>
+<td><strong>${escapeHTML(s.full_name)}</strong></td>
+<td>${escapeHTML(s.email||"-")}</td>
+<td>${escapeHTML(s.department||"-")}</td>
+<td>${s.semester||"-"}</td>
+<td>${escapeHTML(s.division||"-")}</td>
+<td>${s.cgpa||0}</td>
+<td>
+<button class="action edit" onclick="editStudent('${s.id}')">
+Edit
+</button>
+</td>
+</tr>`;
+
+});
+
+},400);
+}
+
+
+/* =====================================================
+   MODAL BACKDROP
+===================================================== */
+
+document.querySelectorAll(".modal").forEach(modal=>{
+
+modal.addEventListener("click",e=>{
+if(e.target===modal)
+modal.classList.remove("show");
+});
+
+});
+
+
+/* =====================================================
+   START
+===================================================== */
+
+restoreSession();
+
+</script>
+
+</body>
+</html>

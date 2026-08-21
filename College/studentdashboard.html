@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard | Smart College</title>
+
+<!-- Inter Font & Tailwind CSS CDN -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'sans-serif'] },
+        colors: {
+          brand: {
+            50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8'
+          }
+        }
+      }
+    }
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  /* Custom scrollbar for sleeker appearance */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+  ::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.5); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 0.8); }
+</style>
+</head>
+
+<body class="h-full font-sans antialiased selection:bg-blue-500 selection:text-white">
+
+<div class="min-h-screen flex bg-slate-950 text-slate-200">
+
+  <!-- SIDEBAR -->
+  <aside class="fixed inset-y-0 left-0 w-64 bg-slate-900/80 backdrop-blur-xl border-r border-slate-800/80 flex flex-col z-40 transition-all duration-300">
+    <!-- Logo -->
+    <div class="h-16 flex items-center px-6 border-b border-slate-800/60">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <span class="text-white font-black text-sm">S</span>
+        </div>
+        <span class="text-lg font-bold tracking-tight text-white">Smart<span class="text-blue-500">College</span></span>
+      </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto nav">
+      <button class="active group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200 [&.active]:bg-gradient-to-r [&.active]:from-blue-600 [&.active]:to-indigo-600 [&.active]:text-white [&.active]:shadow-lg [&.active]:shadow-blue-500/20" onclick="showPage('home',this)">
+        <span class="text-lg mr-3">🏠</span><span>Dashboard</span>
+      </button>
+      <button class="group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200 [&.active]:bg-gradient-to-r [&.active]:from-blue-600 [&.active]:to-indigo-600 [&.active]:text-white [&.active]:shadow-lg [&.active]:shadow-blue-500/20" onclick="showPage('attendance',this)">
+        <span class="text-lg mr-3">📊</span><span>Attendance</span>
+      </button>
+      <button class="group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200 [&.active]:bg-gradient-to-r [&.active]:from-blue-600 [&.active]:to-indigo-600 [&.active]:text-white [&.active]:shadow-lg [&.active]:shadow-blue-500/20" onclick="showPage('notes',this)">
+        <span class="text-lg mr-3">📚</span><span>Notes</span>
+      </button>
+      <button class="group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200 [&.active]:bg-gradient-to-r [&.active]:from-blue-600 [&.active]:to-indigo-600 [&.active]:text-white [&.active]:shadow-lg [&.active]:shadow-blue-500/20" onclick="showPage('assignments',this)">
+        <span class="text-lg mr-3">📝</span><span>Assignments</span>
+      </button>
+      <button class="group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200 [&.active]:bg-gradient-to-r [&.active]:from-blue-600 [&.active]:to-indigo-600 [&.active]:text-white [&.active]:shadow-lg [&.active]:shadow-blue-500/20" onclick="showPage('tests',this)">
+        <span class="text-lg mr-3">🧪</span><span>Tests</span>
+      </button>
+      <button class="group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200 [&.active]:bg-gradient-to-r [&.active]:from-blue-600 [&.active]:to-indigo-600 [&.active]:text-white [&.active]:shadow-lg [&.active]:shadow-blue-500/20" onclick="showPage('results',this)">
+        <span class="text-lg mr-3">🏆</span><span>Results</span>
+      </button>
+      <button class="group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200 [&.active]:bg-gradient-to-r [&.active]:from-blue-600 [&.active]:to-indigo-600 [&.active]:text-white [&.active]:shadow-lg [&.active]:shadow-blue-500/20" onclick="showPage('timetable',this)">
+        <span class="text-lg mr-3">🗓</span><span>Timetable</span>
+      </button>
+      <button class="group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200 [&.active]:bg-gradient-to-r [&.active]:from-blue-600 [&.active]:to-indigo-600 [&.active]:text-white [&.active]:shadow-lg [&.active]:shadow-blue-500/20" onclick="showPage('notices',this)">
+        <span class="text-lg mr-3">📢</span><span>Notices</span>
+      </button>
+      <button class="group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200 [&.active]:bg-gradient-to-r [&.active]:from-blue-600 [&.active]:to-indigo-600 [&.active]:text-white [&.active]:shadow-lg [&.active]:shadow-blue-500/20" onclick="showPage('events',this)">
+        <span class="text-lg mr-3">🎉</span><span>Events</span>
+      </button>
+      <button class="group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200 [&.active]:bg-gradient-to-r [&.active]:from-blue-600 [&.active]:to-indigo-600 [&.active]:text-white [&.active]:shadow-lg [&.active]:shadow-blue-500/20" onclick="showPage('fees',this)">
+        <span class="text-lg mr-3">💳</span><span>Fees</span>
+      </button>
+      <button class="group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200 [&.active]:bg-gradient-to-r [&.active]:from-blue-600 [&.active]:to-indigo-600 [&.active]:text-white [&.active]:shadow-lg [&.active]:shadow-blue-500/20" onclick="showPage('profile',this)">
+        <span class="text-lg mr-3">👤</span><span>Profile</span>
+      </button>
+    </nav>
+
+    <!-- Logout -->
+    <div class="p-3 border-t border-slate-800/60">
+      <button onclick="logout()" class="flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all duration-200">
+        <span class="text-lg mr-3">🚪</span><span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="pl-64 flex-1 flex flex-col min-w-0">
+
+    <!-- TOP HEADER -->
+    <header class="sticky top-0 z-30 h-16 bg-slate-900/60 backdrop-blur-md border-b border-slate-800/60 px-8 flex items-center justify-between">
+      <h2 id="pageTitle" class="text-xl font-bold text-white tracking-tight">Student Dashboard</h2>
+
+      <div class="flex items-center gap-4">
+        <div class="text-right">
+          <div id="studentName" class="text-sm font-semibold text-slate-100">Student</div>
+          <div class="text-xs text-slate-400">Active Student</div>
+        </div>
+        <div id="avatar" class="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center shadow-md shadow-blue-500/20 border border-slate-700">
+          S
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT BODY -->
+    <main class="flex-1 p-8 max-w-7xl w-full mx-auto space-y-6">
+
+      <div id="message"></div>
+
+      <!-- PAGE: HOME -->
+      <div id="home" class="page active space-y-6">
+        <!-- Welcome Hero -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 shadow-xl shadow-blue-900/20 border border-blue-400/20">
+          <div class="relative z-10">
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">Welcome back, <span id="welcomeName">Student</span> 👋</h1>
+            <p class="mt-2 text-blue-100 max-w-xl text-sm font-medium">Here is your academic overview and recent college updates.</p>
+          </div>
+          <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg hover:border-slate-700 transition-all">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Attendance</span>
+            <strong id="attendanceValue" class="block text-3xl font-extrabold text-white mt-2">--%</strong>
+          </div>
+          <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg hover:border-slate-700 transition-all">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">CGPA</span>
+            <strong id="cgpaValue" class="block text-3xl font-extrabold text-white mt-2">--</strong>
+          </div>
+          <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg hover:border-slate-700 transition-all">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Assignments</span>
+            <strong id="assignmentCount" class="block text-3xl font-extrabold text-white mt-2">0</strong>
+          </div>
+          <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg hover:border-slate-700 transition-all">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Upcoming Tests</span>
+            <strong id="testCount" class="block text-3xl font-extrabold text-white mt-2">0</strong>
+          </div>
+        </div>
+
+        <!-- Section Grids -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg space-y-4">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2"><span>📢</span> Latest Notices</h3>
+            <div id="homeNotices" class="text-slate-400 text-sm">Loading...</div>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg space-y-4">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2"><span>📝</span> Assignments</h3>
+            <div id="homeAssignments" class="text-slate-400 text-sm">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: ATTENDANCE -->
+      <div id="attendance" class="page hidden space-y-6">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg space-y-4">
+          <h3 class="text-lg font-bold text-white">📊 Attendance Records</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-300">
+              <thead class="bg-slate-800/50 text-slate-400 text-xs uppercase font-semibold">
+                <tr>
+                  <th class="p-3.5 rounded-l-xl">Subject</th>
+                  <th class="p-3.5">Total</th>
+                  <th class="p-3.5">Present</th>
+                  <th class="p-3.5 rounded-r-xl">Percentage</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTable" class="divide-y divide-slate-800/60">
+                <tr><td colspan="4" class="p-4 text-center text-slate-500">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: NOTES -->
+      <div id="notes" class="page hidden space-y-6">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg space-y-4">
+          <h3 class="text-lg font-bold text-white">📚 Study Notes</h3>
+          <div id="notesList" class="space-y-3 text-sm text-slate-400">Loading...</div>
+        </div>
+      </div>
+
+      <!-- PAGE: ASSIGNMENTS -->
+      <div id="assignments" class="page hidden space-y-6">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg space-y-4">
+          <h3 class="text-lg font-bold text-white">📝 Pending Assignments</h3>
+          <div id="assignmentsList" class="space-y-3 text-sm text-slate-400">Loading...</div>
+        </div>
+      </div>
+
+      <!-- PAGE: TESTS -->
+      <div id="tests" class="page hidden space-y-6">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg space-y-4">
+          <h3 class="text-lg font-bold text-white">🧪 Scheduled Examinations</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-300">
+              <thead class="bg-slate-800/50 text-slate-400 text-xs uppercase font-semibold">
+                <tr>
+                  <th class="p-3.5 rounded-l-xl">Test</th>
+                  <th class="p-3.5">Subject</th>
+                  <th class="p-3.5">Date</th>
+                  <th class="p-3.5">Marks</th>
+                  <th class="p-3.5 rounded-r-xl">Room</th>
+                </tr>
+              </thead>
+              <tbody id="testsTable" class="divide-y divide-slate-800/60">
+                <tr><td colspan="5" class="p-4 text-center text-slate-500">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: RESULTS -->
+      <div id="results" class="page hidden space-y-6">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg space-y-4">
+          <h3 class="text-lg font-bold text-white">🏆 Examination Results</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-300">
+              <thead class="bg-slate-800/50 text-slate-400 text-xs uppercase font-semibold">
+                <tr>
+                  <th class="p-3.5 rounded-l-xl">Subject</th>
+                  <th class="p-3.5">Marks Obtained</th>
+                  <th class="p-3.5">Total</th>
+                  <th class="p-3.5">Grade</th>
+                  <th class="p-3.5 rounded-r-xl">Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="resultsTable" class="divide-y divide-slate-800/60">
+                <tr><td colspan="5" class="p-4 text-center text-slate-500">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: TIMETABLE -->
+      <div id="timetable" class="page hidden space-y-6">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg space-y-4">
+          <h3 class="text-lg font-bold text-white">🗓 Class Timetable</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-300">
+              <thead class="bg-slate-800/50 text-slate-400 text-xs uppercase font-semibold">
+                <tr>
+                  <th class="p-3.5 rounded-l-xl">Day</th>
+                  <th class="p-3.5">Time</th>
+                  <th class="p-3.5">Subject</th>
+                  <th class="p-3.5">Faculty</th>
+                  <th class="p-3.5 rounded-r-xl">Room</th>
+                </tr>
+              </thead>
+              <tbody id="timetableTable" class="divide-y divide-slate-800/60">
+                <tr><td colspan="5" class="p-4 text-center text-slate-500">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: NOTICES -->
+      <div id="notices" class="page hidden space-y-6">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg space-y-4">
+          <h3 class="text-lg font-bold text-white">📢 Department Notices</h3>
+          <div id="noticesList" class="space-y-3 text-sm text-slate-400">Loading...</div>
+        </div>
+      </div>
+
+      <!-- PAGE: EVENTS -->
+      <div id="events" class="page hidden space-y-6">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg space-y-4">
+          <h3 class="text-lg font-bold text-white">🎉 Upcoming Events</h3>
+          <div id="eventsList" class="space-y-3 text-sm text-slate-400">Loading...</div>
+        </div>
+      </div>
+
+      <!-- PAGE: FEES -->
+      <div id="fees" class="page hidden space-y-6">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg space-y-4">
+          <h3 class="text-lg font-bold text-white">💳 Fee Payments</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-300">
+              <thead class="bg-slate-800/50 text-slate-400 text-xs uppercase font-semibold">
+                <tr>
+                  <th class="p-3.5 rounded-l-xl">Total Fee</th>
+                  <th class="p-3.5">Paid Amount</th>
+                  <th class="p-3.5">Remaining</th>
+                  <th class="p-3.5">Due Date</th>
+                  <th class="p-3.5 rounded-r-xl">Status</th>
+                </tr>
+              </thead>
+              <tbody id="feesTable" class="divide-y divide-slate-800/60">
+                <tr><td colspan="5" class="p-4 text-center text-slate-500">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: PROFILE -->
+      <div id="profile" class="page hidden space-y-6">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-lg space-y-6">
+          <h3 class="text-lg font-bold text-white">👤 Profile Details</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800"><small class="text-xs uppercase font-semibold text-slate-400 block mb-1">Full Name</small><strong id="pName" class="text-white text-base">--</strong></div>
+            <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800"><small class="text-xs uppercase font-semibold text-slate-400 block mb-1">Student ID</small><strong id="pStudentId" class="text-white text-base">--</strong></div>
+            <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800"><small class="text-xs uppercase font-semibold text-slate-400 block mb-1">Email</small><strong id="pEmail" class="text-white text-base">--</strong></div>
+            <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800"><small class="text-xs uppercase font-semibold text-slate-400 block mb-1">Phone</small><strong id="pPhone" class="text-white text-base">--</strong></div>
+            <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800"><small class="text-xs uppercase font-semibold text-slate-400 block mb-1">Department</small><strong id="pDepartment" class="text-white text-base">--</strong></div>
+            <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800"><small class="text-xs uppercase font-semibold text-slate-400 block mb-1">Course</small><strong id="pCourse" class="text-white text-base">--</strong></div>
+            <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800"><small class="text-xs uppercase font-semibold text-slate-400 block mb-1">Semester</small><strong id="pSemester" class="text-white text-base">--</strong></div>
+            <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800"><small class="text-xs uppercase font-semibold text-slate-400 block mb-1">Division</small><strong id="pDivision" class="text-white text-base">--</strong></div>
+            <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800"><small class="text-xs uppercase font-semibold text-slate-400 block mb-1">Roll Number</small><strong id="pRoll" class="text-white text-base">--</strong></div>
+            <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800"><small class="text-xs uppercase font-semibold text-slate-400 block mb-1">CGPA</small><strong id="pCgpa" class="text-white text-base">--</strong></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://mtlwhftvndqguofxhhcc.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_uchg-Fclifz45WyCpgBgQw_bq6x3Z06";
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const $ = id => document.getElementById(id);
+
+function safe(value){
+    return String(value ?? "")
+        .replace(/[&<>"']/g, char => ({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#039;"
+        }[char]));
+}
+
+function showError(message){
+    $("message").innerHTML = `<div class="p-4 mb-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm font-medium">${safe(message)}</div>`;
+}
+
+function showPage(id, button){
+    document.querySelectorAll(".page").forEach(p => {
+      p.classList.add("hidden");
+      p.classList.remove("active");
+    });
+    const selected = $(id);
+    selected.classList.remove("hidden");
+    selected.classList.add("active");
+
+    document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+    button.classList.add("active");
+
+    const titles = {
+        home:"Student Dashboard",
+        attendance:"Attendance",
+        notes:"Study Notes",
+        assignments:"Assignments",
+        tests:"Tests & Exams",
+        results:"Results",
+        timetable:"Timetable",
+        notices:"Notices",
+        events:"Events",
+        fees:"Fees",
+        profile:"My Profile"
+    };
+
+    $("pageTitle").textContent = titles[id] || "Student Dashboard";
+}
+
+let student = null;
+
+async function loadStudent(){
+    try{
+        const saved = JSON.parse(localStorage.getItem("student") || "null");
+
+        if(!saved || !saved.id){
+            window.location.href = "login.html";
+            return;
+        }
+
+        const { data, error } = await db
+            .from("students")
+            .select("*")
+            .eq("id", saved.id)
+            .maybeSingle();
+
+        if(error){
+            console.error("Student:", error);
+            showError("Unable to load student information.");
+            return;
+        }
+
+        if(!data){
+            localStorage.removeItem("student");
+            window.location.href = "login.html";
+            return;
+        }
+
+        student = data;
+        localStorage.setItem("student", JSON.stringify(student));
+
+        loadProfileData();
+
+        await Promise.all([
+            loadAttendance(),
+            loadNotes(),
+            loadAssignments(),
+            loadTests(),
+            loadResults(),
+            loadTimetable(),
+            loadNotices(),
+            loadEvents(),
+            loadFees()
+        ]);
+    }
+    catch(error){
+        console.error(error);
+        showError("Unable to load dashboard.");
+    }
+}
+
+function loadProfileData(){
+    const name = student.full_name || "Student";
+    $("studentName").textContent = name;
+    $("welcomeName").textContent = name;
+    $("avatar").textContent = name.charAt(0).toUpperCase();
+    $("cgpaValue").textContent = student.cgpa ?? "--";
+
+    $("pName").textContent = student.full_name || "--";
+    $("pStudentId").textContent = student.student_id || "--";
+    $("pEmail").textContent = student.email || "--";
+    $("pPhone").textContent = student.phone || "--";
+    $("pDepartment").textContent = student.department || "--";
+    $("pCourse").textContent = student.course || "--";
+    $("pSemester").textContent = student.semester || "--";
+    $("pDivision").textContent = student.division || "--";
+    $("pRoll").textContent = student.roll_number || "--";
+    $("pCgpa").textContent = student.cgpa ?? "--";
+}
+
+async function loadAttendance(){
+    const { data, error } = await db
+        .from("attendance")
+        .select("*, subjects(name,code)")
+        .eq("student_id", student.id);
+
+    if(error){
+        console.error("Attendance:", error);
+        $("attendanceTable").innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Unable to load attendance.</td></tr>`;
+        return;
+    }
+
+    const groups = {};
+    let total = 0;
+    let present = 0;
+
+    (data || []).forEach(row => {
+        const key = row.subject_id;
+        if(!groups[key]){
+            groups[key] = {
+                name: row.subjects?.name || "Unknown",
+                total: 0,
+                present: 0
+            };
+        }
+        groups[key].total += Number(row.total_classes || 0);
+        groups[key].present += Number(row.attended_classes || 0);
+    });
+
+    let html = "";
+    Object.values(groups).forEach(subject => {
+        total += subject.total;
+        present += subject.present;
+        const percentage = subject.total ? ((subject.present / subject.total) * 100).toFixed(1) : 0;
+        const badgeClass = percentage >= 75 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : percentage >= 60 ? "bg-amber-500/10 text-amber-400 border-amber-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20";
+
+        html += `
+            <tr class="hover:bg-slate-800/30 transition-colors">
+                <td class="p-3.5 font-medium text-white">${safe(subject.name)}</td>
+                <td class="p-3.5">${subject.total}</td>
+                <td class="p-3.5">${subject.present}</td>
+                <td class="p-3.5"><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${badgeClass}">${percentage}%</span></td>
+            </tr>`;
+    });
+
+    $("attendanceTable").innerHTML = html || `<tr><td colspan="4" class="p-4 text-center text-slate-500">No attendance records.</td></tr>`;
+    $("attendanceValue").textContent = total ? ((present / total) * 100).toFixed(1) + "%" : "--%";
+}
+
+async function loadNotes(){
+    const { data, error } = await db
+        .from("notes")
+        .select("*, subjects(name,code)")
+        .order("created_at", {ascending:false});
+
+    if(error){
+        console.error("Notes:", error);
+        $("notesList").innerHTML = `<div class="p-4 text-center text-slate-500">Unable to load notes.</div>`;
+        return;
+    }
+
+    const html = (data || []).map(note => `
+        <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800/80 hover:border-slate-700 transition-all space-y-2">
+            <h4 class="font-semibold text-white flex items-center gap-2"><span>📄</span> ${safe(note.title)}</h4>
+            <p class="text-slate-400 text-xs">Subject: <span class="text-slate-200 font-medium">${safe(note.subjects?.name || "General")}</span></p>
+            ${note.description ? `<p class="text-slate-300 text-xs">${safe(note.description)}</p>` : ""}
+            ${note.file_url ? `<a href="${safe(note.file_url)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 mt-2">Open Note →</a>` : `<p class="text-xs text-slate-500">No file attached.</p>`}
+        </div>
+    `).join("");
+
+    $("notesList").innerHTML = html || `<div class="p-4 text-center text-slate-500">No notes uploaded.</div>`;
+}
+
+async function loadAssignments(){
+    const { data, error } = await db
+        .from("assignments")
+        .select("*, subjects(name,code)")
+        .order("due_date", {ascending:true});
+
+    if(error){
+        console.error("Assignments:", error);
+        $("assignmentsList").innerHTML = `<div class="p-4 text-center text-slate-500">Unable to load assignments.</div>`;
+        return;
+    }
+
+    $("assignmentCount").textContent = (data || []).length;
+
+    const html = (data || []).map(a => `
+        <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800/80 hover:border-slate-700 transition-all space-y-2">
+            <h4 class="font-semibold text-white flex items-center gap-2"><span>📝</span> ${safe(a.title)}</h4>
+            <p class="text-slate-400 text-xs">Subject: <span class="text-slate-200 font-medium">${safe(a.subjects?.name || "General")}</span></p>
+            ${a.description ? `<p class="text-slate-300 text-xs">${safe(a.description)}</p>` : ""}
+            <div class="flex items-center gap-4 text-xs text-slate-400 pt-1">
+              <span>Due: <strong class="text-slate-200">${safe(a.due_date || "Not specified")}</strong></span>
+              <span>Marks: <strong class="text-slate-200">${safe(a.max_marks ?? "--")}</strong></span>
+            </div>
+            ${a.attachment_url ? `<a href="${safe(a.attachment_url)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300 pt-1">View Assignment →</a>` : ""}
+        </div>
+    `).join("");
+
+    $("assignmentsList").innerHTML = html || `<div class="p-4 text-center text-slate-500">No assignments.</div>`;
+
+    const home = (data || []).slice(0,3).map(a => `
+        <div class="p-3 rounded-xl bg-slate-800/40 border border-slate-800 space-y-1">
+            <h4 class="font-semibold text-white text-sm">📝 ${safe(a.title)}</h4>
+            <p class="text-xs text-slate-400">Due: <strong class="text-slate-200">${safe(a.due_date || "--")}</strong></p>
+        </div>
+    `).join("");
+
+    $("homeAssignments").innerHTML = home || `<div class="p-4 text-center text-slate-500">No assignments.</div>`;
+}
+
+async function loadTests(){
+    const { data, error } = await db
+        .from("tests")
+        .select("*, subjects(name,code)")
+        .order("test_date", {ascending:true});
+
+    if(error){ console.error("Tests:", error); return; }
+
+    $("testCount").textContent = (data || []).length;
+
+    $("testsTable").innerHTML = (data || []).map(test => `
+        <tr class="hover:bg-slate-800/30 transition-colors">
+            <td class="p-3.5 font-medium text-white">${safe(test.title)}</td>
+            <td class="p-3.5">${safe(test.subjects?.name || "Unknown")}</td>
+            <td class="p-3.5">${safe(test.test_date || "--")}</td>
+            <td class="p-3.5">${safe(test.total_marks ?? "--")}</td>
+            <td class="p-3.5">${safe(test.room || "--")}</td>
+        </tr>
+    `).join("") || `<tr><td colspan="5" class="p-4 text-center text-slate-500">No tests scheduled.</td></tr>`;
+}
+
+async function loadResults(){
+    const { data, error } = await db
+        .from("results")
+        .select("*, subjects(name,code)")
+        .eq("student_id", student.id)
+        .order("created_at", {ascending:false});
+
+    if(error){ console.error("Results:", error); return; }
+
+    $("resultsTable").innerHTML = (data || []).map(result => `
+        <tr class="hover:bg-slate-800/30 transition-colors">
+            <td class="p-3.5 font-medium text-white">${safe(result.subjects?.name || "Unknown")}</td>
+            <td class="p-3.5">${safe(result.marks)}</td>
+            <td class="p-3.5">${safe(result.total_marks)}</td>
+            <td class="p-3.5"><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">${safe(result.grade || "--")}</span></td>
+            <td class="p-3.5">${safe(result.remarks || "--")}</td>
+        </tr>
+    `).join("") || `<tr><td colspan="5" class="p-4 text-center text-slate-500">No results available.</td></tr>`;
+}
+
+async function loadTimetable(){
+    const { data, error } = await db
+        .from("timetable")
+        .select("*, subjects(name,code)")
+        .order("start_time", {ascending:true});
+
+    if(error){ console.error("Timetable:", error); return; }
+
+    $("timetableTable").innerHTML = (data || []).map(t => `
+        <tr class="hover:bg-slate-800/30 transition-colors">
+            <td class="p-3.5 font-medium text-white">${safe(t.day)}</td>
+            <td class="p-3.5">${safe(t.start_time || "--")} - ${safe(t.end_time || "--")}</td>
+            <td class="p-3.5">${safe(t.subjects?.name || "--")}</td>
+            <td class="p-3.5">${safe(t.teacher_name || "--")}</td>
+            <td class="p-3.5">${safe(t.room || "--")}</td>
+        </tr>
+    `).join("") || `<tr><td colspan="5" class="p-4 text-center text-slate-500">No timetable available.</td></tr>`;
+}
+
+async function loadNotices(){
+    const { data, error } = await db
+        .from("notices")
+        .select("*")
+        .order("publish_date", {ascending:false});
+
+    if(error){ console.error("Notices:", error); return; }
+
+    function noticeHTML(n){
+        return `
+            <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800/80 hover:border-slate-700 transition-all space-y-1">
+                <h4 class="font-semibold text-white flex items-center gap-2"><span>📢</span> ${safe(n.title)}</h4>
+                ${n.category ? `<p class="text-xs text-blue-400 font-medium">Category: ${safe(n.category)}</p>` : ""}
+                ${n.description ? `<p class="text-xs text-slate-300 pt-1">${safe(n.description)}</p>` : ""}
+                <p class="text-[10px] text-slate-500 uppercase tracking-wider pt-2">Published: ${safe(n.publish_date || "--")}</p>
+            </div>`;
+    }
+
+    const html = (data || []).map(noticeHTML).join("");
+    $("noticesList").innerHTML = html || `<div class="p-4 text-center text-slate-500">No notices.</div>`;
+    $("homeNotices").innerHTML = (data || []).slice(0,3).map(noticeHTML).join("") || `<div class="p-4 text-center text-slate-500">No notices.</div>`;
+}
+
+async function loadEvents(){
+    const { data, error } = await db
+        .from("events")
+        .select("*")
+        .order("event_date", {ascending:true});
+
+    if(error){ console.error("Events:", error); return; }
+
+    $("eventsList").innerHTML = (data || []).map(event => `
+        <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-800/80 hover:border-slate-700 transition-all space-y-2">
+            <h4 class="font-semibold text-white flex items-center gap-2"><span>🎉</span> ${safe(event.title)}</h4>
+            <p class="text-xs text-slate-300">Date: <strong class="text-slate-100">${safe(event.event_date || "--")}</strong> (${safe(event.start_time || "--")} - ${safe(event.end_time || "--")})</p>
+            <p class="text-xs text-slate-300">Venue: <strong class="text-slate-100">${safe(event.venue || "--")}</strong></p>
+            ${event.description ? `<p class="text-xs text-slate-400">${safe(event.description)}</p>` : ""}
+        </div>
+    `).join("") || `<div class="p-4 text-center text-slate-500">No upcoming events.</div>`;
+}
+
+async function loadFees(){
+    const { data, error } = await db
+        .from("fees")
+        .select("*")
+        .eq("student_id", student.id)
+        .order("due_date", {ascending:true});
+
+    if(error){ console.error("Fees:", error); return; }
+
+    $("feesTable").innerHTML = (data || []).map(fee => {
+        const total = Number(fee.total_amount || 0);
+        const paid = Number(fee.paid_amount || 0);
+        const remaining = total - paid;
+        const badgeClass = fee.status === "paid" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : fee.status === "overdue" ? "bg-rose-500/10 text-rose-400 border-rose-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20";
+
+        return `
+            <tr class="hover:bg-slate-800/30 transition-colors">
+                <td class="p-3.5 font-semibold text-white">₹${safe(total)}</td>
+                <td class="p-3.5">₹${safe(paid)}</td>
+                <td class="p-3.5">₹${safe(remaining)}</td>
+                <td class="p-3.5">${safe(fee.due_date || "--")}</td>
+                <td class="p-3.5"><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${badgeClass}">${safe(fee.status || "pending")}</span></td>
+            </tr>`;
+    }).join("") || `<tr><td colspan="5" class="p-4 text-center text-slate-500">No fee records.</td></tr>`;
+}
+
+function logout(){
+    localStorage.removeItem("student");
+    localStorage.removeItem("userRole");
+    window.location.href = "login.html";
+}
+
+loadStudent();
+</script>
+
+</body>
+</html>

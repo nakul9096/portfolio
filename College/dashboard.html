@@ -1,0 +1,3172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartCollege | Dashboard</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #635bff;
+    --primary-dark: #5048d8;
+    --primary-light: #efeeff;
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --text: #171827;
+    --muted: #73778c;
+    --border: #e9eaf1;
+    --success: #16a36a;
+    --success-bg: #e8f8f1;
+    --warning: #e9a400;
+    --warning-bg: #fff5d9;
+    --danger: #e14d5a;
+    --danger-bg: #ffebed;
+    --info: #2387e8;
+    --info-bg: #e9f4ff;
+    --shadow: 0 8px 30px rgba(28, 31, 55, 0.06);
+    --radius: 18px;
+    --sidebar: 250px;
+}
+
+body {
+    font-family: "Inter", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+button,
+input,
+select {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* =========================================================
+   APP LAYOUT
+========================================================= */
+
+.app {
+    min-height: 100vh;
+    display: flex;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar {
+    width: var(--sidebar);
+    background: #fff;
+    border-right: 1px solid var(--border);
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    transition: 0.3s ease;
+}
+
+.logo {
+    height: 78px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 11px;
+    border-bottom: 1px solid var(--border);
+}
+
+.logo-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #635bff, #817aff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 19px;
+    font-weight: 800;
+    box-shadow: 0 6px 15px rgba(99, 91, 255, 0.25);
+}
+
+.logo-text {
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.logo-text span {
+    color: var(--primary);
+}
+
+.menu-title {
+    padding: 24px 24px 9px;
+    color: #a2a5b3;
+    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.nav {
+    padding: 0 12px;
+    overflow-y: auto;
+}
+
+.nav-item {
+    height: 44px;
+    margin-bottom: 4px;
+    padding: 0 13px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #6d7080;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.nav-item:hover {
+    background: #f6f6fc;
+    color: var(--primary);
+}
+
+.nav-item.active {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.nav-icon {
+    width: 19px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.nav-badge {
+    margin-left: auto;
+    min-width: 21px;
+    height: 21px;
+    padding: 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background: var(--danger);
+    color: white;
+    font-size: 10px;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding: 15px 12px;
+    border-top: 1px solid var(--border);
+}
+
+.help-box {
+    background: linear-gradient(135deg, #f0efff, #f8f7ff);
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 12px;
+}
+
+.help-box strong {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.help-box p {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.help-btn {
+    border: none;
+    background: var(--primary);
+    color: white;
+    padding: 7px 11px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.logout {
+    color: var(--danger);
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main {
+    margin-left: var(--sidebar);
+    width: calc(100% - var(--sidebar));
+    min-width: 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header {
+    height: 78px;
+    background: rgba(255,255,255,0.94);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    position: sticky;
+    top: 0;
+    z-index: 80;
+}
+
+.mobile-menu {
+    display: none;
+    border: none;
+    background: transparent;
+    font-size: 22px;
+}
+
+.search {
+    width: 310px;
+    height: 40px;
+    border: 1px solid var(--border);
+    background: #f9f9fc;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 9px;
+}
+
+.search span {
+    color: #999cac;
+    font-size: 14px;
+}
+
+.search input {
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    font-size: 12px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+}
+
+.icon-btn {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 10px;
+    position: relative;
+    font-size: 15px;
+}
+
+.notification-dot {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--danger);
+    border: 1px solid white;
+}
+
+.profile-mini {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding-left: 7px;
+    border-left: 1px solid var(--border);
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #635bff, #9b96ff);
+    color: white;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 12px;
+}
+
+.profile-mini-text strong {
+    display: block;
+    font-size: 11px;
+}
+
+.profile-mini-text span {
+    display: block;
+    color: var(--muted);
+    font-size: 9px;
+    margin-top: 2px;
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.content {
+    padding: 28px 30px 50px;
+    max-width: 1600px;
+    margin: auto;
+}
+
+.page-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.page-heading h1 {
+    font-size: 25px;
+    letter-spacing: -0.7px;
+}
+
+.page-heading p {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 7px;
+}
+
+.date-box {
+    color: var(--muted);
+    font-size: 11px;
+    background: white;
+    border: 1px solid var(--border);
+    padding: 10px 13px;
+    border-radius: 10px;
+}
+
+/* =========================================================
+   WELCOME CARD
+========================================================= */
+
+.welcome {
+    background: linear-gradient(120deg, #5b53ee, #746cf8 65%, #817aff);
+    border-radius: 20px;
+    padding: 25px 28px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 22px;
+    min-height: 165px;
+    display: flex;
+    align-items: center;
+}
+
+.welcome::after {
+    content: "";
+    width: 240px;
+    height: 240px;
+    border: 35px solid rgba(255,255,255,0.08);
+    border-radius: 50%;
+    position: absolute;
+    right: -50px;
+    top: -100px;
+}
+
+.welcome::before {
+    content: "";
+    width: 120px;
+    height: 120px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+    position: absolute;
+    right: 180px;
+    bottom: -70px;
+}
+
+.welcome-content {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome small {
+    opacity: 0.8;
+    font-size: 11px;
+}
+
+.welcome h2 {
+    font-size: 24px;
+    margin: 7px 0;
+}
+
+.welcome p {
+    opacity: 0.8;
+    font-size: 11px;
+    max-width: 480px;
+    line-height: 1.6;
+}
+
+.welcome-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.white-btn {
+    border: none;
+    background: white;
+    color: var(--primary);
+    padding: 9px 14px;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.outline-white {
+    border: 1px solid rgba(255,255,255,.4);
+    background: transparent;
+    color: white;
+    padding: 9px 14px;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   STAT CARDS
+========================================================= */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 17px;
+    box-shadow: var(--shadow);
+}
+
+.stat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.stat-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.purple {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.green {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.orange {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+.blue {
+    background: var(--info-bg);
+    color: var(--info);
+}
+
+.stat-change {
+    font-size: 9px;
+    padding: 4px 7px;
+    border-radius: 20px;
+    font-weight: 700;
+}
+
+.up {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.stat-card h3 {
+    font-size: 23px;
+    margin-top: 14px;
+}
+
+.stat-card p {
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 17px 19px;
+    border-bottom: 1px solid var(--border);
+}
+
+.card-header h3 {
+    font-size: 13px;
+}
+
+.card-header span {
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.view-all {
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+}
+
+.card-body {
+    padding: 18px;
+}
+
+/* =========================================================
+   ATTENDANCE
+========================================================= */
+
+.attendance-main {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.progress-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary) 0 86%, #ececf5 86% 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.progress-inner {
+    width: 91px;
+    height: 91px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.progress-inner strong {
+    font-size: 21px;
+}
+
+.progress-inner span {
+    color: var(--muted);
+    font-size: 8px;
+    margin-top: 3px;
+}
+
+.attendance-details {
+    width: 100%;
+}
+
+.att-row {
+    margin-bottom: 13px;
+}
+
+.att-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    margin-bottom: 6px;
+}
+
+.att-label span {
+    color: var(--muted);
+}
+
+.bar {
+    height: 6px;
+    background: #f0f0f5;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 10px;
+}
+
+/* =========================================================
+   PERFORMANCE
+========================================================= */
+
+.performance-list {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+
+.subject {
+    display: grid;
+    grid-template-columns: 90px 1fr 35px;
+    align-items: center;
+    gap: 10px;
+}
+
+.subject-name {
+    font-size: 9px;
+    color: #5e6171;
+}
+
+.subject-bar {
+    height: 7px;
+    background: #f0f0f5;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.subject-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: var(--primary);
+}
+
+.subject-score {
+    text-align: right;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   TIMETABLE
+========================================================= */
+
+.schedule {
+    display: flex;
+    flex-direction: column;
+}
+
+.class-row {
+    display: grid;
+    grid-template-columns: 65px 1fr 65px;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 0;
+    border-bottom: 1px solid #f0f0f3;
+}
+
+.class-row:last-child {
+    border-bottom: none;
+}
+
+.class-time {
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.class-info strong {
+    display: block;
+    font-size: 10px;
+}
+
+.class-info span {
+    display: block;
+    color: var(--muted);
+    font-size: 8px;
+    margin-top: 3px;
+}
+
+.room {
+    text-align: right;
+    font-size: 8px;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* =========================================================
+   ASSIGNMENTS
+========================================================= */
+
+.assignment {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f3;
+}
+
+.assignment:last-child {
+    border: none;
+}
+
+.assignment-icon {
+    width: 35px;
+    height: 35px;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    font-size: 12px;
+}
+
+.assignment-info {
+    flex: 1;
+}
+
+.assignment-info strong {
+    display: block;
+    font-size: 10px;
+}
+
+.assignment-info span {
+    color: var(--muted);
+    font-size: 8px;
+    display: block;
+    margin-top: 3px;
+}
+
+.deadline {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 5px 7px;
+    border-radius: 7px;
+}
+
+.deadline.red {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.deadline.yellow {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+.deadline.green {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+/* =========================================================
+   ANNOUNCEMENTS
+========================================================= */
+
+.notice {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f3;
+}
+
+.notice:last-child {
+    border-bottom: none;
+}
+
+.notice-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--primary);
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+.notice-info {
+    flex: 1;
+}
+
+.notice-info strong {
+    font-size: 10px;
+    display: block;
+}
+
+.notice-info p {
+    color: var(--muted);
+    font-size: 8px;
+    line-height: 1.5;
+    margin-top: 3px;
+}
+
+.notice-date {
+    color: #aaa;
+    font-size: 8px;
+}
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+.event {
+    display: flex;
+    gap: 11px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f3;
+}
+
+.event:last-child {
+    border: none;
+}
+
+.event-date {
+    width: 40px;
+    height: 43px;
+    border-radius: 10px;
+    background: var(--primary-light);
+    color: var(--primary);
+    text-align: center;
+    padding-top: 6px;
+    flex-shrink: 0;
+}
+
+.event-date strong {
+    display: block;
+    font-size: 14px;
+}
+
+.event-date span {
+    font-size: 7px;
+    font-weight: 700;
+}
+
+.event-info strong {
+    font-size: 10px;
+}
+
+.event-info p {
+    font-size: 8px;
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+/* =========================================================
+   QUICK ACTIONS
+========================================================= */
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.quick {
+    border: 1px solid var(--border);
+    background: #fafaff;
+    border-radius: 12px;
+    padding: 15px 10px;
+    text-align: center;
+    transition: .2s;
+}
+
+.quick:hover {
+    border-color: #d4d1ff;
+    transform: translateY(-2px);
+}
+
+.quick-icon {
+    width: 34px;
+    height: 34px;
+    margin: auto;
+    border-radius: 10px;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quick strong {
+    display: block;
+    font-size: 9px;
+    margin-top: 8px;
+}
+
+.quick span {
+    display: block;
+    color: var(--muted);
+    font-size: 7px;
+    margin-top: 3px;
+}
+
+/* =========================================================
+   FEES
+========================================================= */
+
+.fee-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 17px;
+}
+
+.fee-summary strong {
+    font-size: 21px;
+}
+
+.fee-summary span {
+    color: var(--muted);
+    font-size: 8px;
+}
+
+.fee-status {
+    padding: 6px 9px;
+    background: var(--success-bg);
+    color: var(--success);
+    border-radius: 7px;
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.fee-bar {
+    height: 8px;
+    background: #f0f0f5;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.fee-fill {
+    height: 100%;
+    width: 75%;
+    background: var(--success);
+    border-radius: 20px;
+}
+
+.fee-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8px;
+    color: var(--muted);
+}
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+.profile-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-large {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #635bff, #918bff);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.profile-info strong {
+    display: block;
+    font-size: 13px;
+}
+
+.profile-info span {
+    display: block;
+    color: var(--muted);
+    font-size: 9px;
+    margin-top: 4px;
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast {
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+    background: #1d1e2a;
+    color: white;
+    padding: 12px 17px;
+    border-radius: 10px;
+    font-size: 11px;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: .3s;
+    z-index: 999;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,16,30,.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    padding: 20px;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-box {
+    background: white;
+    width: 450px;
+    max-width: 100%;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 20px 70px rgba(0,0,0,.2);
+}
+
+.modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.modal-head h3 {
+    font-size: 16px;
+}
+
+.close {
+    border: none;
+    background: #f3f3f7;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+}
+
+.modal-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+}
+
+.modal-row span {
+    color: var(--muted);
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    color: var(--muted);
+    font-size: 8px;
+    font-weight: 600;
+    text-align: left;
+    padding: 10px;
+    background: #fafafd;
+}
+
+td {
+    font-size: 9px;
+    padding: 12px 10px;
+    border-top: 1px solid #f0f0f3;
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 8px;
+    border-radius: 7px;
+    font-size: 7px;
+    font-weight: 700;
+}
+
+.badge-green {
+    color: var(--success);
+    background: var(--success-bg);
+}
+
+.badge-red {
+    color: var(--danger);
+    background: var(--danger-bg);
+}
+
+.badge-blue {
+    color: var(--info);
+    background: var(--info-bg);
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 1100px) {
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-3 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 800px) {
+    :root {
+        --sidebar: 250px;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        box-shadow: 10px 0 30px rgba(0,0,0,.1);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .main {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .mobile-menu {
+        display: block;
+    }
+
+    .header {
+        padding: 0 16px;
+    }
+
+    .search {
+        width: 190px;
+    }
+
+    .content {
+        padding: 20px 15px 40px;
+    }
+
+    .grid,
+    .grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .page-heading {
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 550px) {
+    .header {
+        gap: 10px;
+    }
+
+    .search {
+        display: none;
+    }
+
+    .profile-mini-text {
+        display: none;
+    }
+
+    .stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+    }
+
+    .stat-card {
+        padding: 13px;
+    }
+
+    .stat-card h3 {
+        font-size: 19px;
+    }
+
+    .welcome {
+        padding: 20px;
+    }
+
+    .welcome h2 {
+        font-size: 20px;
+    }
+
+    .date-box {
+        display: none;
+    }
+
+    .attendance-main {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .progress-circle {
+        margin: auto;
+    }
+
+    .subject {
+        grid-template-columns: 70px 1fr 30px;
+    }
+}
+
+/* =========================================================
+   OVERLAY
+========================================================= */
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.3);
+    z-index: 90;
+}
+
+.sidebar-overlay.show {
+    display: block;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- =======================================================
+     SIDEBAR
+======================================================= -->
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="logo">
+        <div class="logo-icon">S</div>
+        <div class="logo-text">Smart<span>College</span></div>
+    </div>
+
+    <div class="menu-title">Main Menu</div>
+
+    <nav class="nav">
+
+        <a href="#" class="nav-item active">
+            <span class="nav-icon">⌂</span>
+            Dashboard
+        </a>
+
+        <a href="#" class="nav-item">
+            <span class="nav-icon">◉</span>
+            My Attendance
+        </a>
+
+        <a href="#" class="nav-item">
+            <span class="nav-icon">▦</span>
+            Timetable
+        </a>
+
+        <a href="#" class="nav-item">
+            <span class="nav-icon">✓</span>
+            Assignments
+            <span class="nav-badge">4</span>
+        </a>
+
+        <a href="#" class="nav-item">
+            <span class="nav-icon">▤</span>
+            Study Material
+        </a>
+
+        <a href="#" class="nav-item">
+            <span class="nav-icon">⌁</span>
+            Examinations
+        </a>
+
+        <a href="#" class="nav-item">
+            <span class="nav-icon">★</span>
+            Results
+        </a>
+
+        <div class="menu-title">College</div>
+
+        <a href="#" class="nav-item">
+            <span class="nav-icon">◈</span>
+            Notices
+            <span class="nav-badge">3</span>
+        </a>
+
+        <a href="#" class="nav-item">
+            <span class="nav-icon">◆</span>
+            Events
+        </a>
+
+        <a href="#" class="nav-item">
+            <span class="nav-icon">₹</span>
+            Fees
+        </a>
+
+        <a href="#" class="nav-item">
+            <span class="nav-icon">♧</span>
+            Clubs
+        </a>
+
+        <a href="#" class="nav-item">
+            <span class="nav-icon">▣</span>
+            Placement
+        </a>
+
+        <div class="menu-title">Account</div>
+
+        <a href="#" class="nav-item" onclick="openProfile()">
+            <span class="nav-icon">●</span>
+            My Profile
+        </a>
+
+        <a href="#" class="nav-item">
+            <span class="nav-icon">⚙</span>
+            Settings
+        </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+
+        <div class="help-box">
+            <strong>Need Help?</strong>
+            <p>Contact the college support team for assistance.</p>
+            <button class="help-btn" onclick="showToast('Support request opened')">
+                Get Support
+            </button>
+        </div>
+
+        <a href="login.html" class="nav-item logout" onclick="logoutUser()">
+            <span class="nav-icon">↪</span>
+            Logout
+        </a>
+
+    </div>
+
+</aside>
+
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- =======================================================
+     MAIN
+======================================================= -->
+
+<main class="main">
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+
+    <div class="search">
+        <span>⌕</span>
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search anything..."
+            onkeyup="searchDashboard()"
+        >
+    </div>
+
+    <div class="header-actions">
+
+        <button class="icon-btn" onclick="showToast('Calendar opened')">
+            ◷
+        </button>
+
+        <button class="icon-btn" onclick="openNotifications()">
+            ♢
+            <span class="notification-dot"></span>
+        </button>
+
+        <div class="profile-mini">
+
+            <div class="avatar">ND</div>
+
+            <div class="profile-mini-text">
+                <strong>Nakul Dhande</strong>
+                <span>Computer Engineering</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+<!-- =======================================================
+     CONTENT
+======================================================= -->
+
+<section class="content">
+
+    <!-- PAGE HEADING -->
+
+    <div class="page-heading">
+
+        <div>
+            <h1>Dashboard</h1>
+            <p>Here's what's happening with your academics today.</p>
+        </div>
+
+        <div class="date-box" id="currentDate">
+            Loading date...
+        </div>
+
+    </div>
+
+    <!-- ===================================================
+         WELCOME
+    =================================================== -->
+
+    <div class="welcome">
+
+        <div class="welcome-content">
+
+            <small>Good afternoon 👋</small>
+
+            <h2>Welcome back, Nakul!</h2>
+
+            <p>
+                You are doing great this semester.
+                Your current attendance is above the required percentage.
+            </p>
+
+            <div class="welcome-actions">
+
+                <button
+                    class="white-btn"
+                    onclick="openProfile()"
+                >
+                    View Profile
+                </button>
+
+                <button
+                    class="outline-white"
+                    onclick="showToast('Academic report generated')"
+                >
+                    Academic Report
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================================
+         STATS
+    =================================================== -->
+
+    <div class="stats">
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <div class="stat-icon purple">
+                    ◉
+                </div>
+
+                <span class="stat-change up">
+                    +2.4%
+                </span>
+
+            </div>
+
+            <h3>86%</h3>
+            <p>Overall Attendance</p>
+
+        </div>
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <div class="stat-icon green">
+                    ★
+                </div>
+
+                <span class="stat-change up">
+                    +0.3
+                </span>
+
+            </div>
+
+            <h3>8.42</h3>
+            <p>Current CGPA</p>
+
+        </div>
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <div class="stat-icon orange">
+                    ✓
+                </div>
+
+                <span class="stat-change up">
+                    8 / 12
+                </span>
+
+            </div>
+
+            <h3>4</h3>
+            <p>Pending Assignments</p>
+
+        </div>
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <div class="stat-icon blue">
+                    ◈
+                </div>
+
+                <span class="stat-change up">
+                    New
+                </span>
+
+            </div>
+
+            <h3>3</h3>
+            <p>New Announcements</p>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================================
+         ATTENDANCE + PERFORMANCE
+    =================================================== -->
+
+    <div class="grid">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3>Attendance Overview</h3>
+
+                <button class="view-all" onclick="showToast('Attendance details opened')">
+                    View Details →
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="attendance-main">
+
+                    <div class="progress-circle">
+
+                        <div class="progress-inner">
+                            <strong>86%</strong>
+                            <span>Overall</span>
+                        </div>
+
+                    </div>
+
+                    <div class="attendance-details">
+
+                        <div class="att-row">
+
+                            <div class="att-label">
+                                <span>Data Structures</span>
+                                <strong>92%</strong>
+                            </div>
+
+                            <div class="bar">
+                                <div class="bar-fill"
+                                     style="width:92%;background:#635bff;">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="att-row">
+
+                            <div class="att-label">
+                                <span>Operating Systems</span>
+                                <strong>87%</strong>
+                            </div>
+
+                            <div class="bar">
+                                <div class="bar-fill"
+                                     style="width:87%;background:#2387e8;">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="att-row">
+
+                            <div class="att-label">
+                                <span>Computer Networks</span>
+                                <strong>84%</strong>
+                            </div>
+
+                            <div class="bar">
+                                <div class="bar-fill"
+                                     style="width:84%;background:#16a36a;">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="att-row">
+
+                            <div class="att-label">
+                                <span>DBMS</span>
+                                <strong>81%</strong>
+                            </div>
+
+                            <div class="bar">
+                                <div class="bar-fill"
+                                     style="width:81%;background:#e9a400;">
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3>Academic Performance</h3>
+
+                <span>Semester 5</span>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="performance-list">
+
+                    <div class="subject">
+
+                        <span class="subject-name">
+                            Data Structures
+                        </span>
+
+                        <div class="subject-bar">
+                            <div class="subject-fill"
+                                 style="width:92%;">
+                            </div>
+                        </div>
+
+                        <span class="subject-score">92</span>
+
+                    </div>
+
+                    <div class="subject">
+
+                        <span class="subject-name">
+                            DBMS
+                        </span>
+
+                        <div class="subject-bar">
+                            <div class="subject-fill"
+                                 style="width:84%;">
+                            </div>
+                        </div>
+
+                        <span class="subject-score">84</span>
+
+                    </div>
+
+                    <div class="subject">
+
+                        <span class="subject-name">
+                            Networks
+                        </span>
+
+                        <div class="subject-bar">
+                            <div class="subject-fill"
+                                 style="width:88%;">
+                            </div>
+                        </div>
+
+                        <span class="subject-score">88</span>
+
+                    </div>
+
+                    <div class="subject">
+
+                        <span class="subject-name">
+                            Operating Systems
+                        </span>
+
+                        <div class="subject-bar">
+                            <div class="subject-fill"
+                                 style="width:81%;">
+                            </div>
+                        </div>
+
+                        <span class="subject-score">81</span>
+
+                    </div>
+
+                    <div class="subject">
+
+                        <span class="subject-name">
+                            Mathematics
+                        </span>
+
+                        <div class="subject-bar">
+                            <div class="subject-fill"
+                                 style="width:79%;">
+                            </div>
+                        </div>
+
+                        <span class="subject-score">79</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================================
+         TIMETABLE + ASSIGNMENTS
+    =================================================== -->
+
+    <div class="grid">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3>Today's Timetable</h3>
+
+                <button
+                    class="view-all"
+                    onclick="showToast('Full timetable opened')"
+                >
+                    Full Timetable →
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="schedule">
+
+                    <div class="class-row">
+
+                        <div class="class-time">
+                            09:00 AM
+                        </div>
+
+                        <div class="class-info">
+                            <strong>Data Structures</strong>
+                            <span>Dr. A. Sharma • Lecture</span>
+                        </div>
+
+                        <div class="room">
+                            Room 204
+                        </div>
+
+                    </div>
+
+                    <div class="class-row">
+
+                        <div class="class-time">
+                            10:00 AM
+                        </div>
+
+                        <div class="class-info">
+                            <strong>Database Management</strong>
+                            <span>Prof. R. Patil • Lecture</span>
+                        </div>
+
+                        <div class="room">
+                            Room 301
+                        </div>
+
+                    </div>
+
+                    <div class="class-row">
+
+                        <div class="class-time">
+                            11:30 AM
+                        </div>
+
+                        <div class="class-info">
+                            <strong>Computer Networks</strong>
+                            <span>Prof. K. Joshi • Practical</span>
+                        </div>
+
+                        <div class="room">
+                            Lab 02
+                        </div>
+
+                    </div>
+
+                    <div class="class-row">
+
+                        <div class="class-time">
+                            02:00 PM
+                        </div>
+
+                        <div class="class-info">
+                            <strong>Operating Systems</strong>
+                            <span>Dr. S. Kulkarni • Lecture</span>
+                        </div>
+
+                        <div class="room">
+                            Room 205
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3>Pending Assignments</h3>
+
+                <button
+                    class="view-all"
+                    onclick="showToast('Assignments opened')"
+                >
+                    View All →
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="assignment">
+
+                    <div class="assignment-icon">
+                        DB
+                    </div>
+
+                    <div class="assignment-info">
+                        <strong>SQL Query Optimization</strong>
+                        <span>Database Management</span>
+                    </div>
+
+                    <span class="deadline red">
+                        2 Days
+                    </span>
+
+                </div>
+
+                <div class="assignment">
+
+                    <div class="assignment-icon">
+                        OS
+                    </div>
+
+                    <div class="assignment-info">
+                        <strong>Process Scheduling</strong>
+                        <span>Operating Systems</span>
+                    </div>
+
+                    <span class="deadline yellow">
+                        4 Days
+                    </span>
+
+                </div>
+
+                <div class="assignment">
+
+                    <div class="assignment-icon">
+                        CN
+                    </div>
+
+                    <div class="assignment-info">
+                        <strong>Network Protocol Report</strong>
+                        <span>Computer Networks</span>
+                    </div>
+
+                    <span class="deadline yellow">
+                        6 Days
+                    </span>
+
+                </div>
+
+                <div class="assignment">
+
+                    <div class="assignment-icon">
+                        DS
+                    </div>
+
+                    <div class="assignment-info">
+                        <strong>Binary Tree Implementation</strong>
+                        <span>Data Structures</span>
+                    </div>
+
+                    <span class="deadline green">
+                        8 Days
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================================
+         QUICK ACTIONS
+    =================================================== -->
+
+    <div class="card" style="margin-bottom:18px;">
+
+        <div class="card-header">
+
+            <h3>Quick Actions</h3>
+
+            <span>Frequently used</span>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="quick-actions">
+
+                <button
+                    class="quick"
+                    onclick="showToast('Notes section opened')"
+                >
+                    <div class="quick-icon">▤</div>
+                    <strong>Study Notes</strong>
+                    <span>Access materials</span>
+                </button>
+
+                <button
+                    class="quick"
+                    onclick="showToast('Timetable downloaded')"
+                >
+                    <div class="quick-icon">▦</div>
+                    <strong>Timetable</strong>
+                    <span>View schedule</span>
+                </button>
+
+                <button
+                    class="quick"
+                    onclick="showToast('Assignment upload opened')"
+                >
+                    <div class="quick-icon">↑</div>
+                    <strong>Submit Work</strong>
+                    <span>Upload assignment</span>
+                </button>
+
+                <button
+                    class="quick"
+                    onclick="showToast('Result section opened')"
+                >
+                    <div class="quick-icon">★</div>
+                    <strong>My Results</strong>
+                    <span>View marks</span>
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================================
+         ANNOUNCEMENTS + EVENTS
+    =================================================== -->
+
+    <div class="grid-3">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3>Announcements</h3>
+
+                <button
+                    class="view-all"
+                    onclick="showToast('All announcements opened')"
+                >
+                    View All
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="notice">
+
+                    <div class="notice-dot"></div>
+
+                    <div class="notice-info">
+                        <strong>Internal Exam Schedule Released</strong>
+                        <p>
+                            The semester examination schedule is now available.
+                        </p>
+                    </div>
+
+                    <span class="notice-date">Today</span>
+
+                </div>
+
+                <div class="notice">
+
+                    <div class="notice-dot"></div>
+
+                    <div class="notice-info">
+                        <strong>College Hackathon 2026</strong>
+                        <p>
+                            Registrations are open for the annual hackathon.
+                        </p>
+                    </div>
+
+                    <span class="notice-date">Yesterday</span>
+
+                </div>
+
+                <div class="notice">
+
+                    <div class="notice-dot"></div>
+
+                    <div class="notice-info">
+                        <strong>Library Timing Updated</strong>
+                        <p>
+                            Library will remain open until 8 PM.
+                        </p>
+                    </div>
+
+                    <span class="notice-date">2d</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3>Upcoming Events</h3>
+
+                <button
+                    class="view-all"
+                    onclick="showToast('Events opened')"
+                >
+                    Calendar
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="event">
+
+                    <div class="event-date">
+                        <strong>24</strong>
+                        <span>AUG</span>
+                    </div>
+
+                    <div class="event-info">
+                        <strong>Technical Symposium</strong>
+                        <p>Auditorium • 10:00 AM</p>
+                    </div>
+
+                </div>
+
+                <div class="event">
+
+                    <div class="event-date">
+                        <strong>27</strong>
+                        <span>AUG</span>
+                    </div>
+
+                    <div class="event-info">
+                        <strong>Project Exhibition</strong>
+                        <p>Main Hall • 11:00 AM</p>
+                    </div>
+
+                </div>
+
+                <div class="event">
+
+                    <div class="event-date">
+                        <strong>02</strong>
+                        <span>SEP</span>
+                    </div>
+
+                    <div class="event-info">
+                        <strong>Sports Meet</strong>
+                        <p>College Ground • 9:00 AM</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3>Fee Summary</h3>
+
+                <button
+                    class="view-all"
+                    onclick="showToast('Fee details opened')"
+                >
+                    Details
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="fee-summary">
+
+                    <div>
+                        <strong>₹48,000</strong>
+                        <span>Total paid</span>
+                    </div>
+
+                    <div class="fee-status">
+                        Paid
+                    </div>
+
+                </div>
+
+                <div class="fee-bar">
+                    <div class="fee-fill"></div>
+                </div>
+
+                <div class="fee-info">
+                    <span>Paid: ₹48,000</span>
+                    <span>Total: ₹64,000</span>
+                </div>
+
+                <button
+                    class="white-btn"
+                    style="
+                        width:100%;
+                        margin-top:15px;
+                        border:1px solid #e8e8ef;
+                    "
+                    onclick="showToast('Payment page opened')"
+                >
+                    View Fee Details
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================================
+         RECENT RESULTS
+    =================================================== -->
+
+    <div class="card" style="margin-bottom:18px;">
+
+        <div class="card-header">
+
+            <h3>Recent Examination Results</h3>
+
+            <button
+                class="view-all"
+                onclick="showToast('Results section opened')"
+            >
+                All Results →
+            </button>
+
+        </div>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Subject</th>
+                        <th>Exam</th>
+                        <th>Marks</th>
+                        <th>Grade</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>Data Structures</td>
+                        <td>Mid Semester</td>
+                        <td>46 / 50</td>
+                        <td>A+</td>
+                        <td>
+                            <span class="badge badge-green">
+                                Excellent
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Database Management</td>
+                        <td>Mid Semester</td>
+                        <td>42 / 50</td>
+                        <td>A</td>
+                        <td>
+                            <span class="badge badge-green">
+                                Good
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Computer Networks</td>
+                        <td>Mid Semester</td>
+                        <td>44 / 50</td>
+                        <td>A+</td>
+                        <td>
+                            <span class="badge badge-green">
+                                Excellent
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Operating Systems</td>
+                        <td>Mid Semester</td>
+                        <td>39 / 50</td>
+                        <td>B+</td>
+                        <td>
+                            <span class="badge badge-blue">
+                                Good
+                            </span>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================================
+         PROFILE
+    =================================================== -->
+
+    <div class="grid">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3>Student Profile</h3>
+
+                <button
+                    class="view-all"
+                    onclick="openProfile()"
+                >
+                    Edit Profile
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="profile-card">
+
+                    <div class="profile-large">
+                        ND
+                    </div>
+
+                    <div class="profile-info">
+                        <strong>Nakul Dhande</strong>
+                        <span>
+                            Computer Engineering • Semester 5
+                        </span>
+                        <span>
+                            Student ID: SC2026CE102
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3>Academic Information</h3>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="modal-row">
+                    <span>Department</span>
+                    <strong>Computer Engineering</strong>
+                </div>
+
+                <div class="modal-row">
+                    <span>Semester</span>
+                    <strong>5th Semester</strong>
+                </div>
+
+                <div class="modal-row">
+                    <span>Division</span>
+                    <strong>A</strong>
+                </div>
+
+                <div class="modal-row">
+                    <span>Academic Year</span>
+                    <strong>2026–27</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+</div>
+
+<!-- =======================================================
+     PROFILE MODAL
+======================================================= -->
+
+<div class="modal" id="profileModal">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+
+            <h3>Student Profile</h3>
+
+            <button
+                class="close"
+                onclick="closeModal('profileModal')"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="profile-card" style="margin-bottom:20px;">
+
+            <div class="profile-large">
+                ND
+            </div>
+
+            <div class="profile-info">
+                <strong>Nakul Dhande</strong>
+                <span>Computer Engineering</span>
+            </div>
+
+        </div>
+
+        <div class="modal-row">
+            <span>Student ID</span>
+            <strong>SC2026CE102</strong>
+        </div>
+
+        <div class="modal-row">
+            <span>Department</span>
+            <strong>Computer Engineering</strong>
+        </div>
+
+        <div class="modal-row">
+            <span>Semester</span>
+            <strong>5th Semester</strong>
+        </div>
+
+        <div class="modal-row">
+            <span>Division</span>
+            <strong>A</strong>
+        </div>
+
+        <div class="modal-row">
+            <span>CGPA</span>
+            <strong>8.42</strong>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =======================================================
+     NOTIFICATION MODAL
+======================================================= -->
+
+<div class="modal" id="notificationModal">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+
+            <h3>Notifications</h3>
+
+            <button
+                class="close"
+                onclick="closeModal('notificationModal')"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="notice">
+
+            <div class="notice-dot"></div>
+
+            <div class="notice-info">
+                <strong>New examination schedule</strong>
+                <p>
+                    Your internal examination schedule has been published.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="notice">
+
+            <div class="notice-dot"></div>
+
+            <div class="notice-info">
+                <strong>Assignment deadline approaching</strong>
+                <p>
+                    SQL Query Optimization is due in 2 days.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="notice">
+
+            <div class="notice-dot"></div>
+
+            <div class="notice-info">
+                <strong>New study material</strong>
+                <p>
+                    New Computer Networks notes have been uploaded.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- TOAST -->
+
+<div class="toast" id="toast">
+    Action completed
+</div>
+
+<script>
+
+/* =========================================================
+   DATE
+========================================================= */
+
+function setDate() {
+
+    const element = document.getElementById("currentDate");
+
+    const now = new Date();
+
+    const options = {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+    };
+
+    element.textContent = now.toLocaleDateString(
+        "en-IN",
+        options
+    );
+}
+
+setDate();
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+function toggleSidebar() {
+
+    const sidebar =
+        document.getElementById("sidebar");
+
+    const overlay =
+        document.getElementById("overlay");
+
+    sidebar.classList.toggle("open");
+
+    overlay.classList.toggle("show");
+}
+
+function closeSidebar() {
+
+    document
+        .getElementById("sidebar")
+        .classList.remove("open");
+
+    document
+        .getElementById("overlay")
+        .classList.remove("show");
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+const navItems =
+    document.querySelectorAll(".nav-item");
+
+navItems.forEach(item => {
+
+    item.addEventListener("click", function(e) {
+
+        if (
+            this.classList.contains("logout") ||
+            this.getAttribute("onclick")
+        ) {
+            return;
+        }
+
+        navItems.forEach(nav => {
+            nav.classList.remove("active");
+        });
+
+        this.classList.add("active");
+
+        if (window.innerWidth <= 800) {
+            closeSidebar();
+        }
+
+        showToast(
+            this.textContent.trim() + " selected"
+        );
+
+    });
+
+});
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer;
+
+function showToast(message) {
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent = message;
+
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 2200);
+}
+
+
+/* =========================================================
+   PROFILE MODAL
+========================================================= */
+
+function openProfile() {
+
+    document
+        .getElementById("profileModal")
+        .classList.add("active");
+}
+
+function closeModal(id) {
+
+    document
+        .getElementById(id)
+        .classList.remove("active");
+}
+
+
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
+
+function openNotifications() {
+
+    document
+        .getElementById("notificationModal")
+        .classList.add("active");
+}
+
+
+/* =========================================================
+   CLOSE MODAL ON BACKDROP
+========================================================= */
+
+document.querySelectorAll(".modal").forEach(modal => {
+
+    modal.addEventListener("click", function(e) {
+
+        if (e.target === this) {
+
+            this.classList.remove("active");
+
+        }
+
+    });
+
+});
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+function searchDashboard() {
+
+    const value =
+        document
+        .getElementById("searchInput")
+        .value
+        .toLowerCase()
+        .trim();
+
+    if (!value) {
+        return;
+    }
+
+    const searchable =
+        document.querySelectorAll(
+            ".card, .welcome, .stat-card"
+        );
+
+    let found = false;
+
+    searchable.forEach(element => {
+
+        if (
+            element.textContent
+            .toLowerCase()
+            .includes(value)
+        ) {
+
+            element.style.outline =
+                "2px solid rgba(99,91,255,.3)";
+
+            found = true;
+
+        } else {
+
+            element.style.outline = "none";
+
+        }
+
+    });
+
+    if (found) {
+
+        showToast("Matching content highlighted");
+
+    }
+
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+function logoutUser() {
+
+    localStorage.removeItem("studentLoggedIn");
+
+}
+
+
+/* =========================================================
+   CHECK LOGIN
+========================================================= */
+
+/*
+   Enable this later if your login.html stores:
+
+   localStorage.setItem(
+       "studentLoggedIn",
+       "true"
+   );
+
+   For now it is intentionally disabled so
+   the dashboard can be opened directly.
+*/
+
+// if (localStorage.getItem("studentLoggedIn") !== "true") {
+//     window.location.href = "login.html";
+// }
+
+
+/* =========================================================
+   ANIMATION ON LOAD
+========================================================= */
+
+window.addEventListener("load", () => {
+
+    const cards =
+        document.querySelectorAll(
+            ".stat-card, .card, .welcome"
+        );
+
+    cards.forEach((card, index) => {
+
+        card.style.opacity = "0";
+
+        card.style.transform =
+            "translateY(8px)";
+
+        setTimeout(() => {
+
+            card.style.transition =
+                "opacity .35s ease, transform .35s ease";
+
+            card.style.opacity = "1";
+
+            card.style.transform =
+                "translateY(0)";
+
+        }, index * 35);
+
+    });
+
+});
+
+
+/* =========================================================
+   KEYBOARD SHORTCUT
+========================================================= */
+
+document.addEventListener("keydown", function(e) {
+
+    if (
+        (e.ctrlKey || e.metaKey) &&
+        e.key.toLowerCase() === "k"
+    ) {
+
+        e.preventDefault();
+
+        const search =
+            document.getElementById("searchInput");
+
+        search.focus();
+
+    }
+
+    if (e.key === "Escape") {
+
+        document
+            .querySelectorAll(".modal")
+            .forEach(modal => {
+
+                modal.classList.remove("active");
+
+            });
+
+    }
+
+});
+
+
+/* =========================================================
+   RESPONSIVE SIDEBAR
+========================================================= */
+
+window.addEventListener("resize", () => {
+
+    if (window.innerWidth > 800) {
+
+        closeSidebar();
+
+    }
+
+});
+
+
+/* =========================================================
+   DEMO DATA OBJECT
+========================================================= */
+
+/*
+   This object gives you a clean structure to replace
+   the static dashboard values with Supabase data later.
+*/
+
+const studentData = {
+
+    name: "Nakul Dhande",
+
+    studentId: "SC2026CE102",
+
+    department: "Computer Engineering",
+
+    semester: 5,
+
+    division: "A",
+
+    cgpa: 8.42,
+
+    attendance: 86,
+
+    assignmentsPending: 4,
+
+    announcements: 3,
+
+    feesPaid: 48000,
+
+    totalFees: 64000
+
+};
+
+
+/* =========================================================
+   UPDATE STUDENT NAME
+========================================================= */
+
+function updateStudentName(name) {
+
+    if (!name) return;
+
+    document
+        .querySelectorAll(".profile-mini-text strong")
+        .forEach(el => {
+
+            el.textContent = name;
+
+        });
+
+}
+
+
+/* =========================================================
+   UPDATE ATTENDANCE
+========================================================= */
+
+function updateAttendance(value) {
+
+    const circle =
+        document.querySelector(".progress-circle");
+
+    const percentage =
+        Math.max(0, Math.min(100, value));
+
+    circle.style.background =
+        `conic-gradient(
+            var(--primary)
+            0 ${percentage}%,
+            #ececf5
+            ${percentage}% 100%
+        )`;
+
+}
+
+
+/* =========================================================
+   UPDATE FEES
+========================================================= */
+
+function updateFees(paid, total) {
+
+    if (!total || total <= 0) return;
+
+    const percentage =
+        Math.min(
+            100,
+            Math.round((paid / total) * 100)
+        );
+
+    const fill =
+        document.querySelector(".fee-fill");
+
+    fill.style.width =
+        percentage + "%";
+
+}
+
+
+/* =========================================================
+   INITIAL DEMO DATA
+========================================================= */
+
+updateStudentName(
+    studentData.name
+);
+
+updateAttendance(
+    studentData.attendance
+);
+
+updateFees(
+    studentData.feesPaid,
+    studentData.totalFees
+);
+
+
+/* =========================================================
+   PREVENT EMPTY SEARCH SUBMIT
+========================================================= */
+
+document
+    .getElementById("searchInput")
+    .addEventListener("keypress", function(e) {
+
+        if (e.key === "Enter") {
+
+            if (!this.value.trim()) {
+
+                showToast("Type something to search");
+
+                return;
+
+            }
+
+            showToast(
+                "Searching for: " +
+                this.value
+            );
+
+        }
+
+    });
+
+
+/* =========================================================
+   FUTURE SUPABASE DATA HOOKS
+========================================================= */
+
+/*
+
+    When you are ready to connect this dashboard
+    with your Supabase tables, you can populate:
+
+    studentData.name
+    studentData.cgpa
+    studentData.attendance
+    studentData.assignmentsPending
+    studentData.announcements
+    studentData.feesPaid
+
+    Example architecture:
+
+    students
+    ---------------------------
+    id
+    name
+    email
+    student_id
+    department
+    semester
+    division
+    cgpa
+
+
+    attendance
+    ---------------------------
+    id
+    student_id
+    subject
+    total_classes
+    attended_classes
+    percentage
+
+
+    assignments
+    ---------------------------
+    id
+    subject
+    title
+    description
+    deadline
+    status
+
+
+    notices
+    ---------------------------
+    id
+    title
+    description
+    date
+
+
+    results
+    ---------------------------
+    id
+    student_id
+    subject
+    exam
+    marks
+    grade
+
+
+    fees
+    ---------------------------
+    id
+    student_id
+    total_amount
+    paid_amount
+    status
+
+*/
+
+
+/* =========================================================
+   END
+========================================================= */
+
+</script>
+
+</body>
+</html>
