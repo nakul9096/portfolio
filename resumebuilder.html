@@ -117,7 +117,7 @@
                 </form>
                 <p id="auth-error" class="text-rose-400 text-xs mt-3 text-center min-h-[1rem]"></p>
                 <p id="auth-note" class="text-slate-500 text-[11px] mt-0.5 text-center min-h-[1rem]"></p>
-                <p class="text-[10px] text-slate-600 text-center mt-4 leading-relaxed">No email confirmation required. Create an account and start building immediately.</p>
+                <p class="text-[10px] text-slate-600 text-center mt-4 leading-relaxed">Dev Mode: Direct table authentication active to bypass email limits.</p>
             </div>
         </div>
 
@@ -231,9 +231,9 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_uchg-Fclifz45WyCpgBgQw_bq6x3Z06';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
-                persistSession: true,
-                autoRefreshToken: true,
-                detectSessionInUrl: true
+                persistSession: false,
+                autoRefreshToken: false,
+                detectSessionInUrl: false
             }
         });
 
@@ -418,7 +418,7 @@
             renderTemplate();
         }
 
-        // ── Auth (no email confirmation required) ─────────────────────────
+        // ── Auth (Direct database authentication to avoid email rate limit) ─────────────────────────
         function switchAuthTab(mode) {
             activeAuthMode = mode;
             const loginTab = document.getElementById('tab-login');
@@ -434,7 +434,7 @@
                 signupTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-accent-soft text-accent border border-accent/25 transition";
                 loginTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition";
                 submitBtn.querySelector('span').innerText = "Create account";
-                note.innerText = "Instant access — no email confirmation needed.";
+                note.innerText = "Non-prod table mode — rate limits bypassed.";
             }
         }
 
@@ -444,6 +444,7 @@
             const password = document.getElementById('auth-password').value;
             const errEl = document.getElementById('auth-error');
             const submitBtn = document.getElementById('auth-submit-btn');
+            
             errEl.innerText = "";
             submitBtn.disabled = true;
             const originalLabel = submitBtn.querySelector('span').innerText;
@@ -451,34 +452,34 @@
 
             try {
                 if (activeAuthMode === 'signup') {
-                    // Sign up — we expect the project to have "Confirm email" DISABLED.
-                    const { data, error } = await supabaseClient.auth.signUp({
-                        email,
-                        password,
-                        options: { emailRedirectTo: undefined }
-                    });
-                    if (error) throw error;
+                    // Direct database store to bypass email rate limit
+                    const { data, error } = await supabaseClient
+                        .from('dev_user_credentials')
+                        .insert([{ email: email, password_hash: password }]);
 
-                    if (data.session) {
-                        // Immediate session → confirmation is off. Perfect.
-                        await checkSession();
-                        return;
+                    if (error) {
+                        if (error.code === '23505') {
+                            throw new Error("Account with this email already exists.");
+                        }
+                        throw error;
                     }
 
-                    // Fallback: try signing in right away (covers projects where
-                    // confirmation is disabled but signUp still returns no session).
-                    const { data: signInData, error: signInErr } = await supabaseClient.auth.signInWithPassword({ email, password });
-                    if (!signInErr && signInData.session) {
-                        await checkSession();
-                        return;
-                    }
-
-                    // Last resort message — user must turn off confirm email in Supabase dashboard.
-                    errEl.innerText = "Account created, but email confirmation is still enabled on this Supabase project. Go to Authentication → Providers → Email and disable “Confirm email”, then try logging in.";
+                    currentUser = { id: email, email: email };
+                    initializeDashboard();
                 } else {
-                    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    // Validate from database table directly
+                    const { data, error } = await supabaseClient
+                        .from('dev_user_credentials')
+                        .select('*')
+                        .eq('email', email)
+                        .eq('password_hash', password)
+                        .maybeSingle();
+
                     if (error) throw error;
-                    await checkSession();
+                    if (!data) throw new Error("Invalid email or password.");
+
+                    currentUser = { id: data.email, email: data.email };
+                    initializeDashboard();
                 }
             } catch (err) {
                 errEl.innerText = err.message || "Authentication failed.";
@@ -488,29 +489,25 @@
             }
         }
 
-        async function checkSession() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                currentUser = session.user;
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('dashboard-screen').classList.remove('hidden');
-                const nav = document.getElementById('nav-user-controls');
-                nav.classList.remove('hidden');
-                nav.classList.add('flex');
-                document.getElementById('user-email-display').innerText = currentUser.email || '';
-                renderAccentSwatches();
-                renderTemplatePicker();
-                renderTabBar();
-                renderPersonalPanel();
-                renderImportPanel();
-                ['experience', 'projects', 'education', 'certifications', 'achievements'].forEach(renderEntries);
-                selectTab('personal');
-                await fetchProfileData();
-            }
+        function initializeDashboard() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+            const nav = document.getElementById('nav-user-controls');
+            nav.classList.remove('hidden');
+            nav.classList.add('flex');
+            document.getElementById('user-email-display').innerText = currentUser.email || '';
+            renderAccentSwatches();
+            renderTemplatePicker();
+            renderTabBar();
+            renderPersonalPanel();
+            renderImportPanel();
+            ['experience', 'projects', 'education', 'certifications', 'achievements'].forEach(renderEntries);
+            selectTab('personal');
+            fetchProfileData();
         }
 
         async function handleSignOut() {
-            await supabaseClient.auth.signOut();
+            currentUser = null;
             window.location.reload();
         }
 
@@ -1016,7 +1013,6 @@
 
         // ── Boot ──────────────────────────────────────────────────────────
         refreshIcons();
-        checkSession();
     </script>
 </body>
 </html>
