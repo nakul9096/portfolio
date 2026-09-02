@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinical Analytics - Oral Assessment Platform</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Chart.js for Data Visualizations -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Central Config -->
+<script src="config/config.js"></script>
+
+<style>
+:root {
+  --bg: #090d16;
+  --surface: #111827;
+  --surface-hover: #1f2937;
+  --border: #1f293d;
+  --border-light: #2d3748;
+  
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  
+  --accent: #2563eb;
+  --accent-light: rgba(37, 99, 235, 0.15);
+  
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --success: #34d399;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Shared Navigation */
+.app-nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-brand {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  color: var(--text-primary);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.title-area h1 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.title-area p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+/* Top Level Stat KPI Cards Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.kpi-value-container {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.kpi-percent {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Section Structure */
+.section-heading {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin: 28px 0 16px;
+}
+
+/* Charts & Breakdown Grids */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-header {
+  margin-bottom: 16px;
+}
+
+.chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chart-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.chart-container {
+  position: relative;
+  height: 260px;
+  width: 100%;
+}
+
+/* Data Table List Component for Itemized Percentages */
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0d1321;
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  border-radius: 6px;
+}
+
+.stats-row-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.stats-row-val {
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  gap: 8px;
+}
+
+.stats-badge {
+  background: var(--accent-light);
+  color: #60a5fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+/* Loading Indicator */
+.loading-box {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-muted);
+  padding: 60px 0;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Header Navigation -->
+<nav class="app-nav">
+  <div class="nav-brand">🩺 Oral Clinical Assessments Platform</div>
+  <div class="nav-links">
+    <a href="patients.html">Records</a>
+    <a href="add-patient.html">+ New Assessment</a>
+    <a href="analytics.html" class="active">Analytics</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <header class="page-header">
+    <div class="title-area">
+      <h1>Clinical Analytics & Epidemiology</h1>
+      <p>Data distribution, risk exposures, and lesion statistics (Displaying factors with ≥ 1 record)</p>
+    </div>
+    <div id="totalPatientsBadge" style="font-size: 13px; font-weight: 600; background: #192233; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
+      Total Assessments: 0
+    </div>
+  </header>
+
+  <!-- Key Clinical Indicators Grid -->
+  <div class="section-heading">Key Clinical Indicators</div>
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="loading-box">Calculating clinical stats from database...</div>
+  </div>
+
+  <!-- Detailed Charts Grid -->
+  <div class="section-heading">Demographic & Habits Breakdown</div>
+  <div class="charts-grid">
+    <!-- Sex Demographics -->
+    <div class="chart-card" id="cardSexChart">
+      <div class="chart-header">
+        <div class="chart-title">Gender Distribution</div>
+        <div class="chart-subtitle">Breakdown by Male, Female, and Other</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="sexChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Habits Breakdown -->
+    <div class="chart-card" id="cardHabitsChart">
+      <div class="chart-header">
+        <div class="chart-title">High-Risk Substance Habits</div>
+        <div class="chart-subtitle">Prevalence of smoking, chewing, and alcohol</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="habitsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Pathology & Systemic Risk Grid -->
+  <div class="charts-grid">
+    <!-- Lesion Sites List -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Lesion Anatomical Locations (≥1)</div>
+        <div class="chart-subtitle">Observed sites of oral lesions</div>
+      </div>
+      <div class="stats-list" id="lesionLocationsList">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- Systemic Comorbidities List -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Systemic Comorbidities (≥1)</div>
+        <div class="chart-subtitle">Prevalence of recorded systemic conditions</div>
+      </div>
+      <div class="stats-list" id="systemicDiseasesList">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let supabaseClient = null;
+
+function initSupabase() {
+  if (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY) {
+    supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  }
+}
+
+// Utility: Calculate Percentage String
+function calcPercent(count, total) {
+  if (!total || total === 0) return '0%';
+  return `${((count / total) * 100).toFixed(1)}%`;
+}
+
+// Global Chart Options with dark theme
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { labels: { color: '#9ca3af', font: { family: 'Inter', size: 12 } } }
+  },
+  scales: {
+    x: { ticks: { color: '#9ca3af' }, grid: { color: '#1f293d' } },
+    y: { ticks: { color: '#9ca3af' }, grid: { color: '#1f293d' }, beginAtZero: true }
+  }
+};
+
+async function loadAnalyticsData() {
+  if (!supabaseClient) initSupabase();
+
+  if (!supabaseClient) {
+    document.getElementById('kpiGrid').innerHTML = `<div class="loading-box" style="color: var(--danger)">Error: Unable to connect to Supabase. Check config/config.js.</div>`;
+    return;
+  }
+
+  try {
+    const { data: records, error } = await supabaseClient
+      .from('oral_clinical_assessments')
+      .select('*');
+
+    if (error) throw error;
+
+    const total = records ? records.length : 0;
+    document.getElementById('totalPatientsBadge').textContent = `Total Assessments: ${total}`;
+
+    if (total === 0) {
+      document.getElementById('kpiGrid').innerHTML = `<div class="loading-box">No clinical records found in oral_clinical_assessments.</div>`;
+      return;
+    }
+
+    // 1. Process Metrics
+    let maleCount = 0, femaleCount = 0, otherSexCount = 0;
+    let smokingCount = 0, chewingCount = 0, alcoholCount = 0;
+    let ulcerPresentCount = 0, swellingCount = 0, lymphNodePalpableCount = 0;
+    
+    // Detailed Chewing Types
+    const chewingTypes = {
+      'Tobacco Chewing': 0,
+      'Gutkha': 0,
+      'Khaini': 0,
+      'Snuff': 0,
+      'Mawa': 0,
+      'Betel Nut': 0,
+      'Betel Quid': 0
+    };
+
+    // Systemic Diseases
+    const systemic = {
+      'Diabetes Mellitus': 0,
+      'Hypertension': 0,
+      'HIV Infection': 0,
+      'Tuberculosis': 0,
+      'Bronchial Asthma': 0
+    };
+
+    // Lesion Locations
+    const lesionLocations = {};
+
+    records.forEach(r => {
+      // Gender
+      const sex = (r.sex || '').toLowerCase();
+      if (sex === 'male') maleCount++;
+      else if (sex === 'female') femaleCount++;
+      else if (sex) otherSexCount++;
+
+      // Key Habits
+      if ((r.smoking || '').toLowerCase() === 'yes') smokingCount++;
+      if ((r.any_chewing_habits || '').toLowerCase() === 'yes') chewingCount++;
+      if ((r.alcohol || '').toLowerCase() === 'yes') alcoholCount++;
+
+      // Detailed Chewing
+      if ((r.tobacco_chewing || '').toLowerCase() === 'yes') chewingTypes['Tobacco Chewing']++;
+      if ((r.gutkha || '').toLowerCase() === 'yes') chewingTypes['Gutkha']++;
+      if ((r.khaini || '').toLowerCase() === 'yes') chewingTypes['Khaini']++;
+      if ((r.snuff || '').toLowerCase() === 'yes') chewingTypes['Snuff']++;
+      if ((r.mawa || '').toLowerCase() === 'yes') chewingTypes['Mawa']++;
+      if ((r.betel_nut_chewing || '').toLowerCase() === 'yes') chewingTypes['Betel Nut']++;
+      if ((r.betel_quid_consumption || '').toLowerCase() === 'yes') chewingTypes['Betel Quid']++;
+
+      // Ulcers (< 2 wks OR > 2 wks)
+      if ((r.ulcer_less_than_2_weeks || '').toLowerCase() === 'yes' || (r.ulcer_greater_than_2_weeks || '').toLowerCase() === 'yes') {
+        ulcerPresentCount++;
+      }
+
+      // Swelling
+      if ((r.swelling || '').toLowerCase() === 'yes') swellingCount++;
+
+      // Lymph Nodes Palpable
+      if ((r.regional_lymph_node_palpability || '').toLowerCase().includes('palpable') && !(r.regional_lymph_node_palpability || '').toLowerCase().includes('non')) {
+        lymphNodePalpableCount++;
+      }
+
+      // Systemic
+      if ((r.diabetes_mellitus || '').toLowerCase() === 'yes') systemic['Diabetes Mellitus']++;
+      if ((r.hypertension || '').toLowerCase() === 'yes') systemic['Hypertension']++;
+      if ((r.hiv_infection || '').toLowerCase() === 'yes') systemic['HIV Infection']++;
+      if ((r.tuberculosis || '').toLowerCase() === 'yes') systemic['Tuberculosis']++;
+      if ((r.bronchial_asthma || '').toLowerCase() === 'yes') systemic['Bronchial Asthma']++;
+
+      // Lesion Location
+      if (r.lesion_location && r.lesion_location.trim() !== '') {
+        const loc = r.lesion_location.trim();
+        lesionLocations[loc] = (lesionLocations[loc] || 0) + 1;
+      }
+    });
+
+    // 2. Render Top KPI Grid (Only display cards where count >= 1)
+    const kpiCandidates = [
+      { label: 'Male Patients', count: maleCount },
+      { label: 'Female Patients', count: femaleCount },
+      { label: 'Other Gender', count: otherSexCount },
+      { label: 'Tobacco Smokers', count: smokingCount },
+      { label: 'Chewing Habits Present', count: chewingCount },
+      { label: 'Alcohol Consumers', count: alcoholCount },
+      { label: 'Ulcers Present', count: ulcerPresentCount },
+      { label: 'Swelling Present', count: swellingCount },
+      { label: 'Palpable Lymph Nodes', count: lymphNodePalpableCount }
+    ];
+
+    const kpiContainer = document.getElementById('kpiGrid');
+    kpiContainer.innerHTML = '';
+
+    kpiCandidates.filter(item => item.count >= 1).forEach(item => {
+      const pct = calcPercent(item.count, total);
+      const card = document.createElement('div');
+      card.className = 'kpi-card';
+      card.innerHTML = `
+        <div class="kpi-label">${item.label}</div>
+        <div class="kpi-value-container">
+          <span class="kpi-value">${item.count}</span>
+          <span class="kpi-percent">(${pct})</span>
+        </div>
+      `;
+      kpiContainer.appendChild(card);
+    });
+
+    // 3. Render Gender Doughnut Chart (Only if total >= 1)
+    const sexLabels = [];
+    const sexData = [];
+    const sexColors = [];
+
+    if (maleCount >= 1) { sexLabels.push('Male'); sexData.push(maleCount); sexColors.push('#2563eb'); }
+    if (femaleCount >= 1) { sexLabels.push('Female'); sexData.push(femaleCount); sexColors.push('#ec4899'); }
+    if (otherSexCount >= 1) { sexLabels.push('Other'); sexData.push(otherSexCount); sexColors.push('#8b5cf6'); }
+
+    if (sexData.length >= 1) {
+      new Chart(document.getElementById('sexChart'), {
+        type: 'doughnut',
+        data: {
+          labels: sexLabels,
+          datasets: [{
+            data: sexData,
+            backgroundColor: sexColors,
+            borderColor: '#111827',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#9ca3af' } },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.label}: ${ctx.raw} (${calcPercent(ctx.raw, total)})`
+              }
+            }
+          }
+        }
+      });
+    } else {
+      document.getElementById('cardSexChart').style.display = 'none';
+    }
+
+    // 4. Render Habits Bar Chart (Only include habits with >= 1 entry)
+    const habitLabels = [];
+    const habitData = [];
+
+    if (smokingCount >= 1) { habitLabels.push('Smoking'); habitData.push(smokingCount); }
+    if (chewingCount >= 1) { habitLabels.push('Any Chewing'); habitData.push(chewingCount); }
+    if (alcoholCount >= 1) { habitLabels.push('Alcohol'); habitData.push(alcoholCount); }
+
+    // Add specific chewing subtypes if >= 1
+    Object.keys(chewingTypes).forEach(type => {
+      if (chewingTypes[type] >= 1) {
+        habitLabels.push(type);
+        habitData.push(chewingTypes[type]);
+      }
+    });
+
+    if (habitData.length >= 1) {
+      new Chart(document.getElementById('habitsChart'), {
+        type: 'bar',
+        data: {
+          labels: habitLabels,
+          datasets: [{
+            label: 'Patients',
+            data: habitData,
+            backgroundColor: '#3b82f6',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          ...chartOptions,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `Count: ${ctx.raw} (${calcPercent(ctx.raw, total)})`
+              }
+            }
+          }
+        }
+      });
+    } else {
+      document.getElementById('cardHabitsChart').style.display = 'none';
+    }
+
+    // 5. Render Lesion Locations List (Filter >= 1)
+    const lesionListContainer = document.getElementById('lesionLocationsList');
+    lesionListContainer.innerHTML = '';
+
+    const validLocations = Object.entries(lesionLocations).filter(([loc, count]) => count >= 1);
+
+    if (validLocations.length >= 1) {
+      validLocations.sort((a, b) => b[1] - a[1]).forEach(([loc, count]) => {
+        const row = document.createElement('div');
+        row.className = 'stats-row';
+        row.innerHTML = `
+          <span class="stats-row-label">${loc}</span>
+          <div class="stats-row-val">
+            <span>${count}</span>
+            <span class="stats-badge">${calcPercent(count, total)}</span>
+          </div>
+        `;
+        lesionListContainer.appendChild(row);
+      });
+    } else {
+      lesionListContainer.innerHTML = `<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px;">No lesion location entries recorded.</div>`;
+    }
+
+    // 6. Render Systemic Conditions List (Filter >= 1)
+    const systemicContainer = document.getElementById('systemicDiseasesList');
+    systemicContainer.innerHTML = '';
+
+    const validSystemic = Object.entries(systemic).filter(([disease, count]) => count >= 1);
+
+    if (validSystemic.length >= 1) {
+      validSystemic.sort((a, b) => b[1] - a[1]).forEach(([disease, count]) => {
+        const row = document.createElement('div');
+        row.className = 'stats-row';
+        row.innerHTML = `
+          <span class="stats-row-label">${disease}</span>
+          <div class="stats-row-val">
+            <span>${count}</span>
+            <span class="stats-badge">${calcPercent(count, total)}</span>
+          </div>
+        `;
+        systemicContainer.appendChild(row);
+      });
+    } else {
+      systemicContainer.innerHTML = `<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px;">No systemic conditions recorded (Count < 1).</div>`;
+    }
+
+  } catch (err) {
+    console.error('Error fetching analytics:', err);
+    document.getElementById('kpiGrid').innerHTML = `<div class="loading-box" style="color: var(--danger)">Failed to compute analytics: ${err.message}</div>`;
+  }
+}
+
+window.addEventListener('DOMContentLoaded', loadAnalyticsData);
+</script>
+
+</body>
+</html>
