@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oral Clinical Assessments Dashboard</title>
+<title>Oral Clinical Assessments</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -20,226 +20,276 @@
 
 <style>
 :root {
-  --bg: #0b0f19;
-  --card-bg: #151c2c;
-  --text-main: #f1f5f9;
-  --text-muted: #94a3b8;
-  --primary: #3b82f6;
-  --border-color: #26334d;
-  --danger: #f87171;
-  --warning: #fbbf24;
-  --success: #34d399;
-  --radius-lg: 16px;
-  --radius-md: 10px;
-  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  --bg: #090d16;
+  --surface: #111827;
+  --surface-hover: #1f2937;
+  --border: #1f293d;
+  --border-light: #2d3748;
+  
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  
+  --danger-bg: rgba(239, 68, 68, 0.1);
+  --danger-text: #f87171;
+  --danger-border: rgba(239, 68, 68, 0.2);
+
+  --warning-bg: rgba(245, 158, 11, 0.1);
+  --warning-text: #fbbf24;
+  --warning-border: rgba(245, 158, 11, 0.2);
+
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --success-text: #34d399;
+  --success-border: rgba(16, 185, 129, 0.2);
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  margin: 0;
   background: var(--bg);
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  color: var(--text-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-primary);
   line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
 }
 
 .container {
-  max-width: 1200px;
-  margin: 30px auto;
-  padding: 0 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px;
 }
 
-/* Header Bar */
-.header-bar {
+/* Page Header */
+.page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
+  align-items: flex-center;
   margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
 }
 
-.header-title h1 { margin: 0; font-size: 26px; font-weight: 700; }
-.header-title p { margin: 4px 0 0; color: var(--text-muted); font-size: 14px; }
-
-.export-btn {
-  background: #10b981;
-  color: #fff;
-  border: 0;
-  border-radius: var(--radius-md);
-  padding: 10px 18px;
+.title-area h1 {
+  font-size: 20px;
   font-weight: 600;
-  font-size: 14px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.title-area p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+/* Primary Action Button */
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
-.export-btn:hover { background: #059669; }
+.btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-muted);
+}
 
-/* Filter Bar */
-.filter-container {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  padding: 16px 20px;
-  border-radius: var(--radius-lg);
+/* Filter Section */
+.controls-bar {
+  display: flex;
+  gap: 12px;
   margin-bottom: 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
 }
 
-.search-box {
+.search-wrapper {
+  position: relative;
   flex: 1;
-  min-width: 260px;
+  min-width: 280px;
 }
 
-.search-box input {
-  width: 100%;
-  padding: 10px 16px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  background: #0f172a;
-  color: #fff;
-  outline: none;
-  font-size: 14px;
-}
-
-.search-box input:focus { border-color: var(--primary); }
-
-.filter-pills {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.pill-btn {
-  background: #0f172a;
-  border: 1px solid var(--border-color);
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--text-muted);
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+  width: 16px;
+  height: 16px;
 }
 
-.pill-btn:hover, .pill-btn.active {
-  background: var(--primary);
-  color: #fff;
-  border-color: var(--primary);
+.search-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 9px 12px 9px 36px;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+}
+
+.filter-group {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.filter-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover {
+  color: var(--text-primary);
+}
+
+.filter-btn.active {
+  background: #1f293d;
+  color: var(--text-primary);
 }
 
 /* Patient Card Grid */
-.patient-grid {
+.grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
 }
 
-.patient-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 20px;
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform 0.2s, border-color 0.2s;
+  transition: border-color 0.15s;
 }
 
-.patient-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--primary);
+.card:hover {
+  border-color: var(--border-light);
 }
 
-.card-header {
+.card-top {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 12px;
 }
 
-.patient-id-badge {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  padding: 4px 10px;
-  border-radius: 6px;
+.opd-badge {
+  font-family: monospace;
   font-size: 12px;
-  font-weight: 700;
+  color: var(--text-secondary);
+  background: #0d1321;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
 }
 
-.risk-badge {
-  padding: 4px 10px;
-  border-radius: 6px;
+.status-badge {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
 }
 
-.risk-high { background: rgba(248, 113, 113, 0.15); color: var(--danger); }
-.risk-moderate { background: rgba(251, 191, 36, 0.15); color: var(--warning); }
-.risk-low { background: rgba(52, 211, 153, 0.15); color: var(--success); }
+.status-high { background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-border); }
+.status-moderate { background: var(--warning-bg); color: var(--warning-text); border: 1px solid var(--warning-border); }
+.status-low { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border); }
 
 .patient-name {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
 }
 
-.patient-subtext {
+.patient-meta {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-bottom: 12px;
 }
 
-.clinical-tag {
-  font-size: 12px;
-  color: #cbd5e1;
-  background: #0f172a;
-  padding: 6px 10px;
+.info-block {
+  background: #0d1321;
+  border: 1px solid var(--border);
   border-radius: 6px;
-  border: 1px solid var(--border-color);
+  padding: 10px 12px;
   margin-bottom: 16px;
+  font-size: 12px;
 }
 
-.view-btn {
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.info-row:last-child { margin-bottom: 0; }
+
+.info-label { color: var(--text-muted); }
+.info-val { color: var(--text-secondary); font-weight: 500; }
+
+.btn-card {
   width: 100%;
-  background: #1e293b;
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  padding: 10px;
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  font-weight: 600;
+  background: #192233;
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.15s;
 }
 
-.view-btn:hover {
-  background: var(--primary);
-  color: #fff;
+.btn-card:hover {
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
-/* Modal Layout */
+/* Minimal Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 100;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s;
 }
 
 .modal-overlay.active {
@@ -247,63 +297,69 @@ body {
   pointer-events: auto;
 }
 
-.modal-content {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  width: 90%;
-  max-width: 800px;
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 720px;
   max-height: 85vh;
   overflow-y: auto;
-  padding: 28px;
-  box-shadow: var(--shadow-md);
-  position: relative;
+  padding: 24px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
 }
 
 .modal-close {
-  position: absolute;
-  top: 18px;
-  right: 20px;
   background: transparent;
-  border: 0;
+  border: none;
   color: var(--text-muted);
-  font-size: 20px;
   cursor: pointer;
+  padding: 4px;
 }
 
-.section-heading {
-  font-size: 14px;
+.modal-close:hover { color: var(--text-primary); }
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
   text-transform: uppercase;
+  color: var(--accent);
   letter-spacing: 0.05em;
-  color: var(--primary);
-  margin: 20px 0 10px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 4px;
+  margin: 16px 0 8px;
 }
 
-.detail-grid {
+.data-table {
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 }
 
-.detail-item {
-  background: #0f172a;
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
+.data-cell {
+  background: #0d1321;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
 }
 
-.detail-item label {
+.data-cell label {
   display: block;
   font-size: 11px;
   color: var(--text-muted);
-  margin-bottom: 2px;
 }
 
-.detail-item span {
-  font-size: 14px;
-  font-weight: 600;
+.data-cell span {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
 }
 </style>
 </head>
@@ -313,104 +369,78 @@ body {
 <div class="container">
 
   <!-- Header -->
-  <div class="header-bar">
-    <div class="header-title">
+  <header class="page-header">
+    <div class="title-area">
       <h1>Oral Clinical Assessments</h1>
-      <p>Data direct from <code>oral_clinical_assessments</code> table</p>
+      <p>Direct view of recorded patient examinations</p>
     </div>
-    <button class="export-btn" onclick="exportToExcel()">
-      📊 Export to Excel
+    <button class="btn-secondary" onclick="exportToExcel()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export CSV/Excel
     </button>
-  </div>
+  </header>
 
-  <!-- Search & Category Filters -->
-  <div class="filter-container">
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Search OPD No, Patient Name, or Patient ID..." oninput="filterPatients()">
+  <!-- Controls -->
+  <div class="controls-bar">
+    <div class="search-wrapper">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" class="search-input" placeholder="Search OPD, Name, or Patient ID..." oninput="filterPatients()">
     </div>
     
-    <div class="filter-pills">
-      <button class="pill-btn active" onclick="setFilter('All', this)">All Records</button>
-      <button class="pill-btn" onclick="setFilter('High Risk', this)">High Risk</button>
-      <button class="pill-btn" onclick="setFilter('Smoker', this)">Smokers</button>
-      <button class="pill-btn" onclick="setFilter('Chewing', this)">Chewing Habits</button>
-      <button class="pill-btn" onclick="setFilter('Alcohol', this)">Alcohol Use</button>
+    <div class="filter-group">
+      <button class="filter-btn active" onclick="setFilter('All', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('High Risk', this)">High Risk</button>
+      <button class="filter-btn" onclick="setFilter('Smoker', this)">Smokers</button>
+      <button class="filter-btn" onclick="setFilter('Chewing', this)">Chewing</button>
+      <button class="filter-btn" onclick="setFilter('Alcohol', this)">Alcohol</button>
     </div>
   </div>
 
-  <!-- Cards Grid Container -->
-  <div class="patient-grid" id="patientGrid">
+  <!-- Main Grid -->
+  <main class="grid" id="patientGrid">
     <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">
-      Connecting to Supabase...
+      Loading assessment records...
     </div>
-  </div>
+  </main>
 
 </div>
 
-<!-- Full Patient Assessment Modal -->
+<!-- Modal -->
 <div class="modal-overlay" id="detailModal">
-  <div class="modal-content">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <h2 id="modalName" style="margin:0 0 4px;">Patient Name</h2>
-    <div style="display:flex; gap:10px; align-items:center;">
-      <span id="modalId" class="patient-id-badge">ID: -</span>
-      <span id="modalOpd" style="font-size: 13px; color: var(--text-muted);">OPD: -</span>
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <h2 id="modalName" style="font-size: 18px; font-weight: 600;">Patient Assessment</h2>
+        <p id="modalSub" style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">OPD: - | ID: -</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
 
-    <!-- Personal & Demographics -->
-    <div class="section-heading">Personal & Demographics</div>
-    <div class="detail-grid">
-      <div class="detail-item"><label>Age / Sex</label><span id="modalAgeSex">-</span></div>
-      <div class="detail-item"><label>Religion</label><span id="modalReligion">-</span></div>
-      <div class="detail-item"><label>Occupation</label><span id="modalOccupation">-</span></div>
-      <div class="detail-item"><label>Residence</label><span id="modalResidence">-</span></div>
-      <div class="detail-item"><label>Marital Status</label><span id="modalMarital">-</span></div>
+    <div class="section-title">Demographics & History</div>
+    <div class="data-table">
+      <div class="data-cell"><label>Age / Sex</label><span id="mAgeSex">-</span></div>
+      <div class="data-cell"><label>Residence</label><span id="mResidence">-</span></div>
+      <div class="data-cell"><label>Occupation</label><span id="mOccupation">-</span></div>
+      <div class="data-cell"><label>Marital Status</label><span id="mMarital">-</span></div>
     </div>
 
-    <!-- Personal Habits -->
-    <div class="section-heading">Habits Assessment</div>
-    <div class="detail-grid">
-      <div class="detail-item"><label>Smoking Habit</label><span id="modalSmoking">-</span></div>
-      <div class="detail-item"><label>Smoking Years / Freq</label><span id="modalSmokingDetails">-</span></div>
-      <div class="detail-item"><label>Chewing Habits</label><span id="modalChewing">-</span></div>
-      <div class="detail-item"><label>Chewing Types</label><span id="modalChewingDetails">-</span></div>
-      <div class="detail-item"><label>Alcohol Habit</label><span id="modalAlcohol">-</span></div>
-      <div class="detail-item"><label>Alcohol Yrs / Freq</label><span id="modalAlcoholDetails">-</span></div>
-      <div class="detail-item"><label>Habit Combination</label><span id="modalHabitCombo">-</span></div>
+    <div class="section-title">Personal Habits</div>
+    <div class="data-table">
+      <div class="data-cell"><label>Smoking</label><span id="mSmoking">-</span></div>
+      <div class="data-cell"><label>Smoking Years/Freq</label><span id="mSmokeDetails">-</span></div>
+      <div class="data-cell"><label>Chewing Habit</label><span id="mChewing">-</span></div>
+      <div class="data-cell"><label>Alcohol Consumption</label><span id="mAlcohol">-</span></div>
     </div>
 
-    <!-- Medical & Systemic History -->
-    <div class="section-heading">Systemic & Oral History</div>
-    <div class="detail-grid">
-      <div class="detail-item"><label>Diabetes Mellitus</label><span id="modalDiabetes">-</span></div>
-      <div class="detail-item"><label>Hypertension</label><span id="modalHypertension">-</span></div>
-      <div class="detail-item"><label>HIV Infection</label><span id="modalHiv">-</span></div>
-      <div class="detail-item"><label>Tuberculosis</label><span id="modalTb">-</span></div>
-      <div class="detail-item"><label>Bronchial Asthma</label><span id="modalAsthma">-</span></div>
-      <div class="detail-item"><label>Previous Oral Diseases</label><span id="modalPrevOral">-</span></div>
+    <div class="section-title">Clinical Findings</div>
+    <div class="data-table">
+      <div class="data-cell"><label>Lesion Location</label><span id="mLesionLoc">-</span></div>
+      <div class="data-cell"><label>Lesion Size (Max Dia)</label><span id="mLesionDim">-</span></div>
+      <div class="data-cell"><label>Ulcer Duration > 2 Wks</label><span id="mUlcer">-</span></div>
+      <div class="data-cell"><label>Lymph Nodes Palpable</label><span id="mLymph">-</span></div>
     </div>
-
-    <!-- Clinical Lesion Examination -->
-    <div class="section-heading">Oral Lesion Examination</div>
-    <div class="detail-grid">
-      <div class="detail-item"><label>Lesion Location</label><span id="modalLesionLoc">-</span></div>
-      <div class="detail-item"><label>Color / Shape</label><span id="modalLesionColorShape">-</span></div>
-      <div class="detail-item"><label>Surface / Texture</label><span id="modalLesionSurface">-</span></div>
-      <div class="detail-item"><label>Dimensions (L × W × Max Dia)</label><span id="modalLesionDim">-</span></div>
-      <div class="detail-item"><label>Mouth Opening (Inter-incisal)</label><span id="modalMouthOpening">-</span></div>
-      <div class="detail-item"><label>Ulcer Duration</label><span id="modalUlcerDuration">-</span></div>
-    </div>
-
-    <!-- Lymph Node Examination -->
-    <div class="section-heading">Regional Lymph Node Examination</div>
-    <div class="detail-grid">
-      <div class="detail-item"><label>Palpability</label><span id="modalLnPalpability">-</span></div>
-      <div class="detail-item"><label>Involvement / Laterality</label><span id="modalLnInvolvement">-</span></div>
-      <div class="detail-item"><label>Number / Size (mm)</label><span id="modalLnNumSize">-</span></div>
-      <div class="detail-item"><label>Consistency / Mobility</label><span id="modalLnConsistency">-</span></div>
-      <div class="detail-item"><label>Tenderness</label><span id="modalLnTenderness">-</span></div>
-    </div>
-
   </div>
 </div>
 
@@ -422,23 +452,16 @@ let activeFilter = 'All';
 function initSupabase() {
   if (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY) {
     supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-  } else if (typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON_KEY !== 'undefined') {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  } else {
-    console.error('Supabase credentials missing in config/config.js');
   }
 }
 
-// Compute high-risk classification based on habits, lesion size, and lymph node status
 function computeRiskLevel(p) {
   let score = 0;
-  
   if (p.smoking && p.smoking.toLowerCase() === 'yes') score += 1;
   if (p.any_chewing_habits && p.any_chewing_habits.toLowerCase() === 'yes') score += 2;
   if (p.alcohol && p.alcohol.toLowerCase() === 'yes') score += 1;
   if (p.ulcer_greater_than_2_weeks && p.ulcer_greater_than_2_weeks.toLowerCase() === 'yes') score += 2;
   if (p.regional_lymph_node_palpability && p.regional_lymph_node_palpability.toLowerCase().includes('palpable')) score += 2;
-  if (p.lesion_maximum_diameter_cm && parseFloat(p.lesion_maximum_diameter_cm) > 2) score += 2;
 
   if (score >= 4) return 'High Risk';
   if (score >= 2) return 'Moderate Risk';
@@ -447,49 +470,33 @@ function computeRiskLevel(p) {
 
 async function loadPatientsFromSupabase() {
   const grid = document.getElementById('patientGrid');
-
   if (!supabaseClient) initSupabase();
 
-  if (!supabaseClient) {
-    grid.innerHTML = `
-      <div style="grid-column: 1/-1; text-align: center; color: var(--danger); padding: 40px;">
-        Error: Could not initialize Supabase. Check <code>config/config.js</code>.
-      </div>`;
-    return;
-  }
-
   try {
-    // Fetch directly from oral_clinical_assessments
     const { data, error } = await supabaseClient
       .from('oral_clinical_assessments')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-
     patients = data || [];
     renderPatients();
-
   } catch (err) {
-    console.error('Supabase Fetch Error:', err);
-    grid.innerHTML = `
-      <div style="grid-column: 1/-1; text-align: center; color: var(--danger); padding: 40px;">
-        Failed to fetch records from <code>oral_clinical_assessments</code>: ${err.message || err.error_description}
-      </div>`;
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--danger-text); padding: 40px;">
+      Failed to retrieve database entries: ${err.message}
+    </div>`;
   }
 }
 
 function renderPatients() {
   const grid = document.getElementById('patientGrid');
   const searchVal = document.getElementById('searchInput').value.toLowerCase();
-  
   grid.innerHTML = '';
 
   const filtered = patients.filter(p => {
     const idStr = (p.patient_id || '').toString().toLowerCase();
     const nameStr = (p.patient_name || '').toLowerCase();
     const opdStr = (p.opd_number || '').toLowerCase();
-    
     const matchesSearch = nameStr.includes(searchVal) || idStr.includes(searchVal) || opdStr.includes(searchVal);
     const risk = computeRiskLevel(p);
 
@@ -504,35 +511,32 @@ function renderPatients() {
 
   if (filtered.length === 0) {
     grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">
-      No oral clinical assessment records match your filter.
+      No assessment records found matching criteria.
     </div>`;
     return;
   }
 
   filtered.forEach(p => {
     const risk = computeRiskLevel(p);
-    const riskClass = risk === 'High Risk' ? 'risk-high' : risk === 'Moderate Risk' ? 'risk-moderate' : 'risk-low';
-
-    // Highlight key chewing habits present
-    const chewTypes = [p.tobacco_chewing, p.gutkha, p.khaini, p.mawa, p.betel_nut_chewing].filter(Boolean).join(', ') || 'None';
+    const riskClass = risk === 'High Risk' ? 'status-high' : risk === 'Moderate Risk' ? 'status-moderate' : 'status-low';
 
     const card = document.createElement('div');
-    card.className = 'patient-card';
+    card.className = 'card';
     card.innerHTML = `
       <div>
-        <div class="card-header">
-          <span class="patient-id-badge">OPD: ${p.opd_number || 'N/A'}</span>
-          <span class="risk-badge ${riskClass}">${risk}</span>
+        <div class="card-top">
+          <span class="opd-badge">${p.opd_number || 'OPD-N/A'}</span>
+          <span class="status-badge ${riskClass}">${risk}</span>
         </div>
-        <h3 class="patient-name">${p.patient_name || 'Unnamed Patient'}</h3>
-        <div class="patient-subtext">ID: ${p.patient_id || 'N/A'} • ${p.age || 'N/A'} Yrs • ${p.sex || 'N/A'}</div>
+        <div class="patient-name">${p.patient_name || 'Unnamed Record'}</div>
+        <div class="patient-meta">ID: ${p.patient_id || 'N/A'} • ${p.age || 'N/A'} Yrs • ${p.sex || 'N/A'}</div>
         
-        <div class="clinical-tag">
-          📍 <strong>Lesion:</strong> ${p.lesion_location || 'Not Specified'}<br>
-          🌿 <strong>Chewing:</strong> ${chewTypes}
+        <div class="info-block">
+          <div class="info-row"><span class="info-label">Lesion Loc:</span><span class="info-val">${p.lesion_location || 'N/A'}</span></div>
+          <div class="info-row"><span class="info-label">Chewing:</span><span class="info-val">${p.any_chewing_habits || 'No'}</span></div>
         </div>
       </div>
-      <button class="view-btn" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>View Full Assessment</button>
+      <button class="btn-card" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>View Assessment</button>
     `;
     grid.appendChild(card);
   });
@@ -540,61 +544,31 @@ function renderPatients() {
 
 function setFilter(category, btnElement) {
   activeFilter = category;
-  document.querySelectorAll('.pill-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
   btnElement.classList.add('active');
   renderPatients();
 }
 
-function filterPatients() {
-  renderPatients();
-}
+function filterPatients() { renderPatients(); }
 
 function openModal(p) {
   document.getElementById('modalName').textContent = p.patient_name || 'N/A';
-  document.getElementById('modalId').textContent = `ID: ${p.patient_id || 'N/A'}`;
-  document.getElementById('modalOpd').textContent = `OPD Number: ${p.opd_number || 'N/A'}`;
+  document.getElementById('modalSub').textContent = `OPD: ${p.opd_number || 'N/A'} | ID: ${p.patient_id || 'N/A'}`;
   
-  // Demographics
-  document.getElementById('modalAgeSex').textContent = `${p.age || 'N/A'} Yrs / ${p.sex || 'N/A'}`;
-  document.getElementById('modalReligion').textContent = p.religion || 'N/A';
-  document.getElementById('modalOccupation').textContent = p.occupation || 'N/A';
-  document.getElementById('modalResidence').textContent = p.residence || 'N/A';
-  document.getElementById('modalMarital').textContent = p.marital_status || 'N/A';
+  document.getElementById('mAgeSex').textContent = `${p.age || 'N/A'} Yrs / ${p.sex || 'N/A'}`;
+  document.getElementById('mResidence').textContent = p.residence || 'N/A';
+  document.getElementById('mOccupation').textContent = p.occupation || 'N/A';
+  document.getElementById('mMarital').textContent = p.marital_status || 'N/A';
 
-  // Habits
-  document.getElementById('modalSmoking').textContent = p.smoking || 'No';
-  document.getElementById('modalSmokingDetails').textContent = p.smoking === 'Yes' ? `${p.smoking_duration_years || 0} Yrs (${p.smoking_frequency_per_day || 0}/day)` : 'N/A';
-  document.getElementById('modalChewing').textContent = p.any_chewing_habits || 'No';
-  
-  const chews = [p.tobacco_chewing && 'Tobacco', p.gutkha && 'Gutkha', p.khaini && 'Khaini', p.mawa && 'Mawa', p.betel_nut_chewing && 'Betel Nut'].filter(Boolean).join(', ');
-  document.getElementById('modalChewingDetails').textContent = chews || 'None';
+  document.getElementById('mSmoking').textContent = p.smoking || 'No';
+  document.getElementById('mSmokeDetails').textContent = p.smoking === 'Yes' ? `${p.smoking_duration_years || 0} yrs (${p.smoking_frequency_per_day || 0}/day)` : 'N/A';
+  document.getElementById('mChewing').textContent = p.any_chewing_habits || 'No';
+  document.getElementById('mAlcohol').textContent = p.alcohol || 'No';
 
-  document.getElementById('modalAlcohol').textContent = p.alcohol || 'No';
-  document.getElementById('modalAlcoholDetails').textContent = p.alcohol === 'Yes' ? `${p.alcohol_duration_years || 0} Yrs (${p.alcohol_frequency || 'N/A'})` : 'N/A';
-  document.getElementById('modalHabitCombo').textContent = p.habit_combination || 'None';
-
-  // Systemic History
-  document.getElementById('modalDiabetes').textContent = p.diabetes_mellitus || 'No';
-  document.getElementById('modalHypertension').textContent = p.hypertension || 'No';
-  document.getElementById('modalHiv').textContent = p.hiv_infection || 'No';
-  document.getElementById('modalTb').textContent = p.tuberculosis || 'No';
-  document.getElementById('modalAsthma').textContent = p.bronchial_asthma || 'No';
-  document.getElementById('modalPrevOral').textContent = p.previous_oral_diseases || 'None';
-
-  // Oral Lesion
-  document.getElementById('modalLesionLoc').textContent = p.lesion_location || 'N/A';
-  document.getElementById('modalLesionColorShape').textContent = `${p.lesion_color || 'N/A'} / ${p.lesion_shape || 'N/A'}`;
-  document.getElementById('modalLesionSurface').textContent = `${p.lesion_surface_characteristics || 'N/A'} / ${p.lesion_texture || 'N/A'}`;
-  document.getElementById('modalLesionDim').textContent = `${p.lesion_length_cm || 0}cm × ${p.lesion_width_cm || 0}cm (Max Dia: ${p.lesion_maximum_diameter_cm || 0}cm)`;
-  document.getElementById('modalMouthOpening').textContent = `${p.inter_incisal_distance_mm || 'N/A'} mm (${p.mouth_opening_assessment || 'N/A'})`;
-  document.getElementById('modalUlcerDuration').textContent = p.ulcer_greater_than_2_weeks === 'Yes' ? '> 2 Weeks' : (p.ulcer_less_than_2_weeks === 'Yes' ? '< 2 Weeks' : 'None');
-
-  // Lymph Node
-  document.getElementById('modalLnPalpability').textContent = p.regional_lymph_node_palpability || 'N/A';
-  document.getElementById('modalLnInvolvement').textContent = `${p.lymph_node_involvement || 'N/A'} (${p.lymph_node_laterality || 'N/A'})`;
-  document.getElementById('modalLnNumSize').textContent = `${p.regional_lymph_node_number || 0} Nodes / ${p.regional_lymph_node_size_mm || 0} mm`;
-  document.getElementById('modalLnConsistency').textContent = `${p.regional_lymph_node_consistency || 'N/A'} / ${p.regional_lymph_node_mobility || 'N/A'}`;
-  document.getElementById('modalLnTenderness').textContent = p.regional_lymph_node_tenderness || 'N/A';
+  document.getElementById('mLesionLoc').textContent = p.lesion_location || 'N/A';
+  document.getElementById('mLesionDim').textContent = `${p.lesion_maximum_diameter_cm || 0} cm`;
+  document.getElementById('mUlcer').textContent = p.ulcer_greater_than_2_weeks || 'No';
+  document.getElementById('mLymph').textContent = p.regional_lymph_node_palpability || 'No';
 
   document.getElementById('detailModal').classList.add('active');
 }
@@ -603,18 +577,12 @@ function closeModal() {
   document.getElementById('detailModal').classList.remove('active');
 }
 
-/* Export all fields to Excel */
 function exportToExcel() {
-  if (patients.length === 0) {
-    alert("No assessment records found to export.");
-    return;
-  }
-
+  if (patients.length === 0) return alert("No data available to export.");
   const worksheet = XLSX.utils.json_to_sheet(patients);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Oral_Assessments");
-
-  XLSX.writeFile(workbook, `Oral_Assessments_Export_${new Date().toISOString().slice(0,10)}.xlsx`);
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Assessments");
+  XLSX.writeFile(workbook, `Clinical_Assessments_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
 window.addEventListener('DOMContentLoaded', loadPatientsFromSupabase);
