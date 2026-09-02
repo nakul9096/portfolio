@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root {
@@ -271,6 +272,7 @@ input:focus, select:focus, textarea:focus {
 
 .btn.primary { background: var(--primary); color: #fff; }
 .btn.primary:hover { background: var(--primary-hover); }
+.btn.primary:disabled { opacity: .6; cursor: not-allowed; }
 .btn.secondary { background: #1e293b; color: #cbd5e1; border: 1px solid var(--border-color); }
 
 .status {
@@ -364,6 +366,16 @@ input:focus, select:focus, textarea:focus {
         <option value="Widowed">Widowed</option>
         <option value="Divorced">Divorced</option>
       </select>
+    </div>
+    <div class="field full">
+      <label for="patient_location">Patient Location (Facility / City)</label>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <input id="patient_location" name="patient_location" placeholder="e.g. Nagpur Dental College OPD" style="flex:1; min-width:220px;">
+        <button type="button" class="btn secondary" onclick="captureGeoLocation()" style="white-space:nowrap;">📍 Use My Location</button>
+      </div>
+      <input type="hidden" id="latitude" name="latitude">
+      <input type="hidden" id="longitude" name="longitude">
+      <div id="geoStatus" class="hint"></div>
     </div>
   </div>
 </div>
@@ -670,9 +682,9 @@ input:focus, select:focus, textarea:focus {
 
     <!-- ANATOMICAL SCULPTURE CANVAS -->
     <div class="subsection">
-      <h3>Interactive Anatomical Mouth Sculptor</h3>
-      <p class="hint" style="margin-bottom:12px;">Click directly on the interactive diagram to accurately record the normalized location coordinates (X%, Y%).</p>
-      
+      <h3>Interactive Anatomical Mouth Map</h3>
+      <p class="hint" style="margin-bottom:12px;">Click directly on the oral cavity diagram to accurately record the normalized location coordinates (X%, Y%).</p>
+
       <div class="anatomy-container">
         <div class="canvas-wrapper" id="canvasContainer">
           <canvas id="mouthCanvas" width="360" height="360"></canvas>
@@ -823,6 +835,42 @@ input:focus, select:focus, textarea:focus {
     </div>
   </div>
 
+  <div class="field full" style="margin-top:20px;">
+    <label>Mouth Opening Visualization</label>
+    <svg id="jawGaugeSvg" viewBox="0 0 300 150" style="width:100%; max-width:340px; height:auto; background:#0a0e17; border:1px solid var(--border-color); border-radius:10px;">
+      <g id="upperJawGroup">
+        <path d="M35,55 Q150,20 265,55 L265,68 Q150,42 35,68 Z" fill="#e7e4db" stroke="#c7ccd3" stroke-width="1"/>
+        <rect x="45" y="55" width="14" height="16" rx="2" fill="#f4f2ec"/>
+        <rect x="63" y="53" width="14" height="18" rx="2" fill="#f4f2ec"/>
+        <rect x="81" y="51" width="14" height="20" rx="2" fill="#f4f2ec"/>
+        <rect x="99" y="50" width="14" height="21" rx="2" fill="#f4f2ec"/>
+        <rect x="117" y="49" width="14" height="22" rx="2" fill="#f4f2ec"/>
+        <rect x="135" y="49" width="14" height="22" rx="2" fill="#f4f2ec"/>
+        <rect x="153" y="49" width="14" height="22" rx="2" fill="#f4f2ec"/>
+        <rect x="171" y="50" width="14" height="21" rx="2" fill="#f4f2ec"/>
+        <rect x="189" y="51" width="14" height="20" rx="2" fill="#f4f2ec"/>
+        <rect x="207" y="53" width="14" height="18" rx="2" fill="#f4f2ec"/>
+        <rect x="225" y="55" width="14" height="16" rx="2" fill="#f4f2ec"/>
+      </g>
+      <g id="lowerJawGroup" style="transform-origin: 35px 90px;">
+        <path d="M35,95 Q150,125 265,95 L265,108 Q150,145 35,108 Z" fill="#e7e4db" stroke="#c7ccd3" stroke-width="1"/>
+        <rect x="45" y="80" width="14" height="16" rx="2" fill="#f4f2ec"/>
+        <rect x="63" y="82" width="14" height="16" rx="2" fill="#f4f2ec"/>
+        <rect x="81" y="83" width="14" height="16" rx="2" fill="#f4f2ec"/>
+        <rect x="99" y="84" width="14" height="16" rx="2" fill="#f4f2ec"/>
+        <rect x="117" y="84" width="14" height="16" rx="2" fill="#f4f2ec"/>
+        <rect x="135" y="84" width="14" height="16" rx="2" fill="#f4f2ec"/>
+        <rect x="153" y="84" width="14" height="16" rx="2" fill="#f4f2ec"/>
+        <rect x="171" y="84" width="14" height="16" rx="2" fill="#f4f2ec"/>
+        <rect x="189" y="83" width="14" height="16" rx="2" fill="#f4f2ec"/>
+        <rect x="207" y="82" width="14" height="16" rx="2" fill="#f4f2ec"/>
+        <rect x="225" y="80" width="14" height="16" rx="2" fill="#f4f2ec"/>
+      </g>
+      <circle cx="35" cy="90" r="4" fill="#3b82f6"/>
+      <text id="gaugeLabel" x="150" y="140" text-anchor="middle" fill="#94a3b8" font-size="13" font-family="Plus Jakarta Sans, sans-serif">Enter inter-incisal distance</text>
+    </svg>
+  </div>
+
   <div id="lnFields" class="subsection hidden">
     <div class="grid">
       <div class="field">
@@ -880,6 +928,13 @@ input:focus, select:focus, textarea:focus {
   </div>
 </div>
 
+<!-- ================= SUPABASE CONFIG NOTICE ================= -->
+<div class="card" id="configNotice" style="display:none; border-color:#7f1d1d;">
+  <div class="status error" style="display:block;">
+    Supabase is not configured yet. Open this file and set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> near the top of the script section to your project's values (Project Settings &rarr; API in Supabase), then reload. Until then, "Save Assessment" cannot write to your database.
+  </div>
+</div>
+
 <!-- ================= SAVE & ACTIONS ================= -->
 <div class="card">
   <div class="actions">
@@ -893,11 +948,59 @@ input:focus, select:focus, textarea:focus {
 </div>
 
 <script>
+/* =========================================
+   SUPABASE CONFIG — fill these in with your
+   project's values (Project Settings > API)
+========================================= */
+const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+let supabaseClient = null;
+if (window.supabase && SUPABASE_URL && SUPABASE_URL.startsWith('http') && SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} else {
+  document.addEventListener('DOMContentLoaded', () => {
+    const notice = document.getElementById('configNotice');
+    if (notice) notice.style.display = 'block';
+  });
+}
+
 const $ = id => document.getElementById(id);
 let activeTeeth = new Set();
 let isAutoDictating = false;
 let currentField = null;
 let recognition = null;
+let cachedVoices = [];
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    cachedVoices = window.speechSynthesis.getVoices();
+  };
+  cachedVoices = window.speechSynthesis.getVoices();
+}
+
+/* =========================================
+   GEOLOCATION CAPTURE
+========================================= */
+function captureGeoLocation() {
+  const geoStatus = $('geoStatus');
+  if (!('geolocation' in navigator)) {
+    geoStatus.textContent = 'Geolocation not supported by this browser.';
+    return;
+  }
+  geoStatus.textContent = 'Locating...';
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      $('latitude').value = pos.coords.latitude.toFixed(7);
+      $('longitude').value = pos.coords.longitude.toFixed(7);
+      geoStatus.textContent = `Location captured: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+    },
+    (err) => {
+      geoStatus.textContent = `Could not get location: ${err.message}`;
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
 
 /* =========================================
    UNIVERSAL SEQUENTIAL AUTO-DICTATION FLOW
@@ -961,12 +1064,12 @@ function listenForFieldInput(element) {
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SpeechRecognition();
-  recognition.lang = 'en-US';
+  recognition.lang = 'en-IN';
   recognition.interimResults = false;
 
   recognition.onresult = function(event) {
     const transcript = event.results[0][0].transcript.trim();
-    
+
     if (element.tagName === 'SELECT') {
       const options = Array.from(element.options);
       const matched = options.find(opt => opt.text.toLowerCase().includes(transcript.toLowerCase()) || opt.value.toLowerCase().includes(transcript.toLowerCase()));
@@ -1001,6 +1104,10 @@ function speakText(text, onEndCallback) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 1.0;
+    utterance.lang = 'en-IN';
+    const voices = cachedVoices.length ? cachedVoices : window.speechSynthesis.getVoices();
+    const inVoice = voices.find(v => v.lang === 'en-IN') || voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en-in'));
+    if (inVoice) utterance.voice = inVoice;
     if (onEndCallback) {
       utterance.onend = onEndCallback;
     }
@@ -1027,55 +1134,152 @@ function stopAutoDictation() {
 }
 
 /* =========================================
-   ANATOMICAL SCULPTOR (CANVAS DRAWING)
+   ANATOMICAL MOUTH MAP (realistic oral cavity)
 ========================================= */
 function initMouthCanvas() {
   const canvas = $('mouthCanvas');
   const ctx = canvas.getContext('2d');
-  
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const W = canvas.width, H = canvas.height, cx = W / 2, cy = H / 2;
 
-  ctx.fillStyle = '#1e293b';
+  ctx.clearRect(0, 0, W, H);
+
+  // Face / perioral skin background
+  ctx.fillStyle = '#241a2e';
   ctx.beginPath();
-  ctx.ellipse(180, 180, 150, 130, 0, 0, 2 * Math.PI);
+  ctx.ellipse(cx, cy, 172, 150, 0, 0, 2 * Math.PI);
   ctx.fill();
-  ctx.strokeStyle = '#3b82f6';
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#3b2f4d';
+  ctx.lineWidth = 2;
   ctx.stroke();
 
-  ctx.fillStyle = '#334155';
+  // Outer lips (upper + lower) drawn as a full lip ring behind the oral cavity
+  ctx.fillStyle = '#a8465a';
   ctx.beginPath();
-  ctx.ellipse(180, 70, 100, 25, 0, 0, Math.PI);
-  ctx.ellipse(180, 290, 100, 25, 0, 0, Math.PI, true);
+  ctx.ellipse(cx, cy, 148, 122, 0, 0, 2 * Math.PI);
   ctx.fill();
 
-  ctx.fillStyle = '#0f172a';
+  // Cupid's bow notch on upper lip
+  ctx.strokeStyle = '#7f3346';
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(180, 130, 70, 0, Math.PI, true);
+  ctx.moveTo(cx - 10, cy - 122 + 18);
+  ctx.quadraticCurveTo(cx, cy - 122 + 8, cx + 10, cy - 122 + 18);
+  ctx.stroke();
+
+  // Oral cavity (dark interior)
+  ctx.fillStyle = '#3a1219';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 132, 106, 0, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.strokeStyle = '#7f1d1d';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Buccal mucosa shading, left & right inner cheeks
+  ctx.fillStyle = 'rgba(74, 27, 35, 0.85)';
+  ctx.beginPath();
+  ctx.ellipse(cx - 100, cy, 46, 88, 0, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(cx + 100, cy, 46, 88, 0, 0, 2 * Math.PI);
   ctx.fill();
 
-  ctx.fillStyle = '#1e1b4b';
+  // Hard palate ridges (rugae)
+  ctx.strokeStyle = 'rgba(201, 138, 149, 0.6)';
+  ctx.lineWidth = 2;
+  [ -75, -63, -51 ].forEach((offset, i) => {
+    ctx.beginPath();
+    ctx.moveTo(cx - 70 + i * 6, cy + offset + 45);
+    ctx.quadraticCurveTo(cx, cy + offset + 25, cx + 70 - i * 6, cy + offset + 45);
+    ctx.stroke();
+  });
+
+  // Soft palate + uvula
+  ctx.fillStyle = '#a8465a';
   ctx.beginPath();
-  ctx.ellipse(180, 210, 65, 50, 0, 0, 2 * Math.PI);
+  ctx.ellipse(cx, cy - 52, 16, 10, 0, 0, 2 * Math.PI);
   ctx.fill();
-  ctx.strokeStyle = '#60a5fa';
+  ctx.fillStyle = '#c2687d';
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 46);
+  ctx.quadraticCurveTo(cx - 6, cy - 30, cx, cy - 20);
+  ctx.quadraticCurveTo(cx + 6, cy - 30, cx, cy - 46);
+  ctx.fill();
+
+  // Upper & lower teeth arcs
+  drawTeethArc(ctx, cx, cy - 72, 118, 10, true);
+  drawTeethArc(ctx, cx, cy + 78, 118, 10, false);
+
+  // Gingiva strip behind teeth
+  ctx.strokeStyle = 'rgba(194, 104, 125, 0.5)';
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(cx - 108, cy - 58);
+  ctx.quadraticCurveTo(cx, cy - 68, cx + 108, cy - 58);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx - 108, cy + 64);
+  ctx.quadraticCurveTo(cx, cy + 74, cx + 108, cy + 64);
+  ctx.stroke();
+
+  // Tongue
+  ctx.fillStyle = '#c1546a';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 38, 78, 46, 0, Math.PI, 2 * Math.PI);
+  ctx.fill();
+  ctx.strokeStyle = '#8f3a4c';
   ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 4);
+  ctx.lineTo(cx, cy + 38);
   ctx.stroke();
 
-  ctx.fillStyle = '#94a3b8';
-  ctx.font = '12px Plus Jakarta Sans';
-  ctx.fillText('Hard Palate', 150, 120);
-  ctx.fillText('Tongue', 160, 215);
-  ctx.fillText('Buccal (L)', 45, 185);
-  ctx.fillText('Buccal (R)', 255, 185);
-  ctx.fillText('Lower Lip', 155, 295);
+  // Labels
+  ctx.fillStyle = '#cbd5e1';
+  ctx.font = '11px "Plus Jakarta Sans", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Hard Palate', cx, cy - 92);
+  ctx.fillText('Buccal Mucosa (L)', cx - 100, cy + 96);
+  ctx.fillText('Buccal Mucosa (R)', cx + 100, cy + 96);
+  ctx.fillText('Tongue', cx, cy + 40);
+  ctx.fillText('Upper Lip', cx, cy - 132);
+  ctx.fillText('Floor of Mouth', cx, cy + 118);
+}
+
+function drawTeethArc(ctx, cx, archY, radius, count, isUpper) {
+  const toothW = 15, toothH = 20;
+  ctx.fillStyle = '#f1f0eb';
+  ctx.strokeStyle = '#c7ccd3';
+  ctx.lineWidth = 0.6;
+
+  const spread = Math.PI * 0.62;
+  const startAngle = -Math.PI / 2 - spread / 2;
+
+  for (let i = 0; i < count; i++) {
+    const t = count === 1 ? 0.5 : i / (count - 1);
+    const angle = startAngle + spread * t;
+    const centerOffset = Math.abs(t - 0.5) * 2; // 0 center -> 1 edge
+    const x = cx + radius * Math.sin(angle);
+    const yOffset = isUpper ? centerOffset * centerOffset * 16 : -centerOffset * centerOffset * 14;
+    const y = archY + yOffset;
+    const h = toothH - centerOffset * 6;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle * 0.35 * (isUpper ? 1 : -1));
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(-toothW / 2, isUpper ? 0 : -h, toothW, h, 3) : ctx.rect(-toothW / 2, isUpper ? 0 : -h, toothW, h);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
 }
 
 $('canvasContainer').addEventListener('click', function(e) {
   const rect = this.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
-  
+
   const pctX = ((x / rect.width) * 100).toFixed(1);
   const pctY = ((y / rect.height) * 100).toFixed(1);
 
@@ -1092,7 +1296,7 @@ $('canvasContainer').addEventListener('click', function(e) {
   else if (pctX > 70) $('lesion_location').value = 'Buccal Mucosa (R)';
   else if (pctY >= 50 && pctY <= 75) $('lesion_location').value = 'Tongue';
   else if (pctY >= 25 && pctY < 50) $('lesion_location').value = 'Hard Palate';
-  
+
   evaluateRisk();
 });
 
@@ -1129,6 +1333,31 @@ function toggleTooth(toothNumber, btn) {
 }
 
 /* =========================================
+   MOUTH OPENING GAUGE
+========================================= */
+function updateJawGauge(distanceMm) {
+  const group = $('lowerJawGroup');
+  const label = $('gaugeLabel');
+  if (!distanceMm || isNaN(distanceMm) || distanceMm <= 0) {
+    group.style.transform = 'rotate(0deg)';
+    label.textContent = 'Enter inter-incisal distance';
+    label.setAttribute('fill', '#94a3b8');
+    return;
+  }
+  const clamped = Math.min(Math.max(distanceMm, 0), 60);
+  const angle = (clamped / 60) * 32;
+  group.style.transform = `rotate(${angle}deg)`;
+
+  let grade = 'Normal', color = '#34d399';
+  if (clamped < 15) { grade = 'Severe restriction (OSMF IV)'; color = '#f87171'; }
+  else if (clamped < 25) { grade = 'Moderate restriction (OSMF III)'; color = '#fbbf24'; }
+  else if (clamped < 35) { grade = 'Mild restriction (OSMF II)'; color = '#fbbf24'; }
+
+  label.textContent = `${clamped} mm — ${grade}`;
+  label.setAttribute('fill', color);
+}
+
+/* =========================================
    AUTOMATED RISK ASSESSMENT ENGINE
 ========================================= */
 function evaluateRisk() {
@@ -1140,7 +1369,7 @@ function evaluateRisk() {
 
   if ($('ulcer_greater').value === 'Yes') score += 3;
   if ($('lesion_texture').value === 'Indurated') score += 3;
-  
+
   const diameter = parseFloat($('lesion_maximum_diameter_mm').value) || 0;
   if (diameter > 20) score += 2;
 
@@ -1169,6 +1398,8 @@ function evaluateRisk() {
   } else {
     osmfDisplay.textContent = 'OSMF Stage: Normal';
   }
+
+  updateJawGauge(dist);
 }
 
 /* =========================================
@@ -1200,22 +1431,81 @@ function resetFormState() {
   activeTeeth.clear();
   document.querySelectorAll('.tooth-btn').forEach(btn => btn.classList.remove('selected'));
   $('pointerPin').classList.add('hidden');
+  $('geoStatus').textContent = '';
   $('status').className = 'status';
   $('status').textContent = '';
   setTimeout(sync, 10);
 }
 
-function handleFormSubmit(e) {
+/* =========================================
+   PAYLOAD BUILDER — matches the Postgres
+   schema's column names and types exactly
+========================================= */
+const INT_FIELDS = [
+  'age', 'smoking_duration_years', 'smoking_frequency_per_day',
+  'alcohol_duration_years', 'inter_incisal_distance_mm',
+  'regional_lymph_node_number', 'regional_lymph_node_size_mm'
+];
+const FLOAT_FIELDS = [
+  'lesion_length_mm', 'lesion_width_mm', 'lesion_maximum_diameter_mm',
+  'latitude', 'longitude'
+];
+
+function buildPayload() {
+  const formData = new FormData($('patientForm'));
+  const raw = Object.fromEntries(formData.entries());
+  const payload = {};
+
+  for (const [key, value] of Object.entries(raw)) {
+    const trimmed = typeof value === 'string' ? value.trim() : value;
+    if (trimmed === '') {
+      payload[key] = null;
+    } else if (INT_FIELDS.includes(key)) {
+      const n = parseInt(trimmed, 10);
+      payload[key] = isNaN(n) ? null : n;
+    } else if (FLOAT_FIELDS.includes(key)) {
+      const n = parseFloat(trimmed);
+      payload[key] = isNaN(n) ? null : n;
+    } else {
+      payload[key] = trimmed;
+    }
+  }
+  return payload;
+}
+
+async function handleFormSubmit(e) {
   e.preventDefault();
   stopAutoDictation();
-  const formData = new FormData(e.target);
-  const data = Object.fromEntries(formData.entries());
-  
+
+  const submitBtn = $('submitBtn');
   const status = $('status');
-  status.className = 'status ok';
-  status.textContent = `Assessment successfully stored for Patient: ${data.patient_name} (${data.patient_id}). Recorded risk level: ${$('riskLevelDisplay').textContent}.`;
-  
-  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Saving...';
+
+  try {
+    if (!supabaseClient) {
+      throw new Error('Supabase is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY at the top of the script.');
+    }
+
+    const payload = buildPayload();
+    const { data, error } = await supabaseClient
+      .from('oral_clinical_assessments')
+      .insert([payload])
+      .select();
+
+    if (error) throw error;
+
+    status.className = 'status ok';
+    status.textContent = `Assessment saved for ${payload.patient_name} (${payload.patient_id}). Risk level: ${$('riskLevelDisplay').textContent}.`;
+  } catch (err) {
+    console.error('Save failed:', err);
+    status.className = 'status error';
+    status.textContent = `Save failed: ${err.message || err}`;
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Save Assessment';
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }
 }
 
 document.querySelectorAll('select, input').forEach(el => {
