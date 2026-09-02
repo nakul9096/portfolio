@@ -4,9 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Patient Management Dashboard</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Import Your Global Configuration File -->
+<script src="config/config.js"></script>
+
 <!-- XLSX Library for Direct Excel Export -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
@@ -14,11 +19,9 @@
 :root {
   --bg: #0b0f19;
   --card-bg: #151c2c;
-  --card-hover: #1e293b;
   --text-main: #f1f5f9;
   --text-muted: #94a3b8;
   --primary: #3b82f6;
-  --primary-hover: #2563eb;
   --border-color: #26334d;
   --danger: #f87171;
   --warning: #fbbf24;
@@ -92,7 +95,6 @@ body {
 .search-box {
   flex: 1;
   min-width: 260px;
-  position: relative;
 }
 
 .search-box input {
@@ -106,9 +108,7 @@ body {
   font-size: 14px;
 }
 
-.search-box input:focus {
-  border-color: var(--primary);
-}
+.search-box input:focus { border-color: var(--primary); }
 
 .filter-pills {
   display: flex;
@@ -292,7 +292,7 @@ body {
   <div class="header-bar">
     <div class="header-title">
       <h1>Patient Records</h1>
-      <p>Manage and review patient clinical assessment data</p>
+      <p>Manage and review clinical patient assessments</p>
     </div>
     <button class="export-btn" onclick="exportToExcel()">
       📊 Export to Excel
@@ -316,7 +316,9 @@ body {
 
   <!-- Cards Grid Container -->
   <div class="patient-grid" id="patientGrid">
-    <!-- Populated Dynamically via JavaScript -->
+    <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">
+      Loading patients from server...
+    </div>
   </div>
 
 </div>
@@ -342,17 +344,36 @@ body {
 </div>
 
 <script>
-// Mock Patient Data Array
-const patients = [
-  { id: "101", name: "Rahul Sharma", opd: "OPD-2026-01", age: 45, sex: "Male", residence: "Urban", smoking: "Yes", smokingYears: 12, smokingFreq: 10, chewing: "Yes", risk: "High Risk", date: "2026-02-15" },
-  { id: "102", name: "Priya Patel", opd: "OPD-2026-02", age: 32, sex: "Female", residence: "Rural", smoking: "No", smokingYears: 0, smokingFreq: 0, chewing: "No", risk: "Low Risk", date: "2026-02-18" },
-  { id: "103", name: "Amit Kumar", opd: "OPD-2026-03", age: 50, sex: "Male", residence: "Urban", smoking: "Yes", smokingYears: 5, smokingFreq: 4, chewing: "No", risk: "Moderate Risk", date: "2026-02-20" },
-  { id: "104", name: "Sunita Verma", opd: "OPD-2026-04", age: 29, sex: "Female", residence: "Urban", smoking: "No", smokingYears: 0, smokingFreq: 0, chewing: "Yes", risk: "Moderate Risk", date: "2026-02-22" },
-  { id: "105", name: "Vikram Singh", opd: "OPD-2026-05", age: 61, sex: "Male", residence: "Rural", smoking: "Yes", smokingYears: 25, smokingFreq: 15, chewing: "Yes", risk: "High Risk", date: "2026-02-25" },
-  { id: "106", name: "Ananya Roy", opd: "OPD-2026-06", age: 24, sex: "Female", residence: "Urban", smoking: "No", smokingYears: 0, smokingFreq: 0, chewing: "No", risk: "Low Risk", date: "2026-03-01" }
-];
-
+let patients = [];
 let activeFilter = 'All';
+
+// Dynamic API Endpoint Config Resolver
+function getApiUrl() {
+  if (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL) {
+    return `${CONFIG.API_BASE_URL}/patients`;
+  } else if (typeof API_BASE_URL !== 'undefined') {
+    return `${API_BASE_URL}/patients`;
+  }
+  return '/api/patients'; // Fallback relative path
+}
+
+// Fetch Records from Backend Config Target
+async function loadPatientsFromApi() {
+  const grid = document.getElementById('patientGrid');
+  try {
+    const response = await fetch(getApiUrl());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    
+    const data = await response.json();
+    patients = Array.isArray(data) ? data : (data.patients || []);
+    renderPatients();
+  } catch (error) {
+    console.error('Failed to fetch patient data:', error);
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--danger); padding: 40px;">
+      Failed to connect to backend service. Please check configuration.
+    </div>`;
+  }
+}
 
 function renderPatients() {
   const grid = document.getElementById('patientGrid');
@@ -361,37 +382,51 @@ function renderPatients() {
   grid.innerHTML = '';
 
   const filtered = patients.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchVal) || p.id.toString().includes(searchVal);
+    const idStr = (p.patient_id || p.id || '').toString().toLowerCase();
+    const nameStr = (p.patient_name || p.name || '').toLowerCase();
+    const matchesSearch = nameStr.includes(searchVal) || idStr.includes(searchVal);
     
+    const riskVal = p.risk_level || p.risk || 'Low Risk';
+    const smokingVal = p.smoking || 'No';
+
     let matchesCategory = true;
-    if (activeFilter === 'High Risk') matchesCategory = p.risk === 'High Risk';
-    else if (activeFilter === 'Moderate Risk') matchesCategory = p.risk === 'Moderate Risk';
-    else if (activeFilter === 'Low Risk') matchesCategory = p.risk === 'Low Risk';
-    else if (activeFilter === 'Smoker') matchesCategory = p.smoking === 'Yes';
+    if (activeFilter === 'High Risk') matchesCategory = riskVal === 'High Risk';
+    else if (activeFilter === 'Moderate Risk') matchesCategory = riskVal === 'Moderate Risk';
+    else if (activeFilter === 'Low Risk') matchesCategory = riskVal === 'Low Risk';
+    else if (activeFilter === 'Smoker') matchesCategory = smokingVal === 'Yes';
 
     return matchesSearch && matchesCategory;
   });
 
   if (filtered.length === 0) {
-    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">No matching patient records found.</div>`;
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">
+      No matching patient records found.
+    </div>`;
     return;
   }
 
   filtered.forEach(p => {
-    const riskClass = p.risk === 'High Risk' ? 'risk-high' : p.risk === 'Moderate Risk' ? 'risk-moderate' : 'risk-low';
+    const id = p.patient_id || p.id || 'N/A';
+    const name = p.patient_name || p.name || 'Unnamed';
+    const risk = p.risk_level || p.risk || 'Low Risk';
+    const age = p.age || 'N/A';
+    const sex = p.sex || 'N/A';
+    const residence = p.residence || 'N/A';
+
+    const riskClass = risk === 'High Risk' ? 'risk-high' : risk === 'Moderate Risk' ? 'risk-moderate' : 'risk-low';
 
     const card = document.createElement('div');
     card.className = 'patient-card';
     card.innerHTML = `
       <div>
         <div class="card-header">
-          <span class="patient-id-badge">ID: ${p.id}</span>
-          <span class="risk-badge ${riskClass}">${p.risk}</span>
+          <span class="patient-id-badge">ID: ${id}</span>
+          <span class="risk-badge ${riskClass}">${risk}</span>
         </div>
-        <h3 class="patient-name">${p.name}</h3>
-        <div class="patient-subtext">${p.age} Yrs • ${p.sex} • ${p.residence}</div>
+        <h3 class="patient-name">${name}</h3>
+        <div class="patient-subtext">${age} Yrs • ${sex} • ${residence}</div>
       </div>
-      <button class="view-btn" onclick='openModal(${JSON.stringify(p)})'>View Full Details</button>
+      <button class="view-btn" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>View Full Details</button>
     `;
     grid.appendChild(card);
   });
@@ -409,16 +444,20 @@ function filterPatients() {
 }
 
 function openModal(p) {
-  document.getElementById('modalName').textContent = p.name;
-  document.getElementById('modalId').textContent = `ID: ${p.id}`;
-  document.getElementById('modalOpd').textContent = p.opd;
-  document.getElementById('modalAgeSex').textContent = `${p.age} Yrs / ${p.sex}`;
-  document.getElementById('modalResidence').textContent = p.residence;
-  document.getElementById('modalRisk').textContent = p.risk;
-  document.getElementById('modalSmoking').textContent = p.smoking;
-  document.getElementById('modalSmokeDetails').textContent = p.smoking === 'Yes' ? `${p.smokingYears} Yrs (${p.smokingFreq}/day)` : 'N/A';
-  document.getElementById('modalChewing').textContent = p.chewing;
-  document.getElementById('modalDate').textContent = p.date;
+  document.getElementById('modalName').textContent = p.patient_name || p.name || 'N/A';
+  document.getElementById('modalId').textContent = `ID: ${p.patient_id || p.id || 'N/A'}`;
+  document.getElementById('modalOpd').textContent = p.opd_number || p.opd || 'N/A';
+  document.getElementById('modalAgeSex').textContent = `${p.age || 'N/A'} Yrs / ${p.sex || 'N/A'}`;
+  document.getElementById('modalResidence').textContent = p.residence || 'N/A';
+  document.getElementById('modalRisk').textContent = p.risk_level || p.risk || 'Low Risk';
+  document.getElementById('modalSmoking').textContent = p.smoking || 'No';
+  
+  const smokingYears = p.smoking_duration_years || p.smokingYears || 0;
+  const smokingFreq = p.smoking_frequency_per_day || p.smokingFreq || 0;
+  document.getElementById('modalSmokeDetails').textContent = p.smoking === 'Yes' ? `${smokingYears} Yrs (${smokingFreq}/day)` : 'N/A';
+  
+  document.getElementById('modalChewing').textContent = p.chewing || 'No';
+  document.getElementById('modalDate').textContent = p.created_at || p.date || new Date().toISOString().slice(0, 10);
 
   document.getElementById('detailModal').classList.add('active');
 }
@@ -427,21 +466,26 @@ function closeModal() {
   document.getElementById('detailModal').classList.remove('active');
 }
 
-/* Export Data directly to Excel File (.xlsx) */
+/* Export Live Records to Excel File */
 function exportToExcel() {
+  if (patients.length === 0) {
+    alert("No patient data available to export.");
+    return;
+  }
+
   const exportData = patients.map(p => ({
-    "Patient ID": p.id,
-    "Full Name": p.name,
-    "OPD Number": p.opd,
-    "Age": p.age,
-    "Sex": p.sex,
-    "Residence": p.residence,
-    "Risk Level": p.risk,
-    "Smoking Habit": p.smoking,
-    "Smoking Duration (Yrs)": p.smokingYears,
-    "Smoking Frequency/Day": p.smokingFreq,
-    "Chewing Habit": p.chewing,
-    "Registration Date": p.date
+    "Patient ID": p.patient_id || p.id || '',
+    "Full Name": p.patient_name || p.name || '',
+    "OPD Number": p.opd_number || p.opd || '',
+    "Age": p.age || '',
+    "Sex": p.sex || '',
+    "Residence": p.residence || '',
+    "Risk Level": p.risk_level || p.risk || '',
+    "Smoking Habit": p.smoking || '',
+    "Smoking Duration (Yrs)": p.smoking_duration_years || p.smokingYears || 0,
+    "Smoking Frequency/Day": p.smoking_frequency_per_day || p.smokingFreq || 0,
+    "Chewing Habit": p.chewing || '',
+    "Registration Date": p.created_at || p.date || ''
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -451,8 +495,7 @@ function exportToExcel() {
   XLSX.writeFile(workbook, `Patient_Records_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
-// Initial Render
-window.addEventListener('DOMContentLoaded', renderPatients);
+window.addEventListener('DOMContentLoaded', loadPatientsFromApi);
 </script>
 
 </body>
