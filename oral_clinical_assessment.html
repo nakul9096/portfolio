@@ -3,1287 +3,675 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enhanced Oral Clinical Assessment - Universal Dictation</title>
+<title>Oral Clinical Registry - Assessment Dashboard</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Load App Configuration -->
+<script src="config/config.js"></script>
+
 <style>
 :root {
-  --bg: #0b0f19;
-  --card-bg: #151c2c;
-  --text-main: #f1f5f9;
-  --text-muted: #94a3b8;
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --primary-light: rgba(59, 130, 246, 0.15);
-  --border-color: #26334d;
-  --border-focus: #60a5fa;
+  --bg: #090d16;
+  --surface: #111827;
+  --surface-hover: #1f2937;
+  --border: #1f293d;
+  --border-light: #2d3748;
+  
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-light: rgba(37, 99, 235, 0.15);
+  
   --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.12);
   --warning: #fbbf24;
+  --warning-bg: rgba(251, 191, 36, 0.12);
   --success: #34d399;
   --success-bg: rgba(52, 211, 153, 0.12);
-  --danger-bg: rgba(248, 113, 113, 0.12);
-  --radius-lg: 16px;
-  --radius-md: 10px;
-  --shadow-md: 0 12px 28px -6px rgba(0, 0, 0, 0.55);
-  --shadow-glow: 0 0 0 4px rgba(96, 165, 250, 0.25);
 }
-* { box-sizing: border-box; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-  margin: 0;
   background: var(--bg);
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  color: var(--text-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-primary);
   line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+
+/* App Navigation Bar */
+.app-nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-brand {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  color: var(--text-primary);
+}
+
 .container {
-  max-width: 1140px;
-  margin: 40px auto;
-  padding: 0 20px;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 24px;
+  flex: 1;
 }
-.hero {
-  background: linear-gradient(135deg, #1e1b4b 0%, #1e293b 55%, #0f172a 100%);
-  border: 1px solid var(--border-color);
-  color: #fff;
-  border-radius: var(--radius-lg);
-  padding: 32px 36px;
-  box-shadow: var(--shadow-md);
+
+/* Page Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.title-area h1 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.title-area p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* KPI Cards Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.kpi-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+}
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.kpi-subtext {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Controls Bar */
+.controls-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
   margin-bottom: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   flex-wrap: wrap;
-  gap: 20px;
 }
-.hero h1 { margin: 0 0 6px; font-size: 28px; font-weight: 700; letter-spacing: -0.3px; }
-.hero p { margin: 0; color: var(--text-muted); font-size: 14px; }
-.risk-indicator-badge {
-  background: #0f172a;
-  border: 1px solid var(--border-color);
-  padding: 14px 20px;
-  border-radius: var(--radius-md);
-  text-align: right;
-  min-width: 220px;
+
+.search-box {
+  flex: 1;
+  min-width: 260px;
+  position: relative;
 }
-.risk-level {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--success);
-  transition: color 0.3s ease;
+
+.search-box input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 14px 10px 38px;
+  background: #0d1321;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s ease;
 }
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 26px 30px;
-  margin-bottom: 22px;
-  box-shadow: var(--shadow-md);
-  transition: border-color 0.2s ease;
+
+.search-box input:focus {
+  border-color: var(--accent);
 }
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0 0 20px;
-  font-size: 17px;
-  font-weight: 700;
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 14px;
 }
-.section-title span {
-  width: 30px;
-  height: 30px;
+
+.filter-group select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 32px 10px 14px;
+  background: #0d1321;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Data Table */
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: var(--primary-light);
-  color: var(--primary);
-  display: grid;
-  place-items: center;
-  font-weight: 700;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
   font-size: 13px;
 }
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px 16px;
+
+th {
+  background: #0d1321;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
-.field {
+
+td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+tbody tr:hover {
+  background: var(--surface-hover);
+}
+
+/* Badges & Buttons */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.2); }
+.badge.warning { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.2); }
+.badge.success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.2); }
+
+.btn {
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.btn.primary { background: var(--accent); color: #fff; }
+.btn.primary:hover { background: var(--accent-hover); }
+.btn.secondary { background: #1f293d; color: var(--text-primary); border: 1px solid var(--border-light); }
+.btn.secondary:hover { background: #2d3748; }
+.btn.sm { padding: 5px 10px; font-size: 12px; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-width: 720px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.detail-item {
+  background: #0d1321;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.detail-item.full-width {
+  grid-column: span 2;
+}
+
+.detail-item span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.map-link {
+  color: #60a5fa;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.map-link:hover {
+  text-decoration: underline;
+}
+
+/* Footer */
+.app-footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 20px;
+  text-align: center;
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 1280px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-.field.full { grid-column: 1 / -1; }
-label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
-.required { color: var(--danger); }
-.hint { font-size: 12px; color: var(--text-muted); }
-input, select, textarea {
-  width: 100%;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 10px 13px;
-  background: #0f172a;
-  color: var(--text-main);
-  font: inherit;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-input:hover, select:hover, textarea:hover { border-color: #3b82f6; }
-input:focus, select:focus, textarea:focus {
-  border-color: var(--border-focus);
-  box-shadow: var(--shadow-glow);
-}
-/* Active Dictation Focus Style */
-.dictating-active {
-  border-color: #ef4444 !important;
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.4) !important;
-  background: #1e1b4b !important;
-  animation: dictationPulse 1.4s ease-in-out infinite;
-}
-@keyframes dictationPulse {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35); }
-  50% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0.15); }
-}
-.listening-badge {
-  position: fixed;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #b91c1c;
-  color: #fff;
-  padding: 10px 22px;
-  border-radius: 999px;
   font-size: 13px;
-  font-weight: 600;
-  display: none;
-  align-items: center;
-  gap: 10px;
-  z-index: 1000;
-  box-shadow: 0 8px 24px rgba(185, 28, 28, 0.5);
-  animation: fadeInUp 0.3s ease;
+  color: var(--text-secondary);
 }
-.listening-badge.visible { display: flex; }
-.listening-badge .dot {
-  width: 8px; height: 8px;
-  background: #fff;
-  border-radius: 50%;
-  animation: blink 0.9s infinite;
-}
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translate(-50%, 12px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
-}
-.anatomy-container {
-  display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 24px;
-  align-items: start;
-}
-.canvas-wrapper {
-  position: relative;
-  background: #0a0e17;
-  border: 2px dashed var(--border-color);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  cursor: crosshair;
-  user-select: none;
-  transition: border-color 0.2s ease;
-}
-.canvas-wrapper:hover { border-color: #3b82f6; }
-#mouthCanvas {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.pointer-pin {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  background: #ef4444;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.85);
-  pointer-events: none;
-  animation: pulse 1.5s infinite;
-}
-@keyframes pulse {
-  0% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -50%) scale(1.25); }
-  100% { transform: translate(-50%, -50%) scale(1); }
-}
-.dictation-master-btn {
-  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-  border: 0;
-  color: #fff;
-  border-radius: var(--radius-md);
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
-  transition: all 0.2s ease;
-}
-.dictation-master-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(239, 68, 68, 0.55); }
-.dictation-master-btn.active {
-  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-  box-shadow: 0 0 18px rgba(34, 197, 94, 0.55);
-}
-.subsection {
-  margin-top: 22px;
-  padding-top: 20px;
-  border-top: 1px dashed var(--border-color);
-}
-.hidden { display: none !important; }
-.toggle-note {
-  padding: 11px 15px;
-  background: var(--primary-light);
-  border-left: 3px solid var(--primary);
-  border-radius: 6px;
-  color: #93c5fd;
-  font-size: 13px;
-  margin-bottom: 18px;
-}
-.dental-arch-selector {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  background: #0f172a;
-  padding: 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-}
-.tooth-btn {
-  background: #1e293b;
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  padding: 6px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: 5px;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.15s ease;
-}
-.tooth-btn:hover { border-color: var(--primary); background: #243044; }
-.tooth-btn.selected { background: var(--primary); color: #fff; border-color: var(--primary); }
-.actions { display: flex; justify-content: flex-end; gap: 12px; }
-.btn {
-  border: 0;
-  border-radius: var(--radius-md);
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.btn.primary { background: var(--primary); color: #fff; }
-.btn.primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
-.btn.secondary { background: #1e293b; color: #cbd5e1; border: 1px solid var(--border-color); }
-.btn.secondary:hover { background: #243044; }
-.status {
-  margin-top: 16px;
-  padding: 14px 16px;
-  border-radius: var(--radius-md);
-  display: none;
-  font-size: 14px;
-}
-.status.ok { display: block; background: var(--success-bg); color: #6ee7b7; border: 1px solid #065f46; }
-.status.error { display: block; background: var(--danger-bg); color: #fca5a5; border: 1px solid #991b1b; }
-@media(max-width: 850px) {
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .anatomy-container { grid-template-columns: 1fr; }
-}
-@media(max-width: 560px) {
-  .grid { grid-template-columns: 1fr; }
-  .hero { padding: 24px; }
+
+.footer-credits {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 </style>
 </head>
+
 <body>
+
+<!-- Header Navigation Bar -->
+<nav class="app-nav">
+  <div class="nav-brand">🩺 Oral Clinical Assessments Platform</div>
+  <div class="nav-links">
+    <a href="patients.html" class="active">Registry Records</a>
+    <a href="oral_clinical_assessment.html">+ New Assessment</a>
+    <a href="analytics.html">Analytics</a>
+  </div>
+</nav>
+
 <div class="container">
-<div class="hero">
-  <div>
-    <h1>Oral Clinical Assessment</h1>
-    <p>Hands-Free Sequential Voice Assistant & Anatomical Lesion Map</p>
-  </div>
-  <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-    <button id="masterDictationBtn" type="button" class="dictation-master-btn" onclick="toggleAutoDictationFlow()">
-      🎙 Start Auto-Dictation Flow
-    </button>
-    <div class="risk-indicator-badge">
-      <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px;">Real-Time Malignancy Risk</div>
-      <div id="riskLevelDisplay" class="risk-level">LOW RISK</div>
-      <div id="osmfStageDisplay" style="font-size: 12px; color: var(--text-muted);">OSMF Stage: Normal</div>
+
+  <header class="page-header">
+    <div class="title-area">
+      <h1>Oral Clinical Registry</h1>
+      <p>Schema-mapped patient diagnostic dashboard & history</p>
     </div>
-  </div>
-</div>
-<form id="patientForm" onsubmit="handleFormSubmit(event)">
-<!-- ================= 1. PATIENT INFORMATION ================= -->
-<div class="card">
-  <h2 class="section-title"><span>1</span> Patient Information</h2>
-  <div class="grid">
-    <div class="field"><label for="patient_id">Patient ID <b class="required">*</b></label><input id="patient_id" name="patient_id" required placeholder="e.g. P001"></div>
-    <div class="field"><label for="patient_name">Patient Name <b class="required">*</b></label><input id="patient_name" name="patient_name" required></div>
-    <div class="field"><label for="opd_number">OPD Number <b class="required">*</b></label><input id="opd_number" name="opd_number" required></div>
-    <div class="field"><label for="age">Age <b class="required">*</b></label><input id="age" name="age" type="number" min="1" max="120" required></div>
-    <div class="field">
-      <label for="sex">Sex <b class="required">*</b></label>
-      <select id="sex" name="sex" required>
-        <option value="">Select</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
+    <div class="header-actions">
+      <button class="btn secondary" onclick="fetchRecords()">↻ Refresh</button>
+      <a href="oral_clinical_assessment.html" class="btn primary">+ New Assessment</a>
+    </div>
+  </header>
+
+  <!-- Metric KPI Overview -->
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Records</div>
+      <div class="kpi-value" id="mTotal">--</div>
+      <div class="kpi-subtext">Registered assessments</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Active Swelling / Lesions</div>
+      <div class="kpi-value" id="mLesions">--</div>
+      <div class="kpi-subtext">Requires clinical evaluation</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Substance Exposure</div>
+      <div class="kpi-value" id="mHabits">--</div>
+      <div class="kpi-subtext">Smoking, chewing, or alcohol</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Palpable Lymph Nodes</div>
+      <div class="kpi-value" id="mLymph">--</div>
+      <div class="kpi-subtext">Regional involvement</div>
+    </div>
+  </section>
+
+  <!-- Controls Bar -->
+  <section class="controls-card">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search Patient ID, Name, OPD, Address, or Location..." oninput="applyFilters()">
+    </div>
+    <div class="filter-group">
+      <select id="filterRisk" onchange="applyFilters()">
+        <option value="ALL">All Records</option>
+        <option value="HIGH_RISK">High Risk (Swelling + Palpable Nodes)</option>
+        <option value="HABITS">Habit Exposure Present</option>
+        <option value="ULCER">Ulcer > 2 Weeks</option>
+        <option value="HAS_MAP">Map Location Available</option>
       </select>
     </div>
-    <div class="field">
-      <label for="religion">Religion</label>
-      <select id="religion" name="religion">
-        <option value="">Select</option>
-        <option value="Hindu">Hindu</option>
-        <option value="Muslim">Muslim</option>
-        <option value="Buddhist">Buddhist</option>
-        <option value="Sikh">Sikh</option>
-        <option value="Christian">Christian</option>
-        <option value="Other">Other</option>
-      </select>
+  </section>
+
+  <!-- Data Table -->
+  <section class="table-card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Patient ID</th>
+            <th>Name</th>
+            <th>Age / Sex</th>
+            <th>OPD No.</th>
+            <th>Map Location / Address</th>
+            <th>Habits Exposure</th>
+            <th>Swelling</th>
+            <th>Lymph Nodes</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr>
+            <td colspan="9" style="text-align:center; padding: 40px; color: var(--text-muted);">Loading registry assessments...</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div class="field"><label for="occupation">Occupation</label><input id="occupation" name="occupation" placeholder="Occupation title"></div>
-    <div class="field">
-      <label for="residence">Residence</label>
-      <select id="residence" name="residence">
-        <option value="">Select</option>
-        <option value="Urban">Urban</option>
-        <option value="Rural">Rural</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="marital_status">Marital Status</label>
-      <select id="marital_status" name="marital_status">
-        <option value="">Select</option>
-        <option value="Married">Married</option>
-        <option value="Unmarried">Unmarried</option>
-        <option value="Widowed">Widowed</option>
-        <option value="Divorced">Divorced</option>
-      </select>
-    </div>
-  </div>
-</div>
-<!-- ================= 2. SMOKING HABITS ================= -->
-<div class="card">
-  <h2 class="section-title"><span>2</span> Smoking Habits</h2>
-  <div class="field" style="max-width:360px">
-    <label for="smoking">Smoking? <b class="required">*</b></label>
-    <select id="smoking" name="smoking" required>
-      <option value="">Select</option>
-      <option value="Yes">Yes</option>
-      <option value="No">No</option>
-    </select>
-  </div>
-  <div id="smokingFields" class="subsection hidden">
-    <div class="toggle-note">Select applicable smoking methods and duration.</div>
-    <div class="grid">
-      <div class="field">
-        <label for="cigarette_smoking">Cigarette Smoking</label>
-        <select id="cigarette_smoking" name="cigarette_smoking">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="bidi_smoking">Bidi Smoking</label>
-        <select id="bidi_smoking" name="bidi_smoking">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="reverse_smoking">Reverse Smoking</label>
-        <select id="reverse_smoking" name="reverse_smoking">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="electronic_cigarette">Electronic Cigarette</label>
-        <select id="electronic_cigarette" name="electronic_cigarette">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field"><label for="smoking_duration_years">Smoking Duration (Years)</label><input id="smoking_duration_years" name="smoking_duration_years" type="number" min="0" step="1"></div>
-      <div class="field"><label for="smoking_frequency_per_day">Smoking Frequency / Day</label><input id="smoking_frequency_per_day" name="smoking_frequency_per_day" type="number" min="0" step="1"></div>
-    </div>
-  </div>
-</div>
-<!-- ================= 3. CHEWING HABITS ================= -->
-<div class="card">
-  <h2 class="section-title"><span>3</span> Chewing Habits</h2>
-  <div class="field" style="max-width:360px">
-    <label for="chewing">Any Chewing Habits? <b class="required">*</b></label>
-    <select id="chewing" name="any_chewing_habits" required>
-      <option value="">Select</option>
-      <option value="Yes">Yes</option>
-      <option value="No">No</option>
-    </select>
-  </div>
-  <div id="chewingFields" class="subsection hidden">
-    <div class="grid">
-      <div class="field">
-        <label for="tobacco_chewing">Tobacco Chewing</label>
-        <select id="tobacco_chewing" name="tobacco_chewing">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="gutkha">Gutkha</label>
-        <select id="gutkha" name="gutkha">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="khaini">Khaini</label>
-        <select id="khaini" name="khaini">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="snuff">Snuff</label>
-        <select id="snuff" name="snuff">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="mawa">Mawa</label>
-        <select id="mawa" name="mawa">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="tobacco_containing_tooth_powder">Tobacco Tooth Powder</label>
-        <select id="tobacco_containing_tooth_powder" name="tobacco_containing_tooth_powder">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="betel_nut_chewing">Betel Nut Chewing</label>
-        <select id="betel_nut_chewing" name="betel_nut_chewing">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="betel_quid_consumption">Betel Quid Consumption</label>
-        <select id="betel_quid_consumption" name="betel_quid_consumption">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- ================= 4. ALCOHOL ================= -->
-<div class="card">
-  <h2 class="section-title"><span>4</span> Alcohol</h2>
-  <div class="field" style="max-width:360px">
-    <label for="alcohol">Alcohol? <b class="required">*</b></label>
-    <select id="alcohol" name="alcohol" required>
-      <option value="">Select</option>
-      <option value="Yes">Yes</option>
-      <option value="No">No</option>
-    </select>
-  </div>
-  <div id="alcoholFields" class="subsection hidden">
-    <div class="grid">
-      <div class="field"><label for="alcohol_duration_years">Duration (Years)</label><input id="alcohol_duration_years" name="alcohol_duration_years" type="number" min="0"></div>
-      <div class="field">
-        <label for="alcohol_frequency">Frequency</label>
-        <select id="alcohol_frequency" name="alcohol_frequency">
-          <option value="">Select</option>
-          <option value="Occasional">Occasional</option>
-          <option value="Weekly">Weekly</option>
-          <option value="Daily">Daily</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="alcohol_quantity">Quantity / Day</label>
-        <select id="alcohol_quantity" name="alcohol_quantity">
-          <option value="">Select</option>
-          <option value="1 Unit">1 Unit</option>
-          <option value="2 Units">2 Units</option>
-          <option value="3 Units">3 Units</option>
-          <option value="4+ Units">4+ Units</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="habit_combination">Habit Combination</label>
-        <select id="habit_combination" name="habit_combination">
-          <option value="">Select</option>
-          <option value="Alcohol only">Alcohol only</option>
-          <option value="Alcohol + Smoking">Alcohol + Smoking</option>
-          <option value="Alcohol + Chewing">Alcohol + Chewing</option>
-          <option value="Alcohol + Smoking + Chewing">Alcohol + Smoking + Chewing</option>
-        </select>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- ================= 5. MEDICAL HISTORY ================= -->
-<div class="card">
-  <h2 class="section-title"><span>5</span> Medical & Oral History</h2>
-  <div class="grid">
-    <div class="field">
-      <label for="diabetes_mellitus">Diabetes Mellitus</label>
-      <select id="diabetes_mellitus" name="diabetes_mellitus">
-        <option value="">Select</option>
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="hypertension">Hypertension</label>
-      <select id="hypertension" name="hypertension">
-        <option value="">Select</option>
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="hiv_infection">HIV Infection</label>
-      <select id="hiv_infection" name="hiv_infection">
-        <option value="">Select</option>
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="tuberculosis">Tuberculosis</label>
-      <select id="tuberculosis" name="tuberculosis">
-        <option value="">Select</option>
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="bronchial_asthma">Bronchial Asthma</label>
-      <select id="bronchial_asthma" name="bronchial_asthma">
-        <option value="">Select</option>
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="previous_oral_diseases">Previous Oral Diseases</label>
-      <select id="previous_oral_diseases" name="previous_oral_diseases">
-        <option value="">Select</option>
-        <option value="None">None</option>
-        <option value="Periodontitis">Periodontitis</option>
-        <option value="Leukoplakia">Leukoplakia</option>
-        <option value="Keratosis">Keratosis</option>
-        <option value="OSMF">OSMF</option>
-      </select>
-    </div>
-    <div class="field full">
-      <label for="other_systemic_diseases">Other Systemic Diseases & Clinical Notes</label>
-      <input id="other_systemic_diseases" name="other_systemic_diseases" placeholder="Enter clinical notes...">
-    </div>
-  </div>
-</div>
-<!-- ================= 6. SYMPTOMS & ANATOMICAL LESION MAP ================= -->
-<div class="card">
-  <h2 class="section-title"><span>6</span> Symptoms & Interactive Lesion Mapping</h2>
-  <div class="grid">
-    <div class="field">
-      <label for="pain_presence">Pain Presence</label>
-      <select id="pain_presence" name="pain_presence">
-        <option value="">Select</option>
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="swelling">Swelling <b class="required">*</b></label>
-      <select id="swelling" name="swelling" required>
-        <option value="">Select</option>
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-      </select>
-    </div>
-  </div>
-  <div id="swellingFields" class="subsection hidden">
-    <div class="grid" style="margin-bottom: 24px;">
-      <div class="field">
-        <label for="burning_sensation">Burning Sensation</label>
-        <select id="burning_sensation" name="burning_sensation">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="bleeding_gums">Bleeding Gums</label>
-        <select id="bleeding_gums" name="bleeding_gums">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="ulcer_less">Ulcer Less Than 2 Weeks</label>
-        <select id="ulcer_less" name="ulcer_less_than_2_weeks">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="ulcer_greater">Ulcer Greater Than 2 Weeks</label>
-        <select id="ulcer_greater" name="ulcer_greater_than_2_weeks">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-    </div>
-    <!-- ANATOMICAL SCULPTURE CANVAS -->
-    <div class="subsection">
-      <h3 style="margin:0 0 6px;font-size:15px;">Interactive Anatomical Mouth Sculptor</h3>
-      <p class="hint" style="margin-bottom:12px;">Click directly on the interactive diagram to accurately record the normalized location coordinates (X%, Y%).</p>
-      
-      <div class="anatomy-container">
-        <div class="canvas-wrapper" id="canvasContainer">
-          <canvas id="mouthCanvas" width="360" height="360"></canvas>
-          <div id="pointerPin" class="pointer-pin hidden"></div>
-        </div>
-        <div class="grid" style="grid-template-columns: 1fr 1fr;">
-          <div class="field">
-            <label for="lesion_location">Lesion Location</label>
-            <select id="lesion_location" name="lesion_location">
-              <option value="">Select / Click Map</option>
-              <option value="Buccal Mucosa (L)">Buccal Mucosa (L)</option>
-              <option value="Buccal Mucosa (R)">Buccal Mucosa (R)</option>
-              <option value="Tongue">Tongue</option>
-              <option value="Gingiva">Gingiva</option>
-              <option value="Hard Palate">Hard Palate</option>
-              <option value="Floor of Mouth">Floor of Mouth</option>
-              <option value="Lower Lip">Lower Lip</option>
-              <option value="Upper Lip">Upper Lip</option>
-            </select>
-          </div>
-          <div class="field"><label for="lesion_position_coords">Lesion Position (X %, Y %)</label><input id="lesion_position_coords" name="lesion_position_coords" readonly placeholder="Click diagram"></div>
-          <div class="field">
-            <label for="lesion_color">Lesion Color</label>
-            <select id="lesion_color" name="lesion_color">
-              <option value="">Select</option>
-              <option value="White">White</option>
-              <option value="Red">Red</option>
-              <option value="Red-White">Red-White</option>
-              <option value="Normal">Normal</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="lesion_shape">Lesion Shape</label>
-            <select id="lesion_shape" name="lesion_shape">
-              <option value="">Select</option>
-              <option value="Irregular">Irregular</option>
-              <option value="Ill-defined">Ill-defined</option>
-              <option value="Regular">Regular</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="lesion_surface_characteristics">Surface Characteristics</label>
-            <select id="lesion_surface_characteristics" name="lesion_surface_characteristics">
-              <option value="">Select</option>
-              <option value="Smooth">Smooth</option>
-              <option value="Rough">Rough</option>
-              <option value="Ulcerated">Ulcerated</option>
-              <option value="Nodular">Nodular</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="lesion_texture">Lesion Texture</label>
-            <select id="lesion_texture" name="lesion_texture">
-              <option value="">Select</option>
-              <option value="Soft">Soft</option>
-              <option value="Firm">Firm</option>
-              <option value="Indurated">Indurated</option>
-            </select>
-          </div>
-          <div class="field"><label for="lesion_length_mm">Lesion Length (mm)</label><input id="lesion_length_mm" name="lesion_length_mm" type="number" min="0" step="0.1"></div>
-          <div class="field"><label for="lesion_width_mm">Lesion Width (mm)</label><input id="lesion_width_mm" name="lesion_width_mm" type="number" min="0" step="0.1"></div>
-          <div class="field"><label for="lesion_maximum_diameter_mm">Maximum Diameter (mm)</label><input id="lesion_maximum_diameter_mm" name="lesion_maximum_diameter_mm" type="number" min="0" step="0.1"></div>
-          <div class="field">
-            <label for="lesion_extension">Lesion Extension</label>
-            <select id="lesion_extension" name="lesion_extension">
-              <option value="">Select</option>
-              <option value="Localized">Localized</option>
-              <option value="Adjacent Tissue">Adjacent Tissue</option>
-              <option value="Multiple Areas">Multiple Areas</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- DENTAL CHART QUICK-SELECT -->
-    <div class="subsection">
-      <label style="margin-bottom: 8px; display: block;">Associated Affected Teeth (FDI Notation)</label>
-      <div class="dental-arch-selector" id="dentalArchSelector"></div>
-      <input type="hidden" id="affected_teeth" name="affected_teeth" value="">
-    </div>
-    <!-- ULCER SYMPTOMS -->
-    <div id="ulcerSymptoms" class="subsection hidden">
-      <div class="grid">
-        <div class="field">
-          <label for="halitosis">Halitosis</label>
-          <select id="halitosis" name="halitosis">
-            <option value="">Select</option>
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="mobility_of_associated_teeth">Mobility of Associated Teeth</label>
-          <select id="mobility_of_associated_teeth" name="mobility_of_associated_teeth">
-            <option value="">Select</option>
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="loss_of_appetite">Loss of Appetite</label>
-          <select id="loss_of_appetite" name="loss_of_appetite">
-            <option value="">Select</option>
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="weight_loss">Weight Loss</label>
-          <select id="weight_loss" name="weight_loss">
-            <option value="">Select</option>
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- ================= 7. EXAMINATION & LYMPH NODES ================= -->
-<div class="card">
-  <h2 class="section-title"><span>7</span> Examination & Lymph Nodes</h2>
-  <div class="grid">
-    <div class="field">
-      <label for="inter_incisal_distance_mm">Inter-Incisal Distance (mm)</label>
-      <input id="inter_incisal_distance_mm" name="inter_incisal_distance_mm" type="number" min="0" step="1" placeholder="e.g. 35">
-    </div>
-    <div class="field">
-      <label for="mouth_opening_assessment">Mouth Opening Assessment</label>
-      <select id="mouth_opening_assessment" name="mouth_opening_assessment">
-        <option value="">Select</option>
-        <option value="<2 cm">&lt;2 cm</option>
-        <option value="2-4 cm">2-4 cm</option>
-        <option value=">4 cm">&gt;4 cm</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="ln_pal">Regional Lymph Node Palpability</label>
-      <select id="ln_pal" name="regional_lymph_node_palpability">
-        <option value="">Select</option>
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-      </select>
-    </div>
-  </div>
-  <div id="lnFields" class="subsection hidden">
-    <div class="grid">
-      <div class="field">
-        <label for="lymph_node_involvement">Involvement</label>
-        <select id="lymph_node_involvement" name="lymph_node_involvement">
-          <option value="">Select</option>
-          <option value="Single">Single</option>
-          <option value="Multiple">Multiple</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="lymph_node_laterality">Laterality</label>
-        <select id="lymph_node_laterality" name="lymph_node_laterality">
-          <option value="">Select</option>
-          <option value="Unilateral">Unilateral</option>
-          <option value="Bilateral">Bilateral</option>
-        </select>
-      </div>
-      <div class="field"><label for="regional_lymph_node_number">Node Number</label><input id="regional_lymph_node_number" name="regional_lymph_node_number" type="number" min="1"></div>
-      <div class="field">
-        <label for="regional_lymph_node_consistency">Consistency</label>
-        <select id="regional_lymph_node_consistency" name="regional_lymph_node_consistency">
-          <option value="">Select</option>
-          <option value="Soft">Soft</option>
-          <option value="Firm">Firm</option>
-          <option value="Hard">Hard</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="regional_lymph_node_mobility">Mobility</label>
-        <select id="regional_lymph_node_mobility" name="regional_lymph_node_mobility">
-          <option value="">Select</option>
-          <option value="Mobile">Mobile</option>
-          <option value="Fixed">Fixed</option>
-        </select>
-      </div>
-      <div class="field"><label for="regional_lymph_node_size_mm">Size (mm)</label><input id="regional_lymph_node_size_mm" name="regional_lymph_node_size_mm" type="number" min="0" step="1"></div>
-      <div class="field">
-        <label for="regional_lymph_node_shape">Shape</label>
-        <select id="regional_lymph_node_shape" name="regional_lymph_node_shape">
-          <option value="">Select</option>
-          <option value="Oval">Oval</option>
-          <option value="Round">Round</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="regional_lymph_node_tenderness">Tenderness</label>
-        <select id="regional_lymph_node_tenderness" name="regional_lymph_node_tenderness">
-          <option value="">Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- ================= SAVE & ACTIONS ================= -->
-<div class="card">
-  <div class="actions">
-    <button type="reset" class="btn secondary" onclick="resetFormState()">Reset Form</button>
-    <button id="submitBtn" type="submit" class="btn primary">Save Assessment</button>
-  </div>
-  <div id="status" class="status"></div>
-</div>
-</form>
+  </section>
+
 </div>
 
-<!-- Listening indicator -->
-<div id="listeningBadge" class="listening-badge">
-  <span class="dot"></span>
-  Listening… Speak clearly
+<!-- Patient Detail Inspection Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalPatientTitle" style="font-size: 15px; font-weight: 600;">Patient Case File</h3>
+      <button class="btn secondary sm" onclick="closeModal()">✕ Close</button>
+    </div>
+    <div class="detail-grid" id="modalBody"></div>
+  </div>
 </div>
+
+<!-- Footer -->
+<footer class="app-footer">
+  <div class="footer-content">
+    <div>Copyright © 2026 Nakul Dhande. All Rights Reserved.</div>
+    <div class="footer-credits">Developed in collaboration with Team Shantanu Marathe, Hardik Kunte, Chinmay Ashtankar</div>
+  </div>
+</footer>
 
 <script>
-const $ = id => document.getElementById(id);
-let activeTeeth = new Set();
-let isAutoDictating = false;
-let currentField = null;
-let recognition = null;
-let retryCount = 0;
-const MAX_RETRIES = 2;
+let rawRecords = [];
 
-/* =========================================
-   UNIVERSAL SEQUENTIAL AUTO-DICTATION FLOW
-   (Skips all <select> fields – only text / number inputs)
-========================================= */
-function getEmptyFieldsSequence() {
-  // Only text and number inputs – completely skip every <select>
-  const inputs = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([readonly])'));
-  return inputs.filter(input => {
-    const fieldContainer = input.closest('.subsection');
-    if (fieldContainer && fieldContainer.classList.contains('hidden')) {
-      return false;
-    }
-    return input.value.trim() === "";
-  });
+function getAppConfig() {
+  if (typeof CONFIG !== 'undefined') return CONFIG;
+  if (typeof window.CONFIG !== 'undefined') return window.CONFIG;
+  throw new Error('CONFIG object missing in config/config.js');
 }
 
-function toggleAutoDictationFlow() {
-  if (isAutoDictating) {
-    stopAutoDictation();
-  } else {
-    startNextDictationStep();
-  }
-}
-
-function startNextDictationStep() {
-  const emptyFields = getEmptyFieldsSequence();
-  const btn = $('masterDictationBtn');
-
-  if (emptyFields.length === 0) {
-    speakText("All dictatable fields are currently filled.");
-    stopAutoDictation();
-    return;
-  }
-
-  isAutoDictating = true;
-  btn.classList.add('active');
-  btn.textContent = '⏹ Stop Auto-Dictation';
-  retryCount = 0;
-
-  if (currentField) {
-    currentField.classList.remove('dictating-active');
-  }
-
-  currentField = emptyFields[0];
-  currentField.focus();
-  currentField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  currentField.classList.add('dictating-active');
-
-  const labelEl = document.querySelector(`label[for="${currentField.id}"]`) || currentField.closest('.field')?.querySelector('label');
-  const labelName = labelEl ? labelEl.innerText.replace('*', '').trim() : 'this field';
-
-  speakText(`Please say ${labelName}`, () => {
-    listenForFieldInput(currentField);
-  });
-}
-
-function listenForFieldInput(element) {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Voice recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.');
-    stopAutoDictation();
-    return;
-  }
-
-  // Clean up any previous instance
-  if (recognition) {
-    try { recognition.abort(); } catch (e) {}
-    recognition = null;
-  }
-
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
-  recognition.lang = 'en-US';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 3;
-  recognition.continuous = false;
-
-  showListeningBadge(true);
-
-  recognition.onresult = function(event) {
-    showListeningBadge(false);
-    const transcript = event.results[0][0].transcript.trim();
-
-    // Number fields – extract digits if possible
-    if (element.type === 'number') {
-      const numMatch = transcript.match(/(\d+(\.\d+)?)/);
-      element.value = numMatch ? numMatch[1] : transcript;
-    } else {
-      element.value = transcript;
-    }
-
-    element.dispatchEvent(new Event('change', { bubbles: true }));
-    element.dispatchEvent(new Event('input', { bubbles: true }));
-    retryCount = 0;
-
-    if (isAutoDictating) {
-      setTimeout(() => {
-        startNextDictationStep();
-      }, 450);
-    }
-  };
-
-  recognition.onerror = function(event) {
-    showListeningBadge(false);
-    if (event.error === 'aborted') return;
-    if (event.error === 'no-speech' || event.error === 'audio-capture' || event.error === 'network') {
-      handleNoResult(element);
-    } else {
-      console.warn('Speech recognition error:', event.error);
-      if (isAutoDictating) {
-        speakText("Sorry, I could not hear that. Moving to the next field.");
-        setTimeout(() => startNextDictationStep(), 800);
-      }
-    }
-  };
-
-  recognition.onend = function() {
-    showListeningBadge(false);
-    // If we still have no value and we are supposed to be dictating, retry
-    if (isAutoDictating && currentField === element && (!element.value || element.value.trim() === "")) {
-      handleNoResult(element);
-    }
-  };
-
+async function fetchRecords() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:var(--text-muted)">Fetching clinical assessments...</td></tr>';
+  
   try {
-    recognition.start();
-  } catch (err) {
-    console.warn(err);
-    showListeningBadge(false);
-    handleNoResult(element);
-  }
-}
-
-function handleNoResult(element) {
-  if (!isAutoDictating) return;
-  retryCount++;
-  if (retryCount <= MAX_RETRIES) {
-    speakText("I didn't catch that. Please try again.", () => {
-      listenForFieldInput(element);
+    const cfg = getAppConfig();
+    const response = await fetch(`${cfg.SUPABASE_URL}/rest/v1/oral_clinical_assessments?select=*&order=created_at.desc`, {
+      method: 'GET',
+      headers: {
+        'apikey': cfg.SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${cfg.SUPABASE_ANON_KEY}`
+      }
     });
-  } else {
-    retryCount = 0;
-    speakText("Skipping this field.");
-    setTimeout(() => startNextDictationStep(), 600);
+
+    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+
+    rawRecords = await response.json();
+    updateMetrics(rawRecords);
+    renderTable(rawRecords);
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:40px; color:var(--danger)">Error loading registry data: ${err.message}</td></tr>`;
   }
 }
 
-function speakText(text, onEndCallback) {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.95;
-    utterance.pitch = 1;
-    if (onEndCallback) {
-      utterance.onend = onEndCallback;
+function updateMetrics(data) {
+  document.getElementById('mTotal').textContent = data.length;
+  document.getElementById('mLesions').textContent = data.filter(d => (d.swelling || '').toLowerCase() === 'yes' || (d.swelling || '').toLowerCase() === 'true').length;
+  document.getElementById('mHabits').textContent = data.filter(d => (d.smoking || '').toLowerCase() === 'yes' || (d.any_chewing_habits || '').toLowerCase() === 'yes' || (d.alcohol || '').toLowerCase() === 'yes').length;
+  document.getElementById('mLymph').textContent = data.filter(d => (d.regional_lymph_node_palpability || '').toLowerCase().includes('palpable') && !(d.regional_lymph_node_palpability || '').toLowerCase().includes('non')).length;
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:var(--text-muted)">No matching clinical assessments found.</td></tr>';
+    return;
+  }
+
+  data.forEach((p, idx) => {
+    const tr = document.createElement('tr');
+    
+    const isSwelling = (p.swelling || '').toLowerCase() === 'yes' || (p.swelling || '').toLowerCase() === 'true';
+    const isLymph = (p.regional_lymph_node_palpability || '').toLowerCase().includes('palpable') && !(p.regional_lymph_node_palpability || '').toLowerCase().includes('non');
+    
+    let habitsSummary = [];
+    if ((p.smoking || '').toLowerCase() === 'yes') habitsSummary.push('Smoking');
+    if ((p.any_chewing_habits || '').toLowerCase() === 'yes') habitsSummary.push('Chewing');
+
+    // Build location string and map link if coordinates exist
+    let locationText = p.patient_location || p.address || '-';
+    if (p.latitude && p.longitude) {
+      const googleMapsUrl = `https://www.google.com/maps?q=${p.latitude},${p.longitude}`;
+      locationText = `${escapeHtml(locationText)} <a href="${googleMapsUrl}" target="_blank" class="map-link">📍 Map</a>`;
+    } else {
+      locationText = escapeHtml(locationText);
     }
-    window.speechSynthesis.speak(utterance);
-  } else if (onEndCallback) {
-    onEndCallback();
-  }
-}
-
-function stopAutoDictation() {
-  isAutoDictating = false;
-  retryCount = 0;
-  showListeningBadge(false);
-
-  if (recognition) {
-    try { recognition.abort(); } catch (e) {}
-    recognition = null;
-  }
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-  }
-  if (currentField) {
-    currentField.classList.remove('dictating-active');
-    currentField = null;
-  }
-  const btn = $('masterDictationBtn');
-  btn.classList.remove('active');
-  btn.textContent = '🎙 Start Auto-Dictation Flow';
-}
-
-function showListeningBadge(show) {
-  const badge = $('listeningBadge');
-  if (show) badge.classList.add('visible');
-  else badge.classList.remove('visible');
-}
-
-/* =========================================
-   ANATOMICAL SCULPTOR (CANVAS DRAWING)
-========================================= */
-function initMouthCanvas() {
-  const canvas = $('mouthCanvas');
-  const ctx = canvas.getContext('2d');
-  
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // Outer mouth shape
-  ctx.fillStyle = '#1e293b';
-  ctx.beginPath();
-  ctx.ellipse(180, 180, 150, 130, 0, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.strokeStyle = '#3b82f6';
-  ctx.lineWidth = 3;
-  ctx.stroke();
-
-  // Lips
-  ctx.fillStyle = '#334155';
-  ctx.beginPath();
-  ctx.ellipse(180, 70, 100, 25, 0, 0, Math.PI);
-  ctx.ellipse(180, 290, 100, 25, 0, 0, Math.PI, true);
-  ctx.fill();
-
-  // Hard palate area
-  ctx.fillStyle = '#0f172a';
-  ctx.beginPath();
-  ctx.arc(180, 130, 70, 0, Math.PI, true);
-  ctx.fill();
-
-  // Tongue
-  ctx.fillStyle = '#1e1b4b';
-  ctx.beginPath();
-  ctx.ellipse(180, 210, 65, 50, 0, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.strokeStyle = '#60a5fa';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  // Labels
-  ctx.fillStyle = '#94a3b8';
-  ctx.font = '12px Plus Jakarta Sans';
-  ctx.fillText('Hard Palate', 150, 120);
-  ctx.fillText('Tongue', 160, 215);
-  ctx.fillText('Buccal (L)', 45, 185);
-  ctx.fillText('Buccal (R)', 255, 185);
-  ctx.fillText('Lower Lip', 155, 295);
-}
-
-$('canvasContainer').addEventListener('click', function(e) {
-  const rect = this.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  
-  const pctX = ((x / rect.width) * 100).toFixed(1);
-  const pctY = ((y / rect.height) * 100).toFixed(1);
-  const pin = $('pointerPin');
-  pin.style.left = `${pctX}%`;
-  pin.style.top = `${pctY}%`;
-  pin.classList.remove('hidden');
-  $('lesion_position_coords').value = `X: ${pctX}%, Y: ${pctY}%`;
-
-  if (pctY < 25) $('lesion_location').value = 'Upper Lip';
-  else if (pctY > 75) $('lesion_location').value = 'Lower Lip';
-  else if (pctX < 30) $('lesion_location').value = 'Buccal Mucosa (L)';
-  else if (pctX > 70) $('lesion_location').value = 'Buccal Mucosa (R)';
-  else if (pctY >= 50 && pctY <= 75) $('lesion_location').value = 'Tongue';
-  else if (pctY >= 25 && pctY < 50) $('lesion_location').value = 'Hard Palate';
-  
-  evaluateRisk();
-});
-
-/* =========================================
-   DENTAL CHARTING QUICK-SELECT (FDI)
-========================================= */
-function initDentalChart() {
-  const container = $('dentalArchSelector');
-  const teeth = [
-    18,17,16,15,14,13,12,11, 21,22,23,24,25,26,27,28,
-    48,47,46,45,44,43,42,41, 31,32,33,34,35,36,37,38
-  ];
-  container.innerHTML = '';
-  teeth.forEach(t => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'tooth-btn';
-    btn.textContent = t;
-    btn.onclick = () => toggleTooth(t, btn);
-    container.appendChild(btn);
+    
+    tr.innerHTML = `
+      <td><strong>${escapeHtml(p.patient_id || '-')}</strong></td>
+      <td>${escapeHtml(p.patient_name || '-')}</td>
+      <td>${escapeHtml(p.age || '-')} / ${escapeHtml(p.sex || '-')}</td>
+      <td>${escapeHtml(p.opd_number || '-')}</td>
+      <td>${locationText}</td>
+      <td>${habitsSummary.length > 0 ? habitsSummary.join(', ') : 'None'}</td>
+      <td>${isSwelling ? '<span class="badge danger">Yes</span>' : '<span class="badge success">No</span>'}</td>
+      <td>${isLymph ? '<span class="badge warning">Palpable</span>' : '<span class="badge success">Normal</span>'}</td>
+      <td><button class="btn secondary sm" onclick="viewDetails(${idx})">Inspect</button></td>
+    `;
+    tbody.appendChild(tr);
   });
 }
 
-function toggleTooth(toothNumber, btn) {
-  if (activeTeeth.has(toothNumber)) {
-    activeTeeth.delete(toothNumber);
-    btn.classList.remove('selected');
-  } else {
-    activeTeeth.add(toothNumber);
-    btn.classList.add('selected');
+function applyFilters() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const riskFilter = document.getElementById('filterRisk').value;
+
+  const filtered = rawRecords.filter(p => {
+    const matchSearch = 
+      (p.patient_id && p.patient_id.toLowerCase().includes(query)) ||
+      (p.patient_name && p.patient_name.toLowerCase().includes(query)) ||
+      (p.opd_number && p.opd_number.toLowerCase().includes(query)) ||
+      (p.patient_location && p.patient_location.toLowerCase().includes(query)) ||
+      (p.lesion_location && p.lesion_location.toLowerCase().includes(query));
+
+    let matchRisk = true;
+    if (riskFilter === 'HIGH_RISK') {
+      const isSwelling = (p.swelling || '').toLowerCase() === 'yes';
+      const isLymph = (p.regional_lymph_node_palpability || '').toLowerCase().includes('palpable');
+      matchRisk = isSwelling && isLymph;
+    } else if (riskFilter === 'HABITS') {
+      matchRisk = (p.smoking || '').toLowerCase() === 'yes' || (p.any_chewing_habits || '').toLowerCase() === 'yes' || (p.alcohol || '').toLowerCase() === 'yes';
+    } else if (riskFilter === 'ULCER') {
+      matchRisk = (p.ulcer_greater_than_2_weeks || '').toLowerCase() === 'yes';
+    } else if (riskFilter === 'HAS_MAP') {
+      matchRisk = !!(p.patient_location || p.latitude || p.longitude);
+    }
+
+    return matchSearch && matchRisk;
+  });
+
+  renderTable(filtered);
+}
+
+function viewDetails(index) {
+  const p = rawRecords[index];
+  if (!p) return;
+
+  document.getElementById('modalPatientTitle').textContent = `Assessment Details: ${p.patient_name || 'Patient'} (${p.patient_id || 'N/A'})`;
+  const container = document.getElementById('modalBody');
+  container.innerHTML = '';
+
+  let mapElement = p.patient_location || p.address || 'N/A';
+  if (p.latitude && p.longitude) {
+    const mapsUrl = `https://www.google.com/maps?q=${p.latitude},${p.longitude}`;
+    mapElement += ` — <a href="${mapsUrl}" target="_blank" class="map-link">📍 View on Google Maps (${p.latitude}, ${p.longitude})</a>`;
   }
-  $('affected_teeth').value = Array.from(activeTeeth).join(', ');
+
+  const fields = [
+    ['OPD Number', p.opd_number],
+    ['Age / Sex', `${p.age || '-'} / ${p.sex || '-'}`],
+    ['Patient Address / Map Location', mapElement, true],
+    ['Smoking Habits', `${p.smoking || 'No'} (Duration: ${p.smoking_duration_years || 0} yrs)`],
+    ['Chewing Habits', p.any_chewing_habits],
+    ['Alcohol Consumption', `${p.alcohol || 'No'} (${p.alcohol_frequency || 'N/A'})`],
+    ['Ulcer > 2 Weeks', p.ulcer_greater_than_2_weeks],
+    ['Swelling Present', p.swelling],
+    ['Lesion Anatomical Site', p.lesion_location],
+    ['Lesion Color / Shape', `${p.lesion_color || '-'} / ${p.lesion_shape || '-'}`],
+    ['Max Diameter (cm)', p.lesion_maximum_diameter_cm],
+    ['Mouth Opening Status', p.mouth_opening_assessment],
+    ['Lymph Node Status', p.regional_lymph_node_palpability],
+    ['Lymph Node Size (mm)', p.regional_lymph_node_size_mm],
+    ['Systemic History', `${(p.diabetes_mellitus || '').toLowerCase() === 'yes' ? 'Diabetes ' : ''}${(p.hypertension || '').toLowerCase() === 'yes' ? 'Hypertension' : 'None'}`]
+  ];
+
+  fields.forEach(([label, val, isFullWidth]) => {
+    const item = document.createElement('div');
+    item.className = `detail-item ${isFullWidth ? 'full-width' : ''}`;
+    item.innerHTML = `<span>${label}</span><strong>${val || 'N/A'}</strong>`;
+    container.appendChild(item);
+  });
+
+  document.getElementById('detailModal').style.display = 'flex';
 }
 
-/* =========================================
-   AUTOMATED RISK ASSESSMENT ENGINE
-========================================= */
-function evaluateRisk() {
-  let score = 0;
-  if ($('smoking').value === 'Yes') score += 1;
-  if ($('chewing').value === 'Yes') score += 2;
-  if ($('alcohol').value === 'Yes') score += 1;
-  if ($('ulcer_greater').value === 'Yes') score += 3;
-  if ($('lesion_texture').value === 'Indurated') score += 3;
-  
-  const diameter = parseFloat($('lesion_maximum_diameter_mm').value) || 0;
-  if (diameter > 20) score += 2;
-  if ($('ln_pal').value === 'Yes') score += 2;
-  if ($('regional_lymph_node_mobility').value === 'Fixed') score += 3;
-
-  const display = $('riskLevelDisplay');
-  if (score >= 7) {
-    display.textContent = 'HIGH / SUSPICIOUS';
-    display.style.color = 'var(--danger)';
-  } else if (score >= 4) {
-    display.textContent = 'MODERATE RISK';
-    display.style.color = 'var(--warning)';
-  } else {
-    display.textContent = 'LOW RISK';
-    display.style.color = 'var(--success)';
-  }
-
-  const dist = parseFloat($('inter_incisal_distance_mm').value);
-  const osmfDisplay = $('osmfStageDisplay');
-  if (!isNaN(dist) && dist > 0) {
-    if (dist < 15) osmfDisplay.textContent = 'OSMF Grade IV (< 15mm)';
-    else if (dist < 25) osmfDisplay.textContent = 'OSMF Grade III (15-25mm)';
-    else if (dist < 35) osmfDisplay.textContent = 'OSMF Grade II (25-35mm)';
-    else osmfDisplay.textContent = 'OSMF Grade I / Normal (> 35mm)';
-  } else {
-    osmfDisplay.textContent = 'OSMF Stage: Normal';
-  }
+function closeModal() {
+  document.getElementById('detailModal').style.display = 'none';
 }
 
-/* =========================================
-   FORM LOGIC & CONDITIONAL SYNCHRONIZATION
-========================================= */
-function sync() {
-  toggle('smokingFields', $('smoking').value === 'Yes');
-  toggle('chewingFields', $('chewing').value === 'Yes');
-  toggle('alcoholFields', $('alcohol').value === 'Yes');
-  const swelling = $('swelling').value === 'Yes';
-  toggle('swellingFields', swelling);
-  const ulcer = swelling && ($('ulcer_less').value === 'Yes' || $('ulcer_greater').value === 'Yes');
-  toggle('ulcerSymptoms', ulcer);
-  toggle('lnFields', $('ln_pal').value === 'Yes');
-  evaluateRisk();
+function escapeHtml(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function toggle(id, show) {
-  const el = $(id);
-  if (el) el.classList.toggle('hidden', !show);
-}
-
-function resetFormState() {
-  stopAutoDictation();
-  activeTeeth.clear();
-  document.querySelectorAll('.tooth-btn').forEach(btn => btn.classList.remove('selected'));
-  $('pointerPin').classList.add('hidden');
-  $('status').className = 'status';
-  $('status').textContent = '';
-  setTimeout(sync, 10);
-}
-
-function handleFormSubmit(e) {
-  e.preventDefault();
-  stopAutoDictation();
-  const formData = new FormData(e.target);
-  const data = Object.fromEntries(formData.entries());
-  
-  const status = $('status');
-  status.className = 'status ok';
-  status.textContent = `Assessment successfully stored for Patient: ${data.patient_name} (${data.patient_id}). Recorded risk level: ${$('riskLevelDisplay').textContent}.`;
-  
-  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-}
-
-document.querySelectorAll('select, input').forEach(el => {
-  el.addEventListener('change', sync);
-  el.addEventListener('input', evaluateRisk);
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-  initMouthCanvas();
-  initDentalChart();
-  sync();
-});
+document.addEventListener('DOMContentLoaded', fetchRecords);
 </script>
+
 </body>
 </html>
