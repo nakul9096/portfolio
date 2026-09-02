@@ -902,9 +902,11 @@ const MAX_RETRIES = 2;
 
 /* =========================================
    UNIVERSAL SEQUENTIAL AUTO-DICTATION FLOW
+   (Skips all <select> fields – only text / number inputs)
 ========================================= */
 function getEmptyFieldsSequence() {
-  const inputs = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([readonly]), select'));
+  // Only text and number inputs – completely skip every <select>
+  const inputs = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([readonly])'));
   return inputs.filter(input => {
     const fieldContainer = input.closest('.subsection');
     if (fieldContainer && fieldContainer.classList.contains('hidden')) {
@@ -927,7 +929,7 @@ function startNextDictationStep() {
   const btn = $('masterDictationBtn');
 
   if (emptyFields.length === 0) {
-    speakText("All active fields are currently filled.");
+    speakText("All dictatable fields are currently filled.");
     stopAutoDictation();
     return;
   }
@@ -979,61 +981,23 @@ function listenForFieldInput(element) {
   recognition.onresult = function(event) {
     showListeningBadge(false);
     const transcript = event.results[0][0].transcript.trim();
-    let matched = false;
 
-    if (element.tagName === 'SELECT') {
-      const options = Array.from(element.options);
-      // Prefer exact / starts-with match, then includes
-      let best = options.find(opt =>
-        opt.text.toLowerCase() === transcript.toLowerCase() ||
-        opt.value.toLowerCase() === transcript.toLowerCase()
-      );
-      if (!best) {
-        best = options.find(opt =>
-          opt.text.toLowerCase().startsWith(transcript.toLowerCase()) ||
-          opt.value.toLowerCase().startsWith(transcript.toLowerCase())
-        );
-      }
-      if (!best) {
-        best = options.find(opt =>
-          opt.text.toLowerCase().includes(transcript.toLowerCase()) ||
-          opt.value.toLowerCase().includes(transcript.toLowerCase())
-        );
-      }
-      if (best && best.value !== "") {
-        element.value = best.value;
-        matched = true;
-      }
+    // Number fields – extract digits if possible
+    if (element.type === 'number') {
+      const numMatch = transcript.match(/(\d+(\.\d+)?)/);
+      element.value = numMatch ? numMatch[1] : transcript;
     } else {
-      // For number inputs try to extract digits
-      if (element.type === 'number') {
-        const numMatch = transcript.match(/(\d+(\.\d+)?)/);
-        if (numMatch) {
-          element.value = numMatch[1];
-          matched = true;
-        } else {
-          element.value = transcript;
-          matched = true;
-        }
-      } else {
-        element.value = transcript;
-        matched = true;
-      }
+      element.value = transcript;
     }
 
-    if (matched) {
-      element.dispatchEvent(new Event('change', { bubbles: true }));
-      element.dispatchEvent(new Event('input', { bubbles: true }));
-      retryCount = 0;
+    element.dispatchEvent(new Event('change', { bubbles: true }));
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+    retryCount = 0;
 
-      if (isAutoDictating) {
-        setTimeout(() => {
-          startNextDictationStep();
-        }, 450);
-      }
-    } else {
-      // No good match → retry
-      handleNoResult(element);
+    if (isAutoDictating) {
+      setTimeout(() => {
+        startNextDictationStep();
+      }, 450);
     }
   };
 
