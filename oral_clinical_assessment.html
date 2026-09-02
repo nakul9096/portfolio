@@ -7,6 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Load external configuration first -->
+<script src="config/config.js"></script>
+<!-- Load Supabase JS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -147,7 +151,6 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 4px rgba(96, 165, 250, .2);
 }
 
-/* Active Dictation Focus Style */
 .dictating-active {
   border-color: #ef4444 !important;
   box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35) !important;
@@ -931,7 +934,7 @@ input:focus, select:focus, textarea:focus {
 <!-- ================= SUPABASE CONFIG NOTICE ================= -->
 <div class="card" id="configNotice" style="display:none; border-color:#7f1d1d;">
   <div class="status error" style="display:block;">
-    Supabase is not configured yet. Open this file and set <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> near the top of the script section to your project's values (Project Settings &rarr; API in Supabase), then reload. Until then, "Save Assessment" cannot write to your database.
+    Supabase configuration missing or invalid. Please populate <code>config/config.js</code> with your project's <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code>.
   </div>
 </div>
 
@@ -949,20 +952,23 @@ input:focus, select:focus, textarea:focus {
 
 <script>
 /* =========================================
-   SUPABASE CONFIG — fill these in with your
-   project's values (Project Settings > API)
+   SUPABASE INITIALIZATION FROM CONFIG
 ========================================= */
-const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-
 let supabaseClient = null;
-if (window.supabase && SUPABASE_URL && SUPABASE_URL.startsWith('http') && SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} else {
-  document.addEventListener('DOMContentLoaded', () => {
+
+function initSupabase() {
+  const config = window.CONFIG || {};
+  const url = config.SUPABASE_URL;
+  const key = config.SUPABASE_ANON_KEY;
+
+  if (window.supabase && url && url.startsWith('http') && key && key !== 'YOUR_SUPABASE_ANON_KEY') {
+    supabaseClient = window.supabase.createClient(url, key);
+    const notice = document.getElementById('configNotice');
+    if (notice) notice.style.display = 'none';
+  } else {
     const notice = document.getElementById('configNotice');
     if (notice) notice.style.display = 'block';
-  });
+  }
 }
 
 const $ = id => document.getElementById(id);
@@ -1092,7 +1098,7 @@ function listenForFieldInput(element) {
 
   recognition.onerror = recognition.onend = function(e) {
     if (isAutoDictating && (!element.value || element.value === "")) {
-      // If no speech detected, prompt again or move forward
+      // Prompt again or handle end
     }
   };
 
@@ -1134,7 +1140,7 @@ function stopAutoDictation() {
 }
 
 /* =========================================
-   ANATOMICAL MOUTH MAP (realistic oral cavity)
+   ANATOMICAL MOUTH MAP
 ========================================= */
 function initMouthCanvas() {
   const canvas = $('mouthCanvas');
@@ -1143,7 +1149,6 @@ function initMouthCanvas() {
 
   ctx.clearRect(0, 0, W, H);
 
-  // Face / perioral skin background
   ctx.fillStyle = '#241a2e';
   ctx.beginPath();
   ctx.ellipse(cx, cy, 172, 150, 0, 0, 2 * Math.PI);
@@ -1152,13 +1157,11 @@ function initMouthCanvas() {
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Outer lips (upper + lower) drawn as a full lip ring behind the oral cavity
   ctx.fillStyle = '#a8465a';
   ctx.beginPath();
   ctx.ellipse(cx, cy, 148, 122, 0, 0, 2 * Math.PI);
   ctx.fill();
 
-  // Cupid's bow notch on upper lip
   ctx.strokeStyle = '#7f3346';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1166,7 +1169,6 @@ function initMouthCanvas() {
   ctx.quadraticCurveTo(cx, cy - 122 + 8, cx + 10, cy - 122 + 18);
   ctx.stroke();
 
-  // Oral cavity (dark interior)
   ctx.fillStyle = '#3a1219';
   ctx.beginPath();
   ctx.ellipse(cx, cy, 132, 106, 0, 0, 2 * Math.PI);
@@ -1175,7 +1177,6 @@ function initMouthCanvas() {
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Buccal mucosa shading, left & right inner cheeks
   ctx.fillStyle = 'rgba(74, 27, 35, 0.85)';
   ctx.beginPath();
   ctx.ellipse(cx - 100, cy, 46, 88, 0, 0, 2 * Math.PI);
@@ -1184,7 +1185,6 @@ function initMouthCanvas() {
   ctx.ellipse(cx + 100, cy, 46, 88, 0, 0, 2 * Math.PI);
   ctx.fill();
 
-  // Hard palate ridges (rugae)
   ctx.strokeStyle = 'rgba(201, 138, 149, 0.6)';
   ctx.lineWidth = 2;
   [ -75, -63, -51 ].forEach((offset, i) => {
@@ -1194,7 +1194,6 @@ function initMouthCanvas() {
     ctx.stroke();
   });
 
-  // Soft palate + uvula
   ctx.fillStyle = '#a8465a';
   ctx.beginPath();
   ctx.ellipse(cx, cy - 52, 16, 10, 0, 0, 2 * Math.PI);
@@ -1206,11 +1205,9 @@ function initMouthCanvas() {
   ctx.quadraticCurveTo(cx + 6, cy - 30, cx, cy - 46);
   ctx.fill();
 
-  // Upper & lower teeth arcs
   drawTeethArc(ctx, cx, cy - 72, 118, 10, true);
   drawTeethArc(ctx, cx, cy + 78, 118, 10, false);
 
-  // Gingiva strip behind teeth
   ctx.strokeStyle = 'rgba(194, 104, 125, 0.5)';
   ctx.lineWidth = 6;
   ctx.beginPath();
@@ -1222,7 +1219,6 @@ function initMouthCanvas() {
   ctx.quadraticCurveTo(cx, cy + 74, cx + 108, cy + 64);
   ctx.stroke();
 
-  // Tongue
   ctx.fillStyle = '#c1546a';
   ctx.beginPath();
   ctx.ellipse(cx, cy + 38, 78, 46, 0, Math.PI, 2 * Math.PI);
@@ -1234,7 +1230,6 @@ function initMouthCanvas() {
   ctx.lineTo(cx, cy + 38);
   ctx.stroke();
 
-  // Labels
   ctx.fillStyle = '#cbd5e1';
   ctx.font = '11px "Plus Jakarta Sans", sans-serif';
   ctx.textAlign = 'center';
@@ -1258,7 +1253,7 @@ function drawTeethArc(ctx, cx, archY, radius, count, isUpper) {
   for (let i = 0; i < count; i++) {
     const t = count === 1 ? 0.5 : i / (count - 1);
     const angle = startAngle + spread * t;
-    const centerOffset = Math.abs(t - 0.5) * 2; // 0 center -> 1 edge
+    const centerOffset = Math.abs(t - 0.5) * 2;
     const x = cx + radius * Math.sin(angle);
     const yOffset = isUpper ? centerOffset * centerOffset * 16 : -centerOffset * centerOffset * 14;
     const y = archY + yOffset;
@@ -1301,7 +1296,7 @@ $('canvasContainer').addEventListener('click', function(e) {
 });
 
 /* =========================================
-   DENTAL CHARTING QUICK-SELECT (FDI)
+   DENTAL CHARTING QUICK-SELECT
 ========================================= */
 function initDentalChart() {
   const container = $('dentalArchSelector');
@@ -1438,8 +1433,7 @@ function resetFormState() {
 }
 
 /* =========================================
-   PAYLOAD BUILDER — matches the Postgres
-   schema's column names and types exactly
+   PAYLOAD BUILDER & DATABASE SAVING
 ========================================= */
 const INT_FIELDS = [
   'age', 'smoking_duration_years', 'smoking_frequency_per_day',
@@ -1470,6 +1464,11 @@ function buildPayload() {
       payload[key] = trimmed;
     }
   }
+
+  // Calculate and store real-time computed outputs
+  payload.risk_level = $('riskLevelDisplay').textContent;
+  payload.osmf_stage = $('osmfStageDisplay').textContent;
+
   return payload;
 }
 
@@ -1484,7 +1483,7 @@ async function handleFormSubmit(e) {
 
   try {
     if (!supabaseClient) {
-      throw new Error('Supabase is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY at the top of the script.');
+      throw new Error('Supabase client is not initialized. Ensure config/config.js provides SUPABASE_URL and SUPABASE_ANON_KEY.');
     }
 
     const payload = buildPayload();
@@ -1496,7 +1495,7 @@ async function handleFormSubmit(e) {
     if (error) throw error;
 
     status.className = 'status ok';
-    status.textContent = `Assessment saved for ${payload.patient_name} (${payload.patient_id}). Risk level: ${$('riskLevelDisplay').textContent}.`;
+    status.textContent = `Assessment saved successfully for ${payload.patient_name} (${payload.patient_id}).`;
   } catch (err) {
     console.error('Save failed:', err);
     status.className = 'status error';
@@ -1514,6 +1513,7 @@ document.querySelectorAll('select, input').forEach(el => {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
+  initSupabase();
   initMouthCanvas();
   initDentalChart();
   sync();
