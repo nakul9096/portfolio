@@ -64,14 +64,13 @@ body {
 .hero h1 { margin: 0 0 8px; font-size: 30px; font-weight: 700; }
 .hero p { margin: 0; color: var(--text-muted); font-size: 15px; }
 
-/* Real-Time Risk Score Indicator */
 .risk-indicator-badge {
   background: #0f172a;
   border: 1px solid var(--border-color);
   padding: 16px 24px;
   border-radius: var(--radius-md);
   text-align: right;
-  min-width: 220px;
+  min-width: 240px;
 }
 
 .risk-level {
@@ -126,6 +125,7 @@ body {
 
 label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
 .required { color: var(--danger); }
+.hint { font-size: 12px; color: var(--text-muted); }
 
 input, select, textarea {
   width: 100%;
@@ -146,7 +146,6 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 4px rgba(96, 165, 250, .2);
 }
 
-/* Anatomical Sculptor Canvas */
 .anatomy-container {
   display: grid;
   grid-template-columns: 360px 1fr;
@@ -203,6 +202,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .dictation-btn:hover { background: #334155; }
+.dictation-btn.recording { background: #991b1b; border-color: #ef4444; color: #fff; }
 
 .subsection {
   margin-top: 24px;
@@ -221,6 +221,31 @@ input:focus, select:focus, textarea:focus {
   font-size: 13px;
   margin-bottom: 20px;
 }
+
+.dental-arch-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: #0f172a;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.tooth-btn {
+  background: #1e293b;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tooth-btn:hover { border-color: var(--primary); }
+.tooth-btn.selected { background: var(--primary); color: #fff; border-color: var(--primary); }
 
 .actions { display: flex; justify-content: flex-end; gap: 12px; }
 
@@ -275,7 +300,7 @@ input:focus, select:focus, textarea:focus {
   </div>
 </div>
 
-<form id="patientForm">
+<form id="patientForm" onsubmit="handleFormSubmit(event)">
 
 <!-- ================= 1. PATIENT INFORMATION ================= -->
 <div class="card">
@@ -285,11 +310,46 @@ input:focus, select:focus, textarea:focus {
     <div class="field"><label>Patient Name <b class="required">*</b></label><input name="patient_name" required></div>
     <div class="field"><label>OPD Number <b class="required">*</b></label><input name="opd_number" required></div>
     <div class="field"><label>Age <b class="required">*</b></label><input id="age" name="age" type="number" min="1" max="120" required></div>
-    <div class="field"><label>Sex <b class="required">*</b></label><select name="sex" required><option value="">Select</option><option>Male</option><option>Female</option></select></div>
-    <div class="field"><label>Religion</label><select name="religion"><option value="">Select</option><option>Hindu</option><option>Muslim</option><option>Buddhist</option><option>Sikh</option><option>Christian</option><option>Other</option></select></div>
+    <div class="field">
+      <label>Sex <b class="required">*</b></label>
+      <select name="sex" required>
+        <option value="">Select</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Religion</label>
+      <select name="religion">
+        <option value="">Select</option>
+        <option value="Hindu">Hindu</option>
+        <option value="Muslim">Muslim</option>
+        <option value="Buddhist">Buddhist</option>
+        <option value="Sikh">Sikh</option>
+        <option value="Christian">Christian</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
     <div class="field"><label>Occupation</label><input name="occupation" placeholder="Manual entry"></div>
-    <div class="field"><label>Residence</label><select name="residence"><option value="">Select</option><option>Urban</option><option>Rural</option></select></div>
-    <div class="field"><label>Marital Status</label><select name="marital_status"><option value="">Select</option><option>Married</option><option>Unmarried</option><option>Widowed</option><option>Divorced</option></select></div>
+    <div class="field">
+      <label>Residence</label>
+      <select name="residence">
+        <option value="">Select</option>
+        <option value="Urban">Urban</option>
+        <option value="Rural">Rural</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Marital Status</label>
+      <select name="marital_status">
+        <option value="">Select</option>
+        <option value="Married">Married</option>
+        <option value="Unmarried">Unmarried</option>
+        <option value="Widowed">Widowed</option>
+        <option value="Divorced">Divorced</option>
+      </select>
+    </div>
   </div>
 </div>
 
@@ -298,15 +358,47 @@ input:focus, select:focus, textarea:focus {
   <h2 class="section-title"><span>2</span> Smoking Habits</h2>
   <div class="field" style="max-width:360px">
     <label>Smoking? <b class="required">*</b></label>
-    <select id="smoking" name="smoking" required><option value="">Select</option><option>Yes</option><option>No</option></select>
+    <select id="smoking" name="smoking" required>
+      <option value="">Select</option>
+      <option value="Yes">Yes</option>
+      <option value="No">No</option>
+    </select>
   </div>
   <div id="smokingFields" class="subsection hidden">
     <div class="toggle-note">Select applicable smoking methods and duration.</div>
     <div class="grid">
-      <div class="field"><label>Cigarette Smoking</label><select name="cigarette_smoking"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Bidi Smoking</label><select name="bidi_smoking"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Reverse Smoking</label><select name="reverse_smoking"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Electronic Cigarette</label><select name="electronic_cigarette"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field">
+        <label>Cigarette Smoking</label>
+        <select name="cigarette_smoking">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Bidi Smoking</label>
+        <select name="bidi_smoking">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Reverse Smoking</label>
+        <select name="reverse_smoking">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Electronic Cigarette</label>
+        <select name="electronic_cigarette">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
       <div class="field"><label>Smoking Duration (Years)</label><input id="smoking_duration_years" name="smoking_duration_years" type="number" min="0" step="1"></div>
       <div class="field"><label>Smoking Frequency / Day</label><input name="smoking_frequency_per_day" type="number" min="0" step="1"></div>
     </div>
@@ -318,18 +410,78 @@ input:focus, select:focus, textarea:focus {
   <h2 class="section-title"><span>3</span> Chewing Habits</h2>
   <div class="field" style="max-width:360px">
     <label>Any Chewing Habits? <b class="required">*</b></label>
-    <select id="chewing" name="any_chewing_habits" required><option value="">Select</option><option>Yes</option><option>No</option></select>
+    <select id="chewing" name="any_chewing_habits" required>
+      <option value="">Select</option>
+      <option value="Yes">Yes</option>
+      <option value="No">No</option>
+    </select>
   </div>
   <div id="chewingFields" class="subsection hidden">
     <div class="grid">
-      <div class="field"><label>Tobacco Chewing</label><select name="tobacco_chewing"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Gutkha</label><select name="gutkha"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Khaini</label><select name="khaini"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Snuff</label><select name="snuff"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Mawa</label><select name="mawa"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Tobacco Tooth Powder</label><select name="tobacco_containing_tooth_powder"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Betel Nut Chewing</label><select name="betel_nut_chewing"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Betel Quid Consumption</label><select name="betel_quid_consumption"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field">
+        <label>Tobacco Chewing</label>
+        <select name="tobacco_chewing">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Gutkha</label>
+        <select name="gutkha">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Khaini</label>
+        <select name="khaini">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Snuff</label>
+        <select name="snuff">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Mawa</label>
+        <select name="mawa">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tobacco Tooth Powder</label>
+        <select name="tobacco_containing_tooth_powder">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Betel Nut Chewing</label>
+        <select name="betel_nut_chewing">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Betel Quid Consumption</label>
+        <select name="betel_quid_consumption">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
     </div>
   </div>
 </div>
@@ -339,14 +491,44 @@ input:focus, select:focus, textarea:focus {
   <h2 class="section-title"><span>4</span> Alcohol</h2>
   <div class="field" style="max-width:360px">
     <label>Alcohol? <b class="required">*</b></label>
-    <select id="alcohol" name="alcohol" required><option value="">Select</option><option>Yes</option><option>No</option></select>
+    <select id="alcohol" name="alcohol" required>
+      <option value="">Select</option>
+      <option value="Yes">Yes</option>
+      <option value="No">No</option>
+    </select>
   </div>
   <div id="alcoholFields" class="subsection hidden">
     <div class="grid">
       <div class="field"><label>Duration (Years)</label><input name="alcohol_duration_years" type="number" min="0"></div>
-      <div class="field"><label>Frequency</label><select name="alcohol_frequency"><option value="">Select</option><option>Occasional</option><option>Weekly</option><option>Daily</option></select></div>
-      <div class="field"><label>Quantity / Day</label><select name="alcohol_quantity"><option value="">Select</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option></select></div>
-      <div class="field"><label>Habit Combination</label><select name="habit_combination"><option value="">Select</option><option>Alcohol only</option><option>Alcohol + Smoking</option><option>Alcohol + Chewing</option><option>Alcohol + Smoking + Chewing</option></select></div>
+      <div class="field">
+        <label>Frequency</label>
+        <select name="alcohol_frequency">
+          <option value="">Select</option>
+          <option value="Occasional">Occasional</option>
+          <option value="Weekly">Weekly</option>
+          <option value="Daily">Daily</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Quantity / Day</label>
+        <select name="alcohol_quantity">
+          <option value="">Select</option>
+          <option value="1 Unit">1 Unit</option>
+          <option value="2 Units">2 Units</option>
+          <option value="3 Units">3 Units</option>
+          <option value="4+ Units">4+ Units</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Habit Combination</label>
+        <select name="habit_combination">
+          <option value="">Select</option>
+          <option value="Alcohol only">Alcohol only</option>
+          <option value="Alcohol + Smoking">Alcohol + Smoking</option>
+          <option value="Alcohol + Chewing">Alcohol + Chewing</option>
+          <option value="Alcohol + Smoking + Chewing">Alcohol + Smoking + Chewing</option>
+        </select>
+      </div>
     </div>
   </div>
 </div>
@@ -355,16 +537,61 @@ input:focus, select:focus, textarea:focus {
 <div class="card">
   <h2 class="section-title"><span>5</span> Medical & Oral History</h2>
   <div class="grid">
-    <div class="field"><label>Diabetes Mellitus</label><select name="diabetes_mellitus"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-    <div class="field"><label>Hypertension</label><select name="hypertension"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-    <div class="field"><label>HIV Infection</label><select name="hiv_infection"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-    <div class="field"><label>Tuberculosis</label><select name="tuberculosis"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-    <div class="field"><label>Bronchial Asthma</label><select name="bronchial_asthma"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-    <div class="field"><label>Previous Oral Diseases</label><select name="previous_oral_diseases"><option value="">Select</option><option>None</option><option>Parindontities</option><option>Leukoplakia</option><option>Keratosis</option></select></div>
+    <div class="field">
+      <label>Diabetes Mellitus</label>
+      <select name="diabetes_mellitus">
+        <option value="">Select</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Hypertension</label>
+      <select name="hypertension">
+        <option value="">Select</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>HIV Infection</label>
+      <select name="hiv_infection">
+        <option value="">Select</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Tuberculosis</label>
+      <select name="tuberculosis">
+        <option value="">Select</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Bronchial Asthma</label>
+      <select name="bronchial_asthma">
+        <option value="">Select</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Previous Oral Diseases</label>
+      <select name="previous_oral_diseases">
+        <option value="">Select</option>
+        <option value="None">None</option>
+        <option value="Periodontitis">Periodontitis</option>
+        <option value="Leukoplakia">Leukoplakia</option>
+        <option value="Keratosis">Keratosis</option>
+        <option value="OSMF">OSMF</option>
+      </select>
+    </div>
     <div class="field full">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <label>Other Systemic Diseases & Notes</label>
-        <button type="button" class="dictation-btn" onclick="startDictation('other_systemic_diseases')">🎙 Voice Input</button>
+        <button id="dictationBtn" type="button" class="dictation-btn" onclick="startDictation('other_systemic_diseases')">🎙 Voice Input</button>
       </div>
       <input id="other_systemic_diseases" name="other_systemic_diseases" placeholder="Speak or enter clinical notes...">
     </div>
@@ -375,16 +602,58 @@ input:focus, select:focus, textarea:focus {
 <div class="card">
   <h2 class="section-title"><span>6</span> Symptoms & Interactive Lesion Mapping</h2>
   <div class="grid">
-    <div class="field"><label>Pain Presence</label><select name="pain_presence"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-    <div class="field"><label>Swelling <b class="required">*</b></label><select id="swelling" name="swelling" required><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+    <div class="field">
+      <label>Pain Presence</label>
+      <select name="pain_presence">
+        <option value="">Select</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Swelling <b class="required">*</b></label>
+      <select id="swelling" name="swelling" required>
+        <option value="">Select</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+    </div>
   </div>
 
   <div id="swellingFields" class="subsection hidden">
     <div class="grid" style="margin-bottom: 24px;">
-      <div class="field"><label>Burning Sensation</label><select name="burning_sensation"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Bleeding Gums</label><select name="bleeding_gums"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Ulcer Less Than 2 Weeks</label><select id="ulcer_less" name="ulcer_less_than_2_weeks"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label>Ulcer Greater Than 2 Weeks</label><select id="ulcer_greater" name="ulcer_greater_than_2_weeks"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field">
+        <label>Burning Sensation</label>
+        <select name="burning_sensation">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Bleeding Gums</label>
+        <select name="bleeding_gums">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Ulcer Less Than 2 Weeks</label>
+        <select id="ulcer_less" name="ulcer_less_than_2_weeks">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Ulcer Greater Than 2 Weeks</label>
+        <select id="ulcer_greater" name="ulcer_greater_than_2_weeks">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
     </div>
 
     <!-- ANATOMICAL SCULPTURE CANVAS -->
@@ -403,35 +672,115 @@ input:focus, select:focus, textarea:focus {
             <label>Lesion Location</label>
             <select id="lesion_location" name="lesion_location">
               <option value="">Select / Click Map</option>
-              <option>Buccal Mucosa</option>
-              <option>Tongue</option>
-              <option>Gingiva</option>
-              <option>Hard Palate</option>
-              <option>Floor of Mouth</option>
-              <option>Lower Lip</option>
-              <option>Upper Lip</option>
+              <option value="Buccal Mucosa (L)">Buccal Mucosa (L)</option>
+              <option value="Buccal Mucosa (R)">Buccal Mucosa (R)</option>
+              <option value="Tongue">Tongue</option>
+              <option value="Gingiva">Gingiva</option>
+              <option value="Hard Palate">Hard Palate</option>
+              <option value="Floor of Mouth">Floor of Mouth</option>
+              <option value="Lower Lip">Lower Lip</option>
+              <option value="Upper Lip">Upper Lip</option>
             </select>
           </div>
           <div class="field"><label>Lesion Position (X %, Y %)</label><input id="lesion_position_coords" name="lesion_position_coords" readonly placeholder="Click diagram"></div>
-          <div class="field"><label>Lesion Color</label><select name="lesion_color"><option value="">Select</option><option>White</option><option>Red</option><option>Red-White</option><option>Normal</option></select></div>
-          <div class="field"><label>Lesion Shape</label><select name="lesion_shape"><option value="">Select</option><option>Irregular</option><option>Ill-defined</option><option>Regular</option></select></div>
-          <div class="field"><label>Surface Characteristics</label><select name="lesion_surface_characteristics"><option value="">Select</option><option>Smooth</option><option>Rough</option><option>Ulcerated</option><option>Nodular</option></select></div>
-          <div class="field"><label>Lesion Texture</label><select id="lesion_texture" name="lesion_texture"><option value="">Select</option><option>Soft</option><option>Firm</option><option>Indurated</option></select></div>
+          <div class="field">
+            <label>Lesion Color</label>
+            <select name="lesion_color">
+              <option value="">Select</option>
+              <option value="White">White</option>
+              <option value="Red">Red</option>
+              <option value="Red-White">Red-White</option>
+              <option value="Normal">Normal</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Lesion Shape</label>
+            <select name="lesion_shape">
+              <option value="">Select</option>
+              <option value="Irregular">Irregular</option>
+              <option value="Ill-defined">Ill-defined</option>
+              <option value="Regular">Regular</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Surface Characteristics</label>
+            <select name="lesion_surface_characteristics">
+              <option value="">Select</option>
+              <option value="Smooth">Smooth</option>
+              <option value="Rough">Rough</option>
+              <option value="Ulcerated">Ulcerated</option>
+              <option value="Nodular">Nodular</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Lesion Texture</label>
+            <select id="lesion_texture" name="lesion_texture">
+              <option value="">Select</option>
+              <option value="Soft">Soft</option>
+              <option value="Firm">Firm</option>
+              <option value="Indurated">Indurated</option>
+            </select>
+          </div>
           <div class="field"><label>Lesion Length (mm)</label><input name="lesion_length_mm" type="number" min="0" step="0.1"></div>
           <div class="field"><label>Lesion Width (mm)</label><input name="lesion_width_mm" type="number" min="0" step="0.1"></div>
           <div class="field"><label>Maximum Diameter (mm)</label><input id="lesion_maximum_diameter_mm" name="lesion_maximum_diameter_mm" type="number" min="0" step="0.1"></div>
-          <div class="field"><label>Lesion Extension</label><select name="lesion_extension"><option value="">Select</option><option>Localized</option><option>Adjacent Tissue</option><option>Multiple Areas</option></select></div>
+          <div class="field">
+            <label>Lesion Extension</label>
+            <select name="lesion_extension">
+              <option value="">Select</option>
+              <option value="Localized">Localized</option>
+              <option value="Adjacent Tissue">Adjacent Tissue</option>
+              <option value="Multiple Areas">Multiple Areas</option>
+            </select>
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- DENTAL CHART QUICK-SELECT -->
+    <div class="subsection">
+      <label style="margin-bottom: 8px; display: block;">Associated Affected Teeth (FDI Notation)</label>
+      <div class="dental-arch-selector" id="dentalArchSelector">
+        <!-- Teeth buttons generated dynamically -->
+      </div>
+      <input type="hidden" id="affected_teeth" name="affected_teeth" value="">
     </div>
 
     <!-- ULCER SYMPTOMS -->
     <div id="ulcerSymptoms" class="subsection hidden">
       <div class="grid">
-        <div class="field"><label>Halitosis</label><select name="halitosis"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-        <div class="field"><label>Mobility of Teeth</label><select name="mobility_of_associated_teeth"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-        <div class="field"><label>Loss of Appetite</label><select name="loss_of_appetite"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-        <div class="field"><label>Weight Loss</label><select name="weight_loss"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+        <div class="field">
+          <label>Halitosis</label>
+          <select name="halitosis">
+            <option value="">Select</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Mobility of Associated Teeth</label>
+          <select name="mobility_of_associated_teeth">
+            <option value="">Select</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Loss of Appetite</label>
+          <select name="loss_of_appetite">
+            <option value="">Select</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Weight Loss</label>
+          <select name="weight_loss">
+            <option value="">Select</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
@@ -449,27 +798,74 @@ input:focus, select:focus, textarea:focus {
       <label>Mouth Opening Assessment</label>
       <select id="mouth_opening_assessment" name="mouth_opening_assessment">
         <option value="">Select</option>
-        <option>&lt;2 cm</option>
-        <option>2-4 cm</option>
-        <option>&gt;4 cm</option>
+        <option value="<2 cm">&lt;2 cm</option>
+        <option value="2-4 cm">2-4 cm</option>
+        <option value=">4 cm">&gt;4 cm</option>
       </select>
     </div>
     <div class="field">
       <label>Regional Lymph Node Palpability</label>
-      <select id="ln_pal" name="regional_lymph_node_palpability"><option value="">Select</option><option>Yes</option><option>No</option></select>
+      <select id="ln_pal" name="regional_lymph_node_palpability">
+        <option value="">Select</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
     </div>
   </div>
 
   <div id="lnFields" class="subsection hidden">
     <div class="grid">
-      <div class="field"><label>Involvement</label><select name="lymph_node_involvement"><option value="">Select</option><option>Single</option><option>Multiple</option></select></div>
-      <div class="field"><label>Laterality</label><select name="lymph_node_laterality"><option value="">Select</option><option>Unilateral</option><option>Bilateral</option></select></div>
+      <div class="field">
+        <label>Involvement</label>
+        <select name="lymph_node_involvement">
+          <option value="">Select</option>
+          <option value="Single">Single</option>
+          <option value="Multiple">Multiple</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Laterality</label>
+        <select name="lymph_node_laterality">
+          <option value="">Select</option>
+          <option value="Unilateral">Unilateral</option>
+          <option value="Bilateral">Bilateral</option>
+        </select>
+      </div>
       <div class="field"><label>Node Number</label><input name="regional_lymph_node_number" type="number" min="1"></div>
-      <div class="field"><label>Consistency</label><select name="regional_lymph_node_consistency"><option value="">Select</option><option>Soft</option><option>Firm</option><option>Hard</option></select></div>
-      <div class="field"><label>Mobility</label><select id="regional_lymph_node_mobility" name="regional_lymph_node_mobility"><option value="">Select</option><option>Mobile</option><option>Fixed</option></select></div>
+      <div class="field">
+        <label>Consistency</label>
+        <select name="regional_lymph_node_consistency">
+          <option value="">Select</option>
+          <option value="Soft">Soft</option>
+          <option value="Firm">Firm</option>
+          <option value="Hard">Hard</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Mobility</label>
+        <select id="regional_lymph_node_mobility" name="regional_lymph_node_mobility">
+          <option value="">Select</option>
+          <option value="Mobile">Mobile</option>
+          <option value="Fixed">Fixed</option>
+        </select>
+      </div>
       <div class="field"><label>Size (mm)</label><input name="regional_lymph_node_size_mm" type="number" min="0" step="1"></div>
-      <div class="field"><label>Shape</label><select name="regional_lymph_node_shape"><option value="">Select</option><option>Oval</option><option>Round</option></select></div>
-      <div class="field"><label>Tenderness</label><select name="regional_lymph_node_tenderness"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field">
+        <label>Shape</label>
+        <select name="regional_lymph_node_shape">
+          <option value="">Select</option>
+          <option value="Oval">Oval</option>
+          <option value="Round">Round</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tenderness</label>
+        <select name="regional_lymph_node_tenderness">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
     </div>
   </div>
 </div>
@@ -477,7 +873,7 @@ input:focus, select:focus, textarea:focus {
 <!-- ================= SAVE & ACTIONS ================= -->
 <div class="card">
   <div class="actions">
-    <button type="reset" class="btn secondary">Reset Form</button>
+    <button type="reset" class="btn secondary" onclick="resetFormState()">Reset Form</button>
     <button id="submitBtn" type="submit" class="btn primary">Save Assessment</button>
   </div>
   <div id="status" class="status"></div>
@@ -487,8 +883,9 @@ input:focus, select:focus, textarea:focus {
 </div>
 
 <script>
-let CONFIG;
 const $ = id => document.getElementById(id);
+let activeTeeth = new Set();
+let isRecording = false;
 
 /* =========================================
    ANATOMICAL SCULPTOR (CANVAS DRAWING)
@@ -497,6 +894,8 @@ function initMouthCanvas() {
   const canvas = $('mouthCanvas');
   const ctx = canvas.getContext('2d');
   
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   // Outer Mouth Contour
   ctx.fillStyle = '#1e293b';
   ctx.beginPath();
@@ -525,6 +924,7 @@ function initMouthCanvas() {
   ctx.ellipse(180, 210, 65, 50, 0, 0, 2 * Math.PI);
   ctx.fill();
   ctx.strokeStyle = '#60a5fa';
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
   // Labels
@@ -532,8 +932,8 @@ function initMouthCanvas() {
   ctx.font = '12px Plus Jakarta Sans';
   ctx.fillText('Hard Palate', 150, 120);
   ctx.fillText('Tongue', 160, 215);
-  ctx.fillText('Buccal Mucosa (L)', 45, 185);
-  ctx.fillText('Buccal Mucosa (R)', 235, 185);
+  ctx.fillText('Buccal (L)', 45, 185);
+  ctx.fillText('Buccal (R)', 255, 185);
   ctx.fillText('Lower Lip', 155, 295);
 }
 
@@ -557,12 +957,45 @@ $('canvasContainer').addEventListener('click', function(e) {
   // Auto-detect anatomical region based on click
   if (pctY < 25) $('lesion_location').value = 'Upper Lip';
   else if (pctY > 75) $('lesion_location').value = 'Lower Lip';
-  else if (pctX < 30 || pctX > 70) $('lesion_location').value = 'Buccal Mucosa';
+  else if (pctX < 30) $('lesion_location').value = 'Buccal Mucosa (L)';
+  else if (pctX > 70) $('lesion_location').value = 'Buccal Mucosa (R)';
   else if (pctY >= 50 && pctY <= 75) $('lesion_location').value = 'Tongue';
   else if (pctY >= 25 && pctY < 50) $('lesion_location').value = 'Hard Palate';
   
   evaluateRisk();
 });
+
+/* =========================================
+   DENTAL CHARTING QUICK-SELECT (FDI)
+========================================= */
+function initDentalChart() {
+  const container = $('dentalArchSelector');
+  const teeth = [
+    18,17,16,15,14,13,12,11, 21,22,23,24,25,26,27,28,
+    48,47,46,45,44,43,42,41, 31,32,33,34,35,36,37,38
+  ];
+
+  container.innerHTML = '';
+  teeth.forEach(t => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tooth-btn';
+    btn.textContent = t;
+    btn.onclick = () => toggleTooth(t, btn);
+    container.appendChild(btn);
+  });
+}
+
+function toggleTooth(toothNumber, btn) {
+  if (activeTeeth.has(toothNumber)) {
+    activeTeeth.delete(toothNumber);
+    btn.classList.remove('selected');
+  } else {
+    activeTeeth.add(toothNumber);
+    btn.classList.add('selected');
+  }
+  $('affected_teeth').value = Array.from(activeTeeth).join(', ');
+}
 
 /* =========================================
    VOICE-TO-TEXT CLINICAL DICTATION
@@ -572,13 +1005,28 @@ function startDictation(targetId) {
     alert('Voice recognition not supported in your browser.');
     return;
   }
+  
+  const btn = $('dictationBtn');
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = new SpeechRecognition();
+  
   recognition.lang = 'en-US';
-  recognition.start();
+  
+  if (!isRecording) {
+    recognition.start();
+    isRecording = true;
+    btn.classList.add('recording');
+    btn.textContent = '⏹ Recording...';
+  }
 
   recognition.onresult = function(e) {
     $(targetId).value = e.results[0][0].transcript;
+  };
+
+  recognition.onerror = recognition.onend = function() {
+    isRecording = false;
+    btn.classList.remove('recording');
+    btn.textContent = '🎙 Voice Input';
   };
 }
 
@@ -588,19 +1036,16 @@ function startDictation(targetId) {
 function evaluateRisk() {
   let score = 0;
 
-  // Habit metrics
   if ($('smoking').value === 'Yes') score += 1;
   if ($('chewing').value === 'Yes') score += 2;
   if ($('alcohol').value === 'Yes') score += 1;
 
-  // Lesion & Ulcer metrics
   if ($('ulcer_greater').value === 'Yes') score += 3;
   if ($('lesion_texture').value === 'Indurated') score += 3;
   
   const diameter = parseFloat($('lesion_maximum_diameter_mm').value) || 0;
-  if (diameter > 20) score += 2; // > 2cm
+  if (diameter > 20) score += 2;
 
-  // Lymph node metrics
   if ($('ln_pal').value === 'Yes') score += 2;
   if ($('regional_lymph_node_mobility').value === 'Fixed') score += 3;
 
@@ -616,14 +1061,15 @@ function evaluateRisk() {
     display.style.color = 'var(--success)';
   }
 
-  // OSMF Grade Assessment
   const dist = parseFloat($('inter_incisal_distance_mm').value);
   const osmfDisplay = $('osmfStageDisplay');
-  if (!isNaN(dist)) {
+  if (!isNaN(dist) && dist > 0) {
     if (dist < 15) osmfDisplay.textContent = 'OSMF Grade IV (< 15mm)';
     else if (dist < 25) osmfDisplay.textContent = 'OSMF Grade III (15-25mm)';
     else if (dist < 35) osmfDisplay.textContent = 'OSMF Grade II (25-35mm)';
     else osmfDisplay.textContent = 'OSMF Grade I / Normal (> 35mm)';
+  } else {
+    osmfDisplay.textContent = 'OSMF Stage: Normal';
   }
 }
 
@@ -651,7 +1097,27 @@ function toggle(id, show) {
   if (el) el.classList.toggle('hidden', !show);
 }
 
-// Global Listeners for dynamic updates
+function resetFormState() {
+  activeTeeth.clear();
+  document.querySelectorAll('.tooth-btn').forEach(btn => btn.classList.remove('selected'));
+  $('pointerPin').classList.add('hidden');
+  $('status').className = 'status';
+  $('status').textContent = '';
+  setTimeout(sync, 10);
+}
+
+function handleFormSubmit(e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const data = Object.fromEntries(formData.entries());
+  
+  const status = $('status');
+  status.className = 'status ok';
+  status.textContent = `Assessment successfully stored for Patient: ${data.patient_name} (${data.patient_id}). Recorded risk level: ${$('riskLevelDisplay').textContent}.`;
+  
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
 document.querySelectorAll('select, input').forEach(el => {
   el.addEventListener('change', sync);
   el.addEventListener('input', evaluateRisk);
@@ -659,6 +1125,7 @@ document.querySelectorAll('select, input').forEach(el => {
 
 window.addEventListener('DOMContentLoaded', () => {
   initMouthCanvas();
+  initDentalChart();
   sync();
 });
 </script>
