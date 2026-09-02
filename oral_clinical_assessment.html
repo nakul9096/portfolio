@@ -3,319 +3,258 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Oral Clinical Assessment</title>
-
+<title>Enhanced Oral Clinical Assessment</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root {
-  --bg:#0b0f19;
-  --card-bg:#151c2c;
-  --text-main:#f1f5f9;
-  --text-muted:#94a3b8;
-  --primary:#3b82f6;
-  --primary-hover:#2563eb;
-  --primary-light:rgba(59,130,246,.12);
-  --border-color:#26334d;
-  --border-focus:#60a5fa;
-  --danger:#f87171;
-  --success:#34d399;
-  --success-bg:rgba(52,211,153,.1);
-  --danger-bg:rgba(248,113,113,.1);
-  --radius-lg:16px;
-  --radius-md:10px;
-  --shadow-md:
-    0 10px 25px -5px rgba(0,0,0,.5),
-    0 8px 10px -6px rgba(0,0,0,.3);
+  --bg: #0b0f19;
+  --card-bg: #151c2c;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-light: rgba(59, 130, 246, 0.12);
+  --border-color: #26334d;
+  --border-focus: #60a5fa;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --success: #34d399;
+  --success-bg: rgba(52, 211, 153, 0.1);
+  --danger-bg: rgba(248, 113, 113, 0.1);
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
-* {
-  box-sizing:border-box;
-}
+* { box-sizing: border-box; }
 
 body {
-  margin:0;
-  background:var(--bg);
-  font-family:'Plus Jakarta Sans',system-ui,sans-serif;
-  color:var(--text-main);
-  line-height:1.5;
-  -webkit-font-smoothing:antialiased;
+  margin: 0;
+  background: var(--bg);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 .container {
-  max-width:1080px;
-  margin:40px auto;
-  padding:0 20px;
+  max-width: 1140px;
+  margin: 40px auto;
+  padding: 0 20px;
 }
 
 .hero {
-  background:linear-gradient(135deg,#1e1b4b 0%,#1e293b 50%,#0f172a 100%);
-  border:1px solid var(--border-color);
-  color:#fff;
-  border-radius:var(--radius-lg);
-  padding:36px 40px;
-  box-shadow:0 20px 25px -5px rgba(0,0,0,.4);
-  margin-bottom:24px;
+  background: linear-gradient(135deg, #1e1b4b 0%, #1e293b 50%, #0f172a 100%);
+  border: 1px solid var(--border-color);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 36px 40px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, .4);
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
-.hero h1 {
-  margin:0 0 8px;
-  font-size:30px;
-  font-weight:700;
-  letter-spacing:-.02em;
+.hero h1 { margin: 0 0 8px; font-size: 30px; font-weight: 700; }
+.hero p { margin: 0; color: var(--text-muted); font-size: 15px; }
+
+/* Real-Time Risk Score Indicator */
+.risk-indicator-badge {
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  padding: 16px 24px;
+  border-radius: var(--radius-md);
+  text-align: right;
+  min-width: 220px;
 }
 
-.hero p {
-  margin:0;
-  color:var(--text-muted);
-  font-size:15px;
+.risk-level {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--success);
 }
 
 .card {
-  background:var(--card-bg);
-  border:1px solid var(--border-color);
-  border-radius:var(--radius-lg);
-  padding:28px 32px;
-  margin-bottom:24px;
-  box-shadow:var(--shadow-md);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-md);
 }
 
 .section-title {
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin:0 0 22px;
-  font-size:18px;
-  font-weight:700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 22px;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .section-title span {
-  width:32px;
-  height:32px;
-  border-radius:8px;
-  background:var(--primary-light);
-  color:var(--primary);
-  display:grid;
-  place-items:center;
-  font-weight:700;
-  font-size:14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14px;
 }
 
 .grid {
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:20px 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px 18px;
 }
 
 .field {
-  display:flex;
-  flex-direction:column;
-  gap:6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.field.full {
-  grid-column:1/-1;
+.field.full { grid-column: 1 / -1; }
+
+label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
+.required { color: var(--danger); }
+
+input, select, textarea {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  background: #0f172a;
+  color: var(--text-main);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: all .2s ease;
 }
 
-label {
-  font-size:13px;
-  font-weight:600;
-  color:#cbd5e1;
+input:hover, select:hover, textarea:hover { border-color: #3b82f6; }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, .2);
 }
 
-.required {
-  color:var(--danger);
+/* Anatomical Sculptor Canvas */
+.anatomy-container {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px;
+  align-items: start;
 }
 
-input,
-select,
-textarea {
-  width:100%;
-  border:1px solid var(--border-color);
-  border-radius:var(--radius-md);
-  padding:10px 14px;
-  background:#0f172a;
-  color:var(--text-main);
-  font:inherit;
-  font-size:14px;
-  outline:none;
-  transition:all .2s ease;
+.canvas-wrapper {
+  position: relative;
+  background: #0a0e17;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: crosshair;
+  user-select: none;
 }
 
-input:hover,
-select:hover,
-textarea:hover {
-  border-color:#3b82f6;
+#mouthCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-  border-color:var(--border-focus);
-  box-shadow:0 0 0 4px rgba(96,165,250,.2);
+.pointer-pin {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: #ef4444;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+  pointer-events: none;
+  animation: pulse 1.5s infinite;
 }
 
-input:disabled,
-select:disabled,
-textarea:disabled {
-  opacity:.55;
-  cursor:not-allowed;
+@keyframes pulse {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.3); }
+  100% { transform: translate(-50%, -50%) scale(1); }
 }
 
-select {
-  appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat:no-repeat;
-  background-position:right 12px center;
-  background-size:16px;
-  padding-right:36px;
+.dictation-btn {
+  background: #1e293b;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-select option {
-  background:#0f172a;
-  color:#f1f5f9;
-}
-
-textarea {
-  min-height:90px;
-  resize:vertical;
-}
-
-.hint {
-  font-size:12px;
-  color:var(--text-muted);
-}
-
-.hidden {
-  display:none !important;
-}
+.dictation-btn:hover { background: #334155; }
 
 .subsection {
-  margin-top:24px;
-  padding-top:22px;
-  border-top:1px dashed var(--border-color);
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px dashed var(--border-color);
 }
 
-.subsection h3 {
-  font-size:15px;
-  font-weight:600;
-  margin:0 0 16px;
-}
+.hidden { display: none !important; }
 
 .toggle-note {
-  padding:12px 16px;
-  background:var(--primary-light);
-  border-left:3px solid var(--primary);
-  border-radius:6px;
-  color:#93c5fd;
-  font-size:13px;
-  font-weight:500;
-  margin-bottom:20px;
+  padding: 12px 16px;
+  background: var(--primary-light);
+  border-left: 3px solid var(--primary);
+  border-radius: 6px;
+  color: #93c5fd;
+  font-size: 13px;
+  margin-bottom: 20px;
 }
 
-.actions {
-  display:flex;
-  justify-content:flex-end;
-  gap:12px;
-}
+.actions { display: flex; justify-content: flex-end; gap: 12px; }
 
 .btn {
-  border:0;
-  border-radius:var(--radius-md);
-  padding:12px 24px;
-  font-size:14px;
-  font-weight:600;
-  cursor:pointer;
-  transition:all .2s ease;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
+  border: 0;
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s ease;
 }
 
-.btn.secondary {
-  background:#1e293b;
-  color:#cbd5e1;
-  border:1px solid var(--border-color);
-}
-
-.btn.secondary:hover {
-  background:#334155;
-  color:#fff;
-}
-
-.btn.primary {
-  background:var(--primary);
-  color:#fff;
-  box-shadow:0 4px 12px rgba(59,130,246,.3);
-}
-
-.btn.primary:hover {
-  background:var(--primary-hover);
-  box-shadow:0 6px 16px rgba(59,130,246,.45);
-}
-
-.btn:disabled {
-  opacity:.5;
-  cursor:not-allowed;
-  box-shadow:none;
-}
+.btn.primary { background: var(--primary); color: #fff; }
+.btn.primary:hover { background: var(--primary-hover); }
+.btn.secondary { background: #1e293b; color: #cbd5e1; border: 1px solid var(--border-color); }
 
 .status {
-  margin-top:16px;
-  padding:14px 16px;
-  border-radius:var(--radius-md);
-  display:none;
-  font-size:14px;
-  font-weight:500;
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  display: none;
+  font-size: 14px;
 }
 
-.status.ok {
-  display:block;
-  background:var(--success-bg);
-  color:#6ee7b7;
-  border:1px solid #065f46;
+.status.ok { display: block; background: var(--success-bg); color: #6ee7b7; border: 1px solid #065f46; }
+.status.error { display: block; background: var(--danger-bg); color: #fca5a5; border: 1px solid #991b1b; }
+
+@media(max-width: 850px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .anatomy-container { grid-template-columns: 1fr; }
 }
-
-.status.error {
-  display:block;
-  background:var(--danger-bg);
-  color:#fca5a5;
-  border:1px solid #991b1b;
-}
-
-@media(max-width:850px) {
-  .grid {
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-}
-
-@media(max-width:560px) {
-  .grid {
-    grid-template-columns:1fr;
-  }
-
-  .container {
-    margin:20px auto;
-  }
-
-  .hero {
-    padding:24px;
-  }
-
-  .card {
-    padding:20px;
-  }
-
-  .actions {
-    flex-direction:column-reverse;
-  }
-
-  .btn {
-    width:100%;
-  }
+@media(max-width: 560px) {
+  .grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -325,1290 +264,403 @@ textarea {
 <div class="container">
 
 <div class="hero">
-  <h1>Oral Clinical Assessment</h1>
-  <p>Clinical data entry form with predefined options and conditional fields.</p>
+  <div>
+    <h1>Oral Clinical Assessment</h1>
+    <p>Enhanced Diagnostic Form with Interactive Oral Anatomy Sculptor</p>
+  </div>
+  <div class="risk-indicator-badge">
+    <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Real-Time Malignancy Risk</div>
+    <div id="riskLevelDisplay" class="risk-level">LOW RISK</div>
+    <div id="osmfStageDisplay" style="font-size: 12px; color: var(--text-muted);">OSMF Stage: Normal</div>
+  </div>
 </div>
 
 <form id="patientForm">
 
-<!-- ================= PATIENT INFORMATION ================= -->
-
+<!-- ================= 1. PATIENT INFORMATION ================= -->
 <div class="card">
-
-<h2 class="section-title">
-  <span>1</span>
-  Patient Information
-</h2>
-
-<div class="grid">
-
-<div class="field">
-<label>Patient ID <b class="required">*</b></label>
-<input name="patient_id" required placeholder="e.g. P001">
+  <h2 class="section-title"><span>1</span> Patient Information</h2>
+  <div class="grid">
+    <div class="field"><label>Patient ID <b class="required">*</b></label><input name="patient_id" required placeholder="e.g. P001"></div>
+    <div class="field"><label>Patient Name <b class="required">*</b></label><input name="patient_name" required></div>
+    <div class="field"><label>OPD Number <b class="required">*</b></label><input name="opd_number" required></div>
+    <div class="field"><label>Age <b class="required">*</b></label><input id="age" name="age" type="number" min="1" max="120" required></div>
+    <div class="field"><label>Sex <b class="required">*</b></label><select name="sex" required><option value="">Select</option><option>Male</option><option>Female</option></select></div>
+    <div class="field"><label>Religion</label><select name="religion"><option value="">Select</option><option>Hindu</option><option>Muslim</option><option>Buddhist</option><option>Sikh</option><option>Christian</option><option>Other</option></select></div>
+    <div class="field"><label>Occupation</label><input name="occupation" placeholder="Manual entry"></div>
+    <div class="field"><label>Residence</label><select name="residence"><option value="">Select</option><option>Urban</option><option>Rural</option></select></div>
+    <div class="field"><label>Marital Status</label><select name="marital_status"><option value="">Select</option><option>Married</option><option>Unmarried</option><option>Widowed</option><option>Divorced</option></select></div>
+  </div>
 </div>
 
-<div class="field">
-<label>Patient Name <b class="required">*</b></label>
-<input name="patient_name" required>
-</div>
-
-<div class="field">
-<label>OPD Number <b class="required">*</b></label>
-<input name="opd_number" required>
-</div>
-
-<div class="field">
-<label>Age <b class="required">*</b></label>
-<input name="age" type="number" min="1" max="120" required>
-</div>
-
-<div class="field">
-<label>Sex <b class="required">*</b></label>
-<select name="sex" required>
-<option value="">Select</option>
-<option>Male</option>
-<option>Female</option>
-</select>
-</div>
-
-<div class="field">
-<label>Religion</label>
-<select name="religion">
-<option value="">Select</option>
-<option>Hindu</option>
-<option>Muslim</option>
-<option>Buddhist</option>
-<option>Sikh</option>
-<option>Christian</option>
-<option>Other</option>
-</select>
-</div>
-
-<div class="field">
-<label>Occupation</label>
-<input name="occupation" placeholder="Manual entry">
-</div>
-
-<div class="field">
-<label>Residence</label>
-<select name="residence">
-<option value="">Select</option>
-<option>Urban</option>
-<option>Rural</option>
-</select>
-</div>
-
-<div class="field">
-<label>Marital Status</label>
-<select name="marital_status">
-<option value="">Select</option>
-<option>Married</option>
-<option>Unmarried</option>
-<option>Widowed</option>
-<option>Divorced</option>
-</select>
-</div>
-
-</div>
-</div>
-
-<!-- ================= SMOKING ================= -->
-
+<!-- ================= 2. SMOKING HABITS ================= -->
 <div class="card">
-
-<h2 class="section-title">
-<span>2</span>
-Smoking Habits
-</h2>
-
-<div class="field" style="max-width:360px">
-
-<label>Smoking? <b class="required">*</b></label>
-
-<select id="smoking" name="smoking" required>
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-
+  <h2 class="section-title"><span>2</span> Smoking Habits</h2>
+  <div class="field" style="max-width:360px">
+    <label>Smoking? <b class="required">*</b></label>
+    <select id="smoking" name="smoking" required><option value="">Select</option><option>Yes</option><option>No</option></select>
+  </div>
+  <div id="smokingFields" class="subsection hidden">
+    <div class="toggle-note">Select applicable smoking methods and duration.</div>
+    <div class="grid">
+      <div class="field"><label>Cigarette Smoking</label><select name="cigarette_smoking"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Bidi Smoking</label><select name="bidi_smoking"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Reverse Smoking</label><select name="reverse_smoking"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Electronic Cigarette</label><select name="electronic_cigarette"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Smoking Duration (Years)</label><input id="smoking_duration_years" name="smoking_duration_years" type="number" min="0" step="1"></div>
+      <div class="field"><label>Smoking Frequency / Day</label><input name="smoking_frequency_per_day" type="number" min="0" step="1"></div>
+    </div>
+  </div>
 </div>
 
-<div id="smokingFields" class="subsection hidden">
-
-<div class="toggle-note">
-Select the applicable smoking methods. Duration and frequency are manually entered.
-</div>
-
-<div class="grid">
-
-<div class="field">
-<label>Cigarette Smoking</label>
-<select name="cigarette_smoking">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Bidi Smoking</label>
-<select name="bidi_smoking">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Reverse Smoking</label>
-<select name="reverse_smoking">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Electronic Cigarette</label>
-<select name="electronic_cigarette">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Smoking Duration (Years)</label>
-<input name="smoking_duration_years" type="number" min="0" step="1">
-</div>
-
-<div class="field">
-<label>Smoking Frequency / Day</label>
-<input name="smoking_frequency_per_day" type="number" min="0" step="1">
-</div>
-
-</div>
-</div>
-</div>
-
-<!-- ================= CHEWING ================= -->
-
+<!-- ================= 3. CHEWING HABITS ================= -->
 <div class="card">
-
-<h2 class="section-title">
-<span>3</span>
-Chewing Habits
-</h2>
-
-<div class="field" style="max-width:360px">
-
-<label>Any Chewing Habits? <b class="required">*</b></label>
-
-<select id="chewing" name="any_chewing_habits" required>
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-
+  <h2 class="section-title"><span>3</span> Chewing Habits</h2>
+  <div class="field" style="max-width:360px">
+    <label>Any Chewing Habits? <b class="required">*</b></label>
+    <select id="chewing" name="any_chewing_habits" required><option value="">Select</option><option>Yes</option><option>No</option></select>
+  </div>
+  <div id="chewingFields" class="subsection hidden">
+    <div class="grid">
+      <div class="field"><label>Tobacco Chewing</label><select name="tobacco_chewing"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Gutkha</label><select name="gutkha"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Khaini</label><select name="khaini"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Snuff</label><select name="snuff"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Mawa</label><select name="mawa"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Tobacco Tooth Powder</label><select name="tobacco_containing_tooth_powder"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Betel Nut Chewing</label><select name="betel_nut_chewing"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Betel Quid Consumption</label><select name="betel_quid_consumption"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+    </div>
+  </div>
 </div>
 
-<div id="chewingFields" class="subsection hidden">
-
-<div class="grid">
-
-<div class="field">
-<label>Tobacco Chewing</label>
-<select name="tobacco_chewing">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Gutkha</label>
-<select name="gutkha">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Khaini</label>
-<select name="khaini">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Snuff</label>
-<select name="snuff">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Mawa</label>
-<select name="mawa">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Tobacco Containing Tooth Powder</label>
-<select name="tobacco_containing_tooth_powder">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Betel Nut Chewing</label>
-<select name="betel_nut_chewing">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Betel Quid Consumption</label>
-<select name="betel_quid_consumption">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-</div>
-</div>
-</div>
-
-<!-- ================= ALCOHOL ================= -->
-
+<!-- ================= 4. ALCOHOL ================= -->
 <div class="card">
-
-<h2 class="section-title">
-<span>4</span>
-Alcohol
-</h2>
-
-<div class="field" style="max-width:360px">
-
-<label>Alcohol? <b class="required">*</b></label>
-
-<select id="alcohol" name="alcohol" required>
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-
+  <h2 class="section-title"><span>4</span> Alcohol</h2>
+  <div class="field" style="max-width:360px">
+    <label>Alcohol? <b class="required">*</b></label>
+    <select id="alcohol" name="alcohol" required><option value="">Select</option><option>Yes</option><option>No</option></select>
+  </div>
+  <div id="alcoholFields" class="subsection hidden">
+    <div class="grid">
+      <div class="field"><label>Duration (Years)</label><input name="alcohol_duration_years" type="number" min="0"></div>
+      <div class="field"><label>Frequency</label><select name="alcohol_frequency"><option value="">Select</option><option>Occasional</option><option>Weekly</option><option>Daily</option></select></div>
+      <div class="field"><label>Quantity / Day</label><select name="alcohol_quantity"><option value="">Select</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option></select></div>
+      <div class="field"><label>Habit Combination</label><select name="habit_combination"><option value="">Select</option><option>Alcohol only</option><option>Alcohol + Smoking</option><option>Alcohol + Chewing</option><option>Alcohol + Smoking + Chewing</option></select></div>
+    </div>
+  </div>
 </div>
 
-<div id="alcoholFields" class="subsection hidden">
-
-<div class="grid">
-
-<div class="field">
-<label>Duration (Years)</label>
-<input name="alcohol_duration_years" type="number" min="0">
-</div>
-
-<div class="field">
-<label>Frequency</label>
-<select name="alcohol_frequency">
-<option value="">Select</option>
-<option>Occasional</option>
-<option>Weekly</option>
-<option>Daily</option>
-</select>
-</div>
-
-<!-- FIXED ALCOHOL QUANTITY -->
-
-<div class="field">
-<label>Quantity / Day</label>
-<select name="alcohol_quantity">
-<option value="">Select</option>
-<option>1</option>
-<option>2</option>
-<option>3</option>
-<option>4</option>
-<option>5</option>
-<option>6+</option>
-</select>
-</div>
-
-<div class="field">
-<label>Habit Combination</label>
-<select name="habit_combination">
-<option value="">Select</option>
-<option>Alcohol only</option>
-<option>Alcohol + Smoking</option>
-<option>Alcohol + Chewing</option>
-<option>Alcohol + Smoking + Chewing</option>
-</select>
-</div>
-
-</div>
-</div>
-</div>
-
-<!-- ================= MEDICAL HISTORY ================= -->
-
+<!-- ================= 5. MEDICAL HISTORY ================= -->
 <div class="card">
-
-<h2 class="section-title">
-<span>5</span>
-Medical & Oral History
-</h2>
-
-<div class="grid">
-
-<div class="field">
-<label>Diabetes Mellitus</label>
-<select name="diabetes_mellitus">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
+  <h2 class="section-title"><span>5</span> Medical & Oral History</h2>
+  <div class="grid">
+    <div class="field"><label>Diabetes Mellitus</label><select name="diabetes_mellitus"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Hypertension</label><select name="hypertension"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>HIV Infection</label><select name="hiv_infection"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Tuberculosis</label><select name="tuberculosis"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Bronchial Asthma</label><select name="bronchial_asthma"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Previous Oral Diseases</label><select name="previous_oral_diseases"><option value="">Select</option><option>None</option><option>Parindontities</option><option>Leukoplakia</option><option>Keratosis</option></select></div>
+    <div class="field full">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <label>Other Systemic Diseases & Notes</label>
+        <button type="button" class="dictation-btn" onclick="startDictation('other_systemic_diseases')">🎙 Voice Input</button>
+      </div>
+      <input id="other_systemic_diseases" name="other_systemic_diseases" placeholder="Speak or enter clinical notes...">
+    </div>
+  </div>
 </div>
 
-<div class="field">
-<label>Hypertension</label>
-<select name="hypertension">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>HIV Infection</label>
-<select name="hiv_infection">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Tuberculosis</label>
-<select name="tuberculosis">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Bronchial Asthma</label>
-<select name="bronchial_asthma">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Previous Oral Diseases</label>
-<select name="previous_oral_diseases">
-<option value="">Select</option>
-<option>None</option>
-<option>Parindontities</option>
-<option>Leukoplakia</option>
-<option>Keratosis</option>
-</select>
-</div>
-
-<div class="field">
-<label>Other Systemic Diseases</label>
-<input name="other_systemic_diseases" placeholder="None / manually enter">
-</div>
-
-</div>
-</div>
-
-<!-- ================= SYMPTOMS & LESION ================= -->
-
+<!-- ================= 6. SYMPTOMS & ANATOMICAL LESION MAP ================= -->
 <div class="card">
+  <h2 class="section-title"><span>6</span> Symptoms & Interactive Lesion Mapping</h2>
+  <div class="grid">
+    <div class="field"><label>Pain Presence</label><select name="pain_presence"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+    <div class="field"><label>Swelling <b class="required">*</b></label><select id="swelling" name="swelling" required><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+  </div>
 
-<h2 class="section-title">
-<span>6</span>
-Symptoms & Lesion Assessment
-</h2>
+  <div id="swellingFields" class="subsection hidden">
+    <div class="grid" style="margin-bottom: 24px;">
+      <div class="field"><label>Burning Sensation</label><select name="burning_sensation"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Bleeding Gums</label><select name="bleeding_gums"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Ulcer Less Than 2 Weeks</label><select id="ulcer_less" name="ulcer_less_than_2_weeks"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Ulcer Greater Than 2 Weeks</label><select id="ulcer_greater" name="ulcer_greater_than_2_weeks"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+    </div>
 
-<div class="grid">
+    <!-- ANATOMICAL SCULPTURE CANVAS -->
+    <div class="subsection">
+      <h3>Interactive Anatomical Mouth Sculptor</h3>
+      <p class="hint" style="margin-bottom:12px;">Click directly on the interactive diagram to accurately record the normalized location coordinates (X%, Y%).</p>
+      
+      <div class="anatomy-container">
+        <div class="canvas-wrapper" id="canvasContainer">
+          <canvas id="mouthCanvas" width="360" height="360"></canvas>
+          <div id="pointerPin" class="pointer-pin hidden"></div>
+        </div>
 
-<div class="field">
-<label>Pain Presence</label>
-<select name="pain_presence">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
+        <div class="grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="field">
+            <label>Lesion Location</label>
+            <select id="lesion_location" name="lesion_location">
+              <option value="">Select / Click Map</option>
+              <option>Buccal Mucosa</option>
+              <option>Tongue</option>
+              <option>Gingiva</option>
+              <option>Hard Palate</option>
+              <option>Floor of Mouth</option>
+              <option>Lower Lip</option>
+              <option>Upper Lip</option>
+            </select>
+          </div>
+          <div class="field"><label>Lesion Position (X %, Y %)</label><input id="lesion_position_coords" name="lesion_position_coords" readonly placeholder="Click diagram"></div>
+          <div class="field"><label>Lesion Color</label><select name="lesion_color"><option value="">Select</option><option>White</option><option>Red</option><option>Red-White</option><option>Normal</option></select></div>
+          <div class="field"><label>Lesion Shape</label><select name="lesion_shape"><option value="">Select</option><option>Irregular</option><option>Ill-defined</option><option>Regular</option></select></div>
+          <div class="field"><label>Surface Characteristics</label><select name="lesion_surface_characteristics"><option value="">Select</option><option>Smooth</option><option>Rough</option><option>Ulcerated</option><option>Nodular</option></select></div>
+          <div class="field"><label>Lesion Texture</label><select id="lesion_texture" name="lesion_texture"><option value="">Select</option><option>Soft</option><option>Firm</option><option>Indurated</option></select></div>
+          <div class="field"><label>Lesion Length (mm)</label><input name="lesion_length_mm" type="number" min="0" step="0.1"></div>
+          <div class="field"><label>Lesion Width (mm)</label><input name="lesion_width_mm" type="number" min="0" step="0.1"></div>
+          <div class="field"><label>Maximum Diameter (mm)</label><input id="lesion_maximum_diameter_mm" name="lesion_maximum_diameter_mm" type="number" min="0" step="0.1"></div>
+          <div class="field"><label>Lesion Extension</label><select name="lesion_extension"><option value="">Select</option><option>Localized</option><option>Adjacent Tissue</option><option>Multiple Areas</option></select></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ULCER SYMPTOMS -->
+    <div id="ulcerSymptoms" class="subsection hidden">
+      <div class="grid">
+        <div class="field"><label>Halitosis</label><select name="halitosis"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+        <div class="field"><label>Mobility of Teeth</label><select name="mobility_of_associated_teeth"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+        <div class="field"><label>Loss of Appetite</label><select name="loss_of_appetite"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+        <div class="field"><label>Weight Loss</label><select name="weight_loss"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="field">
-<label>Swelling <b class="required">*</b></label>
-<select id="swelling" name="swelling" required>
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-</div>
-
-<div id="swellingFields" class="subsection hidden">
-
-<div class="toggle-note">
-Swelling = Yes: symptom and lesion assessment fields become available.
-</div>
-
-<div class="grid">
-
-<div class="field">
-<label>Burning Sensation</label>
-<select name="burning_sensation">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Bleeding Gums</label>
-<select name="bleeding_gums">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Ulcer Less Than 2 Weeks</label>
-<select id="ulcer_less" name="ulcer_less_than_2_weeks">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Ulcer Greater Than 2 Weeks</label>
-<select id="ulcer_greater" name="ulcer_greater_than_2_weeks">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-</div>
-
-<!-- ULCER SYMPTOMS -->
-
-<div id="ulcerSymptoms" class="subsection hidden">
-
-<div class="grid">
-
-<div class="field">
-<label>Halitosis</label>
-<select name="halitosis">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Mobility of Associated Teeth</label>
-<select name="mobility_of_associated_teeth">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Loss of Appetite</label>
-<select name="loss_of_appetite">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-<div class="field">
-<label>Weight Loss</label>
-<select name="weight_loss">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-</div>
-</div>
-
-<!-- LESION DETAILS -->
-
-<div class="subsection">
-
-<h3>Lesion Details</h3>
-
-<div class="grid">
-
-<div class="field">
-<label>Lesion Location</label>
-<select name="lesion_location">
-<option value="">Select</option>
-<option>Buccal Mucosa</option>
-<option>Tongue</option>
-<option>Gingiva</option>
-<option>Hard Palate</option>
-<option>Floor of Mouth</option>
-<option>Lower Lip</option>
-<option>Alveolus</option>
-<option>Other</option>
-</select>
-</div>
-
-<div class="field">
-<label>Lesion Color</label>
-<select name="lesion_color">
-<option value="">Select</option>
-<option>White</option>
-<option>Red</option>
-<option>Red-White</option>
-<option>Normal</option>
-</select>
-</div>
-
-<div class="field">
-<label>Lesion Shape</label>
-<select name="lesion_shape">
-<option value="">Select</option>
-<option>Irregular</option>
-<option>Ill-defined</option>
-<option>Regular</option>
-</select>
-</div>
-
-<div class="field">
-<label>Surface Characteristics</label>
-<select name="lesion_surface_characteristics">
-<option value="">Select</option>
-<option>Smooth</option>
-<option>Rough</option>
-<option>Ulcerated</option>
-<option>Nodular</option>
-</select>
-</div>
-
-<div class="field">
-<label>Lesion Texture</label>
-<select name="lesion_texture">
-<option value="">Select</option>
-<option>Soft</option>
-<option>Firm</option>
-<option>Indurated</option>
-</select>
-</div>
-
-<!-- FIXED: MM -->
-
-<div class="field">
-<label>Lesion Length (mm)</label>
-<input
-  name="lesion_length_mm"
-  type="number"
-  min="0"
-  step="0.1"
->
-</div>
-
-<div class="field">
-<label>Lesion Width (mm)</label>
-<input
-  name="lesion_width_mm"
-  type="number"
-  min="0"
-  step="0.1"
->
-</div>
-
-<div class="field">
-<label>Maximum Diameter (mm)</label>
-<input
-  name="lesion_maximum_diameter_mm"
-  type="number"
-  min="0"
-  step="0.1"
->
-</div>
-
-<div class="field">
-<label>Lesion Extension</label>
-<select name="lesion_extension">
-<option value="">Select</option>
-<option>Localized</option>
-<option>Adjacent Tissue</option>
-<option>Multiple Areas</option>
-</select>
-</div>
-
-</div>
-</div>
-
-</div>
-</div>
-
-<!-- ================= EXAMINATION & LYMPH NODES ================= -->
-
+<!-- ================= 7. EXAMINATION & LYMPH NODES ================= -->
 <div class="card">
+  <h2 class="section-title"><span>7</span> Examination & Lymph Nodes</h2>
+  <div class="grid">
+    <div class="field">
+      <label>Inter-Incisal Distance (mm)</label>
+      <input id="inter_incisal_distance_mm" name="inter_incisal_distance_mm" type="number" min="0" step="1" placeholder="e.g. 35">
+    </div>
+    <div class="field">
+      <label>Mouth Opening Assessment</label>
+      <select id="mouth_opening_assessment" name="mouth_opening_assessment">
+        <option value="">Select</option>
+        <option>&lt;2 cm</option>
+        <option>2-4 cm</option>
+        <option>&gt;4 cm</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Regional Lymph Node Palpability</label>
+      <select id="ln_pal" name="regional_lymph_node_palpability"><option value="">Select</option><option>Yes</option><option>No</option></select>
+    </div>
+  </div>
 
-<h2 class="section-title">
-<span>7</span>
-Examination & Lymph Nodes
-</h2>
-
-<div class="grid">
-
-<div class="field">
-<label>Inter-Incisal Distance (mm)</label>
-<input
-name="inter_incisal_distance_mm"
-type="number"
-min="0"
-step="1"
->
+  <div id="lnFields" class="subsection hidden">
+    <div class="grid">
+      <div class="field"><label>Involvement</label><select name="lymph_node_involvement"><option value="">Select</option><option>Single</option><option>Multiple</option></select></div>
+      <div class="field"><label>Laterality</label><select name="lymph_node_laterality"><option value="">Select</option><option>Unilateral</option><option>Bilateral</option></select></div>
+      <div class="field"><label>Node Number</label><input name="regional_lymph_node_number" type="number" min="1"></div>
+      <div class="field"><label>Consistency</label><select name="regional_lymph_node_consistency"><option value="">Select</option><option>Soft</option><option>Firm</option><option>Hard</option></select></div>
+      <div class="field"><label>Mobility</label><select id="regional_lymph_node_mobility" name="regional_lymph_node_mobility"><option value="">Select</option><option>Mobile</option><option>Fixed</option></select></div>
+      <div class="field"><label>Size (mm)</label><input name="regional_lymph_node_size_mm" type="number" min="0" step="1"></div>
+      <div class="field"><label>Shape</label><select name="regional_lymph_node_shape"><option value="">Select</option><option>Oval</option><option>Round</option></select></div>
+      <div class="field"><label>Tenderness</label><select name="regional_lymph_node_tenderness"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+    </div>
+  </div>
 </div>
 
-<div class="field">
-<label>Mouth Opening Assessment</label>
-<select name="mouth_opening_assessment">
-<option value="">Select</option>
-<option>&lt;2 cm</option>
-<option>2-4 cm</option>
-<option>&gt;4 cm</option>
-</select>
-</div>
-
-<div class="field">
-<label>Regional Lymph Node Palpability</label>
-<select id="ln_pal" name="regional_lymph_node_palpability">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-</div>
-
-<!-- LYMPH NODE DETAILS -->
-
-<div id="lnFields" class="subsection hidden">
-
-<div class="toggle-note">
-LYMPH NODE INVOLVEMENT: record whether the involvement is Single or Multiple and Unilateral or Bilateral.
-</div>
-
-<div class="grid">
-
-<div class="field">
-<label>LYMPH NODE INVOLVEMENT</label>
-<select name="lymph_node_involvement">
-<option value="">Select</option>
-<option>Single</option>
-<option>Multiple</option>
-</select>
-</div>
-
-<div class="field">
-<label>LYMPH NODE INVOLVEMENT – Laterality</label>
-<select name="lymph_node_laterality">
-<option value="">Select</option>
-<option>Unilateral</option>
-<option>Bilateral</option>
-</select>
-</div>
-
-<div class="field">
-<label>Node Number</label>
-<input name="regional_lymph_node_number" type="number" min="1">
-</div>
-
-<div class="field">
-<label>Consistency</label>
-<select name="regional_lymph_node_consistency">
-<option value="">Select</option>
-<option>Soft</option>
-<option>Firm</option>
-<option>Hard</option>
-</select>
-</div>
-
-<div class="field">
-<label>Mobility</label>
-<select name="regional_lymph_node_mobility">
-<option value="">Select</option>
-<option>Mobile</option>
-<option>Fixed</option>
-</select>
-</div>
-
-<div class="field">
-<label>Size (mm)</label>
-<input
-name="regional_lymph_node_size_mm"
-type="number"
-min="0"
-step="1"
->
-</div>
-
-<div class="field">
-<label>Shape</label>
-<select name="regional_lymph_node_shape">
-<option value="">Select</option>
-<option>Oval</option>
-<option>Round</option>
-</select>
-</div>
-
-<div class="field">
-<label>Tenderness</label>
-<select name="regional_lymph_node_tenderness">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-
-</div>
-</div>
-</div>
-
-<!-- ================= SAVE ================= -->
-
+<!-- ================= SAVE & ACTIONS ================= -->
 <div class="card">
-
-<div class="actions">
-
-<button type="reset" class="btn secondary">
-Reset
-</button>
-
-<button id="submitBtn" type="submit" class="btn primary">
-Save Patient
-</button>
-
-</div>
-
-<div id="status" class="status"></div>
-
+  <div class="actions">
+    <button type="reset" class="btn secondary">Reset Form</button>
+    <button id="submitBtn" type="submit" class="btn primary">Save Assessment</button>
+  </div>
+  <div id="status" class="status"></div>
 </div>
 
 </form>
 </div>
 
 <script>
-
 let CONFIG;
-
 const $ = id => document.getElementById(id);
 
+/* =========================================
+   ANATOMICAL SCULPTOR (CANVAS DRAWING)
+========================================= */
+function initMouthCanvas() {
+  const canvas = $('mouthCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Outer Mouth Contour
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.ellipse(180, 180, 150, 130, 0, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Upper/Lower Lips
+  ctx.fillStyle = '#334155';
+  ctx.beginPath();
+  ctx.ellipse(180, 70, 100, 25, 0, 0, Math.PI); // Upper Lip
+  ctx.ellipse(180, 290, 100, 25, 0, 0, Math.PI, true); // Lower Lip
+  ctx.fill();
+
+  // Hard Palate / Gingiva Area
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.arc(180, 130, 70, 0, Math.PI, true);
+  ctx.fill();
+
+  // Tongue
+  ctx.fillStyle = '#1e1b4b';
+  ctx.beginPath();
+  ctx.ellipse(180, 210, 65, 50, 0, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.strokeStyle = '#60a5fa';
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '12px Plus Jakarta Sans';
+  ctx.fillText('Hard Palate', 150, 120);
+  ctx.fillText('Tongue', 160, 215);
+  ctx.fillText('Buccal Mucosa (L)', 45, 185);
+  ctx.fillText('Buccal Mucosa (R)', 235, 185);
+  ctx.fillText('Lower Lip', 155, 295);
+}
+
+// Click Mapping logic (Normalizing into X%, Y% relative coordinates)
+$('canvasContainer').addEventListener('click', function(e) {
+  const rect = this.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  
+  const pctX = ((x / rect.width) * 100).toFixed(1);
+  const pctY = ((y / rect.height) * 100).toFixed(1);
+
+  // Set pin
+  const pin = $('pointerPin');
+  pin.style.left = `${pctX}%`;
+  pin.style.top = `${pctY}%`;
+  pin.classList.remove('hidden');
+
+  $('lesion_position_coords').value = `X: ${pctX}%, Y: ${pctY}%`;
+
+  // Auto-detect anatomical region based on click
+  if (pctY < 25) $('lesion_location').value = 'Upper Lip';
+  else if (pctY > 75) $('lesion_location').value = 'Lower Lip';
+  else if (pctX < 30 || pctX > 70) $('lesion_location').value = 'Buccal Mucosa';
+  else if (pctY >= 50 && pctY <= 75) $('lesion_location').value = 'Tongue';
+  else if (pctY >= 25 && pctY < 50) $('lesion_location').value = 'Hard Palate';
+  
+  evaluateRisk();
+});
 
 /* =========================================
-   LOAD SUPABASE CONFIG
+   VOICE-TO-TEXT CLINICAL DICTATION
 ========================================= */
+function startDictation(targetId) {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Voice recognition not supported in your browser.');
+    return;
+  }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.start();
 
-async function loadConfig() {
+  recognition.onresult = function(e) {
+    $(targetId).value = e.results[0][0].transcript;
+  };
+}
 
-  const response = await fetch('/api/config.js');
+/* =========================================
+   AUTOMATED RISK ASSESSMENT ENGINE
+========================================= */
+function evaluateRisk() {
+  let score = 0;
 
-  if (!response.ok) {
-    throw new Error('Unable to load API configuration.');
+  // Habit metrics
+  if ($('smoking').value === 'Yes') score += 1;
+  if ($('chewing').value === 'Yes') score += 2;
+  if ($('alcohol').value === 'Yes') score += 1;
+
+  // Lesion & Ulcer metrics
+  if ($('ulcer_greater').value === 'Yes') score += 3;
+  if ($('lesion_texture').value === 'Indurated') score += 3;
+  
+  const diameter = parseFloat($('lesion_maximum_diameter_mm').value) || 0;
+  if (diameter > 20) score += 2; // > 2cm
+
+  // Lymph node metrics
+  if ($('ln_pal').value === 'Yes') score += 2;
+  if ($('regional_lymph_node_mobility').value === 'Fixed') score += 3;
+
+  const display = $('riskLevelDisplay');
+  if (score >= 7) {
+    display.textContent = 'HIGH / SUSPICIOUS';
+    display.style.color = 'var(--danger)';
+  } else if (score >= 4) {
+    display.textContent = 'MODERATE RISK';
+    display.style.color = 'var(--warning)';
+  } else {
+    display.textContent = 'LOW RISK';
+    display.style.color = 'var(--success)';
   }
 
-  CONFIG = await response.json();
+  // OSMF Grade Assessment
+  const dist = parseFloat($('inter_incisal_distance_mm').value);
+  const osmfDisplay = $('osmfStageDisplay');
+  if (!isNaN(dist)) {
+    if (dist < 15) osmfDisplay.textContent = 'OSMF Grade IV (< 15mm)';
+    else if (dist < 25) osmfDisplay.textContent = 'OSMF Grade III (15-25mm)';
+    else if (dist < 35) osmfDisplay.textContent = 'OSMF Grade II (25-35mm)';
+    else osmfDisplay.textContent = 'OSMF Grade I / Normal (> 35mm)';
+  }
 }
 
-
 /* =========================================
-   SHOW / HIDE
+   FORM LOGIC & CONDITIONAL SYNCHRONIZATION
 ========================================= */
-
-function toggle(id, show) {
-
-  const element = $(id);
-
-  if (!element) return;
-
-  element.classList.toggle('hidden', !show);
-}
-
-
-/* =========================================
-   ENABLE / DISABLE
-========================================= */
-
-function setDisabled(containerId, disabled) {
-
-  const box = $(containerId);
-
-  if (!box) return;
-
-  box.querySelectorAll('input, select, textarea')
-    .forEach(element => {
-      element.disabled = disabled;
-    });
-}
-
-
-/* =========================================
-   CONDITIONAL FORM LOGIC
-========================================= */
-
 function sync() {
-
-  /* SMOKING */
-
-  const smoking = $('smoking').value === 'Yes';
-
-  toggle('smokingFields', smoking);
-  setDisabled('smokingFields', !smoking);
-
-
-  /* CHEWING */
-
-  const chewing = $('chewing').value === 'Yes';
-
-  toggle('chewingFields', chewing);
-  setDisabled('chewingFields', !chewing);
-
-
-  /* ALCOHOL */
-
-  const alcohol = $('alcohol').value === 'Yes';
-
-  toggle('alcoholFields', alcohol);
-  setDisabled('alcoholFields', !alcohol);
-
-
-  /* SWELLING */
+  toggle('smokingFields', $('smoking').value === 'Yes');
+  toggle('chewingFields', $('chewing').value === 'Yes');
+  toggle('alcoholFields', $('alcohol').value === 'Yes');
 
   const swelling = $('swelling').value === 'Yes';
-
   toggle('swellingFields', swelling);
-  setDisabled('swellingFields', !swelling);
 
-
-  /* ULCER */
-
-  const ulcer =
-    swelling &&
-    (
-      $('ulcer_less').value === 'Yes' ||
-      $('ulcer_greater').value === 'Yes'
-    );
-
+  const ulcer = swelling && ($('ulcer_less').value === 'Yes' || $('ulcer_greater').value === 'Yes');
   toggle('ulcerSymptoms', ulcer);
-  setDisabled('ulcerSymptoms', !ulcer);
 
+  toggle('lnFields', $('ln_pal').value === 'Yes');
 
-  /* LYMPH NODE */
-
-  const lymphNode =
-    $('ln_pal').value === 'Yes';
-
-  toggle('lnFields', lymphNode);
-  setDisabled('lnFields', !lymphNode);
+  evaluateRisk();
 }
 
+function toggle(id, show) {
+  const el = $(id);
+  if (el) el.classList.toggle('hidden', !show);
+}
 
-/* =========================================
-   CHANGE LISTENERS
-========================================= */
-
-[
-  'smoking',
-  'chewing',
-  'alcohol',
-  'swelling',
-  'ulcer_less',
-  'ulcer_greater',
-  'ln_pal'
-].forEach(id => {
-
-  $(id).addEventListener('change', sync);
-
+// Global Listeners for dynamic updates
+document.querySelectorAll('select, input').forEach(el => {
+  el.addEventListener('change', sync);
+  el.addEventListener('input', evaluateRisk);
 });
 
-
-/* =========================================
-   RESET
-========================================= */
-
-$('patientForm').addEventListener('reset', () => {
-
-  setTimeout(sync, 0);
-
+window.addEventListener('DOMContentLoaded', () => {
+  initMouthCanvas();
+  sync();
 });
-
-
-/* =========================================
-   SUBMIT
-========================================= */
-
-$('patientForm').addEventListener('submit', async e => {
-
-  e.preventDefault();
-
-  const status = $('status');
-  const btn = $('submitBtn');
-
-  status.className = 'status';
-  status.textContent = '';
-
-  try {
-
-    /* LOAD CONFIG */
-
-    if (!CONFIG) {
-      await loadConfig();
-    }
-
-
-    /* =====================================
-       FORM DATA
-    ===================================== */
-
-    const formData = new FormData(e.target);
-    const data = {};
-
-    /*
-      Empty values become NULL.
-      This prevents PostgreSQL numeric/integer
-      conversion errors.
-    */
-
-    formData.forEach((value, key) => {
-
-      data[key] =
-        value === ''
-          ? null
-          : value;
-
-    });
-
-
-    /* =====================================
-       CONDITIONAL: SMOKING
-    ===================================== */
-
-    if (data.smoking !== 'Yes') {
-
-      [
-        'cigarette_smoking',
-        'bidi_smoking',
-        'reverse_smoking',
-        'electronic_cigarette',
-        'smoking_duration_years',
-        'smoking_frequency_per_day'
-      ].forEach(key => {
-        data[key] = null;
-      });
-
-    }
-
-
-    /* =====================================
-       CONDITIONAL: CHEWING
-    ===================================== */
-
-    if (data.any_chewing_habits !== 'Yes') {
-
-      [
-        'tobacco_chewing',
-        'gutkha',
-        'khaini',
-        'snuff',
-        'mawa',
-        'tobacco_containing_tooth_powder',
-        'betel_nut_chewing',
-        'betel_quid_consumption'
-      ].forEach(key => {
-        data[key] = null;
-      });
-
-    }
-
-
-    /* =====================================
-       CONDITIONAL: ALCOHOL
-    ===================================== */
-
-    if (data.alcohol !== 'Yes') {
-
-      [
-        'alcohol_duration_years',
-        'alcohol_frequency',
-        'alcohol_quantity',
-        'habit_combination'
-      ].forEach(key => {
-        data[key] = null;
-      });
-
-    }
-
-
-    /* =====================================
-       CONDITIONAL: SWELLING
-    ===================================== */
-
-    if (data.swelling !== 'Yes') {
-
-      [
-        'burning_sensation',
-        'bleeding_gums',
-        'ulcer_less_than_2_weeks',
-        'ulcer_greater_than_2_weeks',
-        'halitosis',
-        'mobility_of_associated_teeth',
-        'loss_of_appetite',
-        'weight_loss',
-        'lesion_location',
-        'lesion_color',
-        'lesion_shape',
-        'lesion_surface_characteristics',
-        'lesion_texture',
-        'lesion_length_mm',
-        'lesion_width_mm',
-        'lesion_maximum_diameter_mm',
-        'lesion_extension'
-      ].forEach(key => {
-        data[key] = null;
-      });
-
-    }
-
-
-    /* =====================================
-       CONDITIONAL: ULCER
-    ===================================== */
-
-    const hasUlcer =
-      data.ulcer_less_than_2_weeks === 'Yes' ||
-      data.ulcer_greater_than_2_weeks === 'Yes';
-
-    if (!hasUlcer) {
-
-      [
-        'halitosis',
-        'mobility_of_associated_teeth',
-        'loss_of_appetite',
-        'weight_loss'
-      ].forEach(key => {
-        data[key] = null;
-      });
-
-    }
-
-
-    /* =====================================
-       CONDITIONAL: LYMPH NODE
-    ===================================== */
-
-    if (
-      data.regional_lymph_node_palpability !== 'Yes'
-    ) {
-
-      [
-        'lymph_node_involvement',
-        'lymph_node_laterality',
-        'regional_lymph_node_number',
-        'regional_lymph_node_consistency',
-        'regional_lymph_node_mobility',
-        'regional_lymph_node_size_mm',
-        'regional_lymph_node_shape',
-        'regional_lymph_node_tenderness'
-      ].forEach(key => {
-        data[key] = null;
-      });
-
-    }
-
-
-    /* =====================================
-       NUMERIC FIELDS
-    ===================================== */
-
-    const numericFields = [
-
-      'age',
-
-      'smoking_duration_years',
-      'smoking_frequency_per_day',
-
-      'alcohol_duration_years',
-
-      'lesion_length_mm',
-      'lesion_width_mm',
-      'lesion_maximum_diameter_mm',
-
-      'inter_incisal_distance_mm',
-
-      'regional_lymph_node_number',
-      'regional_lymph_node_size_mm'
-
-    ];
-
-
-    numericFields.forEach(field => {
-
-      if (
-        data[field] !== null &&
-        data[field] !== undefined &&
-        data[field] !== ''
-      ) {
-
-        const number = Number(data[field]);
-
-        if (Number.isNaN(number)) {
-          data[field] = null;
-        } else {
-          data[field] = number;
-        }
-
-      } else {
-
-        data[field] = null;
-
-      }
-
-    });
-
-
-    /* =====================================
-       SAVE
-    ===================================== */
-
-    btn.disabled = true;
-    btn.textContent = 'Saving...';
-
-
-    const response = await fetch(
-      CONFIG.SUPABASE_URL +
-      '/rest/v1/oral_clinical_assessments',
-      {
-        method:'POST',
-
-        headers:{
-          'apikey':CONFIG.SUPABASE_ANON_KEY,
-
-          'Authorization':
-            'Bearer ' +
-            CONFIG.SUPABASE_ANON_KEY,
-
-          'Content-Type':'application/json',
-
-          'Prefer':'return=representation'
-        },
-
-        body:JSON.stringify(data)
-      }
-    );
-
-
-    /* =====================================
-       ERROR HANDLING
-    ===================================== */
-
-    if (!response.ok) {
-
-      const error =
-        await response.json().catch(() => ({}));
-
-      console.error(
-        'Supabase error:',
-        error
-      );
-
-      throw new Error(
-        error.message ||
-        error.hint ||
-        error.details ||
-        'Supabase insert failed.'
-      );
-
-    }
-
-
-    /* =====================================
-       SUCCESS
-    ===================================== */
-
-    status.className = 'status ok';
-
-    status.textContent =
-      'Patient record saved successfully.';
-
-    e.target.reset();
-
-    sync();
-
-
-  } catch (error) {
-
-    console.error(
-      'Save error:',
-      error
-    );
-
-    status.className = 'status error';
-
-    status.textContent =
-      error.message ||
-      'Unable to save patient record.';
-
-
-  } finally {
-
-    btn.disabled = false;
-    btn.textContent = 'Save Patient';
-
-  }
-
-});
-
-
-/* =========================================
-   INITIALIZE
-========================================= */
-
-loadConfig()
-  .catch(error => {
-
-    $('status').className = 'status error';
-
-    $('status').textContent =
-      error.message;
-
-  });
-
-sync();
-
 </script>
-
 </body>
 </html>
