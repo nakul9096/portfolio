@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 <style>
 :root {
   --bg: #0b0f19;
@@ -16,21 +15,20 @@
   --text-muted: #94a3b8;
   --primary: #3b82f6;
   --primary-hover: #2563eb;
-  --primary-light: rgba(59, 130, 246, 0.12);
+  --primary-light: rgba(59, 130, 246, 0.15);
   --border-color: #26334d;
   --border-focus: #60a5fa;
   --danger: #f87171;
   --warning: #fbbf24;
   --success: #34d399;
-  --success-bg: rgba(52, 211, 153, 0.1);
-  --danger-bg: rgba(248, 113, 113, 0.1);
+  --success-bg: rgba(52, 211, 153, 0.12);
+  --danger-bg: rgba(248, 113, 113, 0.12);
   --radius-lg: 16px;
   --radius-md: 10px;
-  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 12px 28px -6px rgba(0, 0, 0, 0.55);
+  --shadow-glow: 0 0 0 4px rgba(96, 165, 250, 0.25);
 }
-
 * { box-sizing: border-box; }
-
 body {
   margin: 0;
   background: var(--bg);
@@ -39,20 +37,18 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
-
 .container {
   max-width: 1140px;
   margin: 40px auto;
   padding: 0 20px;
 }
-
 .hero {
-  background: linear-gradient(135deg, #1e1b4b 0%, #1e293b 50%, #0f172a 100%);
+  background: linear-gradient(135deg, #1e1b4b 0%, #1e293b 55%, #0f172a 100%);
   border: 1px solid var(--border-color);
   color: #fff;
   border-radius: var(--radius-lg);
-  padding: 36px 40px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, .4);
+  padding: 32px 36px;
+  box-shadow: var(--shadow-md);
   margin-bottom: 24px;
   display: flex;
   justify-content: space-between;
@@ -60,106 +56,131 @@ body {
   flex-wrap: wrap;
   gap: 20px;
 }
-
-.hero h1 { margin: 0 0 8px; font-size: 30px; font-weight: 700; }
-.hero p { margin: 0; color: var(--text-muted); font-size: 15px; }
-
+.hero h1 { margin: 0 0 6px; font-size: 28px; font-weight: 700; letter-spacing: -0.3px; }
+.hero p { margin: 0; color: var(--text-muted); font-size: 14px; }
 .risk-indicator-badge {
   background: #0f172a;
   border: 1px solid var(--border-color);
-  padding: 16px 24px;
+  padding: 14px 20px;
   border-radius: var(--radius-md);
   text-align: right;
-  min-width: 240px;
+  min-width: 220px;
 }
-
 .risk-level {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--success);
+  transition: color 0.3s ease;
 }
-
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 28px 32px;
-  margin-bottom: 24px;
+  padding: 26px 30px;
+  margin-bottom: 22px;
   box-shadow: var(--shadow-md);
+  transition: border-color 0.2s ease;
 }
-
 .section-title {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 0 0 22px;
-  font-size: 18px;
+  margin: 0 0 20px;
+  font-size: 17px;
   font-weight: 700;
 }
-
 .section-title span {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   background: var(--primary-light);
   color: var(--primary);
   display: grid;
   place-items: center;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
 }
-
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px 18px;
+  gap: 18px 16px;
 }
-
 .field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-
 .field.full { grid-column: 1 / -1; }
-
 label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
 .required { color: var(--danger); }
 .hint { font-size: 12px; color: var(--text-muted); }
-
 input, select, textarea {
   width: 100%;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 10px 14px;
+  padding: 10px 13px;
   background: #0f172a;
   color: var(--text-main);
   font: inherit;
   font-size: 14px;
   outline: none;
-  transition: all .2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
-
 input:hover, select:hover, textarea:hover { border-color: #3b82f6; }
 input:focus, select:focus, textarea:focus {
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 4px rgba(96, 165, 250, .2);
+  box-shadow: var(--shadow-glow);
 }
-
 /* Active Dictation Focus Style */
 .dictating-active {
   border-color: #ef4444 !important;
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35) !important;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.4) !important;
   background: #1e1b4b !important;
+  animation: dictationPulse 1.4s ease-in-out infinite;
 }
-
+@keyframes dictationPulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35); }
+  50% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0.15); }
+}
+.listening-badge {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #b91c1c;
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(185, 28, 28, 0.5);
+  animation: fadeInUp 0.3s ease;
+}
+.listening-badge.visible { display: flex; }
+.listening-badge .dot {
+  width: 8px; height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  animation: blink 0.9s infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
 .anatomy-container {
   display: grid;
   grid-template-columns: 360px 1fr;
   gap: 24px;
   align-items: start;
 }
-
 .canvas-wrapper {
   position: relative;
   background: #0a0e17;
@@ -168,14 +189,14 @@ input:focus, select:focus, textarea:focus {
   overflow: hidden;
   cursor: crosshair;
   user-select: none;
+  transition: border-color 0.2s ease;
 }
-
+.canvas-wrapper:hover { border-color: #3b82f6; }
 #mouthCanvas {
   display: block;
   width: 100%;
   height: auto;
 }
-
 .pointer-pin {
   position: absolute;
   width: 16px;
@@ -184,17 +205,15 @@ input:focus, select:focus, textarea:focus {
   border: 2px solid #ffffff;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.85);
   pointer-events: none;
   animation: pulse 1.5s infinite;
 }
-
 @keyframes pulse {
   0% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -50%) scale(1.3); }
+  50% { transform: translate(-50%, -50%) scale(1.25); }
   100% { transform: translate(-50%, -50%) scale(1); }
 }
-
 .dictation-master-btn {
   background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
   border: 0;
@@ -207,31 +226,29 @@ input:focus, select:focus, textarea:focus {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
-  transition: all .2s ease;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+  transition: all 0.2s ease;
 }
-
-.dictation-master-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6); }
-.dictation-master-btn.active { background: #15803d; box-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
-
+.dictation-master-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(239, 68, 68, 0.55); }
+.dictation-master-btn.active {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  box-shadow: 0 0 18px rgba(34, 197, 94, 0.55);
+}
 .subsection {
-  margin-top: 24px;
-  padding-top: 22px;
+  margin-top: 22px;
+  padding-top: 20px;
   border-top: 1px dashed var(--border-color);
 }
-
 .hidden { display: none !important; }
-
 .toggle-note {
-  padding: 12px 16px;
+  padding: 11px 15px;
   background: var(--primary-light);
   border-left: 3px solid var(--primary);
   border-radius: 6px;
   color: #93c5fd;
   font-size: 13px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
-
 .dental-arch-selector {
   display: flex;
   flex-wrap: wrap;
@@ -241,7 +258,6 @@ input:focus, select:focus, textarea:focus {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
 }
-
 .tooth-btn {
   background: #1e293b;
   border: 1px solid var(--border-color);
@@ -249,16 +265,14 @@ input:focus, select:focus, textarea:focus {
   padding: 6px 10px;
   font-size: 11px;
   font-weight: 600;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
   user-select: none;
+  transition: all 0.15s ease;
 }
-
-.tooth-btn:hover { border-color: var(--primary); }
+.tooth-btn:hover { border-color: var(--primary); background: #243044; }
 .tooth-btn.selected { background: var(--primary); color: #fff; border-color: var(--primary); }
-
 .actions { display: flex; justify-content: flex-end; gap: 12px; }
-
 .btn {
   border: 0;
   border-radius: var(--radius-md);
@@ -266,13 +280,12 @@ input:focus, select:focus, textarea:focus {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all .2s ease;
+  transition: all 0.2s ease;
 }
-
 .btn.primary { background: var(--primary); color: #fff; }
-.btn.primary:hover { background: var(--primary-hover); }
+.btn.primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
 .btn.secondary { background: #1e293b; color: #cbd5e1; border: 1px solid var(--border-color); }
-
+.btn.secondary:hover { background: #243044; }
 .status {
   margin-top: 16px;
   padding: 14px 16px;
@@ -280,24 +293,20 @@ input:focus, select:focus, textarea:focus {
   display: none;
   font-size: 14px;
 }
-
 .status.ok { display: block; background: var(--success-bg); color: #6ee7b7; border: 1px solid #065f46; }
 .status.error { display: block; background: var(--danger-bg); color: #fca5a5; border: 1px solid #991b1b; }
-
 @media(max-width: 850px) {
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .anatomy-container { grid-template-columns: 1fr; }
 }
 @media(max-width: 560px) {
   .grid { grid-template-columns: 1fr; }
+  .hero { padding: 24px; }
 }
 </style>
 </head>
-
 <body>
-
 <div class="container">
-
 <div class="hero">
   <div>
     <h1>Oral Clinical Assessment</h1>
@@ -308,15 +317,13 @@ input:focus, select:focus, textarea:focus {
       🎙 Start Auto-Dictation Flow
     </button>
     <div class="risk-indicator-badge">
-      <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Real-Time Malignancy Risk</div>
+      <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px;">Real-Time Malignancy Risk</div>
       <div id="riskLevelDisplay" class="risk-level">LOW RISK</div>
       <div id="osmfStageDisplay" style="font-size: 12px; color: var(--text-muted);">OSMF Stage: Normal</div>
     </div>
   </div>
 </div>
-
 <form id="patientForm" onsubmit="handleFormSubmit(event)">
-
 <!-- ================= 1. PATIENT INFORMATION ================= -->
 <div class="card">
   <h2 class="section-title"><span>1</span> Patient Information</h2>
@@ -367,7 +374,6 @@ input:focus, select:focus, textarea:focus {
     </div>
   </div>
 </div>
-
 <!-- ================= 2. SMOKING HABITS ================= -->
 <div class="card">
   <h2 class="section-title"><span>2</span> Smoking Habits</h2>
@@ -419,7 +425,6 @@ input:focus, select:focus, textarea:focus {
     </div>
   </div>
 </div>
-
 <!-- ================= 3. CHEWING HABITS ================= -->
 <div class="card">
   <h2 class="section-title"><span>3</span> Chewing Habits</h2>
@@ -500,7 +505,6 @@ input:focus, select:focus, textarea:focus {
     </div>
   </div>
 </div>
-
 <!-- ================= 4. ALCOHOL ================= -->
 <div class="card">
   <h2 class="section-title"><span>4</span> Alcohol</h2>
@@ -547,7 +551,6 @@ input:focus, select:focus, textarea:focus {
     </div>
   </div>
 </div>
-
 <!-- ================= 5. MEDICAL HISTORY ================= -->
 <div class="card">
   <h2 class="section-title"><span>5</span> Medical & Oral History</h2>
@@ -609,7 +612,6 @@ input:focus, select:focus, textarea:focus {
     </div>
   </div>
 </div>
-
 <!-- ================= 6. SYMPTOMS & ANATOMICAL LESION MAP ================= -->
 <div class="card">
   <h2 class="section-title"><span>6</span> Symptoms & Interactive Lesion Mapping</h2>
@@ -631,7 +633,6 @@ input:focus, select:focus, textarea:focus {
       </select>
     </div>
   </div>
-
   <div id="swellingFields" class="subsection hidden">
     <div class="grid" style="margin-bottom: 24px;">
       <div class="field">
@@ -667,10 +668,9 @@ input:focus, select:focus, textarea:focus {
         </select>
       </div>
     </div>
-
     <!-- ANATOMICAL SCULPTURE CANVAS -->
     <div class="subsection">
-      <h3>Interactive Anatomical Mouth Sculptor</h3>
+      <h3 style="margin:0 0 6px;font-size:15px;">Interactive Anatomical Mouth Sculptor</h3>
       <p class="hint" style="margin-bottom:12px;">Click directly on the interactive diagram to accurately record the normalized location coordinates (X%, Y%).</p>
       
       <div class="anatomy-container">
@@ -678,7 +678,6 @@ input:focus, select:focus, textarea:focus {
           <canvas id="mouthCanvas" width="360" height="360"></canvas>
           <div id="pointerPin" class="pointer-pin hidden"></div>
         </div>
-
         <div class="grid" style="grid-template-columns: 1fr 1fr;">
           <div class="field">
             <label for="lesion_location">Lesion Location</label>
@@ -748,14 +747,12 @@ input:focus, select:focus, textarea:focus {
         </div>
       </div>
     </div>
-
     <!-- DENTAL CHART QUICK-SELECT -->
     <div class="subsection">
       <label style="margin-bottom: 8px; display: block;">Associated Affected Teeth (FDI Notation)</label>
       <div class="dental-arch-selector" id="dentalArchSelector"></div>
       <input type="hidden" id="affected_teeth" name="affected_teeth" value="">
     </div>
-
     <!-- ULCER SYMPTOMS -->
     <div id="ulcerSymptoms" class="subsection hidden">
       <div class="grid">
@@ -795,7 +792,6 @@ input:focus, select:focus, textarea:focus {
     </div>
   </div>
 </div>
-
 <!-- ================= 7. EXAMINATION & LYMPH NODES ================= -->
 <div class="card">
   <h2 class="section-title"><span>7</span> Examination & Lymph Nodes</h2>
@@ -822,7 +818,6 @@ input:focus, select:focus, textarea:focus {
       </select>
     </div>
   </div>
-
   <div id="lnFields" class="subsection hidden">
     <div class="grid">
       <div class="field">
@@ -879,7 +874,6 @@ input:focus, select:focus, textarea:focus {
     </div>
   </div>
 </div>
-
 <!-- ================= SAVE & ACTIONS ================= -->
 <div class="card">
   <div class="actions">
@@ -888,8 +882,13 @@ input:focus, select:focus, textarea:focus {
   </div>
   <div id="status" class="status"></div>
 </div>
-
 </form>
+</div>
+
+<!-- Listening indicator -->
+<div id="listeningBadge" class="listening-badge">
+  <span class="dot"></span>
+  Listening… Speak clearly
 </div>
 
 <script>
@@ -898,6 +897,8 @@ let activeTeeth = new Set();
 let isAutoDictating = false;
 let currentField = null;
 let recognition = null;
+let retryCount = 0;
+const MAX_RETRIES = 2;
 
 /* =========================================
    UNIVERSAL SEQUENTIAL AUTO-DICTATION FLOW
@@ -934,6 +935,7 @@ function startNextDictationStep() {
   isAutoDictating = true;
   btn.classList.add('active');
   btn.textContent = '⏹ Stop Auto-Dictation';
+  retryCount = 0;
 
   if (currentField) {
     currentField.classList.remove('dictating-active');
@@ -945,7 +947,7 @@ function startNextDictationStep() {
   currentField.classList.add('dictating-active');
 
   const labelEl = document.querySelector(`label[for="${currentField.id}"]`) || currentField.closest('.field')?.querySelector('label');
-  const labelName = labelEl ? labelEl.innerText.replace('*', '').trim() : 'field';
+  const labelName = labelEl ? labelEl.innerText.replace('*', '').trim() : 'this field';
 
   speakText(`Please say ${labelName}`, () => {
     listenForFieldInput(currentField);
@@ -954,53 +956,138 @@ function startNextDictationStep() {
 
 function listenForFieldInput(element) {
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Voice recognition is not supported by your browser.');
+    alert('Voice recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.');
     stopAutoDictation();
     return;
+  }
+
+  // Clean up any previous instance
+  if (recognition) {
+    try { recognition.abort(); } catch (e) {}
+    recognition = null;
   }
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SpeechRecognition();
   recognition.lang = 'en-US';
   recognition.interimResults = false;
+  recognition.maxAlternatives = 3;
+  recognition.continuous = false;
+
+  showListeningBadge(true);
 
   recognition.onresult = function(event) {
+    showListeningBadge(false);
     const transcript = event.results[0][0].transcript.trim();
-    
+    let matched = false;
+
     if (element.tagName === 'SELECT') {
       const options = Array.from(element.options);
-      const matched = options.find(opt => opt.text.toLowerCase().includes(transcript.toLowerCase()) || opt.value.toLowerCase().includes(transcript.toLowerCase()));
-      if (matched) {
-        element.value = matched.value;
+      // Prefer exact / starts-with match, then includes
+      let best = options.find(opt =>
+        opt.text.toLowerCase() === transcript.toLowerCase() ||
+        opt.value.toLowerCase() === transcript.toLowerCase()
+      );
+      if (!best) {
+        best = options.find(opt =>
+          opt.text.toLowerCase().startsWith(transcript.toLowerCase()) ||
+          opt.value.toLowerCase().startsWith(transcript.toLowerCase())
+        );
+      }
+      if (!best) {
+        best = options.find(opt =>
+          opt.text.toLowerCase().includes(transcript.toLowerCase()) ||
+          opt.value.toLowerCase().includes(transcript.toLowerCase())
+        );
+      }
+      if (best && best.value !== "") {
+        element.value = best.value;
+        matched = true;
       }
     } else {
-      element.value = transcript;
+      // For number inputs try to extract digits
+      if (element.type === 'number') {
+        const numMatch = transcript.match(/(\d+(\.\d+)?)/);
+        if (numMatch) {
+          element.value = numMatch[1];
+          matched = true;
+        } else {
+          element.value = transcript;
+          matched = true;
+        }
+      } else {
+        element.value = transcript;
+        matched = true;
+      }
     }
 
-    element.dispatchEvent(new Event('change'));
-    element.dispatchEvent(new Event('input'));
+    if (matched) {
+      element.dispatchEvent(new Event('change', { bubbles: true }));
+      element.dispatchEvent(new Event('input', { bubbles: true }));
+      retryCount = 0;
 
-    if (isAutoDictating) {
-      setTimeout(() => {
-        startNextDictationStep();
-      }, 500);
+      if (isAutoDictating) {
+        setTimeout(() => {
+          startNextDictationStep();
+        }, 450);
+      }
+    } else {
+      // No good match → retry
+      handleNoResult(element);
     }
   };
 
-  recognition.onerror = recognition.onend = function(e) {
-    if (isAutoDictating && (!element.value || element.value === "")) {
-      // If no speech detected, prompt again or move forward
+  recognition.onerror = function(event) {
+    showListeningBadge(false);
+    if (event.error === 'aborted') return;
+    if (event.error === 'no-speech' || event.error === 'audio-capture' || event.error === 'network') {
+      handleNoResult(element);
+    } else {
+      console.warn('Speech recognition error:', event.error);
+      if (isAutoDictating) {
+        speakText("Sorry, I could not hear that. Moving to the next field.");
+        setTimeout(() => startNextDictationStep(), 800);
+      }
     }
   };
 
-  recognition.start();
+  recognition.onend = function() {
+    showListeningBadge(false);
+    // If we still have no value and we are supposed to be dictating, retry
+    if (isAutoDictating && currentField === element && (!element.value || element.value.trim() === "")) {
+      handleNoResult(element);
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch (err) {
+    console.warn(err);
+    showListeningBadge(false);
+    handleNoResult(element);
+  }
+}
+
+function handleNoResult(element) {
+  if (!isAutoDictating) return;
+  retryCount++;
+  if (retryCount <= MAX_RETRIES) {
+    speakText("I didn't catch that. Please try again.", () => {
+      listenForFieldInput(element);
+    });
+  } else {
+    retryCount = 0;
+    speakText("Skipping this field.");
+    setTimeout(() => startNextDictationStep(), 600);
+  }
 }
 
 function speakText(text, onEndCallback) {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1.0;
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
     if (onEndCallback) {
       utterance.onend = onEndCallback;
     }
@@ -1012,18 +1099,29 @@ function speakText(text, onEndCallback) {
 
 function stopAutoDictation() {
   isAutoDictating = false;
+  retryCount = 0;
+  showListeningBadge(false);
+
   if (recognition) {
-    recognition.abort();
+    try { recognition.abort(); } catch (e) {}
+    recognition = null;
   }
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
   if (currentField) {
     currentField.classList.remove('dictating-active');
+    currentField = null;
   }
   const btn = $('masterDictationBtn');
   btn.classList.remove('active');
   btn.textContent = '🎙 Start Auto-Dictation Flow';
+}
+
+function showListeningBadge(show) {
+  const badge = $('listeningBadge');
+  if (show) badge.classList.add('visible');
+  else badge.classList.remove('visible');
 }
 
 /* =========================================
@@ -1034,7 +1132,7 @@ function initMouthCanvas() {
   const ctx = canvas.getContext('2d');
   
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+  // Outer mouth shape
   ctx.fillStyle = '#1e293b';
   ctx.beginPath();
   ctx.ellipse(180, 180, 150, 130, 0, 0, 2 * Math.PI);
@@ -1043,17 +1141,20 @@ function initMouthCanvas() {
   ctx.lineWidth = 3;
   ctx.stroke();
 
+  // Lips
   ctx.fillStyle = '#334155';
   ctx.beginPath();
   ctx.ellipse(180, 70, 100, 25, 0, 0, Math.PI);
   ctx.ellipse(180, 290, 100, 25, 0, 0, Math.PI, true);
   ctx.fill();
 
+  // Hard palate area
   ctx.fillStyle = '#0f172a';
   ctx.beginPath();
   ctx.arc(180, 130, 70, 0, Math.PI, true);
   ctx.fill();
 
+  // Tongue
   ctx.fillStyle = '#1e1b4b';
   ctx.beginPath();
   ctx.ellipse(180, 210, 65, 50, 0, 0, 2 * Math.PI);
@@ -1062,6 +1163,7 @@ function initMouthCanvas() {
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
+  // Labels
   ctx.fillStyle = '#94a3b8';
   ctx.font = '12px Plus Jakarta Sans';
   ctx.fillText('Hard Palate', 150, 120);
@@ -1078,12 +1180,10 @@ $('canvasContainer').addEventListener('click', function(e) {
   
   const pctX = ((x / rect.width) * 100).toFixed(1);
   const pctY = ((y / rect.height) * 100).toFixed(1);
-
   const pin = $('pointerPin');
   pin.style.left = `${pctX}%`;
   pin.style.top = `${pctY}%`;
   pin.classList.remove('hidden');
-
   $('lesion_position_coords').value = `X: ${pctX}%, Y: ${pctY}%`;
 
   if (pctY < 25) $('lesion_location').value = 'Upper Lip';
@@ -1105,7 +1205,6 @@ function initDentalChart() {
     18,17,16,15,14,13,12,11, 21,22,23,24,25,26,27,28,
     48,47,46,45,44,43,42,41, 31,32,33,34,35,36,37,38
   ];
-
   container.innerHTML = '';
   teeth.forEach(t => {
     const btn = document.createElement('button');
@@ -1133,17 +1232,14 @@ function toggleTooth(toothNumber, btn) {
 ========================================= */
 function evaluateRisk() {
   let score = 0;
-
   if ($('smoking').value === 'Yes') score += 1;
   if ($('chewing').value === 'Yes') score += 2;
   if ($('alcohol').value === 'Yes') score += 1;
-
   if ($('ulcer_greater').value === 'Yes') score += 3;
   if ($('lesion_texture').value === 'Indurated') score += 3;
   
   const diameter = parseFloat($('lesion_maximum_diameter_mm').value) || 0;
   if (diameter > 20) score += 2;
-
   if ($('ln_pal').value === 'Yes') score += 2;
   if ($('regional_lymph_node_mobility').value === 'Fixed') score += 3;
 
@@ -1178,15 +1274,11 @@ function sync() {
   toggle('smokingFields', $('smoking').value === 'Yes');
   toggle('chewingFields', $('chewing').value === 'Yes');
   toggle('alcoholFields', $('alcohol').value === 'Yes');
-
   const swelling = $('swelling').value === 'Yes';
   toggle('swellingFields', swelling);
-
   const ulcer = swelling && ($('ulcer_less').value === 'Yes' || $('ulcer_greater').value === 'Yes');
   toggle('ulcerSymptoms', ulcer);
-
   toggle('lnFields', $('ln_pal').value === 'Yes');
-
   evaluateRisk();
 }
 
