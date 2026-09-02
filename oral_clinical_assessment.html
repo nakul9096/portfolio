@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oral Clinical Registry - Assessment Dashboard</title>
+<title>New Oral Clinical Assessment</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -86,110 +86,86 @@ body {
 }
 
 .container {
-  max-width: 1280px;
+  max-width: 900px;
   width: 100%;
   margin: 0 auto;
-  padding: 32px 24px;
+  padding: 32px 20px;
   flex: 1;
 }
 
-/* Page Header */
+/* Form Container & Sections */
 .page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
   margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-  gap: 16px;
 }
 
-.title-area h1 {
-  font-size: 20px;
+.page-header h1 {
+  font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
-.title-area p {
+.page-header p {
   color: var(--text-secondary);
   font-size: 13px;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
-.header-actions {
-  display: flex;
-  gap: 10px;
-}
-
-/* KPI Cards Grid */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-  margin-bottom: 28px;
-}
-
-.kpi-card {
+.form-section {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 18px 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.form-group {
   display: flex;
   flex-direction: column;
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  gap: 6px;
+  margin-bottom: 14px;
 }
 
-.kpi-card:hover {
-  border-color: var(--border-light);
-  transform: translateY(-2px);
+.form-group.full-width {
+  grid-column: span 2;
 }
 
-.kpi-label {
+label {
   font-size: 12px;
   font-weight: 500;
   color: var(--text-secondary);
-  margin-bottom: 6px;
 }
 
-.kpi-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.1;
-  margin-bottom: 4px;
-}
-
-.kpi-subtext {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-/* Controls Bar */
-.controls-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px 20px;
-  margin-bottom: 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.search-box {
-  flex: 1;
-  min-width: 260px;
-  position: relative;
-}
-
-.search-box input {
+input, select, textarea {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 10px 14px 10px 38px;
+  padding: 10px 12px;
   background: #0d1321;
   color: var(--text-primary);
   font: inherit;
@@ -198,95 +174,27 @@ body {
   transition: border-color 0.15s ease;
 }
 
-.search-box input:focus {
+input:focus, select:focus, textarea:focus {
   border-color: var(--accent);
 }
 
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  font-size: 14px;
+.location-input-group {
+  display: flex;
+  gap: 8px;
 }
 
-.filter-group select {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px 32px 10px 14px;
-  background: #0d1321;
-  color: var(--text-primary);
-  font: inherit;
-  font-size: 13px;
-  outline: none;
-  cursor: pointer;
-}
-
-/* Data Table */
-.table-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 32px;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 13px;
-}
-
-th {
-  background: #0d1321;
-  padding: 12px 16px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-
-td {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-
-tbody tr:hover {
-  background: var(--surface-hover);
-}
-
-/* Badges & Buttons */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.badge.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.2); }
-.badge.warning { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.2); }
-.badge.success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.2); }
-
+/* Buttons */
 .btn {
   border: 0;
   border-radius: 6px;
-  padding: 8px 14px;
+  padding: 10px 18px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   text-decoration: none;
 }
@@ -295,77 +203,24 @@ tbody tr:hover {
 .btn.primary:hover { background: var(--accent-hover); }
 .btn.secondary { background: #1f293d; color: var(--text-primary); border: 1px solid var(--border-light); }
 .btn.secondary:hover { background: #2d3748; }
-.btn.sm { padding: 5px 10px; font-size: 12px; }
 
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-  padding: 20px;
-  backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  max-width: 720px;
-  width: 100%;
-  max-height: 85vh;
-  overflow-y: auto;
-  padding: 24px;
-}
-
-.modal-header {
+.form-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 12px;
-  margin-bottom: 16px;
-}
-
-.detail-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  justify-content: flex-end;
   gap: 12px;
+  margin-top: 10px;
 }
 
-.detail-item {
-  background: #0d1321;
-  padding: 10px 12px;
+.alert-box {
+  padding: 12px 16px;
   border-radius: 6px;
-  border: 1px solid var(--border);
+  font-size: 13px;
+  margin-bottom: 20px;
+  display: none;
 }
 
-.detail-item.full-width {
-  grid-column: span 2;
-}
-
-.detail-item span {
-  display: block;
-  color: var(--text-muted);
-  font-size: 11px;
-  margin-bottom: 2px;
-}
-
-.map-link {
-  color: #60a5fa;
-  text-decoration: none;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.map-link:hover {
-  text-decoration: underline;
-}
+.alert-box.success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.3); }
+.alert-box.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.3); }
 
 /* Footer */
 .app-footer {
@@ -390,6 +245,11 @@ tbody tr:hover {
   font-size: 12px;
   color: var(--text-muted);
 }
+
+@media (max-width: 768px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .form-group.full-width { grid-column: span 1; }
+}
 </style>
 </head>
 
@@ -399,8 +259,8 @@ tbody tr:hover {
 <nav class="app-nav">
   <div class="nav-brand">🩺 Oral Clinical Assessments Platform</div>
   <div class="nav-links">
-    <a href="patients.html" class="active">Registry Records</a>
-    <a href="oral_clinical_assessment.html">+ New Assessment</a>
+    <a href="patients.html">Registry Records</a>
+    <a href="oral_clinical_assessment.html" class="active">+ New Assessment</a>
     <a href="analytics.html">Analytics</a>
   </div>
 </nav>
@@ -408,94 +268,199 @@ tbody tr:hover {
 <div class="container">
 
   <header class="page-header">
-    <div class="title-area">
-      <h1>Oral Clinical Registry</h1>
-      <p>Schema-mapped patient diagnostic dashboard & history</p>
-    </div>
-    <div class="header-actions">
-      <button class="btn secondary" onclick="fetchRecords()">↻ Refresh</button>
-      <a href="oral_clinical_assessment.html" class="btn primary">+ New Assessment</a>
-    </div>
+    <h1>New Oral Clinical Assessment</h1>
+    <p>Complete the clinical diagnostic form to record patient findings and location data</p>
   </header>
 
-  <!-- Metric KPI Overview -->
-  <section class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-label">Total Records</div>
-      <div class="kpi-value" id="mTotal">--</div>
-      <div class="kpi-subtext">Registered assessments</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Active Swelling / Lesions</div>
-      <div class="kpi-value" id="mLesions">--</div>
-      <div class="kpi-subtext">Requires clinical evaluation</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Substance Exposure</div>
-      <div class="kpi-value" id="mHabits">--</div>
-      <div class="kpi-subtext">Smoking, chewing, or alcohol</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Palpable Lymph Nodes</div>
-      <div class="kpi-value" id="mLymph">--</div>
-      <div class="kpi-subtext">Regional involvement</div>
-    </div>
-  </section>
+  <div id="alertBox" class="alert-box"></div>
 
-  <!-- Controls Bar -->
-  <section class="controls-card">
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" placeholder="Search Patient ID, Name, OPD, Address, or Location..." oninput="applyFilters()">
-    </div>
-    <div class="filter-group">
-      <select id="filterRisk" onchange="applyFilters()">
-        <option value="ALL">All Records</option>
-        <option value="HIGH_RISK">High Risk (Swelling + Palpable Nodes)</option>
-        <option value="HABITS">Habit Exposure Present</option>
-        <option value="ULCER">Ulcer > 2 Weeks</option>
-        <option value="HAS_MAP">Map Location Available</option>
-      </select>
-    </div>
-  </section>
+  <form id="assessmentForm" onsubmit="handleFormSubmit(event)">
 
-  <!-- Data Table -->
-  <section class="table-card">
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Patient ID</th>
-            <th>Name</th>
-            <th>Age / Sex</th>
-            <th>OPD No.</th>
-            <th>Map Location / Address</th>
-            <th>Habits Exposure</th>
-            <th>Swelling</th>
-            <th>Lymph Nodes</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-          <tr>
-            <td colspan="9" style="text-align:center; padding: 40px; color: var(--text-muted);">Loading registry assessments...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+    <!-- Section 1: Demographics & Location -->
+    <div class="form-section">
+      <div class="section-title">👤 Patient Demographics & Location</div>
+      <div class="grid-3">
+        <div class="form-group">
+          <label for="patient_id">Patient ID *</label>
+          <input type="text" id="patient_id" required placeholder="e.g. PAT-1049">
+        </div>
+        <div class="form-group">
+          <label for="patient_name">Full Name *</label>
+          <input type="text" id="patient_name" required placeholder="e.g. Rajesh Sharma">
+        </div>
+        <div class="form-group">
+          <label for="opd_number">OPD Number</label>
+          <input type="text" id="opd_number" placeholder="e.g. OPD-2026-88">
+        </div>
+      </div>
 
-</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="age">Age (Years)</label>
+          <input type="number" id="age" min="1" max="120" placeholder="45">
+        </div>
+        <div class="form-group">
+          <label for="sex">Sex</label>
+          <select id="sex">
+            <option value="">Select Sex</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
 
-<!-- Patient Detail Inspection Modal -->
-<div class="modal-overlay" id="detailModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="modalPatientTitle" style="font-size: 15px; font-weight: 600;">Patient Case File</h3>
-      <button class="btn secondary sm" onclick="closeModal()">✕ Close</button>
+      <div class="form-group full-width">
+        <label for="patient_location">Patient Address / Geographic Location *</label>
+        <div class="location-input-group">
+          <input type="text" id="patient_location" required placeholder="Enter district, city, or area address">
+          <button type="button" class="btn secondary" onclick="detectGPSLocation()">📍 Get GPS</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="latitude">Latitude</label>
+          <input type="number" step="any" id="latitude" placeholder="e.g. 21.1458">
+        </div>
+        <div class="form-group">
+          <label for="longitude">Longitude</label>
+          <input type="number" step="any" id="longitude" placeholder="e.g. 79.0882">
+        </div>
+      </div>
     </div>
-    <div class="detail-grid" id="modalBody"></div>
-  </div>
+
+    <!-- Section 2: Substance Exposure & History -->
+    <div class="form-section">
+      <div class="section-title">🚬 Substance Exposure & Habits</div>
+      <div class="grid-3">
+        <div class="form-group">
+          <label for="smoking">Smoking Habit</label>
+          <select id="smoking">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="smoking_duration_years">Smoking Duration (Years)</label>
+          <input type="number" id="smoking_duration_years" value="0">
+        </div>
+        <div class="form-group">
+          <label for="any_chewing_habits">Tobacco/Gutkha Chewing</label>
+          <select id="any_chewing_habits">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="alcohol">Alcohol Consumption</label>
+          <select id="alcohol">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="alcohol_frequency">Alcohol Frequency</label>
+          <select id="alcohol_frequency">
+            <option value="N/A">N/A</option>
+            <option value="Occasional">Occasional</option>
+            <option value="Regular">Regular</option>
+            <option value="Daily">Daily</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Clinical Findings -->
+    <div class="form-section">
+      <div class="section-title">🔬 Oral Cavity Findings & Examination</div>
+      <div class="grid-3">
+        <div class="form-group">
+          <label for="ulcer_greater_than_2_weeks">Ulcer > 2 Weeks</label>
+          <select id="ulcer_greater_than_2_weeks">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="swelling">Swelling Present</label>
+          <select id="swelling">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="lesion_location">Anatomical Site / Lesion Location</label>
+          <input type="text" id="lesion_location" placeholder="e.g. Buccal Mucosa, Tongue">
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="form-group">
+          <label for="lesion_color">Lesion Color</label>
+          <input type="text" id="lesion_color" placeholder="e.g. Leukoplakia (White), Erythroplakia (Red)">
+        </div>
+        <div class="form-group">
+          <label for="lesion_shape">Lesion Shape</label>
+          <input type="text" id="lesion_shape" placeholder="e.g. Irregular, Ulcerated">
+        </div>
+        <div class="form-group">
+          <label for="lesion_maximum_diameter_cm">Max Diameter (cm)</label>
+          <input type="number" step="0.1" id="lesion_maximum_diameter_cm" placeholder="e.g. 1.5">
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="form-group">
+          <label for="mouth_opening_assessment">Mouth Opening</label>
+          <select id="mouth_opening_assessment">
+            <option value="Normal">Normal (>35mm)</option>
+            <option value="Slightly Restricted">Slightly Restricted (25-35mm)</option>
+            <option value="Severely Restricted">Severely Restricted (<25mm)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="regional_lymph_node_palpability">Lymph Node Palpability</label>
+          <select id="regional_lymph_node_palpability">
+            <option value="Non-palpable">Non-palpable</option>
+            <option value="Palpable">Palpable</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="regional_lymph_node_size_mm">Lymph Node Size (mm)</label>
+          <input type="number" id="regional_lymph_node_size_mm" value="0">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="diabetes_mellitus">Diabetes Mellitus</label>
+          <select id="diabetes_mellitus">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="hypertension">Hypertension</label>
+          <select id="hypertension">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Controls -->
+    <div class="form-actions">
+      <a href="patients.html" class="btn secondary">Cancel</a>
+      <button type="submit" id="submitBtn" class="btn primary">Save Assessment</button>
+    </div>
+
+  </form>
+
 </div>
 
 <!-- Footer -->
@@ -507,170 +472,107 @@ tbody tr:hover {
 </footer>
 
 <script>
-let rawRecords = [];
-
 function getAppConfig() {
   if (typeof CONFIG !== 'undefined') return CONFIG;
   if (typeof window.CONFIG !== 'undefined') return window.CONFIG;
   throw new Error('CONFIG object missing in config/config.js');
 }
 
-async function fetchRecords() {
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:var(--text-muted)">Fetching clinical assessments...</td></tr>';
-  
-  try {
-    const cfg = getAppConfig();
-    const response = await fetch(`${cfg.SUPABASE_URL}/rest/v1/oral_clinical_assessments?select=*&order=created_at.desc`, {
-      method: 'GET',
-      headers: {
-        'apikey': cfg.SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${cfg.SUPABASE_ANON_KEY}`
-      }
-    });
-
-    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-
-    rawRecords = await response.json();
-    updateMetrics(rawRecords);
-    renderTable(rawRecords);
-  } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:40px; color:var(--danger)">Error loading registry data: ${err.message}</td></tr>`;
-  }
-}
-
-function updateMetrics(data) {
-  document.getElementById('mTotal').textContent = data.length;
-  document.getElementById('mLesions').textContent = data.filter(d => (d.swelling || '').toLowerCase() === 'yes' || (d.swelling || '').toLowerCase() === 'true').length;
-  document.getElementById('mHabits').textContent = data.filter(d => (d.smoking || '').toLowerCase() === 'yes' || (d.any_chewing_habits || '').toLowerCase() === 'yes' || (d.alcohol || '').toLowerCase() === 'yes').length;
-  document.getElementById('mLymph').textContent = data.filter(d => (d.regional_lymph_node_palpability || '').toLowerCase().includes('palpable') && !(d.regional_lymph_node_palpability || '').toLowerCase().includes('non')).length;
-}
-
-function renderTable(data) {
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = '';
-
-  if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:var(--text-muted)">No matching clinical assessments found.</td></tr>';
+function detectGPSLocation() {
+  if (!navigator.geolocation) {
+    showAlert('Geolocation is not supported by your browser', 'danger');
     return;
   }
 
-  data.forEach((p, idx) => {
-    const tr = document.createElement('tr');
-    
-    const isSwelling = (p.swelling || '').toLowerCase() === 'yes' || (p.swelling || '').toLowerCase() === 'true';
-    const isLymph = (p.regional_lymph_node_palpability || '').toLowerCase().includes('palpable') && !(p.regional_lymph_node_palpability || '').toLowerCase().includes('non');
-    
-    let habitsSummary = [];
-    if ((p.smoking || '').toLowerCase() === 'yes') habitsSummary.push('Smoking');
-    if ((p.any_chewing_habits || '').toLowerCase() === 'yes') habitsSummary.push('Chewing');
+  showAlert('Acquiring current GPS location...', 'success');
 
-    // Build location string and map link if coordinates exist
-    let locationText = p.patient_location || p.address || '-';
-    if (p.latitude && p.longitude) {
-      const googleMapsUrl = `https://www.google.com/maps?q=${p.latitude},${p.longitude}`;
-      locationText = `${escapeHtml(locationText)} <a href="${googleMapsUrl}" target="_blank" class="map-link">📍 Map</a>`;
-    } else {
-      locationText = escapeHtml(locationText);
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
+      document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
+      
+      if (!document.getElementById('patient_location').value) {
+        document.getElementById('patient_location').value = `GPS Captured (${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)})`;
+      }
+      showAlert('GPS Coordinates retrieved successfully!', 'success');
+    },
+    (err) => {
+      showAlert(`Unable to retrieve location: ${err.message}`, 'danger');
     }
-    
-    tr.innerHTML = `
-      <td><strong>${escapeHtml(p.patient_id || '-')}</strong></td>
-      <td>${escapeHtml(p.patient_name || '-')}</td>
-      <td>${escapeHtml(p.age || '-')} / ${escapeHtml(p.sex || '-')}</td>
-      <td>${escapeHtml(p.opd_number || '-')}</td>
-      <td>${locationText}</td>
-      <td>${habitsSummary.length > 0 ? habitsSummary.join(', ') : 'None'}</td>
-      <td>${isSwelling ? '<span class="badge danger">Yes</span>' : '<span class="badge success">No</span>'}</td>
-      <td>${isLymph ? '<span class="badge warning">Palpable</span>' : '<span class="badge success">Normal</span>'}</td>
-      <td><button class="btn secondary sm" onclick="viewDetails(${idx})">Inspect</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
+  );
 }
 
-function applyFilters() {
-  const query = document.getElementById('searchInput').value.toLowerCase();
-  const riskFilter = document.getElementById('filterRisk').value;
-
-  const filtered = rawRecords.filter(p => {
-    const matchSearch = 
-      (p.patient_id && p.patient_id.toLowerCase().includes(query)) ||
-      (p.patient_name && p.patient_name.toLowerCase().includes(query)) ||
-      (p.opd_number && p.opd_number.toLowerCase().includes(query)) ||
-      (p.patient_location && p.patient_location.toLowerCase().includes(query)) ||
-      (p.lesion_location && p.lesion_location.toLowerCase().includes(query));
-
-    let matchRisk = true;
-    if (riskFilter === 'HIGH_RISK') {
-      const isSwelling = (p.swelling || '').toLowerCase() === 'yes';
-      const isLymph = (p.regional_lymph_node_palpability || '').toLowerCase().includes('palpable');
-      matchRisk = isSwelling && isLymph;
-    } else if (riskFilter === 'HABITS') {
-      matchRisk = (p.smoking || '').toLowerCase() === 'yes' || (p.any_chewing_habits || '').toLowerCase() === 'yes' || (p.alcohol || '').toLowerCase() === 'yes';
-    } else if (riskFilter === 'ULCER') {
-      matchRisk = (p.ulcer_greater_than_2_weeks || '').toLowerCase() === 'yes';
-    } else if (riskFilter === 'HAS_MAP') {
-      matchRisk = !!(p.patient_location || p.latitude || p.longitude);
-    }
-
-    return matchSearch && matchRisk;
-  });
-
-  renderTable(filtered);
+function showAlert(message, type) {
+  const alertBox = document.getElementById('alertBox');
+  alertBox.className = `alert-box ${type}`;
+  alertBox.textContent = message;
+  alertBox.style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function viewDetails(index) {
-  const p = rawRecords[index];
-  if (!p) return;
+async function handleFormSubmit(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
 
-  document.getElementById('modalPatientTitle').textContent = `Assessment Details: ${p.patient_name || 'Patient'} (${p.patient_id || 'N/A'})`;
-  const container = document.getElementById('modalBody');
-  container.innerHTML = '';
+  try {
+    const cfg = getAppConfig();
 
-  let mapElement = p.patient_location || p.address || 'N/A';
-  if (p.latitude && p.longitude) {
-    const mapsUrl = `https://www.google.com/maps?q=${p.latitude},${p.longitude}`;
-    mapElement += ` — <a href="${mapsUrl}" target="_blank" class="map-link">📍 View on Google Maps (${p.latitude}, ${p.longitude})</a>`;
+    const formData = {
+      patient_id: document.getElementById('patient_id').value.trim(),
+      patient_name: document.getElementById('patient_name').value.trim(),
+      opd_number: document.getElementById('opd_number').value.trim() || null,
+      age: parseInt(document.getElementById('age').value) || null,
+      sex: document.getElementById('sex').value || null,
+      patient_location: document.getElementById('patient_location').value.trim(),
+      latitude: parseFloat(document.getElementById('latitude').value) || null,
+      longitude: parseFloat(document.getElementById('longitude').value) || null,
+      smoking: document.getElementById('smoking').value,
+      smoking_duration_years: parseInt(document.getElementById('smoking_duration_years').value) || 0,
+      any_chewing_habits: document.getElementById('any_chewing_habits').value,
+      alcohol: document.getElementById('alcohol').value,
+      alcohol_frequency: document.getElementById('alcohol_frequency').value,
+      ulcer_greater_than_2_weeks: document.getElementById('ulcer_greater_than_2_weeks').value,
+      swelling: document.getElementById('swelling').value,
+      lesion_location: document.getElementById('lesion_location').value.trim() || null,
+      lesion_color: document.getElementById('lesion_color').value.trim() || null,
+      lesion_shape: document.getElementById('lesion_shape').value.trim() || null,
+      lesion_maximum_diameter_cm: parseFloat(document.getElementById('lesion_maximum_diameter_cm').value) || null,
+      mouth_opening_assessment: document.getElementById('mouth_opening_assessment').value,
+      regional_lymph_node_palpability: document.getElementById('regional_lymph_node_palpability').value,
+      regional_lymph_node_size_mm: parseInt(document.getElementById('regional_lymph_node_size_mm').value) || 0,
+      diabetes_mellitus: document.getElementById('diabetes_mellitus').value,
+      hypertension: document.getElementById('hypertension').value
+    };
+
+    const response = await fetch(`${cfg.SUPABASE_URL}/rest/v1/oral_clinical_assessments`, {
+      method: 'POST',
+      headers: {
+        'apikey': cfg.SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${cfg.SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(formData)
+    });
+
+    if (!response.ok) {
+      const errData = await response.json();
+      throw new Error(errData.message || `HTTP ${response.status}`);
+    }
+
+    showAlert('Clinical assessment successfully recorded!', 'success');
+    setTimeout(() => {
+      window.location.href = 'patients.html';
+    }, 1200);
+
+  } catch (err) {
+    showAlert(`Failed to save assessment: ${err.message}`, 'danger');
+    btn.disabled = false;
+    btn.textContent = 'Save Assessment';
   }
-
-  const fields = [
-    ['OPD Number', p.opd_number],
-    ['Age / Sex', `${p.age || '-'} / ${p.sex || '-'}`],
-    ['Patient Address / Map Location', mapElement, true],
-    ['Smoking Habits', `${p.smoking || 'No'} (Duration: ${p.smoking_duration_years || 0} yrs)`],
-    ['Chewing Habits', p.any_chewing_habits],
-    ['Alcohol Consumption', `${p.alcohol || 'No'} (${p.alcohol_frequency || 'N/A'})`],
-    ['Ulcer > 2 Weeks', p.ulcer_greater_than_2_weeks],
-    ['Swelling Present', p.swelling],
-    ['Lesion Anatomical Site', p.lesion_location],
-    ['Lesion Color / Shape', `${p.lesion_color || '-'} / ${p.lesion_shape || '-'}`],
-    ['Max Diameter (cm)', p.lesion_maximum_diameter_cm],
-    ['Mouth Opening Status', p.mouth_opening_assessment],
-    ['Lymph Node Status', p.regional_lymph_node_palpability],
-    ['Lymph Node Size (mm)', p.regional_lymph_node_size_mm],
-    ['Systemic History', `${(p.diabetes_mellitus || '').toLowerCase() === 'yes' ? 'Diabetes ' : ''}${(p.hypertension || '').toLowerCase() === 'yes' ? 'Hypertension' : 'None'}`]
-  ];
-
-  fields.forEach(([label, val, isFullWidth]) => {
-    const item = document.createElement('div');
-    item.className = `detail-item ${isFullWidth ? 'full-width' : ''}`;
-    item.innerHTML = `<span>${label}</span><strong>${val || 'N/A'}</strong>`;
-    container.appendChild(item);
-  });
-
-  document.getElementById('detailModal').style.display = 'flex';
 }
-
-function closeModal() {
-  document.getElementById('detailModal').style.display = 'none';
-}
-
-function escapeHtml(str) {
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-document.addEventListener('DOMContentLoaded', fetchRecords);
 </script>
 
 </body>
