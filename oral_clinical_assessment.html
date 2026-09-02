@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>New Oral Clinical Assessment</title>
+<title>Oral Clinical Assessment - Comprehensive Registry Entry</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<!-- Load App Configuration -->
 <script src="config/config.js"></script>
 
 <style>
@@ -49,7 +48,6 @@ body {
   flex-direction: column;
 }
 
-/* App Navigation Bar */
 .app-nav {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -86,14 +84,13 @@ body {
 }
 
 .container {
-  max-width: 900px;
+  max-width: 1000px;
   width: 100%;
   margin: 0 auto;
   padding: 32px 20px;
   flex: 1;
 }
 
-/* Form Container & Sections */
 .page-header {
   margin-bottom: 24px;
   padding-bottom: 16px;
@@ -103,7 +100,6 @@ body {
 .page-header h1 {
   font-size: 22px;
   font-weight: 600;
-  letter-spacing: -0.01em;
 }
 
 .page-header p {
@@ -132,17 +128,9 @@ body {
   padding-bottom: 10px;
 }
 
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
 .form-group {
   display: flex;
@@ -151,9 +139,7 @@ body {
   margin-bottom: 14px;
 }
 
-.form-group.full-width {
-  grid-column: span 2;
-}
+.form-group.full-width { grid-column: 1 / -1; }
 
 label {
   font-size: 12px;
@@ -178,12 +164,54 @@ input:focus, select:focus, textarea:focus {
   border-color: var(--accent);
 }
 
+/* Mouth Sculptor Interactive Map Style */
+.sculptor-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #060911;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.canvas-wrapper {
+  position: relative;
+  cursor: crosshair;
+}
+
+#mouthCanvas {
+  background: #0d1321;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  display: block;
+}
+
+.sculptor-instructions {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  text-align: center;
+}
+
+.badge-risk {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.risk-low { background: var(--success-bg); color: var(--success); }
+.risk-moderate { background: var(--warning-bg); color: var(--warning); }
+.risk-high { background: var(--danger-bg); color: var(--danger); }
+
 .location-input-group {
   display: flex;
   gap: 8px;
 }
 
-/* Buttons */
 .btn {
   border: 0;
   border-radius: 6px;
@@ -218,11 +246,9 @@ input:focus, select:focus, textarea:focus {
   margin-bottom: 20px;
   display: none;
 }
-
 .alert-box.success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.3); }
 .alert-box.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.3); }
 
-/* Footer */
 .app-footer {
   background: var(--surface);
   border-top: 1px solid var(--border);
@@ -247,17 +273,15 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media (max-width: 768px) {
-  .grid-2, .grid-3 { grid-template-columns: 1fr; }
-  .form-group.full-width { grid-column: span 1; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 
 <body>
 
-<!-- Header Navigation Bar -->
 <nav class="app-nav">
-  <div class="nav-brand">🩺 Oral Clinical Assessments Platform</div>
+  <div class="nav-brand">🩺 Oral Clinical Assessment Platform</div>
   <div class="nav-links">
     <a href="patients.html">Registry Records</a>
     <a href="oral_clinical_assessment.html" class="active">+ New Assessment</a>
@@ -268,36 +292,36 @@ input:focus, select:focus, textarea:focus {
 <div class="container">
 
   <header class="page-header">
-    <h1>New Oral Clinical Assessment</h1>
-    <p>Complete the clinical diagnostic form to record patient findings and location data</p>
+    <h1>Complete Oral Clinical Assessment</h1>
+    <p>Comprehensive patient screening with Mouth Sculptor mapping & automated risk assessment</p>
   </header>
 
   <div id="alertBox" class="alert-box"></div>
 
   <form id="assessmentForm" onsubmit="handleFormSubmit(event)">
 
-    <!-- Section 1: Demographics & Location -->
+    <!-- Section 1: Demographics & Geolocation -->
     <div class="form-section">
       <div class="section-title">👤 Patient Demographics & Location</div>
       <div class="grid-3">
         <div class="form-group">
           <label for="patient_id">Patient ID *</label>
-          <input type="text" id="patient_id" required placeholder="e.g. PAT-1049">
+          <input type="text" id="patient_id" required placeholder="PAT-1049">
         </div>
         <div class="form-group">
           <label for="patient_name">Full Name *</label>
-          <input type="text" id="patient_name" required placeholder="e.g. Rajesh Sharma">
+          <input type="text" id="patient_name" required placeholder="Rajesh Sharma">
         </div>
         <div class="form-group">
           <label for="opd_number">OPD Number</label>
-          <input type="text" id="opd_number" placeholder="e.g. OPD-2026-88">
+          <input type="text" id="opd_number" placeholder="OPD-2026-88">
         </div>
       </div>
 
-      <div class="grid-2">
+      <div class="grid-3">
         <div class="form-group">
           <label for="age">Age (Years)</label>
-          <input type="number" id="age" min="1" max="120" placeholder="45">
+          <input type="number" id="age" min="1" max="120" placeholder="45" onchange="calculateRisk()">
         </div>
         <div class="form-group">
           <label for="sex">Sex</label>
@@ -308,12 +332,16 @@ input:focus, select:focus, textarea:focus {
             <option value="Other">Other</option>
           </select>
         </div>
+        <div class="form-group">
+          <label for="occupation">Occupation</label>
+          <input type="text" id="occupation" placeholder="Agriculture, Industrial worker, etc.">
+        </div>
       </div>
 
       <div class="form-group full-width">
         <label for="patient_location">Patient Address / Geographic Location *</label>
         <div class="location-input-group">
-          <input type="text" id="patient_location" required placeholder="Enter district, city, or area address">
+          <input type="text" id="patient_location" required placeholder="Enter district, city, or local address">
           <button type="button" class="btn secondary" onclick="detectGPSLocation()">📍 Get GPS</button>
         </div>
       </div>
@@ -321,22 +349,22 @@ input:focus, select:focus, textarea:focus {
       <div class="grid-2">
         <div class="form-group">
           <label for="latitude">Latitude</label>
-          <input type="number" step="any" id="latitude" placeholder="e.g. 21.1458">
+          <input type="number" step="any" id="latitude" placeholder="21.1458">
         </div>
         <div class="form-group">
           <label for="longitude">Longitude</label>
-          <input type="number" step="any" id="longitude" placeholder="e.g. 79.0882">
+          <input type="number" step="any" id="longitude" placeholder="79.0882">
         </div>
       </div>
     </div>
 
-    <!-- Section 2: Substance Exposure & History -->
+    <!-- Section 2: Habits & Substance Exposure -->
     <div class="form-section">
-      <div class="section-title">🚬 Substance Exposure & Habits</div>
+      <div class="section-title">🚬 Substance Exposure & Behavioral Habits</div>
       <div class="grid-3">
         <div class="form-group">
           <label for="smoking">Smoking Habit</label>
-          <select id="smoking">
+          <select id="smoking" onchange="calculateRisk()">
             <option value="No">No</option>
             <option value="Yes">Yes</option>
           </select>
@@ -346,18 +374,22 @@ input:focus, select:focus, textarea:focus {
           <input type="number" id="smoking_duration_years" value="0">
         </div>
         <div class="form-group">
-          <label for="any_chewing_habits">Tobacco/Gutkha Chewing</label>
-          <select id="any_chewing_habits">
+          <label for="any_chewing_habits">Tobacco/Gutkha/Betel Nut Chewing</label>
+          <select id="any_chewing_habits" onchange="calculateRisk()">
             <option value="No">No</option>
             <option value="Yes">Yes</option>
           </select>
         </div>
       </div>
 
-      <div class="grid-2">
+      <div class="grid-3">
+        <div class="form-group">
+          <label for="chewing_frequency">Chewing Frequency (times/day)</label>
+          <input type="number" id="chewing_frequency" value="0">
+        </div>
         <div class="form-group">
           <label for="alcohol">Alcohol Consumption</label>
-          <select id="alcohol">
+          <select id="alcohol" onchange="calculateRisk()">
             <option value="No">No</option>
             <option value="Yes">Yes</option>
           </select>
@@ -374,49 +406,97 @@ input:focus, select:focus, textarea:focus {
       </div>
     </div>
 
-    <!-- Section 3: Clinical Findings -->
+    <!-- Section 3: Interactive Mouth Sculptor (Anatomical Mapping) -->
     <div class="form-section">
-      <div class="section-title">🔬 Oral Cavity Findings & Examination</div>
-      <div class="grid-3">
-        <div class="form-group">
-          <label for="ulcer_greater_than_2_weeks">Ulcer > 2 Weeks</label>
-          <select id="ulcer_greater_than_2_weeks">
-            <option value="No">No</option>
-            <option value="Yes">Yes</option>
-          </select>
+      <div class="section-title">🎨 Interactive Mouth Sculptor (Lesion Mapping)</div>
+      
+      <div class="sculptor-container">
+        <div class="canvas-wrapper">
+          <canvas id="mouthCanvas" width="400" height="300"></canvas>
         </div>
-        <div class="form-group">
-          <label for="swelling">Swelling Present</label>
-          <select id="swelling">
-            <option value="No">No</option>
-            <option value="Yes">Yes</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="lesion_location">Anatomical Site / Lesion Location</label>
-          <input type="text" id="lesion_location" placeholder="e.g. Buccal Mucosa, Tongue">
-        </div>
+        <p class="sculptor-instructions">Click on the anatomical oral map above to pin exact lesion coordinates and auto-detect region.</p>
+        <button type="button" class="btn secondary" style="margin-top: 8px;" onclick="clearMouthCanvas()">Clear Pin</button>
       </div>
 
       <div class="grid-3">
         <div class="form-group">
-          <label for="lesion_color">Lesion Color</label>
-          <input type="text" id="lesion_color" placeholder="e.g. Leukoplakia (White), Erythroplakia (Red)">
+          <label for="dental_arch">Dental Arch Selection</label>
+          <select id="dental_arch">
+            <option value="Maxillary (Upper)">Maxillary (Upper)</option>
+            <option value="Mandibular (Lower)">Mandibular (Lower)</option>
+            <option value="Both Arches">Both Arches</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="lesion_x">Map Pos X (%)</label>
+          <input type="text" id="lesion_x" readonly placeholder="Auto-captured">
+        </div>
+        <div class="form-group">
+          <label for="lesion_y">Map Pos Y (%)</label>
+          <input type="text" id="lesion_y" readonly placeholder="Auto-captured">
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Comprehensive Clinical Findings -->
+    <div class="form-section">
+      <div class="section-title">🔬 Detailed Clinical Findings</div>
+      
+      <div class="grid-3">
+        <div class="form-group">
+          <label for="lesion_location">Suggested / Anatomical Site</label>
+          <input type="text" id="lesion_location" placeholder="e.g. Right Buccal Mucosa, Lateral Tongue">
+        </div>
+        <div class="form-group">
+          <label for="lesion_color">Lesion Color / Type</label>
+          <select id="lesion_color">
+            <option value="Normal">Normal</option>
+            <option value="Leukoplakia (White)">Leukoplakia (White)</option>
+            <option value="Erythroplakia (Red)">Erythroplakia (Red)</option>
+            <option value="Erytholeukoplakia (Mixed)">Erytholeukoplakia (Mixed)</option>
+            <option value="Pigmented">Pigmented</option>
+          </select>
         </div>
         <div class="form-group">
           <label for="lesion_shape">Lesion Shape</label>
-          <input type="text" id="lesion_shape" placeholder="e.g. Irregular, Ulcerated">
-        </div>
-        <div class="form-group">
-          <label for="lesion_maximum_diameter_cm">Max Diameter (cm)</label>
-          <input type="number" step="0.1" id="lesion_maximum_diameter_cm" placeholder="e.g. 1.5">
+          <input type="text" id="lesion_shape" placeholder="e.g. Irregular, Well-demarcated">
         </div>
       </div>
 
       <div class="grid-3">
         <div class="form-group">
+          <label for="surface_texture">Surface Texture</label>
+          <select id="surface_texture">
+            <option value="Smooth">Smooth</option>
+            <option value="Rough/Verrucous">Rough / Verrucous</option>
+            <option value="Ulcerated">Ulcerated</option>
+            <option value="Nodular">Nodular</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="lesion_maximum_diameter_cm">Max Diameter (cm)</label>
+          <input type="number" step="0.1" id="lesion_maximum_diameter_cm" placeholder="1.5" onchange="calculateRisk()">
+        </div>
+        <div class="form-group">
+          <label for="ulcer_greater_than_2_weeks">Ulcer > 2 Weeks</label>
+          <select id="ulcer_greater_than_2_weeks" onchange="calculateRisk()">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="form-group">
+          <label for="swelling">Swelling Present</label>
+          <select id="swelling" onchange="calculateRisk()">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label for="mouth_opening_assessment">Mouth Opening</label>
-          <select id="mouth_opening_assessment">
+          <select id="mouth_opening_assessment" onchange="calculateRisk()">
             <option value="Normal">Normal (>35mm)</option>
             <option value="Slightly Restricted">Slightly Restricted (25-35mm)</option>
             <option value="Severely Restricted">Severely Restricted (<25mm)</option>
@@ -424,18 +504,18 @@ input:focus, select:focus, textarea:focus {
         </div>
         <div class="form-group">
           <label for="regional_lymph_node_palpability">Lymph Node Palpability</label>
-          <select id="regional_lymph_node_palpability">
+          <select id="regional_lymph_node_palpability" onchange="calculateRisk()">
             <option value="Non-palpable">Non-palpable</option>
             <option value="Palpable">Palpable</option>
           </select>
         </div>
+      </div>
+
+      <div class="grid-3">
         <div class="form-group">
           <label for="regional_lymph_node_size_mm">Lymph Node Size (mm)</label>
           <input type="number" id="regional_lymph_node_size_mm" value="0">
         </div>
-      </div>
-
-      <div class="grid-2">
         <div class="form-group">
           <label for="diabetes_mellitus">Diabetes Mellitus</label>
           <select id="diabetes_mellitus">
@@ -451,9 +531,30 @@ input:focus, select:focus, textarea:focus {
           </select>
         </div>
       </div>
+
+      <div class="form-group full-width">
+        <label for="clinical_notes">Clinical Notes & Observations</label>
+        <textarea id="clinical_notes" rows="3" placeholder="Enter additional diagnostic remarks or patient history details..."></textarea>
+      </div>
     </div>
 
-    <!-- Form Controls -->
+    <!-- Section 5: Automated Risk Stratification -->
+    <div class="form-section">
+      <div class="section-title">📊 Calculated Clinical Risk Classification</div>
+      <div class="grid-2" style="align-items: center;">
+        <div>
+          <label>Calculated Risk Status:</label>
+          <div style="margin-top: 6px;">
+            <span id="riskBadge" class="badge-risk risk-low">Low Risk</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="risk_category_input">Final Category Record</label>
+          <input type="text" id="risk_category_input" value="Low Risk" readonly>
+        </div>
+      </div>
+    </div>
+
     <div class="form-actions">
       <a href="patients.html" class="btn secondary">Cancel</a>
       <button type="submit" id="submitBtn" class="btn primary">Save Assessment</button>
@@ -463,7 +564,6 @@ input:focus, select:focus, textarea:focus {
 
 </div>
 
-<!-- Footer -->
 <footer class="app-footer">
   <div class="footer-content">
     <div>Copyright © 2026 Nakul Dhande. All Rights Reserved.</div>
@@ -472,10 +572,94 @@ input:focus, select:focus, textarea:focus {
 </footer>
 
 <script>
+let pinnedX = null;
+let pinnedY = null;
+
 function getAppConfig() {
   if (typeof CONFIG !== 'undefined') return CONFIG;
   if (typeof window.CONFIG !== 'undefined') return window.CONFIG;
   throw new Error('CONFIG object missing in config/config.js');
+}
+
+// Canvas Mouth Sculptor Initialization
+const canvas = document.getElementById('mouthCanvas');
+const ctx = canvas.getContext('2d');
+
+function drawMouthCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Outer Lips Outline
+  ctx.beginPath();
+  ctx.ellipse(200, 150, 140, 90, 0, 0, 2 * Math.PI);
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Inner Oral Cavity
+  ctx.beginPath();
+  ctx.ellipse(200, 150, 100, 60, 0, 0, 2 * Math.PI);
+  ctx.fillStyle = '#1e293b';
+  ctx.fill();
+  ctx.strokeStyle = '#475569';
+  ctx.stroke();
+
+  // Tongue Representation
+  ctx.beginPath();
+  ctx.ellipse(200, 175, 50, 30, 0, 0, Math.PI);
+  ctx.fillStyle = '#334155';
+  ctx.fill();
+
+  // Labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px Inter, sans-serif';
+  ctx.fillText('Upper Lip / Palate', 155, 80);
+  ctx.fillText('Right Buccal', 80, 150);
+  ctx.fillText('Left Buccal', 270, 150);
+  ctx.fillText('Tongue', 182, 185);
+
+  // Draw Pin if set
+  if (pinnedX !== null && pinnedY !== null) {
+    const px = (pinnedX / 100) * canvas.width;
+    const py = (pinnedY / 100) * canvas.height;
+
+    ctx.beginPath();
+    ctx.arc(px, py, 7, 0, 2 * Math.PI);
+    ctx.fillStyle = '#ef4444';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+}
+
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  pinnedX = parseFloat(((x / canvas.width) * 100).toFixed(1));
+  pinnedY = parseFloat(((y / canvas.height) * 100).toFixed(1));
+
+  document.getElementById('lesion_x').value = `${pinnedX}%`;
+  document.getElementById('lesion_y').value = `${pinnedY}%`;
+
+  // Auto-suggest region based on click coordinates
+  let site = 'Oral Cavity';
+  if (pinnedY < 35) site = 'Palate / Upper Lip';
+  else if (pinnedX < 32) site = 'Right Buccal Mucosa';
+  else if (pinnedX > 68) site = 'Left Buccal Mucosa';
+  else if (pinnedY > 55) site = 'Tongue / Floor of Mouth';
+
+  document.getElementById('lesion_location').value = site;
+  drawMouthCanvas();
+});
+
+function clearMouthCanvas() {
+  pinnedX = null;
+  pinnedY = null;
+  document.getElementById('lesion_x').value = '';
+  document.getElementById('lesion_y').value = '';
+  drawMouthCanvas();
 }
 
 function detectGPSLocation() {
@@ -502,6 +686,41 @@ function detectGPSLocation() {
   );
 }
 
+function calculateRisk() {
+  let score = 0;
+
+  if (document.getElementById('smoking').value === 'Yes') score += 2;
+  if (document.getElementById('any_chewing_habits').value === 'Yes') score += 3;
+  if (document.getElementById('alcohol').value === 'Yes') score += 1;
+  if (document.getElementById('ulcer_greater_than_2_weeks').value === 'Yes') score += 3;
+  if (document.getElementById('swelling').value === 'Yes') score += 2;
+  if (document.getElementById('regional_lymph_node_palpability').value === 'Palpable') score += 3;
+  
+  const mouthOpening = document.getElementById('mouth_opening_assessment').value;
+  if (mouthOpening === 'Severely Restricted') score += 3;
+  else if (mouthOpening === 'Slightly Restricted') score += 1;
+
+  const diameter = parseFloat(document.getElementById('lesion_maximum_diameter_cm').value) || 0;
+  if (diameter >= 2.0) score += 2;
+
+  const badge = document.getElementById('riskBadge');
+  const riskInput = document.getElementById('risk_category_input');
+
+  if (score >= 7) {
+    badge.className = 'badge-risk risk-high';
+    badge.textContent = 'High Risk';
+    riskInput.value = 'High Risk';
+  } else if (score >= 3) {
+    badge.className = 'badge-risk risk-moderate';
+    badge.textContent = 'Moderate Risk';
+    riskInput.value = 'Moderate Risk';
+  } else {
+    badge.className = 'badge-risk risk-low';
+    badge.textContent = 'Low Risk';
+    riskInput.value = 'Low Risk';
+  }
+}
+
 function showAlert(message, type) {
   const alertBox = document.getElementById('alertBox');
   alertBox.className = `alert-box ${type}`;
@@ -525,25 +744,33 @@ async function handleFormSubmit(e) {
       opd_number: document.getElementById('opd_number').value.trim() || null,
       age: parseInt(document.getElementById('age').value) || null,
       sex: document.getElementById('sex').value || null,
+      occupation: document.getElementById('occupation').value.trim() || null,
       patient_location: document.getElementById('patient_location').value.trim(),
       latitude: parseFloat(document.getElementById('latitude').value) || null,
       longitude: parseFloat(document.getElementById('longitude').value) || null,
       smoking: document.getElementById('smoking').value,
       smoking_duration_years: parseInt(document.getElementById('smoking_duration_years').value) || 0,
       any_chewing_habits: document.getElementById('any_chewing_habits').value,
+      chewing_frequency: parseInt(document.getElementById('chewing_frequency').value) || 0,
       alcohol: document.getElementById('alcohol').value,
       alcohol_frequency: document.getElementById('alcohol_frequency').value,
+      dental_arch: document.getElementById('dental_arch').value,
+      lesion_x_percent: pinnedX,
+      lesion_y_percent: pinnedY,
+      lesion_location: document.getElementById('lesion_location').value.trim() || null,
+      lesion_color: document.getElementById('lesion_color').value,
+      lesion_shape: document.getElementById('lesion_shape').value.trim() || null,
+      surface_texture: document.getElementById('surface_texture').value,
+      lesion_maximum_diameter_cm: parseFloat(document.getElementById('lesion_maximum_diameter_cm').value) || null,
       ulcer_greater_than_2_weeks: document.getElementById('ulcer_greater_than_2_weeks').value,
       swelling: document.getElementById('swelling').value,
-      lesion_location: document.getElementById('lesion_location').value.trim() || null,
-      lesion_color: document.getElementById('lesion_color').value.trim() || null,
-      lesion_shape: document.getElementById('lesion_shape').value.trim() || null,
-      lesion_maximum_diameter_cm: parseFloat(document.getElementById('lesion_maximum_diameter_cm').value) || null,
       mouth_opening_assessment: document.getElementById('mouth_opening_assessment').value,
       regional_lymph_node_palpability: document.getElementById('regional_lymph_node_palpability').value,
       regional_lymph_node_size_mm: parseInt(document.getElementById('regional_lymph_node_size_mm').value) || 0,
       diabetes_mellitus: document.getElementById('diabetes_mellitus').value,
-      hypertension: document.getElementById('hypertension').value
+      hypertension: document.getElementById('hypertension').value,
+      risk_category: document.getElementById('risk_category_input').value,
+      clinical_notes: document.getElementById('clinical_notes').value.trim() || null
     };
 
     const response = await fetch(`${cfg.SUPABASE_URL}/rest/v1/oral_clinical_assessments`, {
@@ -562,7 +789,7 @@ async function handleFormSubmit(e) {
       throw new Error(errData.message || `HTTP ${response.status}`);
     }
 
-    showAlert('Clinical assessment successfully recorded!', 'success');
+    showAlert('Clinical assessment recorded successfully!', 'success');
     setTimeout(() => {
       window.location.href = 'patients.html';
     }, 1200);
@@ -573,6 +800,9 @@ async function handleFormSubmit(e) {
     btn.textContent = 'Save Assessment';
   }
 }
+
+// Initial draw
+drawMouthCanvas();
 </script>
 
 </body>
