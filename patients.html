@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patient Management Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- XLSX Library for Direct Excel Export -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+:root {
+  --bg: #0b0f19;
+  --card-bg: #151c2c;
+  --card-hover: #1e293b;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --border-color: #26334d;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --success: #34d399;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+/* Header & Controls */
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.header-title h1 { margin: 0; font-size: 26px; font-weight: 700; }
+.header-title p { margin: 4px 0 0; color: var(--text-muted); font-size: 14px; }
+
+.export-btn {
+  background: #10b981;
+  color: #fff;
+  border: 0;
+  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.export-btn:hover { background: #059669; }
+
+/* Search & Filter Bar */
+.filter-container {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 16px 20px;
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 260px;
+  position: relative;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: #0f172a;
+  color: #fff;
+  outline: none;
+  font-size: 14px;
+}
+
+.search-box input:focus {
+  border-color: var(--primary);
+}
+
+.filter-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pill-btn {
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pill-btn:hover, .pill-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* Patient Grid Cards */
+.patient-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.patient-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.patient-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.patient-id-badge {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.risk-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.risk-high { background: rgba(248, 113, 113, 0.15); color: var(--danger); }
+.risk-moderate { background: rgba(251, 191, 36, 0.15); color: var(--warning); }
+.risk-low { background: rgba(52, 211, 153, 0.15); color: var(--success); }
+
+.patient-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.patient-subtext {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.view-btn {
+  width: 100%;
+  background: #1e293b;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 10px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.view-btn:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 600px;
+  padding: 28px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.detail-item {
+  background: #0f172a;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.detail-item label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.detail-item span {
+  font-size: 15px;
+  font-weight: 600;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header-bar">
+    <div class="header-title">
+      <h1>Patient Records</h1>
+      <p>Manage and review patient clinical assessment data</p>
+    </div>
+    <button class="export-btn" onclick="exportToExcel()">
+      📊 Export to Excel
+    </button>
+  </div>
+
+  <!-- Search & Category Filters -->
+  <div class="filter-container">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search by Patient ID or Name..." oninput="filterPatients()">
+    </div>
+    
+    <div class="filter-pills">
+      <button class="pill-btn active" onclick="setFilter('All', this)">All</button>
+      <button class="pill-btn" onclick="setFilter('High Risk', this)">High Risk</button>
+      <button class="pill-btn" onclick="setFilter('Moderate Risk', this)">Moderate Risk</button>
+      <button class="pill-btn" onclick="setFilter('Low Risk', this)">Low Risk</button>
+      <button class="pill-btn" onclick="setFilter('Smoker', this)">Smokers</button>
+    </div>
+  </div>
+
+  <!-- Cards Grid Container -->
+  <div class="patient-grid" id="patientGrid">
+    <!-- Populated Dynamically via JavaScript -->
+  </div>
+
+</div>
+
+<!-- Patient Details Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="modalName" style="margin:0 0 4px;">Patient Details</h2>
+    <span id="modalId" class="patient-id-badge">ID: -</span>
+
+    <div class="detail-grid">
+      <div class="detail-item"><label>OPD Number</label><span id="modalOpd">-</span></div>
+      <div class="detail-item"><label>Age / Sex</label><span id="modalAgeSex">-</span></div>
+      <div class="detail-item"><label>Residence</label><span id="modalResidence">-</span></div>
+      <div class="detail-item"><label>Risk Category</label><span id="modalRisk">-</span></div>
+      <div class="detail-item"><label>Smoking Habit</label><span id="modalSmoking">-</span></div>
+      <div class="detail-item"><label>Smoking Frequency</label><span id="modalSmokeDetails">-</span></div>
+      <div class="detail-item"><label>Chewing Habit</label><span id="modalChewing">-</span></div>
+      <div class="detail-item"><label>Registration Date</label><span id="modalDate">-</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Mock Patient Data Array
+const patients = [
+  { id: "101", name: "Rahul Sharma", opd: "OPD-2026-01", age: 45, sex: "Male", residence: "Urban", smoking: "Yes", smokingYears: 12, smokingFreq: 10, chewing: "Yes", risk: "High Risk", date: "2026-02-15" },
+  { id: "102", name: "Priya Patel", opd: "OPD-2026-02", age: 32, sex: "Female", residence: "Rural", smoking: "No", smokingYears: 0, smokingFreq: 0, chewing: "No", risk: "Low Risk", date: "2026-02-18" },
+  { id: "103", name: "Amit Kumar", opd: "OPD-2026-03", age: 50, sex: "Male", residence: "Urban", smoking: "Yes", smokingYears: 5, smokingFreq: 4, chewing: "No", risk: "Moderate Risk", date: "2026-02-20" },
+  { id: "104", name: "Sunita Verma", opd: "OPD-2026-04", age: 29, sex: "Female", residence: "Urban", smoking: "No", smokingYears: 0, smokingFreq: 0, chewing: "Yes", risk: "Moderate Risk", date: "2026-02-22" },
+  { id: "105", name: "Vikram Singh", opd: "OPD-2026-05", age: 61, sex: "Male", residence: "Rural", smoking: "Yes", smokingYears: 25, smokingFreq: 15, chewing: "Yes", risk: "High Risk", date: "2026-02-25" },
+  { id: "106", name: "Ananya Roy", opd: "OPD-2026-06", age: 24, sex: "Female", residence: "Urban", smoking: "No", smokingYears: 0, smokingFreq: 0, chewing: "No", risk: "Low Risk", date: "2026-03-01" }
+];
+
+let activeFilter = 'All';
+
+function renderPatients() {
+  const grid = document.getElementById('patientGrid');
+  const searchVal = document.getElementById('searchInput').value.toLowerCase();
+  
+  grid.innerHTML = '';
+
+  const filtered = patients.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchVal) || p.id.toString().includes(searchVal);
+    
+    let matchesCategory = true;
+    if (activeFilter === 'High Risk') matchesCategory = p.risk === 'High Risk';
+    else if (activeFilter === 'Moderate Risk') matchesCategory = p.risk === 'Moderate Risk';
+    else if (activeFilter === 'Low Risk') matchesCategory = p.risk === 'Low Risk';
+    else if (activeFilter === 'Smoker') matchesCategory = p.smoking === 'Yes';
+
+    return matchesSearch && matchesCategory;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">No matching patient records found.</div>`;
+    return;
+  }
+
+  filtered.forEach(p => {
+    const riskClass = p.risk === 'High Risk' ? 'risk-high' : p.risk === 'Moderate Risk' ? 'risk-moderate' : 'risk-low';
+
+    const card = document.createElement('div');
+    card.className = 'patient-card';
+    card.innerHTML = `
+      <div>
+        <div class="card-header">
+          <span class="patient-id-badge">ID: ${p.id}</span>
+          <span class="risk-badge ${riskClass}">${p.risk}</span>
+        </div>
+        <h3 class="patient-name">${p.name}</h3>
+        <div class="patient-subtext">${p.age} Yrs • ${p.sex} • ${p.residence}</div>
+      </div>
+      <button class="view-btn" onclick='openModal(${JSON.stringify(p)})'>View Full Details</button>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function setFilter(category, btnElement) {
+  activeFilter = category;
+  document.querySelectorAll('.pill-btn').forEach(btn => btn.classList.remove('active'));
+  btnElement.classList.add('active');
+  renderPatients();
+}
+
+function filterPatients() {
+  renderPatients();
+}
+
+function openModal(p) {
+  document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalId').textContent = `ID: ${p.id}`;
+  document.getElementById('modalOpd').textContent = p.opd;
+  document.getElementById('modalAgeSex').textContent = `${p.age} Yrs / ${p.sex}`;
+  document.getElementById('modalResidence').textContent = p.residence;
+  document.getElementById('modalRisk').textContent = p.risk;
+  document.getElementById('modalSmoking').textContent = p.smoking;
+  document.getElementById('modalSmokeDetails').textContent = p.smoking === 'Yes' ? `${p.smokingYears} Yrs (${p.smokingFreq}/day)` : 'N/A';
+  document.getElementById('modalChewing').textContent = p.chewing;
+  document.getElementById('modalDate').textContent = p.date;
+
+  document.getElementById('detailModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('detailModal').classList.remove('active');
+}
+
+/* Export Data directly to Excel File (.xlsx) */
+function exportToExcel() {
+  const exportData = patients.map(p => ({
+    "Patient ID": p.id,
+    "Full Name": p.name,
+    "OPD Number": p.opd,
+    "Age": p.age,
+    "Sex": p.sex,
+    "Residence": p.residence,
+    "Risk Level": p.risk,
+    "Smoking Habit": p.smoking,
+    "Smoking Duration (Yrs)": p.smokingYears,
+    "Smoking Frequency/Day": p.smokingFreq,
+    "Chewing Habit": p.chewing,
+    "Registration Date": p.date
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Patients");
+
+  XLSX.writeFile(workbook, `Patient_Records_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+// Initial Render
+window.addEventListener('DOMContentLoaded', renderPatients);
+</script>
+
+</body>
+</html>
