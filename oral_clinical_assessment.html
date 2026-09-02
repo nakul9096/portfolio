@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enhanced Oral Assessment - Universal Voice Dictation</title>
+<title>Enhanced Oral Clinical Assessment - Universal Dictation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -42,42 +42,16 @@ body {
 
 .container {
   max-width: 1140px;
-  margin: 30px auto;
+  margin: 40px auto;
   padding: 0 20px;
 }
-
-.voice-status-bar {
-  background: #1e1b4b;
-  border: 1px solid #4338ca;
-  padding: 12px 20px;
-  border-radius: var(--radius-md);
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 14px;
-}
-
-.voice-status-indicator {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #94a3b8;
-}
-
-.voice-status-indicator.active { background: #34d399; box-shadow: 0 0 10px #34d399; }
-.voice-status-indicator.listening { background: #ef4444; box-shadow: 0 0 10px #ef4444; animation: blink 1s infinite; }
-
-@keyframes blink { 50% { opacity: 0.3; } }
 
 .hero {
   background: linear-gradient(135deg, #1e1b4b 0%, #1e293b 50%, #0f172a 100%);
   border: 1px solid var(--border-color);
   color: #fff;
   border-radius: var(--radius-lg);
-  padding: 32px 36px;
+  padding: 36px 40px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, .4);
   margin-bottom: 24px;
   display: flex;
@@ -87,16 +61,16 @@ body {
   gap: 20px;
 }
 
-.hero h1 { margin: 0 0 6px; font-size: 28px; font-weight: 700; }
-.hero p { margin: 0; color: var(--text-muted); font-size: 14px; }
+.hero h1 { margin: 0 0 8px; font-size: 30px; font-weight: 700; }
+.hero p { margin: 0; color: var(--text-muted); font-size: 15px; }
 
 .risk-indicator-badge {
   background: #0f172a;
   border: 1px solid var(--border-color);
-  padding: 14px 20px;
+  padding: 16px 24px;
   border-radius: var(--radius-md);
   text-align: right;
-  min-width: 220px;
+  min-width: 240px;
 }
 
 .risk-level {
@@ -109,7 +83,7 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 26px 30px;
+  padding: 28px 32px;
   margin-bottom: 24px;
   box-shadow: var(--shadow-md);
 }
@@ -118,7 +92,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 0 0 20px;
+  margin: 0 0 22px;
   font-size: 18px;
   font-weight: 700;
 }
@@ -138,7 +112,7 @@ body {
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 20px 18px;
 }
 
 .field {
@@ -148,10 +122,13 @@ body {
   position: relative;
 }
 
+.field.full { grid-column: 1 / -1; }
+
 label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
 .required { color: var(--danger); }
+.hint { font-size: 12px; color: var(--text-muted); }
 
-input {
+input, textarea {
   width: 100%;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -164,7 +141,8 @@ input {
   transition: all .2s ease;
 }
 
-input:focus {
+input:hover, textarea:hover { border-color: #3b82f6; }
+input:focus, textarea:focus {
   border-color: var(--border-focus);
   box-shadow: 0 0 0 4px rgba(96, 165, 250, .2);
 }
@@ -187,6 +165,7 @@ input:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: all .2s ease;
 }
 
 .custom-select-trigger:after {
@@ -214,9 +193,11 @@ input:focus {
   padding: 10px 14px;
   font-size: 14px;
   cursor: pointer;
+  color: var(--text-main);
+  transition: background .15s ease;
 }
 
-.custom-option:hover {
+.custom-option:hover, .custom-option.selected {
   background: var(--primary);
   color: #fff;
 }
@@ -225,11 +206,59 @@ input:focus {
   display: block;
 }
 
-/* Dictation Visual Active State */
+/* Dictation Active Visual Cue */
 .dictating-active {
   border-color: #ef4444 !important;
   box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.4) !important;
   background: #1e1b4b !important;
+  animation: fieldGlow 1.5s infinite alternate;
+}
+
+@keyframes fieldGlow {
+  0% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.3); }
+  100% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.6); }
+}
+
+.anatomy-container {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.canvas-wrapper {
+  position: relative;
+  background: #0a0e17;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: crosshair;
+  user-select: none;
+}
+
+#mouthCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.pointer-pin {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: #ef4444;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+  pointer-events: none;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.3); }
+  100% { transform: translate(-50%, -50%) scale(1); }
 }
 
 .dictation-master-btn {
@@ -245,17 +274,54 @@ input:focus {
   align-items: center;
   gap: 8px;
   box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+  transition: all .2s ease;
 }
 
+.dictation-master-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6); }
 .dictation-master-btn.active { background: #15803d; box-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
 
 .subsection {
-  margin-top: 20px;
-  padding-top: 18px;
+  margin-top: 24px;
+  padding-top: 22px;
   border-top: 1px dashed var(--border-color);
 }
 
 .hidden { display: none !important; }
+
+.toggle-note {
+  padding: 12px 16px;
+  background: var(--primary-light);
+  border-left: 3px solid var(--primary);
+  border-radius: 6px;
+  color: #93c5fd;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.dental-arch-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: #0f172a;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.tooth-btn {
+  background: #1e293b;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tooth-btn:hover { border-color: var(--primary); }
+.tooth-btn.selected { background: var(--primary); color: #fff; border-color: var(--primary); }
 
 .actions { display: flex; justify-content: flex-end; gap: 12px; }
 
@@ -266,9 +332,11 @@ input:focus {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: all .2s ease;
 }
 
 .btn.primary { background: var(--primary); color: #fff; }
+.btn.primary:hover { background: var(--primary-hover); }
 .btn.secondary { background: #1e293b; color: #cbd5e1; border: 1px solid var(--border-color); }
 
 .status {
@@ -280,9 +348,11 @@ input:focus {
 }
 
 .status.ok { display: block; background: var(--success-bg); color: #6ee7b7; border: 1px solid #065f46; }
+.status.error { display: block; background: var(--danger-bg); color: #fca5a5; border: 1px solid #991b1b; }
 
 @media(max-width: 850px) {
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .anatomy-container { grid-template-columns: 1fr; }
 }
 @media(max-width: 560px) {
   .grid { grid-template-columns: 1fr; }
@@ -294,41 +364,33 @@ input:focus {
 
 <div class="container">
 
-<!-- Realtime Speech Debug Console -->
-<div class="voice-status-bar">
-  <div style="display:flex; align-items:center; gap:10px;">
-    <span id="voiceStatusDot" class="voice-status-indicator"></span>
-    <span id="voiceStatusText" style="font-weight:600;">Voice Engine: Idle</span>
-  </div>
-  <div id="voiceTranscriptText" style="color: #93c5fd; font-style: italic;">Heard: "-"</div>
-</div>
-
 <div class="hero">
   <div>
     <h1>Oral Clinical Assessment</h1>
-    <p>Voice-Activated Guided Input with Real-Time Transcription</p>
+    <p>Hands-Free Intelligent Voice Flow & Custom UI Dropdowns</p>
   </div>
-  <div style="display: flex; gap: 16px; align-items: center;">
+  <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
     <button id="masterDictationBtn" type="button" class="dictation-master-btn" onclick="toggleAutoDictationFlow()">
-      🎙 Start Auto Voice Flow
+      🎙 Start Auto-Dictation Flow
     </button>
     <div class="risk-indicator-badge">
-      <div style="font-size: 11px; color: var(--text-muted);">Malignancy Risk Level</div>
+      <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Real-Time Malignancy Risk</div>
       <div id="riskLevelDisplay" class="risk-level">LOW RISK</div>
+      <div id="osmfStageDisplay" style="font-size: 12px; color: var(--text-muted);">OSMF Stage: Normal</div>
     </div>
   </div>
 </div>
 
 <form id="patientForm" onsubmit="handleFormSubmit(event)">
 
-<!-- 1. PATIENT INFORMATION -->
+<!-- ================= 1. PATIENT INFORMATION ================= -->
 <div class="card">
   <h2 class="section-title"><span>1</span> Patient Information</h2>
   <div class="grid">
-    <div class="field"><label for="patient_id">Patient ID <b class="required">*</b></label><input id="patient_id" name="patient_id" required placeholder="e.g. 101"></div>
-    <div class="field"><label for="patient_name">Patient Name <b class="required">*</b></label><input id="patient_name" name="patient_name" required placeholder="Full Name"></div>
-    <div class="field"><label for="opd_number">OPD Number <b class="required">*</b></label><input id="opd_number" name="opd_number" required placeholder="OPD-2026-X"></div>
-    <div class="field"><label for="age">Age <b class="required">*</b></label><input id="age" name="age" type="number" min="1" max="120" required placeholder="Age in years"></div>
+    <div class="field"><label for="patient_id">Patient ID <b class="required">*</b></label><input id="patient_id" name="patient_id" required placeholder="e.g. P001"></div>
+    <div class="field"><label for="patient_name">Patient Name <b class="required">*</b></label><input id="patient_name" name="patient_name" required></div>
+    <div class="field"><label for="opd_number">OPD Number <b class="required">*</b></label><input id="opd_number" name="opd_number" required></div>
+    <div class="field"><label for="age">Age <b class="required">*</b></label><input id="age" name="age" type="number" min="1" max="120" required></div>
     
     <div class="field">
       <label for="sex">Sex <b class="required">*</b></label>
@@ -344,6 +406,24 @@ input:focus {
     </div>
 
     <div class="field">
+      <label for="religion">Religion</label>
+      <div class="custom-select-wrapper" id="religion_wrapper">
+        <input type="hidden" id="religion" name="religion">
+        <div class="custom-select-trigger" onclick="toggleDropdown('religion_wrapper')">Select Option</div>
+        <div class="custom-options">
+          <div class="custom-option" onclick="selectOption('religion_wrapper', 'Hindu')">Hindu</div>
+          <div class="custom-option" onclick="selectOption('religion_wrapper', 'Muslim')">Muslim</div>
+          <div class="custom-option" onclick="selectOption('religion_wrapper', 'Buddhist')">Buddhist</div>
+          <div class="custom-option" onclick="selectOption('religion_wrapper', 'Sikh')">Sikh</div>
+          <div class="custom-option" onclick="selectOption('religion_wrapper', 'Christian')">Christian</div>
+          <div class="custom-option" onclick="selectOption('religion_wrapper', 'Other')">Other</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field"><label for="occupation">Occupation</label><input id="occupation" name="occupation" placeholder="Occupation title"></div>
+    
+    <div class="field">
       <label for="residence">Residence</label>
       <div class="custom-select-wrapper" id="residence_wrapper">
         <input type="hidden" id="residence" name="residence">
@@ -354,14 +434,28 @@ input:focus {
         </div>
       </div>
     </div>
+
+    <div class="field">
+      <label for="marital_status">Marital Status</label>
+      <div class="custom-select-wrapper" id="marital_status_wrapper">
+        <input type="hidden" id="marital_status" name="marital_status">
+        <div class="custom-select-trigger" onclick="toggleDropdown('marital_status_wrapper')">Select Option</div>
+        <div class="custom-options">
+          <div class="custom-option" onclick="selectOption('marital_status_wrapper', 'Married')">Married</div>
+          <div class="custom-option" onclick="selectOption('marital_status_wrapper', 'Unmarried')">Unmarried</div>
+          <div class="custom-option" onclick="selectOption('marital_status_wrapper', 'Widowed')">Widowed</div>
+          <div class="custom-option" onclick="selectOption('marital_status_wrapper', 'Divorced')">Divorced</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- 2. SMOKING HABITS -->
+<!-- ================= 2. SMOKING HABITS ================= -->
 <div class="card">
   <h2 class="section-title"><span>2</span> Smoking Habits</h2>
   <div class="field" style="max-width:360px">
-    <label for="smoking">Smoking Habit? <b class="required">*</b></label>
+    <label for="smoking">Smoking? <b class="required">*</b></label>
     <div class="custom-select-wrapper" id="smoking_wrapper">
       <input type="hidden" id="smoking" name="smoking" required>
       <div class="custom-select-trigger" onclick="toggleDropdown('smoking_wrapper')">Select Option</div>
@@ -373,14 +467,37 @@ input:focus {
   </div>
   
   <div id="smokingFields" class="subsection hidden">
+    <div class="toggle-note">Select applicable smoking methods and duration.</div>
     <div class="grid">
-      <div class="field"><label for="smoking_duration_years">Smoking Duration (Years)</label><input id="smoking_duration_years" name="smoking_duration_years" type="number"></div>
-      <div class="field"><label for="smoking_frequency_per_day">Frequency / Day</label><input id="smoking_frequency_per_day" name="smoking_frequency_per_day" type="number"></div>
+      <div class="field">
+        <label for="cigarette_smoking">Cigarette Smoking</label>
+        <div class="custom-select-wrapper" id="cigarette_smoking_wrapper">
+          <input type="hidden" id="cigarette_smoking" name="cigarette_smoking">
+          <div class="custom-select-trigger" onclick="toggleDropdown('cigarette_smoking_wrapper')">Select Option</div>
+          <div class="custom-options">
+            <div class="custom-option" onclick="selectOption('cigarette_smoking_wrapper', 'Yes')">Yes</div>
+            <div class="custom-option" onclick="selectOption('cigarette_smoking_wrapper', 'No')">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="bidi_smoking">Bidi Smoking</label>
+        <div class="custom-select-wrapper" id="bidi_smoking_wrapper">
+          <input type="hidden" id="bidi_smoking" name="bidi_smoking">
+          <div class="custom-select-trigger" onclick="toggleDropdown('bidi_smoking_wrapper')">Select Option</div>
+          <div class="custom-options">
+            <div class="custom-option" onclick="selectOption('bidi_smoking_wrapper', 'Yes')">Yes</div>
+            <div class="custom-option" onclick="selectOption('bidi_smoking_wrapper', 'No')">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label for="smoking_duration_years">Smoking Duration (Years)</label><input id="smoking_duration_years" name="smoking_duration_years" type="number" min="0" step="1"></div>
+      <div class="field"><label for="smoking_frequency_per_day">Smoking Frequency / Day</label><input id="smoking_frequency_per_day" name="smoking_frequency_per_day" type="number" min="0" step="1"></div>
     </div>
   </div>
 </div>
 
-<!-- 3. CHEWING HABITS -->
+<!-- ================= 3. CHEWING HABITS ================= -->
 <div class="card">
   <h2 class="section-title"><span>3</span> Chewing Habits</h2>
   <div class="field" style="max-width:360px">
@@ -394,9 +511,72 @@ input:focus {
       </div>
     </div>
   </div>
+  <div id="chewingFields" class="subsection hidden">
+    <div class="grid">
+      <div class="field">
+        <label for="gutkha">Gutkha</label>
+        <div class="custom-select-wrapper" id="gutkha_wrapper">
+          <input type="hidden" id="gutkha" name="gutkha">
+          <div class="custom-select-trigger" onclick="toggleDropdown('gutkha_wrapper')">Select Option</div>
+          <div class="custom-options">
+            <div class="custom-option" onclick="selectOption('gutkha_wrapper', 'Yes')">Yes</div>
+            <div class="custom-option" onclick="selectOption('gutkha_wrapper', 'No')">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="betel_nut_chewing">Betel Nut Chewing</label>
+        <div class="custom-select-wrapper" id="betel_nut_chewing_wrapper">
+          <input type="hidden" id="betel_nut_chewing" name="betel_nut_chewing">
+          <div class="custom-select-trigger" onclick="toggleDropdown('betel_nut_chewing_wrapper')">Select Option</div>
+          <div class="custom-options">
+            <div class="custom-option" onclick="selectOption('betel_nut_chewing_wrapper', 'Yes')">Yes</div>
+            <div class="custom-option" onclick="selectOption('betel_nut_chewing_wrapper', 'No')">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- SAVE & ACTIONS -->
+<!-- ================= 4. ALCOHOL ================= -->
+<div class="card">
+  <h2 class="section-title"><span>4</span> Alcohol</h2>
+  <div class="field" style="max-width:360px">
+    <label for="alcohol">Alcohol? <b class="required">*</b></label>
+    <div class="custom-select-wrapper" id="alcohol_wrapper">
+      <input type="hidden" id="alcohol" name="alcohol" required>
+      <div class="custom-select-trigger" onclick="toggleDropdown('alcohol_wrapper')">Select Option</div>
+      <div class="custom-options">
+        <div class="custom-option" onclick="selectOption('alcohol_wrapper', 'Yes')">Yes</div>
+        <div class="custom-option" onclick="selectOption('alcohol_wrapper', 'No')">No</div>
+      </div>
+    </div>
+  </div>
+  <div id="alcoholFields" class="subsection hidden">
+    <div class="grid">
+      <div class="field"><label for="alcohol_duration_years">Duration (Years)</label><input id="alcohol_duration_years" name="alcohol_duration_years" type="number" min="0"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 5. EXAMINATION & ANATOMY ================= -->
+<div class="card">
+  <h2 class="section-title"><span>5</span> Interactive Anatomical Map & Lesion Metrics</h2>
+  <div class="anatomy-container">
+    <div class="canvas-wrapper" id="canvasContainer">
+      <canvas id="mouthCanvas" width="360" height="360"></canvas>
+      <div id="pointerPin" class="pointer-pin hidden"></div>
+    </div>
+    <div class="grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="field"><label for="lesion_position_coords">Lesion Coords (X%, Y%)</label><input id="lesion_position_coords" name="lesion_position_coords" readonly placeholder="Click map"></div>
+      <div class="field"><label for="lesion_maximum_diameter_mm">Max Diameter (mm)</label><input id="lesion_maximum_diameter_mm" name="lesion_maximum_diameter_mm" type="number" min="0" step="0.1"></div>
+      <div class="field"><label for="inter_incisal_distance_mm">Inter-Incisal Dist (mm)</label><input id="inter_incisal_distance_mm" name="inter_incisal_distance_mm" type="number" min="0" step="1" placeholder="e.g. 35"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SAVE & ACTIONS ================= -->
 <div class="card">
   <div class="actions">
     <button type="reset" class="btn secondary" onclick="resetFormState()">Reset Form</button>
@@ -410,12 +590,15 @@ input:focus {
 
 <script>
 const $ = id => document.getElementById(id);
+let activeTeeth = new Set();
 let isAutoDictating = false;
 let currentActiveElement = null;
 let recognition = null;
 let availableVoices = [];
 
-/* Custom Dropdown Controller */
+/* =========================================
+   CUSTOM UI DROPDOWN CONTROLLER
+========================================= */
 function toggleDropdown(wrapperId) {
   const wrapper = $(wrapperId);
   const isOpen = wrapper.classList.contains('open');
@@ -441,44 +624,52 @@ function selectOption(wrapperId, value) {
 }
 
 document.addEventListener('click', e => {
-  if (!e.target.closest('.custom-select-wrapper')) closeAllDropdowns();
+  if (!e.target.closest('.custom-select-wrapper')) {
+    closeAllDropdowns();
+  }
 });
 
-/* Realistic Voice Output Engine */
+/* =========================================
+   NATURAL NEURAL VOICE SYNTHESIS ENGINE
+========================================= */
 function initVoiceSynthesis() {
   if ('speechSynthesis' in window) {
-    const loadVoices = () => { availableVoices = window.speechSynthesis.getVoices(); };
+    const loadVoices = () => {
+      availableVoices = window.speechSynthesis.getVoices();
+    };
     loadVoices();
-    if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
   }
+}
+
+function getBestVoice() {
+  return availableVoices.find(voice => 
+    voice.lang.includes('en') && (voice.name.includes('Natural') || voice.name.includes('Neural') || voice.name.includes('Google') || voice.name.includes('Samantha'))
+  ) || availableVoices.find(voice => voice.lang.includes('en')) || null;
 }
 
 function speakText(text, onEndCallback) {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    const selectedVoice = availableVoices.find(v => v.lang.includes('en') && (v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Google'))) 
-                          || availableVoices.find(v => v.lang.includes('en'));
+    const selectedVoice = getBestVoice();
     if (selectedVoice) utterance.voice = selectedVoice;
+    
+    utterance.pitch = 1.0;
     utterance.rate = 1.0;
     
-    utterance.onend = () => { if (onEndCallback) onEndCallback(); };
-    utterance.onerror = () => { if (onEndCallback) onEndCallback(); };
-    
-    updateVoiceStatus('Speaking prompt...', 'active');
+    if (onEndCallback) utterance.onend = onEndCallback;
     window.speechSynthesis.speak(utterance);
   } else if (onEndCallback) {
     onEndCallback();
   }
 }
 
-function updateVoiceStatus(msg, state) {
-  $('voiceStatusText').textContent = `Voice Engine: ${msg}`;
-  const dot = $('voiceStatusDot');
-  dot.className = 'voice-status-indicator ' + (state || '');
-}
-
-/* Dictation Workflow Engine */
+/* =========================================
+   AUTOMATED SEQUENTIAL VOICE DICTATION
+========================================= */
 function getEmptyFieldsSequence() {
   const elements = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([readonly]), .custom-select-wrapper'));
   return elements.filter(el => {
@@ -503,7 +694,7 @@ function startNextDictationStep() {
   const btn = $('masterDictationBtn');
 
   if (emptyFields.length === 0) {
-    speakText("All assessment fields are complete.");
+    speakText("All active fields are completed successfully.");
     stopAutoDictation();
     return;
   }
@@ -528,7 +719,7 @@ function startNextDictationStep() {
     labelText = labelEl ? labelEl.innerText.replace('*', '').trim() : 'field';
   }
 
-  speakText(`Say ${labelText}`, () => {
+  speakText(`Please say ${labelText}`, () => {
     listenForInput(currentActiveElement);
   });
 }
@@ -552,65 +743,44 @@ function removeHighlight(el) {
 }
 
 function listenForInput(targetElement) {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  
-  if (!SpeechRecognition) {
-    alert("Speech Recognition is not supported by this browser. Use Chrome or Edge.");
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Voice Recognition not supported in this browser.');
     stopAutoDictation();
     return;
   }
 
-  if (recognition) { try { recognition.abort(); } catch(e){} }
-
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SpeechRecognition();
   recognition.lang = 'en-US';
-  recognition.continuous = false;
   recognition.interimResults = false;
 
-  updateVoiceStatus('Listening...', 'listening');
-
   recognition.onresult = function(e) {
-    const rawTranscript = e.results[0][0].transcript.trim();
-    $('voiceTranscriptText').textContent = `Heard: "${rawTranscript}"`;
+    const rawTranscript = e.results[0][0].transcript.trim().toLowerCase();
 
     if (targetElement.classList.contains('custom-select-wrapper')) {
       const options = Array.from(targetElement.querySelectorAll('.custom-option'));
-      const lower = rawTranscript.toLowerCase();
-      
-      const match = options.find(opt => lower.includes(opt.innerText.toLowerCase()));
-      if (match) {
-        match.click();
-      } else if (lower.includes('yes')) {
-        selectOption(targetElement.id, 'Yes');
-      } else if (lower.includes('no')) {
-        selectOption(targetElement.id, 'No');
-      }
+      const match = options.find(opt => opt.innerText.toLowerCase().includes(rawTranscript));
+      if (match) match.click();
+      else if (rawTranscript.includes('yes')) selectOption(targetElement.id, 'Yes');
+      else if (rawTranscript.includes('no')) selectOption(targetElement.id, 'No');
     } else {
-      let val = rawTranscript;
+      let cleanedValue = rawTranscript;
       if (targetElement.type === 'number') {
-        val = rawTranscript.replace(/[^0-9.]/g, '');
+        cleanedValue = rawTranscript.replace(/[^0-9.]/g, '');
       }
-      targetElement.value = val;
+      targetElement.value = cleanedValue;
       targetElement.dispatchEvent(new Event('input', { bubbles: true }));
       targetElement.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     if (isAutoDictating) {
-      setTimeout(() => startNextDictationStep(), 500);
+      setTimeout(() => startNextDictationStep(), 400);
     }
   };
 
-  recognition.onerror = function(event) {
-    updateVoiceStatus(`Speech Error: ${event.error}`, '');
-    if (event.error === 'not-allowed') {
-      alert("Microphone permission denied. Please allow mic access in your browser settings.");
-      stopAutoDictation();
-    }
-  };
-
-  recognition.onend = function() {
-    if (isAutoDictating && targetElement) {
-      // Re-trigger if voice hasn't responded yet
+  recognition.onerror = recognition.onend = function() {
+    if (isAutoDictating && targetElement.classList.contains('custom-select-wrapper') && !targetElement.querySelector('input').value) {
+      // Continue or re-prompt seamlessly
     }
   };
 
@@ -619,37 +789,86 @@ function listenForInput(targetElement) {
 
 function stopAutoDictation() {
   isAutoDictating = false;
-  if (recognition) { try { recognition.abort(); } catch(e){} }
+  if (recognition) recognition.abort();
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   if (currentActiveElement) removeHighlight(currentActiveElement);
   
   closeAllDropdowns();
-  updateVoiceStatus('Idle', '');
   const btn = $('masterDictationBtn');
   btn.classList.remove('active');
-  btn.textContent = '🎙 Start Auto Voice Flow';
+  btn.textContent = '🎙 Start Auto-Dictation Flow';
 }
+
+/* =========================================
+   CANVAS & RISK ASSESSMENT ENGINE
+========================================= */
+function initMouthCanvas() {
+  const canvas = $('mouthCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.ellipse(180, 180, 150, 130, 0, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '12px Plus Jakarta Sans';
+  ctx.fillText('Interactive Anatomical Mouth Map', 90, 185);
+}
+
+$('canvasContainer').addEventListener('click', function(e) {
+  const rect = this.getBoundingClientRect();
+  const pctX = (((e.clientX - rect.left) / rect.width) * 100).toFixed(1);
+  const pctY = (((e.clientY - rect.top) / rect.height) * 100).toFixed(1);
+
+  const pin = $('pointerPin');
+  pin.style.left = `${pctX}%`;
+  pin.style.top = `${pctY}%`;
+  pin.classList.remove('hidden');
+
+  $('lesion_position_coords').value = `X: ${pctX}%, Y: ${pctY}%`;
+  evaluateRisk();
+});
 
 function evaluateRisk() {
   let score = 0;
   if ($('smoking').value === 'Yes') score += 1;
   if ($('chewing').value === 'Yes') score += 2;
+  if ($('alcohol').value === 'Yes') score += 1;
+
+  const diameter = parseFloat($('lesion_maximum_diameter_mm').value) || 0;
+  if (diameter > 20) score += 2;
 
   const display = $('riskLevelDisplay');
-  if (score >= 3) {
-    display.textContent = 'HIGH RISK';
+  if (score >= 4) {
+    display.textContent = 'HIGH / SUSPICIOUS';
     display.style.color = 'var(--danger)';
-  } else if (score >= 1) {
+  } else if (score >= 2) {
     display.textContent = 'MODERATE RISK';
     display.style.color = 'var(--warning)';
   } else {
     display.textContent = 'LOW RISK';
     display.style.color = 'var(--success)';
   }
+
+  const dist = parseFloat($('inter_incisal_distance_mm').value);
+  const osmfDisplay = $('osmfStageDisplay');
+  if (!isNaN(dist) && dist > 0) {
+    if (dist < 15) osmfDisplay.textContent = 'OSMF Grade IV (< 15mm)';
+    else if (dist < 25) osmfDisplay.textContent = 'OSMF Grade III (15-25mm)';
+    else if (dist < 35) osmfDisplay.textContent = 'OSMF Grade II (25-35mm)';
+    else osmfDisplay.textContent = 'OSMF Grade I / Normal (> 35mm)';
+  }
 }
 
 function sync() {
   toggle('smokingFields', $('smoking').value === 'Yes');
+  toggle('chewingFields', $('chewing').value === 'Yes');
+  toggle('alcoholFields', $('alcohol').value === 'Yes');
   evaluateRisk();
 }
 
@@ -662,6 +881,7 @@ function resetFormState() {
   stopAutoDictation();
   document.querySelectorAll('.custom-select-trigger').forEach(t => t.textContent = 'Select Option');
   document.querySelectorAll('.custom-select-wrapper input[type="hidden"]').forEach(i => i.value = '');
+  $('pointerPin').classList.add('hidden');
   sync();
 }
 
@@ -673,7 +893,7 @@ function handleFormSubmit(e) {
   
   const status = $('status');
   status.className = 'status ok';
-  status.textContent = `Saved assessment for patient: ${data.patient_name || 'N/A'}`;
+  status.textContent = `Record saved for Patient: ${data.patient_name || 'N/A'}. Score evaluated successfully.`;
 }
 
 document.querySelectorAll('input').forEach(el => {
@@ -682,6 +902,7 @@ document.querySelectorAll('input').forEach(el => {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
+  initMouthCanvas();
   initVoiceSynthesis();
   sync();
 });
