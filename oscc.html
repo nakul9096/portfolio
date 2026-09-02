@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="config/config.js"></script>
+
 <style>
 :root {
   --bg: #0b0f19;
@@ -302,7 +305,6 @@ tbody tr:hover {
 <body>
 
 <div class="container">
-  <!-- Top Navigation Header -->
   <header class="dashboard-header">
     <div class="dashboard-title">
       <h1>Oral Clinical Registry</h1>
@@ -314,7 +316,6 @@ tbody tr:hover {
     </div>
   </header>
 
-  <!-- Metric Overview Cards -->
   <section class="metrics-grid">
     <div class="metric-card">
       <div class="metric-title">Total Patients Evaluated</div>
@@ -338,7 +339,6 @@ tbody tr:hover {
     </div>
   </section>
 
-  <!-- Filters & Controls -->
   <section class="controls-card">
     <div class="search-box">
       <span class="search-icon">🔍</span>
@@ -353,7 +353,6 @@ tbody tr:hover {
     </div>
   </section>
 
-  <!-- Records Data Table -->
   <section class="table-card">
     <div class="table-wrapper">
       <table>
@@ -380,15 +379,14 @@ tbody tr:hover {
 </div>
 
 <script>
-let CONFIG;
 let rawRecords = [];
 
 const $ = id => document.getElementById(id);
 
-async function loadConfig() {
-  const r = await fetch('/api/config.js');
-  if (!r.ok) throw new Error('Unable to load API configuration.');
-  CONFIG = await r.json();
+function getAppConfig() {
+  if (typeof CONFIG !== 'undefined') return CONFIG;
+  if (typeof window.CONFIG !== 'undefined') return window.CONFIG;
+  throw new Error('CONFIG object not found in config/config.js');
 }
 
 async function fetchRecords() {
@@ -396,13 +394,13 @@ async function fetchRecords() {
   tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Fetching latest data...</td></tr>';
   
   try {
-    if (!CONFIG) await loadConfig();
+    const cfg = getAppConfig();
 
-    const response = await fetch(CONFIG.SUPABASE_URL + '/rest/v1/oral_clinical_assessments?select=*&order=created_at.desc', {
+    const response = await fetch(cfg.SUPABASE_URL + '/rest/v1/oral_clinical_assessments?select=*&order=created_at.desc', {
       method: 'GET',
       headers: {
-        'apikey': CONFIG.SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY
+        'apikey': cfg.SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + cfg.SUPABASE_ANON_KEY
       }
     });
 
@@ -441,7 +439,6 @@ function renderTable(data) {
   data.forEach(p => {
     const tr = document.createElement('tr');
 
-    // Risk calculation logic for display badge
     const isHighRisk = (p.smoking === 'Yes' && p.any_chewing_habits === 'Yes') || (p.swelling === 'Yes' && p.regional_lymph_node_palpability === 'Yes');
     const isModerateRisk = p.smoking === 'Yes' || p.any_chewing_habits === 'Yes' || p.swelling === 'Yes';
 
@@ -452,7 +449,6 @@ function renderTable(data) {
       badgeHtml = '<span class="badge warning">Moderate</span>';
     }
 
-    // Habits formatting
     const habits = [];
     if (p.smoking === 'Yes') habits.push('Smoking');
     if (p.any_chewing_habits === 'Yes') habits.push('Chewing');
@@ -500,9 +496,7 @@ function escapeHtml(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-loadConfig().then(fetchRecords).catch(err => {
-  $('tableBody').innerHTML = `<tr><td colspan="8" class="empty-state" style="color:var(--danger)">Config Error: ${err.message}</td></tr>`;
-});
+document.addEventListener('DOMContentLoaded', fetchRecords);
 </script>
 </body>
 </html>
