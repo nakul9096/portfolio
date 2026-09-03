@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JEEVANDAYINI - Multimodal NFC Diagnostics</title>
+    <title>OSCC Multimodal NFC Diagnostic System</title>
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- Supabase JS Client v2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- External Configuration Script -->
+    <script src="config/config.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -32,7 +37,6 @@
     </script>
 
     <style>
-        /* Glassmorphism & Radar Animations */
         .glass-panel {
             background: rgba(11, 19, 43, 0.7);
             backdrop-filter: blur(16px);
@@ -72,14 +76,14 @@
             <div class="flex items-center gap-2">
                 <span class="inline-block w-3 h-3 rounded-full bg-cyanAccent animate-ping"></span>
                 <h1 class="text-2xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyanAccent via-slate-100 to-violetAccent">
-                    JEEVANDAYINI
+                    OSCC DIAGNOSTICS PORTAL
                 </h1>
             </div>
-            <p class="text-slate-400 text-xs font-mono mt-1">OSCC Multimodal Diagnostics &amp; NFC Portal v2.1</p>
+            <p class="text-slate-400 text-xs font-mono mt-1">Table Target: public.oral_clinical_assessments</p>
         </div>
         <div class="flex items-center gap-3">
             <span id="dbStatusBadge" class="text-xs font-mono bg-slate-900/80 text-slate-400 border border-slate-700/60 px-3 py-1.5 rounded-full flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span> Connecting Supabase...
+                <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span> Connecting to Supabase...
             </span>
         </div>
     </header>
@@ -89,7 +93,7 @@
         <!-- NFC API Warning Banner -->
         <div id="nfcStatusBanner" class="hidden flex items-center gap-3 p-4 bg-red-950/40 border border-red-800/60 text-red-200 rounded-2xl backdrop-blur-md">
             <span class="text-xl">⚠️</span>
-            <p id="nfcStatusMessage" class="text-sm font-medium">Web NFC API unavailable. Please open using Google Chrome on an Android NFC-enabled device over HTTPS.</p>
+            <p id="nfcStatusMessage" class="text-sm font-medium">Web NFC API unavailable. Please open using Chrome on an Android NFC device over HTTPS.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -108,13 +112,13 @@
 
                 <!-- Supabase Live Dropdown -->
                 <div class="space-y-2">
-                    <label class="block text-xs font-mono uppercase tracking-wider text-cyanAccent">SELECT PATIENT (oral_clinical_assessment)</label>
-                    <select id="patientSelect" disabled class="w-full h-13 bg-slate-950/80 border border-slate-700/80 rounded-xl px-4 text-sm text-slate-200 focus:outline-none focus:border-cyanAccent focus:ring-1 focus:ring-cyanAccent transition">
-                        <option value="" disabled selected>-- Loading Records from Supabase... --</option>
+                    <label class="block text-xs font-mono uppercase tracking-wider text-cyanAccent">SELECT PATIENT (oral_clinical_assessments)</label>
+                    <select id="patientSelect" disabled class="w-full h-12 bg-slate-950/80 border border-slate-700/80 rounded-xl px-4 text-sm text-slate-200 focus:outline-none focus:border-cyanAccent focus:ring-1 focus:ring-cyanAccent transition">
+                        <option value="" disabled selected>-- Fetching Records from Database... --</option>
                     </select>
                 </div>
 
-                <button onclick="startNFCWrite()" class="w-full h-14 bg-gradient-to-r from-cyan-500 to-cyan-600 text-darkBg font-bold text-sm tracking-wide uppercase rounded-xl flex items-center justify-center gap-3 hover:shadow-neon-cyan hover:opacity-95 transition active:scale-98">
+                <button onclick="startNFCWrite()" class="w-full h-14 bg-gradient-to-r from-cyan-500 to-cyan-600 text-darkBg font-bold text-sm tracking-wide uppercase rounded-xl flex items-center justify-center gap-3 hover:shadow-neon-cyan hover:opacity-95 transition active:scale-95">
                     <span>📡</span> Tap Card to Write &amp; Activate
                 </button>
             </section>
@@ -132,11 +136,11 @@
                         </div>
                     </div>
                     <p class="text-slate-400 text-sm leading-relaxed">
-                        Tap any active JEEVANDAYINI card against the device reader. The system reads the <code class="text-emeraldAccent font-mono text-xs">patient_id</code>, queries the <code class="text-emeraldAccent font-mono text-xs">oral_clinical_assessment</code> table, and opens the multimodal record.
+                        Tap an activated patient NFC card against the reader. The system reads the <code class="text-emeraldAccent font-mono text-xs">patient_id</code>, queries <code class="text-emeraldAccent font-mono text-xs">oral_clinical_assessments</code>, and displays the diagnostic details.
                     </p>
                 </div>
 
-                <button onclick="startNFCRead()" class="w-full h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 text-darkBg font-bold text-sm tracking-wide uppercase rounded-xl flex items-center justify-center gap-3 hover:shadow-neon-emerald hover:opacity-95 transition active:scale-98 mt-6">
+                <button onclick="startNFCRead()" class="w-full h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 text-darkBg font-bold text-sm tracking-wide uppercase rounded-xl flex items-center justify-center gap-3 hover:shadow-neon-emerald hover:opacity-95 transition active:scale-95 mt-6">
                     <span>📡</span> Start Scanning NFC Card
                 </button>
             </section>
@@ -163,11 +167,11 @@
             </div>
 
             <div class="space-y-1">
-                <h3 id="nfcDialogTitle" class="text-lg font-bold text-white">NFC Initialized</h3>
-                <p id="nfcDialogText" class="text-slate-400 text-xs leading-relaxed">Hold the card against the back of your mobile device.</p>
+                <h3 id="nfcDialogTitle" class="text-lg font-bold text-white">NFC Reader Initialized</h3>
+                <p id="nfcDialogText" class="text-slate-400 text-xs leading-relaxed">Hold your NFC card against the back of your mobile device.</p>
             </div>
 
-            <span class="text-[10px] font-mono text-slate-500 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">SUPABASE LIVE BUS ACTIVE</span>
+            <span class="text-[10px] font-mono text-slate-500 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">SUPABASE DATABASE SYNC ACTIVE</span>
         </div>
     </dialog>
 
@@ -190,45 +194,43 @@
                     </div>
                 </div>
                 <span class="ml-auto text-xs font-mono bg-emerald-950/80 text-emeraldAccent border border-emerald-800 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emeraldAccent animate-pulse"></span> NFC &amp; DB VERIFIED
+                    <span class="w-2 h-2 rounded-full bg-emeraldAccent animate-pulse"></span> NFC VERIFIED
                 </span>
             </div>
 
-            <!-- Full Patient Data Grid -->
+            <!-- Patient Data Grid Mapped Directly to Schema -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
                 
                 <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-500 block font-mono text-[10px] uppercase">AGE / SEX</span>
+                    <span class="text-slate-500 block font-mono text-[10px] uppercase">AGE / SEX / MARITAL</span>
                     <span id="dialogAgeSex" class="text-slate-200 font-bold text-sm">--</span>
                 </div>
 
                 <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-500 block font-mono text-[10px] uppercase">RELIGION</span>
-                    <span id="dialogReligion" class="text-slate-200 font-bold text-sm">--</span>
+                    <span class="text-slate-500 block font-mono text-[10px] uppercase">RELIGION / OCCUPATION</span>
+                    <span id="dialogRelOcc" class="text-slate-200 font-bold text-sm">--</span>
                 </div>
 
                 <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-500 block font-mono text-[10px] uppercase">OCCUPATION</span>
-                    <span id="dialogOccupation" class="text-slate-200 font-bold text-sm">--</span>
-                </div>
-
-                <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-500 block font-mono text-[10px] uppercase">LOCATION</span>
+                    <span class="text-slate-500 block font-mono text-[10px] uppercase">LOCATION / RESIDENCE</span>
                     <span id="dialogLocation" class="text-slate-200 font-bold text-sm truncate block">--</span>
                 </div>
 
-                <!-- Clinical Details Row -->
-                <div class="col-span-2 md:col-span-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-500 block font-mono text-[10px] uppercase">HABITS HISTORY</span>
-                    <div id="dialogHabits" class="text-slate-300 mt-1 space-x-2">--</div>
+                <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
+                    <span class="text-slate-500 block font-mono text-[10px] uppercase">RISK LEVEL / OSMF</span>
+                    <span id="dialogRiskOsmf" class="text-slate-200 font-bold text-sm truncate block">--</span>
                 </div>
 
+                <!-- Habits Section -->
                 <div class="col-span-2 md:col-span-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-500 block font-mono text-[10px] uppercase">DIAGNOSTIC STATUS</span>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span id="dialogHistGrade" class="bg-violet-950 text-violet-300 border border-violet-800 px-2 py-0.5 rounded font-mono text-[11px]">Grade: --</span>
-                        <span id="dialogTceStage" class="bg-rose-950 text-rose-300 border border-rose-800 px-2 py-0.5 rounded font-mono text-[11px]">Stage: --</span>
-                    </div>
+                    <span class="text-slate-500 block font-mono text-[10px] uppercase">HABITS (SMOKING / CHEWING / ALCOHOL)</span>
+                    <div id="dialogHabits" class="text-slate-300 mt-1 font-mono text-[11px]">--</div>
+                </div>
+
+                <!-- Lesion Info Section -->
+                <div class="col-span-2 md:col-span-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
+                    <span class="text-slate-500 block font-mono text-[10px] uppercase">LESION CHARACTERISTICS</span>
+                    <div id="dialogLesion" class="text-slate-300 mt-1 font-mono text-[11px]">--</div>
                 </div>
 
             </div>
@@ -242,23 +244,28 @@
         </div>
     </dialog>
 
-    <!-- ES Module Import for Config & Supabase Integration -->
-    <script type="module">
-        import { supabaseUrl, supabaseKey, tableName } from './config/config.js';
-
-        // Initialize Supabase Client
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    <!-- Supabase Data Retrieval Script -->
+    <script>
         let cachedPatients = [];
-
-        // UI DOM Elements
         const selectEl = document.getElementById('patientSelect');
         const dbBadge = document.getElementById('dbStatusBadge');
 
-        // Fetch records from oral_clinical_assessment
+        // Fetch records from public.oral_clinical_assessments
         async function fetchPatientRecords() {
             try {
+                const url = window.supabaseUrl || window.SUPABASE_URL;
+                const key = window.supabaseKey || window.SUPABASE_KEY;
+                // Target exact schema table
+                const table = window.tableName || 'oral_clinical_assessments';
+
+                if (!url || !key) {
+                    throw new Error("Missing Supabase credentials in config/config.js");
+                }
+
+                const supabase = window.supabase.createClient(url, key);
+
                 const { data, error } = await supabase
-                    .from(tableName || 'oral_clinical_assessment')
+                    .from(table)
                     .select('*')
                     .order('created_at', { ascending: false });
 
@@ -268,33 +275,35 @@
                 populateDropdown(cachedPatients);
 
                 dbBadge.className = "text-xs font-mono bg-emerald-950/80 text-emeraldAccent border border-emerald-800/80 px-3 py-1.5 rounded-full flex items-center gap-2";
-                dbBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emeraldAccent"></span> Supabase Connected (${cachedPatients.length} Records)`;
+                dbBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emeraldAccent"></span> Connected (${cachedPatients.length} Records)`;
             } catch (err) {
                 console.error("Supabase connection error:", err);
                 dbBadge.className = "text-xs font-mono bg-rose-950/80 text-rose-300 border border-rose-800 px-3 py-1.5 rounded-full flex items-center gap-2";
-                dbBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-roseAccent"></span> DB Connection Error`;
+                dbBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-roseAccent"></span> DB Error: Check config.js`;
             }
         }
 
         function populateDropdown(patients) {
             selectEl.innerHTML = '<option value="" disabled selected>-- Select Patient Record --</option>';
+            if (patients.length === 0) {
+                selectEl.innerHTML = '<option value="" disabled selected>-- No Patient Records Found --</option>';
+                return;
+            }
             patients.forEach(p => {
                 const opt = document.createElement('option');
                 opt.value = p.patient_id;
-                opt.textContent = `${p.patient_id} - ${p.patient_name || 'Anonymous'} (${p.sex || 'N/A'}, ${p.age || 'N/A'})`;
+                opt.textContent = `${p.patient_id} - ${p.patient_name || 'Anonymous'} (OPD: ${p.opd_number || 'N/A'}, ${p.sex || 'N/A'})`;
                 selectEl.appendChild(opt);
             });
             selectEl.disabled = false;
         }
 
-        // Attach global lookup helper for Web NFC triggers
         window.getPatientById = (id) => cachedPatients.find(p => p.patient_id === id);
 
-        // Fetch on load
-        fetchPatientRecords();
+        document.addEventListener('DOMContentLoaded', fetchPatientRecords);
     </script>
 
-    <!-- Web NFC Interaction Scripts -->
+    <!-- Web NFC Interactions & Modal Renderer -->
     <script>
         const animDialog = document.getElementById('nfcAnimDialog');
         const radarRings = document.getElementById('radarRings');
@@ -314,12 +323,12 @@
         const showNFCAnim = (type) => {
             if (type === 'write') {
                 dialogIcon.innerText = '💳';
-                dialogTitle.innerText = 'Card Ready for Writing';
-                dialogText.innerText = 'Hold your NFC card against the back of the device to encode the patient key.';
+                dialogTitle.innerText = 'Ready to Write NFC Card';
+                dialogText.innerText = 'Tap your NFC card against the back of your phone to save the patient record.';
             } else {
                 dialogIcon.innerText = '🔍';
                 dialogTitle.innerText = 'NFC Reader Active';
-                dialogText.innerText = 'Tap any patient card to fetch complete clinical assessment.';
+                dialogText.innerText = 'Tap any patient NFC card to bring up full assessment details.';
             }
             radarRings.classList.remove('hidden');
             animDialog.showModal();
@@ -336,12 +345,10 @@
         let ndefWriter = null;
         async function startNFCWrite() {
             if (!checkNfcSupport()) return;
-            
-            const select = document.getElementById('patientSelect');
-            const patientId = select.value;
 
+            const patientId = selectEl.value;
             if (!patientId) {
-                alert("Please select a patient from the dropdown list first.");
+                alert("Please select a patient record from the dropdown first.");
                 return;
             }
 
@@ -349,25 +356,24 @@
 
             try {
                 if (!ndefWriter) ndefWriter = new NDEFReader();
-                
-                // Write payload holding patient_id reference
-                const payload = JSON.stringify({ patient_id: patientId, sys: 'JEEVANDAYINI' });
+
+                const payload = JSON.stringify({ patient_id: patientId });
 
                 await ndefWriter.write({
                     records: [{ recordType: "text", data: payload }]
                 });
 
                 dialogIcon.innerText = '✅';
-                dialogTitle.innerText = 'Activation Successful!';
-                dialogText.innerHTML = `Card linked to <b class="text-cyanAccent">${patientId}</b>.`;
+                dialogTitle.innerText = 'Card Written!';
+                dialogText.innerHTML = `Linked successfully to <b class="text-cyanAccent">${patientId}</b>.`;
                 radarRings.classList.add('hidden');
 
                 setTimeout(closeNFCAnim, 2200);
             } catch (err) {
                 console.error(err);
                 dialogIcon.innerText = '❌';
-                dialogTitle.innerText = 'Write Failed';
-                dialogText.innerText = err.message || 'NFC Write Operation Aborted.';
+                dialogTitle.innerText = 'Write Aborted';
+                dialogText.innerText = err.message || 'Failed to write data to NFC card.';
                 radarRings.classList.add('hidden');
             }
         }
@@ -396,40 +402,41 @@
                         if (patientRecord) {
                             renderFullPatientModal(patientRecord);
                         } else {
-                            alert(`Card scanned (ID: ${patientId}), but no corresponding record was found in oral_clinical_assessment.`);
+                            alert(`Card scanned (ID: ${patientId}), but record was not found in oral_clinical_assessments.`);
                         }
                     }
                 };
             } catch (err) {
                 console.error(err);
                 dialogIcon.innerText = '❌';
-                dialogTitle.innerText = 'Scan Failed';
-                dialogText.innerText = err.message || 'Unable to start NFC scanner.';
+                dialogTitle.innerText = 'Scan Error';
+                dialogText.innerText = err.message || 'Unable to scan NFC tag.';
                 radarRings.classList.add('hidden');
             }
         }
 
-        // 3. RENDER FULL OVERVIEW FROM SUPABASE RECORD
+        // 3. RENDER FULL OVERVIEW MATCHING EXACT SCHEMA FIELDS
         function renderFullPatientModal(p) {
             document.getElementById('dialogPatientName').innerText = p.patient_name || 'Anonymous';
             document.getElementById('dialogPatientId').innerText = p.patient_id || 'N/A';
-            document.getElementById('dialogOpdNo').innerText = `OPD: ${p.opd_no || 'N/A'}`;
-            document.getElementById('dialogAgeSex').innerText = `${p.age || 'N/A'} Yrs / ${p.sex || 'N/A'}`;
-            document.getElementById('dialogReligion').innerText = p.religion || 'N/A';
-            document.getElementById('dialogOccupation').innerText = p.occupation || 'N/A';
-            document.getElementById('dialogLocation').innerText = p.patient_location || 'N/A';
+            document.getElementById('dialogOpdNo').innerText = `OPD: ${p.opd_number || 'N/A'}`;
+            
+            document.getElementById('dialogAgeSex').innerText = `${p.age || 'N/A'} Yrs / ${p.sex || 'N/A'} / ${p.marital_status || 'N/A'}`;
+            document.getElementById('dialogRelOcc').innerText = `${p.religion || 'N/A'} / ${p.occupation || 'N/A'}`;
+            document.getElementById('dialogLocation').innerText = `${p.patient_location || p.residence || 'N/A'}`;
+            document.getElementById('dialogRiskOsmf').innerText = `${p.risk_level || 'N/A'} (OSMF: ${p.osmf_stage || 'N/A'})`;
 
-            // Habits
-            const cigarette = p.cigarette_smoking === 'Yes' ? '🚬 Smoker' : null;
-            const alcohol = p.alcohol === 'Yes' ? '🍷 Alcohol' : null;
-            const habits = [cigarette, alcohol].filter(Boolean).join(' • ') || 'No habits reported';
-            document.getElementById('dialogHabits').innerText = habits;
+            // Build Habits string from schema columns
+            const habitList = [];
+            if (p.smoking === 'Yes') habitList.push('Smoking');
+            if (p.any_chewing_habits === 'Yes') habitList.push('Chewing');
+            if (p.alcohol === 'Yes') habitList.push('Alcohol');
+            document.getElementById('dialogHabits').innerText = habitList.length > 0 ? habitList.join(' • ') : 'No Habits Reported';
 
-            // Histology & Stage
-            document.getElementById('dialogHistGrade').innerText = `Grade: ${p.hist_grade || 'N/A'}`;
-            document.getElementById('dialogTceStage').innerText = `Stage: ${p.tce_stage || 'N/A'}`;
+            // Lesion Summary from schema columns
+            const lesionInfo = `Location: ${p.lesion_location || 'N/A'} | Color: ${p.lesion_color || 'N/A'} | Size: ${p.lesion_maximum_diameter_mm ? p.lesion_maximum_diameter_mm + 'mm' : 'N/A'}`;
+            document.getElementById('dialogLesion').innerText = lesionInfo;
 
-            // Avatar tint
             const avatar = document.getElementById('dialogSexAvatar');
             if (p.sex === 'Female') {
                 avatar.className = "w-16 h-16 rounded-2xl bg-roseAccent/20 text-roseAccent flex items-center justify-center text-3xl border border-roseAccent/30";
