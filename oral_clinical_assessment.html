@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enhanced Oral Clinical Assessment - Universal Dictation</title>
+<title>Oral Clinical Assessment</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -260,6 +260,181 @@ input:focus, select:focus, textarea:focus {
 
 .tooth-btn:hover { border-color: var(--primary); }
 .tooth-btn.selected { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* Clinical camera capture field */
+.camera-field {
+  background: linear-gradient(145deg, #0f172a, #111c31);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.16);
+}
+
+.camera-field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.camera-field-header label {
+  margin-bottom: 4px;
+}
+
+.camera-help,
+.camera-note {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.camera-badge {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(37,99,235,.12);
+  border: 1px solid rgba(37,99,235,.3);
+  color: #93c5fd;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.camera-box {
+  position: relative;
+  min-height: 260px;
+  border: 1px dashed #3b82f6;
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(circle at center, rgba(37,99,235,.08), transparent 58%),
+    #0b1220;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+
+.camera-box:hover {
+  border-color: #60a5fa;
+  background:
+    radial-gradient(circle at center, rgba(37,99,235,.14), transparent 62%),
+    #0b1220;
+}
+
+.camera-box:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 3px;
+}
+
+.camera-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  text-align: center;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.camera-placeholder strong {
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.camera-placeholder span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.camera-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: rgba(37,99,235,.14);
+  border: 1px solid rgba(59,130,246,.35);
+  font-size: 27px;
+  margin-bottom: 4px;
+}
+
+.camera-preview {
+  display: none;
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  max-height: 430px;
+  object-fit: contain;
+  background: #020617;
+}
+
+.camera-box.has-image .camera-placeholder {
+  display: none;
+}
+
+.camera-box.has-image .camera-preview {
+  display: block;
+}
+
+.camera-overlay {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: none;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(2,6,23,.78);
+  border: 1px solid rgba(255,255,255,.12);
+  color: #fff;
+  font-size: 11px;
+  backdrop-filter: blur(8px);
+}
+
+.camera-box.has-image .camera-overlay {
+  display: block;
+}
+
+.camera-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.camera-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.camera-btn,
+.camera-remove {
+  min-width: 140px;
+}
+
+.camera-note {
+  margin-top: 9px;
+}
+
+@media(max-width: 560px) {
+  .camera-field {
+    padding: 14px;
+  }
+
+  .camera-box,
+  .camera-preview {
+    min-height: 220px;
+  }
+
+  .camera-field-header {
+    flex-direction: column;
+  }
+}
 
 .actions { display: flex; justify-content: flex-end; gap: 12px; }
 
@@ -758,9 +933,40 @@ input:focus, select:focus, textarea:focus {
           <div class="field"><label for="lesion_length_mm">Lesion Length (mm)</label><input id="lesion_length_mm" name="lesion_length_mm" type="number" min="0" step="0.1"></div>
           <div class="field"><label for="lesion_width_mm">Lesion Width (mm)</label><input id="lesion_width_mm" name="lesion_width_mm" type="number" min="0" step="0.1"></div>
           <div class="field"><label for="lesion_maximum_diameter_mm">Maximum Diameter (mm)</label><input id="lesion_maximum_diameter_mm" name="lesion_maximum_diameter_mm" type="number" min="0" step="0.1"></div>
-          <div class="field">
-            <label for="lesion_image">Lesion Image <span class="hint">(Optional)</span></label>
-            <input id="lesion_image" name="lesion_image" type="file" accept="image/*">
+          <div class="field full">
+            <div class="camera-field">
+              <div class="camera-field-header">
+                <div>
+                  <label for="lesion_image">Lesion Image <span class="hint">(Optional)</span></label>
+                  <div class="camera-help">Capture a clear image of the oral lesion for clinical reference.</div>
+                </div>
+                <span class="camera-badge">OPTIONAL</span>
+              </div>
+
+              <div class="camera-box" id="cameraBox" onclick="openLesionCamera()" role="button" tabindex="0" aria-label="Capture lesion image">
+                <div class="camera-placeholder" id="cameraPlaceholder">
+                  <div class="camera-icon">📷</div>
+                  <strong>Capture Lesion Image</strong>
+                  <span>Tap here to open camera</span>
+                </div>
+                <img id="lesionImagePreview" class="camera-preview" alt="Lesion image preview">
+                <div class="camera-overlay">
+                  <span>📷 Retake Image</span>
+                </div>
+              </div>
+
+              <input id="lesion_image" name="lesion_image" type="file" accept="image/*" capture="environment" class="camera-input">
+
+              <div class="camera-actions">
+                <button type="button" class="btn primary camera-btn" onclick="openLesionCamera(event)">
+                  📷 Capture Image
+                </button>
+                <button type="button" class="btn secondary camera-remove" id="removeLesionImage" onclick="removeLesionImage(event)" style="display:none;">
+                  Remove
+                </button>
+              </div>
+              <div class="camera-note">Use the rear camera when available for a clearer clinical image.</div>
+            </div>
           </div>
           <div class="field">
             <label for="lesion_extension">Lesion Extension</label>
@@ -1444,6 +1650,63 @@ function resetFormState() {
 }
 
 /* =========================================
+   LESION CAMERA CAPTURE UI
+========================================= */
+function openLesionCamera(event) {
+  if (event) event.stopPropagation();
+  const input = $('lesion_image');
+  if (input) input.click();
+}
+
+function updateLesionImagePreview() {
+  const input = $('lesion_image');
+  const box = $('cameraBox');
+  const preview = $('lesionImagePreview');
+  const removeBtn = $('removeLesionImage');
+
+  if (!input || !box || !preview) return;
+
+  if (input.files && input.files.length > 0) {
+    const file = input.files[0];
+
+    if (!file.type.startsWith('image/')) {
+      input.value = '';
+      return;
+    }
+
+    if (preview.dataset.objectUrl) {
+      URL.revokeObjectURL(preview.dataset.objectUrl);
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    preview.dataset.objectUrl = objectUrl;
+    preview.src = objectUrl;
+    box.classList.add('has-image');
+
+    if (removeBtn) removeBtn.style.display = 'inline-flex';
+  } else {
+    box.classList.remove('has-image');
+    preview.removeAttribute('src');
+    if (removeBtn) removeBtn.style.display = 'none';
+  }
+}
+
+function removeLesionImage(event) {
+  if (event) event.stopPropagation();
+
+  const input = $('lesion_image');
+  const preview = $('lesionImagePreview');
+
+  if (preview && preview.dataset.objectUrl) {
+    URL.revokeObjectURL(preview.dataset.objectUrl);
+    delete preview.dataset.objectUrl;
+  }
+
+  if (input) input.value = '';
+  updateLesionImagePreview();
+}
+
+/* =========================================
    PAYLOAD BUILDER & DATABASE SAVING
 ========================================= */
 const INT_FIELDS = [
@@ -1523,6 +1786,15 @@ async function handleFormSubmit(e) {
 document.querySelectorAll('select, input').forEach(el => {
   el.addEventListener('change', sync);
   el.addEventListener('input', evaluateRisk);
+});
+
+$('lesion_image')?.addEventListener('change', updateLesionImagePreview);
+
+$('cameraBox')?.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    openLesionCamera();
+  }
 });
 
 window.addEventListener('DOMContentLoaded', () => {
