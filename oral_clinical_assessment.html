@@ -2067,10 +2067,37 @@ function resetFormState() {
 /* =========================================
    LESION CAMERA CAPTURE UI
 ========================================= */
-function openLesionCamera(event) {
+async function openLesionCamera(event) {
   if (event) event.stopPropagation();
+
   const input = $('lesion_image');
-  if (input) input.click();
+  if (!input) return;
+
+  // Request camera permission first. If permission is already granted,
+  // getUserMedia resolves immediately. The stream is opened only briefly
+  // to trigger/verify permission, then the native camera picker is opened.
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false
+      });
+
+      stream.getTracks().forEach(track => track.stop());
+
+      // Permission granted -> open the device camera/file capture UI.
+      input.click();
+      return;
+    } catch (error) {
+      // If permission is denied/unavailable, still allow the browser's
+      // native capture UI to handle the device/file selection.
+      input.click();
+      return;
+    }
+  }
+
+  // Fallback for browsers without getUserMedia support.
+  input.click();
 }
 
 function updateLesionImagePreview() {
