@@ -1,185 +1,617 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NFC Patient Management</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSCC NFC Diagnostic Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config/config.js"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        app: {
+          bg: '#090d16',
+          surface: '#111827',
+          hover: '#1f2937',
+          border: '#1f293d',
+          borderLight: '#2d3748',
+          blue: '#2563eb',
+          blueHover: '#1d4ed8'
+        }
+      }
+    }
+  }
+}
+</script>
+
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:#090d16;color:#f9fafb;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  line-height:1.5;font-size:14px;min-height:100vh
+}
+.app-nav{
+  position:sticky;top:0;z-index:50;width:100%;
+  background:rgba(17,24,39,.97);border-bottom:1px solid #1f293d;
+  backdrop-filter:blur(12px)
+}
+.nav-inner{
+  width:100%;max-width:1440px;min-height:68px;margin:auto;padding:0 28px;
+  display:flex;align-items:center;justify-content:space-between;gap:24px
+}
+.nav-brand{display:flex;align-items:center;min-width:240px}
+.nav-brand-text{display:flex;flex-direction:column;line-height:1.2}
+.nav-brand-title{color:#f9fafb;font-size:14px;font-weight:600;letter-spacing:-.01em}
+.nav-brand-subtitle{margin-top:4px;color:#6b7280;font-size:11px}
+.nav-right{display:flex;align-items:center;gap:18px}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-links a{
+  display:inline-flex;align-items:center;min-height:38px;padding:0 13px;
+  color:#9ca3af;text-decoration:none;font-size:13px;font-weight:500;
+  border-radius:6px;transition:.15s
+}
+.nav-links a:hover{background:#1f2937;color:#f9fafb}
+.nav-links a.active{background:rgba(37,99,235,.12);color:#60a5fa}
+.nav-patients,.btn.primary{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:38px;padding:0 15px;border:1px solid #2563eb;border-radius:6px;
+  background:#2563eb;color:white;text-decoration:none;font-size:13px;font-weight:500;
+  cursor:pointer;transition:.15s
+}
+.nav-patients:hover,.btn.primary:hover{background:#1d4ed8;border-color:#1d4ed8}
+.container{width:100%;max-width:1280px;margin:auto;padding:32px 24px 48px}
+.page-header{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
+  margin-bottom:26px;padding-bottom:20px;border-bottom:1px solid #1f293d
+}
+.title-area h1{margin:0;color:#f9fafb;font-size:22px;font-weight:600;letter-spacing:-.02em}
+.title-area p{margin:5px 0 0;color:#6b7280;font-size:13px}
+.header-actions{display:flex;align-items:center;gap:8px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;min-height:38px;
+  padding:0 13px;border-radius:6px;font:500 13px inherit;text-decoration:none;
+  cursor:pointer;transition:.15s
+}
+.btn.secondary{background:#1f293d;border:1px solid #2d3748;color:#f9fafb}
+.btn.secondary:hover{background:#2d3748}
+.btn.sm{min-height:32px;padding:0 10px;font-size:12px}
+
+.status{
+  display:inline-flex;align-items:center;gap:8px;padding:8px 11px;
+  border:1px solid #1f293d;background:#111827;border-radius:6px;
+  color:#9ca3af;font-size:12px
+}
+.dot{width:7px;height:7px;border-radius:50%;background:#fbbf24}
+.dot.ok{background:#34d399}.dot.err{background:#f87171}
+
+.workspace{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.card{
+  background:#111827;border:1px solid #1f293d;border-radius:8px;
+  overflow:hidden
+}
+.card:hover{border-color:#2d3748}
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:18px 20px;border-bottom:1px solid #1f293d
+}
+.card-title{display:flex;align-items:center;gap:12px}
+.icon-box{
+  width:38px;height:38px;border-radius:7px;background:#0d1321;
+  border:1px solid #2d3748;display:flex;align-items:center;justify-content:center;
+  color:#60a5fa
+}
+.card-head h2{margin:0;font-size:15px;font-weight:600}
+.card-head p{margin:3px 0 0;color:#6b7280;font-size:12px}
+.mode{
+  font-size:10px;font-weight:600;color:#9ca3af;background:#0d1321;
+  border:1px solid #2d3748;border-radius:4px;padding:5px 7px
+}
+.card-body{padding:20px}
+.label{
+  display:block;color:#9ca3af;font-size:11px;font-weight:600;
+  margin-bottom:7px;text-transform:uppercase;letter-spacing:.04em
+}
+select{
+  width:100%;height:42px;padding:0 12px;background:#0d1321;
+  border:1px solid #1f293d;border-radius:6px;color:#f9fafb;
+  outline:none;font:13px inherit
+}
+select:focus{border-color:#2563eb}
+.card-note{
+  margin:0 0 18px;color:#9ca3af;font-size:12px;line-height:1.65
+}
+.action{
+  width:100%;height:42px;border:1px solid #2563eb;border-radius:6px;
+  background:#2563eb;color:#fff;font:600 12px inherit;letter-spacing:.02em;
+  cursor:pointer;transition:.15s
+}
+.action:hover{background:#1d4ed8}
+.action.green{border-color:#059669;background:#059669}
+.action.green:hover{background:#047857}
+
+.info-strip{
+  margin-top:18px;padding:14px 16px;background:#111827;
+  border:1px solid #1f293d;border-radius:8px;color:#9ca3af;font-size:12px
+}
+.info-strip strong{color:#f9fafb;font-weight:600}
+
+dialog{
+  border:0;padding:0;background:transparent;color:#f9fafb;
+  width:min(1050px,calc(100% - 28px));max-height:90vh
+}
+dialog::backdrop{background:rgba(3,7,18,.84);backdrop-filter:blur(5px)}
+.modal{
+  background:#111827;border:1px solid #2d3748;border-radius:8px;
+  box-shadow:0 20px 50px rgba(0,0,0,.45);overflow:auto;max-height:90vh
+}
+.modal-head{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:20px;border-bottom:1px solid #1f293d
+}
+.modal-head h3{margin:0;font-size:16px;font-weight:600}
+.modal-sub{margin:4px 0 0;color:#6b7280;font-size:12px}
+.close-btn{
+  border:1px solid #2d3748;background:#1f293d;color:#f9fafb;
+  border-radius:6px;padding:7px 10px;cursor:pointer
+}
+.modal-content{padding:20px}
+.patient-top{
+  display:grid;grid-template-columns:1fr auto;gap:16px;padding-bottom:18px;
+  margin-bottom:18px;border-bottom:1px solid #1f293d
+}
+.patient-name{font-size:20px;font-weight:600;margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:7px}
+.meta span{
+  background:#0d1321;border:1px solid #1f293d;border-radius:4px;
+  padding:4px 7px;color:#9ca3af;font-size:11px
+}
+.risk{padding:5px 9px;border-radius:4px;font-size:11px;font-weight:600;height:max-content}
+.risk.high{background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.2)}
+.risk.medium{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)}
+.risk.low{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.2)}
+
+.diagnostic-grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
+.anatomy,.matrix{
+  background:#0d1321;border:1px solid #1f293d;border-radius:7px
+}
+.anatomy{padding:18px;display:flex;flex-direction:column;align-items:center}
+.section-label{
+  width:100%;font-size:10px;font-weight:600;color:#60a5fa;
+  text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px
+}
+.mouth{width:260px;height:260px;margin:8px auto}
+.mouth svg{width:100%;height:100%}
+.lesion-group.hidden{display:none}
+.lesion-target{animation:pulse 1.5s ease-in-out infinite;transform-origin:center}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35;transform:scale(1.25)}}
+.lesion-footer{
+  width:100%;padding:10px;background:#111827;border:1px solid #1f293d;
+  border-radius:6px;color:#9ca3af;font-size:11px;text-align:center
+}
+.matrix{padding:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.detail-section{grid-column:1/-1;margin-top:4px;padding-bottom:7px;color:#60a5fa;
+  font-size:10px;font-weight:600;text-transform:uppercase;border-bottom:1px solid #1f293d}
+.detail-item{padding:10px 11px;background:#111827;border:1px solid #1f293d;border-radius:6px}
+.detail-item span{display:block;color:#6b7280;font-size:10px;margin-bottom:3px}
+.detail-item strong{display:block;color:#f9fafb;font-size:12px;font-weight:500;word-break:break-word}
+.modal-foot{
+  padding:16px 20px;border-top:1px solid #1f293d;display:flex;
+  justify-content:space-between;align-items:center;color:#6b7280;font-size:10px
+}
+
+#nfcAnimDialog{width:min(430px,calc(100% - 28px))}
+.scan-modal{padding:30px;text-align:center}
+.scanner-icon{
+  width:100px;height:100px;margin:5px auto 20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;background:#0d1321;
+  border:1px solid #2d3748;font-size:40px
+}
+.scanner-icon.active{animation:scanPulse 1.5s infinite}
+@keyframes scanPulse{50%{box-shadow:0 0 0 12px rgba(37,99,235,.05)}}
+.scan-modal h3{margin:0;font-size:16px;font-weight:600}
+.scan-modal p{margin:7px 0 18px;color:#6b7280;font-size:12px}
+.scan-line{height:2px;width:150px;margin:auto;background:#2563eb;animation:scan 1.4s infinite}
+@keyframes scan{0%,100%{transform:translateX(-35px);opacity:.2}50%{transform:translateX(35px);opacity:1}}
+
+@media(max-width:900px){
+  .workspace,.diagnostic-grid{grid-template-columns:1fr}
+}
+@media(max-width:800px){
+  .nav-inner{min-height:auto;padding:14px 18px;flex-direction:column;align-items:stretch}
+  .nav-right{width:100%;flex-wrap:wrap;justify-content:space-between}
+  .nav-links{flex-wrap:wrap}
+  .nav-patients{margin-left:auto}
+  .page-header{align-items:flex-start;flex-direction:column}
+  .header-actions{width:100%}.header-actions .btn{flex:1}
+}
+@media(max-width:600px){
+  .container{padding:24px 14px 36px}
+  .nav-inner{padding:13px 14px}
+  .nav-right{flex-direction:column;align-items:stretch}
+  .nav-links{width:100%;overflow-x:auto;flex-wrap:nowrap}
+  .nav-links a{flex-shrink:0}
+  .nav-patients{width:100%;margin:0}
+  .patient-top{grid-template-columns:1fr}
+  .matrix{grid-template-columns:1fr}
+  .detail-section{grid-column:1}
+}
+</style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-6 font-sans">
-  <div class="max-w-4xl mx-auto space-y-6">
 
-    <!-- Status Banner -->
-    <div id="statusBanner" class="hidden p-4 rounded-lg font-medium text-center"></div>
+<body>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-      <!-- SECTION 1: Activate/Write NFC Card -->
-      <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
-        <h2 class="text-xl font-bold mb-4 text-cyan-400 flex items-center gap-2">
-          <span>💳</span> Activate NFC Card
-        </h2>
-        
-        <form id="nfcWriteForm" class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">PATIENT ID</label>
-            <input type="text" id="patientId" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" placeholder="e.g. PAT-90421" />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">FULL NAME</label>
-            <input type="text" id="patientName" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" placeholder="John Doe" />
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1">SEX</label>
-              <select id="patientSex" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500">
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1">AGE</label>
-              <input type="number" id="patientAge" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" placeholder="34" />
-            </div>
-          </div>
-
-          <button type="button" id="writeBtn" onclick="writeNFC()" class="w-full mt-4 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 rounded-lg transition duration-200">
-            Tap Card to Activate
-          </button>
-        </form>
-      </div>
-
-      <!-- SECTION 2: Scan/Read NFC Card -->
-      <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl flex flex-col justify-between">
-        <div>
-          <h2 class="text-xl font-bold mb-4 text-emerald-400 flex items-center gap-2">
-            <span>🔍</span> Scan Patient Card
-          </h2>
-          <p class="text-sm text-slate-400 mb-6">
-            Click the button below and hold the patient's NFC card near the back of your device to retrieve their record.
-          </p>
-        </div>
-
-        <button type="button" id="readBtn" onclick="readNFC()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg transition duration-200">
-          Start Scanning NFC Card
-        </button>
-      </div>
-
-    </div>
-
-    <!-- SECTION 3: Patient Overview Modal / Container -->
-    <div id="patientOverview" class="hidden bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-4">
-        <h3 class="text-lg font-bold text-slate-200">Patient Overview</h3>
-        <span class="text-xs font-mono bg-emerald-950 text-emerald-400 border border-emerald-800 px-2.5 py-1 rounded-full">Active Card</span>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-slate-900/60 p-3 rounded-lg">
-          <span class="text-xs text-slate-500 block font-medium">PATIENT ID</span>
-          <span id="overviewId" class="text-slate-100 font-semibold font-mono">--</span>
-        </div>
-        <div class="bg-slate-900/60 p-3 rounded-lg">
-          <span class="text-xs text-slate-500 block font-medium">NAME</span>
-          <span id="overviewName" class="text-slate-100 font-semibold">--</span>
-        </div>
-        <div class="bg-slate-900/60 p-3 rounded-lg">
-          <span class="text-xs text-slate-500 block font-medium">SEX</span>
-          <span id="overviewSex" class="text-slate-100 font-semibold">--</span>
-        </div>
-        <div class="bg-slate-900/60 p-3 rounded-lg">
-          <span class="text-xs text-slate-500 block font-medium">AGE</span>
-          <span id="overviewAge" class="text-slate-100 font-semibold">--</span>
-        </div>
+<nav class="app-nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <div class="nav-brand-text">
+        <span class="nav-brand-title">Oral Clinical Registry - Assessment Dashboard</span>
+        <span class="nav-brand-subtitle">Developed By Nakul Dhande With Team Hardik, Chinmay, Shantanu</span>
       </div>
     </div>
-
+    <div class="nav-right">
+      <div class="nav-links">
+        <a href="patients.html">Registry Records</a>
+        <a href="oral_clinical_assessment.html" class="active">New Assessment</a>
+        <a href="analytics.html">Analytics</a>
+      </div>
+      <a href="patientinfo.html" class="nav-patients">Get Patients</a>
+    </div>
   </div>
+</nav>
 
-  <script>
-    const showStatus = (message, isError = false) => {
-      const banner = document.getElementById('statusBanner');
-      banner.classList.remove('hidden', 'bg-red-900/50', 'text-red-200', 'bg-cyan-900/50', 'text-cyan-200');
-      banner.classList.add(isError ? 'bg-red-900/50' : 'bg-cyan-900/50');
-      banner.classList.add(isError ? 'text-red-200' : 'text-cyan-200');
-      banner.innerText = message;
+<div class="container">
+  <header class="page-header">
+    <div class="title-area">
+      <h1>OSCC NFC Diagnostic Hub</h1>
+      <p>Multimodal clinical assessment, NFC patient identification &amp; diagnostic history</p>
+    </div>
+    <div class="header-actions">
+      <div id="dbStatusBadge" class="status"><span class="dot"></span> Connecting to clinical database...</div>
+    </div>
+  </header>
+
+  <section class="workspace">
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <div class="icon-box">▣</div>
+          <div>
+            <h2>Encode Patient Card</h2>
+            <p>Write a patient identifier to an NFC tag</p>
+          </div>
+        </div>
+        <span class="mode">WRITE MODE</span>
+      </div>
+      <div class="card-body">
+        <label class="label" for="patientSelect">Clinical Record</label>
+        <select id="patientSelect" disabled>
+          <option>Retrieving clinical records...</option>
+        </select>
+        <div style="height:12px"></div>
+        <button class="action" onclick="startNFCWrite()">Tap NFC Card to Initialize &amp; Write</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <div class="icon-box">⌕</div>
+          <div>
+            <h2>NFC Diagnostic Scanner</h2>
+            <p>Read patient ID and open the diagnostic case</p>
+          </div>
+        </div>
+        <span class="mode">READ MODE</span>
+      </div>
+      <div class="card-body">
+        <p class="card-note">
+          Scan an activated NFC card to retrieve its patient identifier. The dashboard
+          then matches the ID against the Supabase clinical registry and displays the
+          stored assessment information.
+        </p>
+        <button class="action green" onclick="startNFCRead()">Activate NFC Telemetry Scanner</button>
+      </div>
+    </div>
+
+  </section>
+
+  <div id="nfcStatusBanner" class="info-strip" style="display:none">
+    <strong>NFC unavailable:</strong> Web NFC requires a supported Android browser/device and a secure HTTPS context.
+  </div>
+</div>
+
+<dialog id="nfcAnimDialog">
+  <div class="modal scan-modal">
+    <button class="close-btn" onclick="closeNFCAnim()" style="float:right">×</button>
+    <div style="clear:both"></div>
+    <div id="nfcDialogIcon" class="scanner-icon active">📡</div>
+    <h3 id="nfcDialogTitle">Scanner Initialized</h3>
+    <p id="nfcDialogText">Align the NFC tag with the device reader zone.</p>
+    <div class="scan-line"></div>
+  </div>
+</dialog>
+
+<dialog id="patientInfoDialog">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3>Patient Case File</h3>
+        <p class="modal-sub">Clinical assessment record &amp; anatomical lesion mapping</p>
+      </div>
+      <button class="close-btn" onclick="closePatientDialog()">Close</button>
+    </div>
+
+    <div class="modal-content">
+      <div class="patient-top">
+        <div>
+          <h2 id="dialogPatientName" class="patient-name">--</h2>
+          <div class="meta">
+            <span id="dialogPatientId">ID: --</span>
+            <span id="dialogOpdNo">OPD: --</span>
+            <span id="dialogCreatedDate">Date: --</span>
+          </div>
+        </div>
+        <span id="dialogRiskBadge" class="risk medium">Medium Risk</span>
+      </div>
+
+      <div class="diagnostic-grid">
+        <div class="anatomy">
+          <div class="section-label">Anatomical Lesion Visualizer</div>
+          <div id="visualizerLocationTag" style="font-size:10px;color:#6b7280;margin-bottom:5px">Location: Unspecified</div>
+
+          <div class="mouth">
+            <svg viewBox="0 0 200 200" fill="none">
+              <path d="M30 100 Q100 40 170 100 Q100 160 30 100Z" stroke="#374151" stroke-width="2" fill="#111827"/>
+              <path d="M45 100 Q100 60 155 100 Q100 145 45 100Z" stroke="#2d3748" fill="#090d16"/>
+              <path d="M50 85 Q100 65 150 85" stroke="#4b5563" stroke-width="4" stroke-dasharray="6 2"/>
+              <path d="M52 115 Q100 135 148 115" stroke="#4b5563" stroke-width="4" stroke-dasharray="6 2"/>
+              <path d="M70 110 Q100 85 130 110 Q100 140 70 110Z" fill="rgba(248,113,113,.08)" stroke="rgba(248,113,113,.25)"/>
+
+              <g id="loc-buccal-right" class="lesion-group hidden"><circle cx="45" cy="100" r="10" fill="rgba(248,113,113,.15)"/><circle class="lesion-target" cx="45" cy="100" r="5" fill="#f87171"/></g>
+              <g id="loc-buccal-left" class="lesion-group hidden"><circle cx="155" cy="100" r="10" fill="rgba(248,113,113,.15)"/><circle class="lesion-target" cx="155" cy="100" r="5" fill="#f87171"/></g>
+              <g id="loc-tongue" class="lesion-group hidden"><circle cx="100" cy="105" r="12" fill="rgba(248,113,113,.15)"/><circle class="lesion-target" cx="100" cy="105" r="6" fill="#f87171"/></g>
+              <g id="loc-labial" class="lesion-group hidden"><circle cx="100" cy="52" r="9" fill="rgba(248,113,113,.15)"/><circle class="lesion-target" cx="100" cy="52" r="4.5" fill="#f87171"/></g>
+              <g id="loc-palate" class="lesion-group hidden"><circle cx="100" cy="75" r="10" fill="rgba(248,113,113,.15)"/><circle class="lesion-target" cx="100" cy="75" r="5" fill="#f87171"/></g>
+              <g id="loc-floor" class="lesion-group hidden"><circle cx="100" cy="128" r="10" fill="rgba(248,113,113,.15)"/><circle class="lesion-target" cx="100" cy="128" r="5" fill="#f87171"/></g>
+              <g id="loc-default" class="lesion-group hidden"><circle cx="100" cy="100" r="10" fill="rgba(96,165,250,.15)"/><circle class="lesion-target" cx="100" cy="100" r="5" fill="#60a5fa"/></g>
+            </svg>
+          </div>
+
+          <div id="lesionSummaryFooter" class="lesion-footer">Select a patient to render the lesion zone.</div>
+        </div>
+
+        <div class="matrix">
+          <div class="detail-section">1. Demographic Profile</div>
+          <div class="detail-item"><span>Age / Sex</span><strong id="dAgeSex">--</strong></div>
+          <div class="detail-item"><span>Marital Status</span><strong id="dMarital">--</strong></div>
+          <div class="detail-item"><span>Religion</span><strong id="dReligion">--</strong></div>
+          <div class="detail-item"><span>Occupation</span><strong id="dOccupation">--</strong></div>
+          <div class="detail-item"><span>Residence Location</span><strong id="dLocation">--</strong></div>
+
+          <div class="detail-section">2. Clinical &amp; Lesion Characteristics</div>
+          <div class="detail-item"><span>Lesion Location</span><strong id="dLesionLoc">--</strong></div>
+          <div class="detail-item"><span>Color Spectrum</span><strong id="dLesionColor">--</strong></div>
+          <div class="detail-item"><span>Maximum Diameter</span><strong id="dLesionSize">--</strong></div>
+          <div class="detail-item"><span>OSMF Staging</span><strong id="dOsmfStage">--</strong></div>
+          <div class="detail-item"><span>Ulceration</span><strong id="dUlcer">--</strong></div>
+          <div class="detail-item"><span>Palpable Nodes</span><strong id="dNodes">--</strong></div>
+
+          <div class="detail-section">3. Habits &amp; High-Risk Exposure</div>
+          <div class="detail-item"><span>Tobacco Chewing</span><strong id="dHabitChew">--</strong></div>
+          <div class="detail-item"><span>Smoking Habits</span><strong id="dHabitSmoke">--</strong></div>
+          <div class="detail-item"><span>Alcohol Usage</span><strong id="dHabitAlcohol">--</strong></div>
+          <div class="detail-item"><span>Areca Nut</span><strong id="dHabitAreca">--</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <span>DATABASE RECORD VERIFIED • SUPABASE POSTGRES ACTIVE</span>
+      <button class="btn secondary sm" onclick="closePatientDialog()">Close Diagnostic View</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+const TABLE_NAME = 'oral_clinical_assessments';
+let cachedPatients = [];
+let ndefWriter = null;
+let ndefReader = null;
+
+const selectEl = document.getElementById('patientSelect');
+const dbBadge = document.getElementById('dbStatusBadge');
+
+function getConfig(){
+  if(window.CONFIG) return window.CONFIG;
+  if(typeof CONFIG !== 'undefined') return CONFIG;
+  throw new Error('CONFIG object missing in config/config.js');
+}
+
+async function fetchPatientRecords(){
+  try{
+    const cfg = getConfig();
+    if(!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY)
+      throw new Error('Supabase configuration is missing.');
+
+    const supabase = window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
+    const {data,error}=await supabase.from(TABLE_NAME).select('*').order('created_at',{ascending:false});
+    if(error) throw error;
+
+    cachedPatients=data||[];
+    populateDropdown(cachedPatients);
+
+    dbBadge.innerHTML='<span class="dot ok"></span> Neural Core Online · '+cachedPatients.length+' Records';
+  }catch(err){
+    console.error(err);
+    dbBadge.innerHTML='<span class="dot err"></span> Database Connection Error';
+  }
+}
+
+function populateDropdown(patients){
+  selectEl.innerHTML='<option value="" disabled selected>-- Select Clinical Patient Assessment --</option>';
+  if(!patients.length){
+    selectEl.innerHTML='<option value="" disabled selected>-- No Records Found --</option>';
+    return;
+  }
+  patients.forEach(p=>{
+    const opt=document.createElement('option');
+    opt.value=p.patient_id;
+    opt.textContent=(p.patient_id||'N/A')+' - '+(p.patient_name||'Anonymous Patient')+' (OPD: '+(p.opd_number||'N/A')+')';
+    selectEl.appendChild(opt);
+  });
+  selectEl.disabled=false;
+}
+
+function checkNfcSupport(){
+  if(!('NDEFReader' in window)){
+    document.getElementById('nfcStatusBanner').style.display='block';
+    return false;
+  }
+  return true;
+}
+
+const animDialog=document.getElementById('nfcAnimDialog');
+const patientDialog=document.getElementById('patientInfoDialog');
+
+function showNFCAnim(type){
+  document.getElementById('nfcDialogIcon').textContent=type==='write'?'💳':'📡';
+  document.getElementById('nfcDialogTitle').textContent=type==='write'?'Encoding NFC Tag':'Scanning Active';
+  document.getElementById('nfcDialogText').textContent=type==='write'
+    ?'Hold the NFC card steadily against the device reader.'
+    :'Searching for an active patient card transponder.';
+  document.getElementById('nfcDialogIcon').classList.add('active');
+  animDialog.showModal();
+}
+function closeNFCAnim(){if(animDialog.open)animDialog.close()}
+function closePatientDialog(){if(patientDialog.open)patientDialog.close()}
+
+async function startNFCWrite(){
+  if(!checkNfcSupport()) return;
+  const patientId=selectEl.value;
+  if(!patientId){alert('Select a clinical patient record first.');return}
+
+  showNFCAnim('write');
+  try{
+    if(!ndefWriter) ndefWriter=new NDEFReader();
+    const payload=JSON.stringify({patient_id:patientId});
+    await ndefWriter.write({records:[{recordType:'text',data:payload}]});
+
+    document.getElementById('nfcDialogIcon').textContent='✓';
+    document.getElementById('nfcDialogTitle').textContent='Write Successful';
+    document.getElementById('nfcDialogText').textContent='NFC tag initialized with patient ID: '+patientId;
+    document.getElementById('nfcDialogIcon').classList.remove('active');
+    setTimeout(closeNFCAnim,1800);
+  }catch(err){
+    document.getElementById('nfcDialogIcon').textContent='!';
+    document.getElementById('nfcDialogTitle').textContent='Encoding Failed';
+    document.getElementById('nfcDialogText').textContent=err.message||'Write operation aborted.';
+    document.getElementById('nfcDialogIcon').classList.remove('active');
+  }
+}
+
+async function startNFCRead(){
+  if(!checkNfcSupport()) return;
+  showNFCAnim('read');
+
+  try{
+    if(!ndefReader) ndefReader=new NDEFReader();
+    await ndefReader.scan();
+
+    ndefReader.onreading=({message})=>{
+      try{
+        closeNFCAnim();
+        const record=message.records.find(r=>r.recordType==='text');
+        if(!record){alert('NFC tag does not contain a supported patient ID record.');return}
+
+        const decoded=new TextDecoder().decode(record.data);
+        const payload=JSON.parse(decoded);
+        const patientId=payload.patient_id||payload.id;
+        const patientRecord=cachedPatients.find(p=>String(p.patient_id)===String(patientId));
+
+        if(patientRecord) renderFullPatientModal(patientRecord);
+        else alert('Card read successfully, but patient ID '+patientId+' was not found in the clinical registry.');
+      }catch(e){
+        console.error(e);
+        alert('Unable to interpret NFC payload.');
+      }
     };
+  }catch(err){
+    document.getElementById('nfcDialogIcon').textContent='!';
+    document.getElementById('nfcDialogTitle').textContent='Scan Error';
+    document.getElementById('nfcDialogText').textContent=err.message||'Unable to access NFC hardware.';
+    document.getElementById('nfcDialogIcon').classList.remove('active');
+  }
+}
 
-    // 1. Write Information to NFC Card
-    async function writeNFC() {
-      if (!('NDEFReader' in window)) {
-        showStatus('Web NFC API is not supported on this device/browser. Please use Chrome on Android.', true);
-        return;
-      }
+function setText(id,value){
+  document.getElementById(id).textContent=value??'N/A';
+}
 
-      const id = document.getElementById('patientId').value;
-      const name = document.getElementById('patientName').value;
-      const sex = document.getElementById('patientSex').value;
-      const age = document.getElementById('patientAge').value;
+function renderFullPatientModal(p){
+  setText('dialogPatientName',p.patient_name||'Anonymous Record');
+  setText('dialogPatientId','ID: '+(p.patient_id||'N/A'));
+  setText('dialogOpdNo','OPD: '+(p.opd_number||'N/A'));
+  setText('dialogCreatedDate','Date: '+(p.created_at?new Date(p.created_at).toLocaleDateString():'N/A'));
 
-      if (!id || !name || !age) {
-        showStatus('Please fill in all form fields before tapping card.', true);
-        return;
-      }
+  const risk=(p.risk_level||'Medium').toLowerCase();
+  const badge=document.getElementById('dialogRiskBadge');
+  badge.textContent=(p.risk_level||'Medium')+' Risk';
+  badge.className='risk '+(risk.includes('high')?'high':risk.includes('low')?'low':'medium');
 
-      const patientData = JSON.stringify({ id, name, sex, age });
+  setText('dAgeSex',(p.age||'N/A')+' Yrs / '+(p.sex||'N/A'));
+  setText('dMarital',p.marital_status||'N/A');
+  setText('dReligion',p.religion||'N/A');
+  setText('dOccupation',p.occupation||'N/A');
+  setText('dLocation',p.patient_location||p.residence||'N/A');
 
-      try {
-        const ndef = new NDEFReader();
-        showStatus('Hold NFC card to the back of device to write...');
-        
-        await ndef.write({
-          records: [{ recordType: "text", data: patientData }]
-        });
+  const lesionLoc=p.lesion_location||'Not Specified';
+  setText('dLesionLoc',lesionLoc);
+  setText('dLesionColor',p.lesion_color||'N/A');
+  setText('dLesionSize',p.lesion_maximum_diameter_mm?String(p.lesion_maximum_diameter_mm)+' mm':p.lesion_maximum_diameter_cm?String(p.lesion_maximum_diameter_cm)+' cm':'N/A');
+  setText('dOsmfStage',p.osmf_stage||'None');
+  setText('dUlcer',p.ulceration||p.ulcer_greater_than_2_weeks||'No');
+  setText('dNodes',p.palpable_lymph_nodes||p.regional_lymph_node_palpability||'None');
 
-        showStatus('NFC Card Activated & Written Successfully!');
-      } catch (error) {
-        showStatus(`Write error: ${error.message || error}`, true);
-      }
-    }
+  setText('dHabitChew',p.any_chewing_habits||p.chewing_habits||'No');
+  setText('dHabitSmoke',p.smoking||'No');
+  setText('dHabitAlcohol',p.alcohol||'No');
+  setText('dHabitAreca',p.areca_nut||'No');
 
-    // 2. Read Information from NFC Card
-    async function readNFC() {
-      if (!('NDEFReader' in window)) {
-        showStatus('Web NFC API is not supported on this device/browser. Please use Chrome on Android.', true);
-        return;
-      }
+  document.querySelectorAll('.lesion-group').forEach(el=>el.classList.add('hidden'));
+  const lower=lesionLoc.toLowerCase();
+  const locTag=document.getElementById('visualizerLocationTag');
+  let target='loc-default',label=lesionLoc;
 
-      try {
-        const ndef = new NDEFReader();
-        await ndef.scan();
-        showStatus('Scanning... Tap patient NFC card now.');
+  if(lower.includes('buccal')&&lower.includes('right')){target='loc-buccal-right';label='Right Buccal Mucosa'}
+  else if(lower.includes('buccal')){target='loc-buccal-left';label='Buccal Mucosa'}
+  else if(lower.includes('tongue')){target='loc-tongue';label='Tongue Zone'}
+  else if(lower.includes('labial')||lower.includes('lip')){target='loc-labial';label='Labial / Lip Zone'}
+  else if(lower.includes('palate')){target='loc-palate';label='Hard / Soft Palate'}
+  else if(lower.includes('floor')||lower.includes('gingiva')||lower.includes('alveolus')){target='loc-floor';label='Floor / Gingival Zone'}
 
-        ndef.addEventListener("reading", ({ message }) => {
-          for (const record of message.records) {
-            if (record.recordType === "text") {
-              const textDecoder = new TextDecoder(record.encoding);
-              const jsonString = textDecoder.decode(record.data);
-              
-              try {
-                const data = JSON.parse(jsonString);
-                
-                // Update Overview
-                document.getElementById('overviewId').innerText = data.id || '--';
-                document.getElementById('overviewName').innerText = data.name || '--';
-                document.getElementById('overviewSex').innerText = data.sex || '--';
-                document.getElementById('overviewAge').innerText = data.age || '--';
+  document.getElementById(target).classList.remove('hidden');
+  locTag.textContent='Location: '+label;
+  document.getElementById('lesionSummaryFooter').innerHTML=
+    'Lesion Region: <strong>'+escapeHtml(lesionLoc)+'</strong> · Diameter: <strong>'+
+    escapeHtml(p.lesion_maximum_diameter_mm||p.lesion_maximum_diameter_cm||'Unmeasured')+
+    (p.lesion_maximum_diameter_mm?' mm':p.lesion_maximum_diameter_cm?' cm':'')+'</strong>';
 
-                document.getElementById('patientOverview').classList.remove('hidden');
-                showStatus('Patient Card Scanned Successfully!');
-              } catch (e) {
-                showStatus('Card scanned, but data format was invalid.', true);
-              }
-            }
-          }
-        });
-      } catch (error) {
-        showStatus(`Scan error: ${error.message || error}`, true);
-      }
-    }
-  </script>
+  patientDialog.showModal();
+}
+
+function escapeHtml(v){
+  return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+document.addEventListener('DOMContentLoaded',fetchPatientRecords);
+</script>
 </body>
 </html>
