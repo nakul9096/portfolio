@@ -466,17 +466,6 @@
             </p>
         </div>
 
-        <div class="card p-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div>
-                <div class="text-sm font-bold text-slate-800">Arduino NFC Reader</div>
-                <div class="text-xs text-slate-500 mt-1">Direct USB connection • Arduino UNO + RC522 • 9600 baud</div>
-            </div>
-            <div class="flex items-center gap-3">
-                <span id="arduinoStatus" class="text-xs font-bold text-red-600">● Disconnected</span>
-                <button type="button" id="connectArduinoButton" onclick="connectArduinoFromButton()" class="btn btn-primary" style="width:auto; min-width:170px;">🔌 Connect Arduino</button>
-            </div>
-        </div>
-
         <main class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <section class="card p-5 md:p-6">
                 <div class="flex items-start justify-between gap-4 pb-5 border-b border-slate-200">
@@ -822,498 +811,125 @@
     </dialog>
 
     <script>
-        const TABLE_NAME = "oral_clinical_assessments";
-
-        // =========================
-        // DIRECT ARDUINO WEB SERIAL
-        // =========================
-        let serialPort = null;
-        let serialReader = null;
-        let serialBuffer = "";
-        let serialConnected = false;
-        let serialOperation = null;
-
-        async function connectArduino() {
-            if (!("serial" in navigator)) {
-                throw new Error("Web Serial is not supported. Use Google Chrome or Microsoft Edge on a desktop.");
-            }
-
-            if (serialPort && serialPort.readable && serialPort.writable) {
-                serialConnected = true;
-                updateSerialStatus(true);
-                return;
-            }
-
-            serialPort = await navigator.serial.requestPort();
-
-            await serialPort.open({
-                baudRate: 9600,
-                dataBits: 8,
-                stopBits: 1,
-                parity: "none",
-                bufferSize: 256,
-                flowControl: "none"
-            });
-
-            serialConnected = true;
-            serialBuffer = "";
-            updateSerialStatus(true);
-
-            readSerialLoop();
-
-            // UNO resets when the serial port opens.
-            await new Promise(resolve => setTimeout(resolve, 1800));
-        }
-
-        function updateSerialStatus(connected) {
-            serialConnected = connected;
-            const banner = document.getElementById("nfcStatusBanner");
-            const message = document.getElementById("nfcStatusMessage");
-
-            const status = document.getElementById("arduinoStatus");
-            const connectButton = document.getElementById("connectArduinoButton");
-
-            if (status) {
-                status.textContent = connected ? "● Connected" : "● Disconnected";
-                status.className = connected ? "text-xs font-bold text-green-600" : "text-xs font-bold text-red-600";
-            }
-
-            if (connectButton) {
-                connectButton.textContent = connected ? "✓ Arduino Connected" : "🔌 Connect Arduino";
-                connectButton.disabled = connected;
-            }
-
-            if (!banner || !message) return;
-
-            banner.classList.remove("hidden");
-            message.textContent = connected
-                ? "Arduino connected directly through USB. RC522 is ready."
-                : "Arduino disconnected. Connect the UNO through USB and try again.";
-        }
-
-        async function readSerialLoop() {
-            if (!serialPort || !serialPort.readable || serialReader) return;
-
-            serialReader = serialPort.readable.getReader();
-            const decoder = new TextDecoder();
-
-            try {
-                while (true) {
-                    const { value, done } = await serialReader.read();
-                    if (done) break;
-                    if (!value) continue;
-
-                    serialBuffer += decoder.decode(value, { stream: true });
-                    const lines = serialBuffer.split(/\r?\n/);
-                    serialBuffer = lines.pop() || "";
-
-                    for (const rawLine of lines) {
-                        const line = rawLine.trim();
-                        if (!line) continue;
-                        console.log("Arduino →", line);
-                        handleArduinoLine(line);
-                    }
-                }
-            } catch (error) {
-                console.error("Serial reader error:", error);
-            } finally {
-                try { serialReader.releaseLock(); } catch (_) {}
-                serialReader = null;
-                serialConnected = false;
-                updateSerialStatus(false);
-            }
-        }
-
-        function handleArduinoLine(line) {
-            const operation = serialOperation;
-            if (!operation) {
-                console.log("Arduino message (no active operation):", line);
-                return;
-            }
-
-            if (line === "ARDUINO_READY") {
-                return;
-            }
-
-            if (line === "WAITING_FOR_CARD") {
-                if (operation.type === "write") {
-                    showNFCAnim("write", "arduino");
-                    dialogTitle.textContent = "Place NFC Card";
-                    dialogIcon.textContent = "💳";
-                    dialogText.textContent = "Waiting for your MIFARE Classic 1K card. Place it directly on the RC522 reader.";
-                } else {
-                    showNFCAnim("read", "arduino");
-                    dialogTitle.textContent = "Place NFC Card";
-                    dialogIcon.textContent = "💳";
-                    dialogText.textContent = "Waiting for your MIFARE Classic 1K card. Place it directly on the RC522 reader.";
-                }
-                return;
-            }
-
-            if (line === "CARD_DETECTED") {
-                dialogIcon.textContent = "🔍";
-                dialogTitle.textContent = "Card Detected";
-                dialogText.textContent = operation.type === "write"
-                    ? "Card detected. Writing and verifying the patient ID..."
-                    : "Card detected. Reading the stored patient ID...";
-                return;
-            }
-
-            if (line.startsWith("UID:")) {
-                operation.uid = line.substring(4).trim();
-                return;
-            }
-
-            const isFinal =
-                line === "CARD_TIMEOUT" ||
-                line.startsWith("WRITE_OK:") ||
-                line.startsWith("WRITE_ERROR:") ||
-                line.startsWith("READ_OK:") ||
-                line.startsWith("READ_ERROR:");
-
-            if (!isFinal) return;
-
-            clearTimeout(operation.timer);
-            serialOperation = null;
-            operation.resolve(line);
-        }
-
-        async function connectArduinoFromButton() {
-            try {
-                await connectArduino();
-            } catch (error) {
-                showNfcError(error, "Unable to connect to Arduino.");
-            }
-        }
-
-        async function sendArduinoCommand(command, type, timeout = 20000) {
-            if (!serialPort || !serialPort.writable) {
-                await connectArduino();
-            }
-
-            if (!serialPort || !serialPort.writable) {
-                throw new Error("Arduino serial port is not connected.");
-            }
-
-            if (serialOperation) {
-                throw new Error("Another NFC operation is already running.");
-            }
-
-            // IMPORTANT: register the response handler BEFORE writing the command.
-            const responsePromise = new Promise((resolve, reject) => {
-                const timer = setTimeout(() => {
-                    if (!serialOperation) return;
-                    serialOperation = null;
-                    reject(new Error("NFC operation timed out. No card was detected within 20 seconds."));
-                }, timeout);
-
-                serialOperation = {
-                    type,
-                    resolve,
-                    reject,
-                    timer,
-                    uid: null
-                };
-            });
-
-            const writer = serialPort.writable.getWriter();
-
-            try {
-                const encoder = new TextEncoder();
-                await writer.write(encoder.encode(command + "\n"));
-            } catch (error) {
-                if (serialOperation) {
-                    clearTimeout(serialOperation.timer);
-                    const reject = serialOperation.reject;
-                    serialOperation = null;
-                    reject(error);
-                }
-            } finally {
-                writer.releaseLock();
-            }
-
-            return responsePromise;
-        }
-
-        // =========================
-        // NFC OPERATIONS
-        // =========================
-        async function startNFCWrite() {
-            const patientId = getSelectedPatientId();
-            if (!patientId) return;
-            await writeUsingArduino(patientId);
-        }
-
-        async function startNFCRead() {
-            await readUsingArduino();
-        }
-
-        async function writeUsingArduino(patientId) {
-            setButtonLoading(writeButton, true, "Writing…");
-            showNFCAnim("write", "arduino");
-            dialogTitle.textContent = "Connect Arduino";
-            dialogIcon.textContent = "🔌";
-            dialogText.textContent = "Select the Arduino UNO COM port. Make sure Arduino Serial Monitor is closed.";
-
-            try {
-                await connectArduino();
-
-                dialogTitle.textContent = "Place NFC Card";
-                dialogIcon.textContent = "💳";
-                dialogText.textContent = "Place the MIFARE Classic 1K card directly on the RC522 reader.";
-
-                const response = await sendArduinoCommand(
-                    `WRITE:${patientId}`,
-                    "write",
-                    20000
-                );
-
-                if (response.startsWith("WRITE_OK:")) {
-                    dialogIcon.textContent = "✅";
-                    dialogTitle.textContent = "Card Written Successfully";
-                    dialogText.textContent = `Patient ID ${patientId} was written to the MIFARE Classic 1K card and verified successfully.`;
-                    showNfcBanner(`NFC write successful. Patient ID ${patientId} is stored on the card.`);
-                    setTimeout(closeNFCAnim, 1800);
-                    return;
-                }
-
-                if (response === "CARD_TIMEOUT" || response === "WRITE_ERROR:NO_CARD") {
-                    throw new Error("No NFC card was detected. Place the MIFARE Classic 1K card on the RC522 and try again.");
-                }
-
-                if (response.startsWith("WRITE_ERROR:")) {
-                    throw new Error("Arduino write failed: " + response.substring("WRITE_ERROR:".length));
-                }
-
-                throw new Error("Unexpected Arduino response: " + response);
-            } catch (error) {
-                showNfcError(error, "Unable to communicate with the Arduino NFC reader.");
-            } finally {
-                setButtonLoading(writeButton, false);
-            }
-        }
-
-        async function readUsingArduino() {
-            setButtonLoading(readButton, true, "Reading…");
-            showNFCAnim("read", "arduino");
-            dialogTitle.textContent = "Connect Arduino";
-            dialogIcon.textContent = "🔌";
-            dialogText.textContent = "Select the Arduino UNO COM port. Make sure Arduino Serial Monitor is closed.";
-
-            try {
-                await connectArduino();
-
-                dialogTitle.textContent = "Place NFC Card";
-                dialogIcon.textContent = "💳";
-                dialogText.textContent = "Place the MIFARE Classic 1K card directly on the RC522 reader.";
-
-                const response = await sendArduinoCommand(
-                    "READ",
-                    "read",
-                    20000
-                );
-
-                if (response.startsWith("READ_OK:")) {
-                    const patientId = response.substring("READ_OK:".length).trim();
-                    closeNFCAnim();
-                    handlePatientId(patientId);
-                    return;
-                }
-
-                if (response === "CARD_TIMEOUT" || response === "READ_ERROR:NO_CARD") {
-                    throw new Error("No NFC card was detected. Place the MIFARE Classic 1K card on the RC522 and try again.");
-                }
-
-                if (response.startsWith("READ_ERROR:")) {
-                    throw new Error("Arduino read failed: " + response.substring("READ_ERROR:".length));
-                }
-
-                throw new Error("Unexpected Arduino response: " + response);
-            } catch (error) {
-                showNfcError(error, "Unable to communicate with the Arduino NFC reader.");
-            } finally {
-                setButtonLoading(readButton, false);
-            }
-        }
-
-
-        // =========================
-        // PATIENT DISPLAY
-        // =========================
-        function setRiskBadge(riskLevel) {
-            const riskBadge = document.getElementById("dialogRiskBadge");
-            const normalizedRisk = String(riskLevel || "Medium").toLowerCase();
-
-            riskBadge.className = "risk-badge";
-
-            if (normalizedRisk.includes("high")) {
-                riskBadge.classList.add("risk-high");
-                riskBadge.textContent = "High Risk";
-            } else if (normalizedRisk.includes("low")) {
-                riskBadge.classList.add("risk-low");
-                riskBadge.textContent = "Low Risk";
-            } else {
-                riskBadge.classList.add("risk-medium");
-                riskBadge.textContent = "Medium Risk";
-            }
-        }
-
-        function updateLesionMap(lesionLocation, diameter) {
-            document.querySelectorAll(".lesion-group").forEach(element => {
-                element.classList.add("hidden");
-            });
-
-            const locationTag = document.getElementById("visualizerLocationTag");
-            const footer = document.getElementById("lesionSummaryFooter");
-            const lowerLocation = String(lesionLocation || "").toLowerCase();
-
-            if (lowerLocation.includes("buccal") && lowerLocation.includes("right")) {
-                document.getElementById("loc-buccal-right").classList.remove("hidden");
-                locationTag.textContent = "Right buccal mucosa";
-            } else if (lowerLocation.includes("buccal")) {
-                document.getElementById("loc-buccal-left").classList.remove("hidden");
-                locationTag.textContent = "Buccal mucosa";
-            } else if (lowerLocation.includes("tongue")) {
-                document.getElementById("loc-tongue").classList.remove("hidden");
-                locationTag.textContent = "Tongue";
-            } else if (
-                lowerLocation.includes("labial") ||
-                lowerLocation.includes("lip")
-            ) {
-                document.getElementById("loc-labial").classList.remove("hidden");
-                locationTag.textContent = "Labial mucosa / lip";
-            } else if (lowerLocation.includes("palate")) {
-                document.getElementById("loc-palate").classList.remove("hidden");
-                locationTag.textContent = "Hard / soft palate";
-            } else if (
-                lowerLocation.includes("floor") ||
-                lowerLocation.includes("gingiva") ||
-                lowerLocation.includes("alveolus")
-            ) {
-                document.getElementById("loc-floor").classList.remove("hidden");
-                locationTag.textContent = "Floor / gingival area";
-            } else {
-                document.getElementById("loc-default").classList.remove("hidden");
-                locationTag.textContent = lesionLocation || "Unspecified";
-            }
-
-            footer.innerHTML = `
-                <span class="font-semibold text-slate-700">Lesion region:</span>
-                ${escapeHtml(lesionLocation || "Not specified")}
-                <span class="mx-1 text-slate-300">|</span>
-                <span class="font-semibold text-slate-700">Diameter:</span>
-                ${escapeHtml(diameter ? `${diameter} mm` : "Not measured")}
-            `;
-        }
-
-        function renderFullPatientModal(patient) {
-            const lesionLocation = patient.lesion_location || "Not specified";
-            const lesionDiameter = patient.lesion_maximum_diameter_mm;
-
-            document.getElementById("dialogPatientName").textContent =
-                patient.patient_name || "Anonymous Record";
-
-            document.getElementById("dialogPatientId").textContent =
-                `ID: ${patient.patient_id || "N/A"}`;
-
-            document.getElementById("dialogOpdNo").textContent =
-                `OPD: ${patient.opd_number || "N/A"}`;
-
-            document.getElementById("dialogCreatedDate").textContent =
-                `Date: ${
-                    patient.created_at
-                        ? new Date(patient.created_at).toLocaleDateString()
-                        : "N/A"
-                }`;
-
-            setRiskBadge(patient.risk_level);
-
-            document.getElementById("dAgeSex").textContent =
-                `${patient.age || "N/A"} Yrs / ${patient.sex || "N/A"}`;
-
-            document.getElementById("dMarital").textContent =
-                patient.marital_status || "N/A";
-
-            document.getElementById("dReligion").textContent =
-                patient.religion || "N/A";
-
-            document.getElementById("dOccupation").textContent =
-                patient.occupation || "N/A";
-
-            document.getElementById("dLocation").textContent =
-                patient.patient_location || patient.residence || "N/A";
-
-            document.getElementById("dLesionLoc").textContent =
-                lesionLocation;
-
-            document.getElementById("dLesionColor").textContent =
-                patient.lesion_color || "N/A";
-
-            document.getElementById("dLesionSize").textContent =
-                lesionDiameter ? `${lesionDiameter} mm` : "N/A";
-
-            document.getElementById("dOsmfStage").textContent =
-                patient.osmf_stage || "None";
-
-            document.getElementById("dUlcer").textContent =
-                patient.ulceration || "No";
-
-            document.getElementById("dNodes").textContent =
-                patient.palpable_lymph_nodes || "None";
-
-            document.getElementById("dHabitChew").textContent =
-                patient.any_chewing_habits ||
-                patient.chewing_habits ||
-                "No";
-
-            document.getElementById("dHabitSmoke").textContent =
-                patient.smoking || "No";
-
-            document.getElementById("dHabitAlcohol").textContent =
-                patient.alcohol || "No";
-
-            document.getElementById("dHabitAreca").textContent =
-                patient.areca_nut || "No";
-
-            const avatar = document.getElementById("dialogSexAvatar");
-
-            if (String(patient.sex || "").toLowerCase() === "female") {
-                avatar.className =
-                    "w-14 h-14 rounded-full bg-rose-50 text-rose-700 border border-rose-100 flex items-center justify-center text-2xl shrink-0";
-            } else {
-                avatar.className =
-                    "w-14 h-14 rounded-full bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center text-2xl shrink-0";
-            }
-
-            updateLesionMap(lesionLocation, lesionDiameter);
-
-            if (!patientDialog.open) patientDialog.showModal();
-        }
-
-        // =========================
-        // INITIALIZE
-        // =========================
-        document.addEventListener("DOMContentLoaded", () => {
-            fetchPatientRecords();
-
-            if (!isWebSerialAvailable) {
-                showNfcBanner(
-                    "Web Serial is not supported in this browser. Use Google Chrome or Microsoft Edge on a desktop."
-                );
-            } else {
-                showNfcBanner(
-                    "Direct Arduino mode enabled. Click Connect Arduino, select the UNO COM port, then use Read or Write. No Flask/Python server is required."
-                );
-            }
-        });
-
-        // If the USB device is unplugged.
-        if ("serial" in navigator) {
-            navigator.serial.addEventListener("disconnect", () => {
-                serialConnected = false;
-                updateSerialStatus(false);
-            });
-        }
-    </script>
+const TABLE_NAME = 'oral_clinical_assessments';
+let supabaseClient = null;
+let patients = [];
+let port = null;
+let reader = null;
+let buffer = '';
+let pending = null;
+
+const $ = id => document.getElementById(id);
+
+function esc(v){return String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function setDB(ok,msg){$('dbStatusBadge').innerHTML=`<span class="status-dot ${ok?'success':'error'}"></span><span>${esc(msg)}</span>`;}
+function modal(title,text,icon='📡'){$('nfcDialogTitle').textContent=title;$('nfcDialogText').textContent=text;$('nfcDialogIcon').textContent=icon;if(!$('nfcAnimDialog').open)$('nfcAnimDialog').showModal();}
+function closeNFCAnim(){if($('nfcAnimDialog').open)$('nfcAnimDialog').close();}
+function closePatientDialog(){if($('patientInfoDialog').open)$('patientInfoDialog').close();}
+
+async function fetchPatientRecords(){
+  try{
+    if(!window.CONFIG?.SUPABASE_URL || !window.CONFIG?.SUPABASE_ANON_KEY) throw new Error('Supabase config is missing.');
+    supabaseClient=window.supabase.createClient(window.CONFIG.SUPABASE_URL,window.CONFIG.SUPABASE_ANON_KEY);
+    const {data,error}=await supabaseClient.from(TABLE_NAME).select('*').order('created_at',{ascending:false});
+    if(error) throw error;
+    patients=data||[];
+    const sel=$('patientSelect');
+    sel.innerHTML='<option value="" selected disabled>Select a clinical patient assessment</option>';
+    patients.forEach(p=>{const o=document.createElement('option');o.value=p.patient_id;o.textContent=`${p.patient_id} - ${p.patient_name||'Anonymous'} (OPD: ${p.opd_number||'N/A'})`;sel.appendChild(o);});
+    sel.disabled=!patients.length;
+    if(!patients.length) sel.innerHTML='<option value="" selected disabled>No patient records found</option>';
+    setDB(true,`${patients.length} patient record${patients.length===1?'':'s'} loaded`);
+  }catch(e){console.error(e);$('patientSelect').innerHTML='<option value="" selected disabled>Unable to load patient records</option>';$('patientSelect').disabled=true;setDB(false,'Database connection failed');}
+}
+
+window.getPatientById=id=>patients.find(p=>String(p.patient_id).trim().toUpperCase()===String(id).trim().toUpperCase());
+
+async function connectArduino(){
+  if(!('serial' in navigator)) throw new Error('Web Serial is not supported. Use Chrome or Edge on desktop.');
+  if(port?.readable&&port?.writable)return;
+  port=await navigator.serial.requestPort();
+  await port.open({baudRate:9600});
+  buffer='';
+  readLoop();
+  await new Promise(r=>setTimeout(r,800));
+}
+
+async function readLoop(){
+  if(!port?.readable)return;
+  reader=port.readable.getReader();
+  const dec=new TextDecoder();
+  try{
+    while(true){
+      const {value,done}=await reader.read();
+      if(done)break;
+      buffer+=dec.decode(value,{stream:true});
+      const lines=buffer.split(/\r?\n/); buffer=lines.pop()||'';
+      lines.map(x=>x.trim()).filter(Boolean).forEach(handleLine);
+    }
+  }catch(e){console.error('Serial:',e);}
+  finally{try{reader.releaseLock();}catch(e){} reader=null;}
+}
+
+function handleLine(line){
+  console.log('Arduino:',line);
+  if(line==='WAITING_FOR_CARD'){modal('Waiting for NFC Card','Place the MIFARE Classic 1K card directly on the RC522 reader.','💳');return;}
+  if(line==='CARD_DETECTED'){modal('Card Detected','Reading/writing the card. Please keep it on the RC522.','🔄');return;}
+  if(pending && (line.startsWith('WRITE_OK:')||line.startsWith('WRITE_ERROR:')||line.startsWith('READ_OK:')||line.startsWith('READ_ERROR:')||line==='CARD_TIMEOUT')){
+    const p=pending;pending=null;clearTimeout(p.timer);p.resolve(line);
+  }
+}
+
+async function command(cmd,timeout=20000){
+  if(!port?.writable)await connectArduino();
+  if(pending)throw new Error('Another NFC operation is already running.');
+  const result=new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>{pending=null;reject(new Error('NFC timeout. Place the card on the RC522 and try again.'));},timeout);
+    pending={resolve,reject,timer};
+  });
+  const w=port.writable.getWriter();
+  try{await w.write(new TextEncoder().encode(cmd+'\n'));}finally{w.releaseLock();}
+  return result;
+}
+
+function selectedId(){const id=$('patientSelect').value;if(!id){alert('Please select a patient record first.');return null;}return id;}
+
+async function startNFCWrite(){
+  const id=selectedId();if(!id)return;
+  $('writeNfcButton').disabled=true;modal('Connect Arduino','Select the Arduino UNO COM port.','🔌');
+  try{
+    await connectArduino();
+    const r=await command('WRITE:'+id);
+    if(r.startsWith('WRITE_OK:')){modal('Card Written Successfully',`Patient ID ${id} was written and verified on the MIFARE Classic 1K card.`,'✅');setTimeout(closeNFCAnim,1800);}
+    else throw new Error(r.replace('WRITE_ERROR:','Write failed: '));
+  }catch(e){console.error(e);modal('Write Failed',e.message,'❌');}
+  finally{$('writeNfcButton').disabled=false;}
+}
+
+async function startNFCRead(){
+  $('readNfcButton').disabled=true;modal('Connect Arduino','Select the Arduino UNO COM port.','🔌');
+  try{
+    await connectArduino();
+    const r=await command('READ');
+    if(!r.startsWith('READ_OK:'))throw new Error(r.replace('READ_ERROR:','Read failed: '));
+    const id=r.substring(8).trim();
+    closeNFCAnim();
+    const p=window.getPatientById(id);
+    if(!p){alert(`Card read successfully. Patient ID "${id}" was not found in Supabase.`);return;}
+    renderFullPatientModal(p);
+  }catch(e){console.error(e);modal('Read Failed',e.message,'❌');}
+  finally{$('readNfcButton').disabled=false;}
+}
+
+function setRiskBadge(risk){const b=$('dialogRiskBadge'),r=String(risk||'Medium').toLowerCase();b.className='risk-badge '+(r.includes('high')?'risk-high':r.includes('low')?'risk-low':'risk-medium');b.textContent=r.includes('high')?'High Risk':r.includes('low')?'Low Risk':'Medium Risk';}
+function updateLesionMap(loc,size){document.querySelectorAll('.lesion-group').forEach(x=>x.classList.add('hidden'));const l=String(loc||'').toLowerCase();let id='loc-default',label=loc||'Unspecified';if(l.includes('buccal')&&l.includes('right')){id='loc-buccal-right';label='Right buccal mucosa';}else if(l.includes('buccal')){id='loc-buccal-left';label='Buccal mucosa';}else if(l.includes('tongue')){id='loc-tongue';label='Tongue';}else if(l.includes('labial')||l.includes('lip')){id='loc-labial';label='Labial mucosa / lip';}else if(l.includes('palate')){id='loc-palate';label='Hard / soft palate';}else if(l.includes('floor')||l.includes('gingiva')||l.includes('alveolus')){id='loc-floor';label='Floor / gingival area';}$(`${id}`).classList.remove('hidden');$('visualizerLocationTag').textContent=label;$('lesionSummaryFooter').textContent=`Lesion region: ${loc||'Not specified'} | Diameter: ${size?size+' mm':'Not measured'}`;}
+function renderFullPatientModal(p){
+  $('dialogPatientName').textContent=p.patient_name||'Anonymous Record';$('dialogPatientId').textContent='ID: '+(p.patient_id||'N/A');$('dialogOpdNo').textContent='OPD: '+(p.opd_number||'N/A');$('dialogCreatedDate').textContent='Date: '+(p.created_at?new Date(p.created_at).toLocaleDateString():'N/A');setRiskBadge(p.risk_level);
+  $('dAgeSex').textContent=`${p.age||'N/A'} Yrs / ${p.sex||'N/A'}`;$('dMarital').textContent=p.marital_status||'N/A';$('dReligion').textContent=p.religion||'N/A';$('dOccupation').textContent=p.occupation||'N/A';$('dLocation').textContent=p.patient_location||p.residence||'N/A';$('dLesionLoc').textContent=p.lesion_location||'Not specified';$('dLesionColor').textContent=p.lesion_color||'N/A';$('dLesionSize').textContent=p.lesion_maximum_diameter_mm?p.lesion_maximum_diameter_mm+' mm':'N/A';$('dOsmfStage').textContent=p.osmf_stage||'None';$('dUlcer').textContent=p.ulceration||'No';$('dNodes').textContent=p.palpable_lymph_nodes||'None';$('dHabitChew').textContent=p.any_chewing_habits||p.chewing_habits||'No';$('dHabitSmoke').textContent=p.smoking||'No';$('dHabitAlcohol').textContent=p.alcohol||'No';$('dHabitAreca').textContent=p.areca_nut||'No';updateLesionMap(p.lesion_location,p.lesion_maximum_diameter_mm);if(!$('patientInfoDialog').open)$('patientInfoDialog').showModal();
+}
+
+window.addEventListener('load',fetchPatientRecords);
+if('serial' in navigator)navigator.serial.addEventListener('disconnect',()=>{port=null;buffer='';});
+</script>
 </body>
 </html>
