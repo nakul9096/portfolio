@@ -3,477 +3,926 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OSCC AI-Powered Multimodal NFC Diagnostic Hub</title>
-    
-    <!-- Tailwind CSS CDN -->
+
+    <title>Oral Clinical Assessment | NFC Registry</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Supabase JS Client v2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- External Configuration Script -->
     <script src="config/config.js"></script>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#030712',
-                        panelBg: 'rgba(15, 23, 42, 0.75)',
-                        cyberCyan: '#06b6d4',
-                        cyberEmerald: '#10b981',
-                        cyberViolet: '#a855f7',
-                        cyberRose: '#f43f5e',
-                        cyberAmber: '#f59e0b'
-                    },
-                    boxShadow: {
-                        'neon-cyan': '0 0 25px rgba(6, 182, 212, 0.25)',
-                        'neon-emerald': '0 0 25px rgba(16, 185, 129, 0.25)',
-                        'neon-violet': '0 0 30px rgba(168, 85, 247, 0.3)',
-                    },
-                    animation: {
-                        'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'scanline': 'scanline 8s linear infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        pulseGlow: {
-                            '0%, 100%': { opacity: 1, filter: 'drop-shadow(0 0 15px rgba(6,182,212,0.8))' },
-                            '50%': { opacity: 0.4, filter: 'drop-shadow(0 0 2px rgba(6,182,212,0.2))' }
-                        },
-                        scanline: {
-                            '0%': { transform: 'translateY(-100%)' },
-                            '100%': { transform: 'translateY(1000%)' }
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-10px)' }
-                        }
-                    }
-                }
+    <style>
+        :root {
+            --page-bg: #f5f7fb;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --border: #e2e8f0;
+            --border-strong: #cbd5e1;
+            --text: #0f172a;
+            --muted: #64748b;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #15803d;
+            --success-bg: #f0fdf4;
+            --warning: #a16207;
+            --warning-bg: #fffbeb;
+            --danger: #b91c1c;
+            --danger-bg: #fef2f2;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--page-bg);
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+                BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .app-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.96);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-inner {
+            width: min(1280px, calc(100% - 32px));
+            min-height: 68px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .nav-brand {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .nav-brand-title {
+            color: var(--text);
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .nav-brand-subtitle {
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.25;
+        }
+
+        .nav-right,
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-links a,
+        .nav-patients {
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+            padding: 8px 11px;
+            border-radius: 8px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active,
+        .nav-patients:hover {
+            background: #eff6ff;
+            color: var(--primary);
+        }
+
+        .nav-patients {
+            color: #ffffff;
+            background: var(--primary);
+        }
+
+        .nav-patients:hover {
+            color: #ffffff;
+            background: var(--primary-hover);
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+        }
+
+        .section-title {
+            color: var(--text);
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #f59e0b;
+        }
+
+        .status-dot.success {
+            background: #16a34a;
+        }
+
+        .status-dot.error {
+            background: #dc2626;
+        }
+
+        .mode-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 8px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+        }
+
+        .label {
+            display: block;
+            margin-bottom: 7px;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        select {
+            width: 100%;
+            height: 46px;
+            padding: 0 12px;
+            border: 1px solid var(--border-strong);
+            border-radius: 8px;
+            background: #ffffff;
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        select:disabled {
+            color: #94a3b8;
+            background: #f8fafc;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            width: 100%;
+            min-height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+        }
+
+        .btn-success {
+            background: #15803d;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #166534;
+        }
+
+        .btn-secondary {
+            width: auto;
+            min-height: auto;
+            background: #ffffff;
+            border-color: var(--border-strong);
+            color: #334155;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+        }
+
+        .alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            border: 1px solid #fcd34d;
+            border-radius: 10px;
+            background: var(--warning-bg);
+            color: #854d0e;
+            font-size: 13px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .soft-panel {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface-soft);
+        }
+
+        .field-title {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .field-value {
+            display: block;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 650;
+            word-break: break-word;
+        }
+
+        .risk-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            color: #475569;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .risk-high {
+            color: var(--danger);
+            border-color: #fecaca;
+            background: var(--danger-bg);
+        }
+
+        .risk-medium {
+            color: var(--warning);
+            border-color: #fde68a;
+            background: var(--warning-bg);
+        }
+
+        .risk-low {
+            color: var(--success);
+            border-color: #bbf7d0;
+            background: var(--success-bg);
+        }
+
+        dialog {
+            width: min(960px, calc(100% - 24px));
+            max-height: 90vh;
+            margin: auto;
+            padding: 0;
+            overflow: hidden;
+            border: 0;
+            border-radius: 14px;
+            background: transparent;
+        }
+
+        dialog::backdrop {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.24);
+        }
+
+        .close-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #ffffff;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .lesion-target {
+            animation: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            border-radius: 8px;
+            background: #cbd5e1;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            .nav-inner {
+                width: min(100% - 24px, 1280px);
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 14px 0;
+            }
+
+            .nav-right {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 2px;
+            }
+
+            .nav-links {
+                min-width: max-content;
             }
         }
-    </script>
-
-    <style>
-        body {
-            background-color: #030712;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.12) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
-            background-attachment: fixed;
-        }
-
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .cyber-border {
-            position: relative;
-        }
-        .cyber-border::before {
-            content: '';
-            position: absolute;
-            top: -1px; left: -1px; right: -1px; bottom: -1px;
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.4), transparent, rgba(168, 85, 247, 0.4));
-            border-radius: inherit;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        /* Radar Scanner Effect */
-        @keyframes radarSweep {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .radar-sweep {
-            animation: radarSweep 3s linear infinite;
-            transform-origin: center;
-        }
-
-        /* Target Reticle Pulsing */
-        @keyframes reticlePulse {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.25); opacity: 0.4; }
-        }
-        .lesion-target {
-            animation: reticlePulse 1.5s ease-in-out infinite;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(3, 7, 18, 0.8); }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
     </style>
 </head>
+
+<body>
     <nav class="app-nav">
-
-  <div class="nav-inner">
-
-    <div class="nav-brand">
-      <div class="nav-brand-text">
-        <span class="nav-brand-title">
-         Oral Clinical Registry - Assessment Dashboard
-        </span>
-
-        <span class="nav-brand-subtitle">
-          Developed By Nakul Dhande With Team Hardik, Chinmay, Shantanu
-        </span>
-      </div>
-    </div>
-
-    <div class="nav-right">
-
-      <div class="nav-links">
-
-        <a href="patients.html" class="active">
-          Registry Records
-        </a>
-
-        <a href="oral_clinical_assessment.html">
-          New Assessment
-        </a>
-
-        <a href="analytics.html">
-          Analytics
-        </a>
-
-      </div>
-
-      <a href="patientinfo.html" class="nav-patients">
-        Get Patients
-      </a>
-
-    </div>
-
-  </div>
-
-</nav>
-<body class="text-slate-100 min-h-screen font-sans p-4 md:p-8 selection:bg-cyberCyan selection:text-darkBg">
-
-    <!-- Grid Overlay Effect -->
-    <div class="fixed inset-0 bg-[linear-gradient(to_right,#1f293710_1px,transparent_1px),linear-gradient(to_bottom,#1f293710_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none"></div>
-
-    <!-- Header Section -->
-    <header class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between pb-6 border-b border-slate-800/80 mb-8 relative z-10 gap-4">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyberCyan to-cyberViolet p-0.5 shadow-neon-cyan animate-float">
-                <div class="w-full h-full bg-darkBg rounded-[14px] flex items-center justify-center">
-                    <svg class="w-6 h-6 text-cyberCyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                </div>
+        <div class="nav-inner">
+            <div class="nav-brand">
+                <span class="nav-brand-title">Oral Clinical Registry</span>
+                <span class="nav-brand-subtitle">
+                    Assessment dashboard · Developed by Nakul Dhande, Hardik, Chinmay and Shantanu
+                </span>
             </div>
+
+            <div class="nav-right">
+                <div class="nav-links">
+                    <a href="patients.html" class="active">Registry Records</a>
+                    <a href="oral_clinical_assessment.html">New Assessment</a>
+                    <a href="analytics.html">Analytics</a>
+                </div>
+
+                <a href="patientinfo.html" class="nav-patients">Get Patients</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-7 md:px-8 md:py-9">
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 mb-7 border-b border-slate-200">
             <div>
-                <div class="flex items-center gap-2.5">
-                    <h1 class="text-2xl font-black tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-cyberCyan via-slate-100 to-cyberViolet">
-                        OSCC NEURAL DIAGNOSTICS
-                    </h1>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950/80 text-cyberCyan border border-cyan-800/80 uppercase">AI v2.4 Active</span>
-                </div>
-                <p class="text-slate-400 text-xs font-mono mt-1">Multi-Modal Clinical Assessment &amp; NFC Encoding Interface</p>
+                <h1 class="text-2xl font-bold text-slate-900">
+                    NFC Patient Card Management
+                </h1>
+                <p class="mt-1 text-sm text-slate-500">
+                    Write and read patient identifiers using mobile NFC or an Arduino-connected NFC reader.
+                </p>
             </div>
-        </div>
 
-        <div class="flex items-center gap-3">
-            <div id="dbStatusBadge" class="text-xs font-mono bg-slate-900/90 text-slate-400 border border-slate-800 px-4 py-2 rounded-2xl flex items-center gap-2.5 shadow-lg backdrop-blur-md">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span> Syncing Supabase Neural Core...
+            <div id="dbStatusBadge" class="status-badge">
+                <span class="status-dot"></span>
+                <span>Loading patient records…</span>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="max-w-7xl mx-auto space-y-8 relative z-10">
-        
-        <!-- NFC API Warning Banner -->
-        <div id="nfcStatusBanner" class="hidden flex items-center gap-3 p-4 bg-rose-950/40 border border-rose-800/60 text-rose-200 rounded-2xl backdrop-blur-md shadow-neon-violet">
-            <svg class="w-6 h-6 text-cyberRose shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        <div id="nfcStatusBanner" class="alert hidden mb-6">
+            <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                </path>
             </svg>
-            <p id="nfcStatusMessage" class="text-xs font-medium">Web NFC API non-responsive. Switch to Android Chrome via HTTPS for card read/write capabilities.</p>
+
+            <p id="nfcStatusMessage">
+                Web NFC is not available on this device. The system will use the local Arduino NFC bridge.
+            </p>
         </div>
 
-        <!-- Main Workspace -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            <!-- PANEL 1: NFC CARD ENCODER -->
-            <section class="glass-panel cyber-border p-8 rounded-3xl shadow-neon-cyan space-y-6 relative overflow-hidden">
-                <div class="absolute -top-24 -right-24 w-48 h-48 bg-cyberCyan/10 rounded-full blur-3xl pointer-events-none"></div>
-
-                <div class="flex items-center justify-between pb-4 border-b border-slate-800/80">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-cyan-950/60 border border-cyan-800/50 flex items-center justify-center text-cyberCyan">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-extrabold text-white tracking-wide">Encode Patient Card</h2>
-                            <p class="text-slate-400 text-xs">Write assessment identifiers to physical NFC Tag</p>
-                        </div>
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <section class="card p-5 md:p-6">
+                <div class="flex items-start justify-between gap-4 pb-5 border-b border-slate-200">
+                    <div>
+                        <h2 class="section-title">Write Patient Card</h2>
+                        <p class="section-subtitle">
+                            Select a clinical record and store its patient ID on an NFC tag.
+                        </p>
                     </div>
-                    <span class="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2.5 py-1 rounded-md border border-cyan-800/60">WRITE MODE</span>
+
+                    <span class="mode-badge">WRITE</span>
                 </div>
 
-                <div class="space-y-3">
-                    <label class="block text-xs font-mono uppercase tracking-wider text-cyberCyan flex items-center gap-2">
-                        <span>SELECT CLINICAL RECORD</span>
-                        <span class="w-1.5 h-1.5 rounded-full bg-cyberCyan animate-pulse"></span>
-                    </label>
-                    <select id="patientSelect" disabled class="w-full h-14 bg-slate-950/90 border border-slate-800 rounded-2xl px-4 text-sm text-slate-200 focus:outline-none focus:border-cyberCyan focus:ring-1 focus:ring-cyberCyan transition shadow-inner">
-                        <option value="" disabled selected>-- Retrieving Neural Database Records... --</option>
+                <div class="mt-6">
+                    <label for="patientSelect" class="label">Select clinical record</label>
+
+                    <select id="patientSelect" disabled>
+                        <option value="" selected disabled>Loading clinical records…</option>
                     </select>
                 </div>
 
-                <button onclick="startNFCWrite()" class="w-full h-14 bg-gradient-to-r from-cyberCyan via-cyan-500 to-blue-600 text-darkBg font-black text-xs tracking-widest uppercase rounded-2xl flex items-center justify-center gap-3 hover:shadow-neon-cyan hover:brightness-110 transition active:scale-98">
+                <button id="writeNfcButton" onclick="startNFCWrite()" class="btn btn-primary mt-5">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4v16m8-8H4">
+                        </path>
                     </svg>
-                    <span>Tap NFC Card to Initialize &amp; Write</span>
+                    Write Patient Card
                 </button>
+
+                <p class="mt-3 text-xs text-slate-500">
+                    Mobile: uses Web NFC. Laptop: uses the Arduino bridge at <code>127.0.0.1:5000</code>.
+                </p>
             </section>
 
-            <!-- PANEL 2: CARD SCANNER & LOOKUP -->
-            <section class="glass-panel cyber-border p-8 rounded-3xl shadow-neon-emerald space-y-6 flex flex-col justify-between relative overflow-hidden">
-                <div class="absolute -top-24 -right-24 w-48 h-48 bg-cyberEmerald/10 rounded-full blur-3xl pointer-events-none"></div>
-
-                <div>
-                    <div class="flex items-center justify-between pb-4 border-b border-slate-800/80 mb-6">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-emerald-950/60 border border-emerald-800/50 flex items-center justify-center text-cyberEmerald">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h2 class="text-lg font-extrabold text-white tracking-wide">NFC Diagnostic Scanner</h2>
-                                <p class="text-slate-400 text-xs">Instant lookup &amp; 3D lesion mapping</p>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-md border border-emerald-800/60">READ MODE</span>
+            <section class="card p-5 md:p-6">
+                <div class="flex items-start justify-between gap-4 pb-5 border-b border-slate-200">
+                    <div>
+                        <h2 class="section-title">Read Patient Card</h2>
+                        <p class="section-subtitle">
+                            Read the NFC tag and open the matching clinical assessment.
+                        </p>
                     </div>
 
-                    <p class="text-slate-300 text-xs leading-relaxed">
-                        Scanning an activated NFC card reads the encrypted <code class="text-cyberEmerald font-mono">patient_id</code> payload. The neural core retrieves full diagnostic history, risk stratification metrics, and updates the oral lesion visualizer.
+                    <span class="mode-badge">READ</span>
+                </div>
+
+                <div class="mt-6 soft-panel p-4">
+                    <p class="text-sm leading-6 text-slate-600">
+                        The NFC tag stores a small payload containing the
+                        <code class="font-semibold text-slate-800">patient_id</code>.
+                        The dashboard uses that ID to retrieve and display the patient assessment.
                     </p>
                 </div>
 
-                <button onclick="startNFCRead()" class="w-full h-14 bg-gradient-to-r from-cyberEmerald via-emerald-500 to-teal-600 text-darkBg font-black text-xs tracking-widest uppercase rounded-2xl flex items-center justify-center gap-3 hover:shadow-neon-emerald hover:brightness-110 transition active:scale-98 mt-6">
+                <button id="readNfcButton" onclick="startNFCRead()" class="btn btn-success mt-5">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+                        </path>
                     </svg>
-                    <span>Activate NFC Telemetry Scanner</span>
+                    Read NFC Card
                 </button>
+
+                <p class="mt-3 text-xs text-slate-500">
+                    Keep the tag close to your phone or Arduino NFC reader while scanning.
+                </p>
             </section>
-        </div>
+        </main>
+    </div>
 
-    </main>
-
-    <!-- HUD RADAR ANIMATION MODAL -->
-    <dialog id="nfcAnimDialog" class="bg-transparent backdrop:bg-darkBg/90 outline-none p-0 overflow-hidden backdrop:backdrop-blur-md">
-        <div class="w-80 md:w-96 glass-panel border border-slate-700/80 rounded-3xl p-8 flex flex-col items-center text-center space-y-6 relative shadow-2xl">
-            <button onclick="closeNFCAnim()" class="absolute top-4 right-4 text-slate-500 hover:text-white transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-
-            <!-- Holographic Radar Visualizer -->
-            <div class="relative w-40 h-40 flex items-center justify-center my-2">
-                <svg id="radarSvg" class="absolute inset-0 w-full h-full text-cyberCyan/40 hidden" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2,2"/>
-                    <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="0.5"/>
-                    <circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" stroke-width="0.5"/>
-                    <line x1="50" y1="5" x2="50" y2="95" stroke="currentColor" stroke-width="0.5"/>
-                    <line x1="5" y1="50" x2="95" y2="50" stroke="currentColor" stroke-width="0.5"/>
-                    <path class="radar-sweep fill-cyberCyan/20" d="M50 50 L50 5 A45 45 0 0 1 95 50 Z"/>
-                </svg>
-
-                <div class="w-28 h-28 rounded-full bg-slate-950/90 border border-slate-700 flex items-center justify-center text-4xl shadow-inner relative z-10">
-                    <span id="nfcDialogIcon">📡</span>
-                </div>
+    <!-- NFC Status Modal -->
+    <dialog id="nfcAnimDialog">
+        <div class="modal-content p-6 text-center">
+            <div class="flex justify-end">
+                <button type="button" onclick="closeNFCAnim()" class="close-button" aria-label="Close">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
             </div>
 
-            <div class="space-y-1.5">
-                <h3 id="nfcDialogTitle" class="text-base font-bold text-white uppercase tracking-wider">Scanner Initialized</h3>
-                <p id="nfcDialogText" class="text-slate-400 text-xs leading-relaxed">Align NFC transponder tag with device reader zone.</p>
+            <div class="mx-auto mt-1 w-16 h-16 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-3xl">
+                <span id="nfcDialogIcon">📡</span>
             </div>
 
-            <div class="text-[10px] font-mono text-cyberCyan bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-800/80 flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-cyberCyan animate-ping"></span>
-                <span>HUD HARDWARE LINK ACTIVE</span>
+            <h3 id="nfcDialogTitle" class="mt-5 text-lg font-bold text-slate-900">
+                NFC Reader Ready
+            </h3>
+
+            <p id="nfcDialogText" class="mt-2 text-sm leading-6 text-slate-500">
+                Hold the NFC tag close to the reader.
+            </p>
+
+            <div class="mt-5 inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-600">
+                <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                Waiting for NFC tag
             </div>
         </div>
     </dialog>
 
-    <!-- EXPANDED AI DIAGNOSTIC MODAL WITH ANATOMICAL ORAL MAP -->
-    <dialog id="patientInfoDialog" class="bg-transparent backdrop:bg-darkBg/95 outline-none p-0 overflow-hidden w-full max-w-5xl mx-4 backdrop:backdrop-blur-xl">
-        <div class="glass-panel border border-slate-700/80 rounded-3xl p-6 md:p-8 space-y-6 relative shadow-neon-violet max-h-[90vh] overflow-y-auto">
-            
-            <button onclick="closePatientDialog()" class="absolute top-6 right-6 text-slate-400 hover:text-white transition bg-slate-900/80 p-2 rounded-xl border border-slate-800">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-
-            <!-- Header Grid -->
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-800/80 pr-12">
-                <div class="flex items-center gap-4">
-                    <div id="dialogSexAvatar" class="w-16 h-16 rounded-2xl bg-cyberViolet/20 text-cyberViolet flex items-center justify-center text-3xl border border-cyberViolet/30 shrink-0">
+    <!-- Patient Details Modal -->
+    <dialog id="patientInfoDialog">
+        <div class="modal-content p-5 md:p-7">
+            <div class="flex items-start justify-between gap-4 pb-5 border-b border-slate-200">
+                <div class="flex items-start gap-4">
+                    <div id="dialogSexAvatar"
+                        class="w-14 h-14 rounded-full bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center text-2xl shrink-0">
                         👤
                     </div>
+
                     <div>
-                        <div class="flex items-center gap-3">
-                            <h3 id="dialogPatientName" class="text-2xl font-black text-white">--</h3>
-                            <span id="dialogRiskBadge" class="text-[10px] font-mono font-bold px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300 uppercase">
-                                Risk Uncalculated
-                            </span>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h3 id="dialogPatientName" class="text-xl font-bold text-slate-900">--</h3>
+                            <span id="dialogRiskBadge" class="risk-badge">Risk unavailable</span>
                         </div>
-                        <div class="flex items-center gap-3 mt-1.5">
-                            <span id="dialogPatientId" class="text-cyberCyan font-mono text-xs font-bold bg-cyan-950/80 border border-cyan-800/80 px-2.5 py-0.5 rounded-md">ID: --</span>
-                            <span id="dialogOpdNo" class="text-slate-400 font-mono text-xs">OPD: --</span>
-                            <span id="dialogCreatedDate" class="text-slate-500 font-mono text-xs">Date: --</span>
+
+                        <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-xs text-slate-500">
+                            <span id="dialogPatientId">ID: --</span>
+                            <span id="dialogOpdNo">OPD: --</span>
+                            <span id="dialogCreatedDate">Date: --</span>
                         </div>
                     </div>
                 </div>
+
+                <button type="button" onclick="closePatientDialog()" class="close-button shrink-0" aria-label="Close patient details">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
             </div>
 
-            <!-- Main Interactive Diagnostic Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                <!-- Left Column: Anatomical Oral Cavity Map Visualizer (5 cols) -->
-                <div class="lg:col-span-5 bg-slate-950/80 border border-slate-800/80 rounded-2xl p-5 flex flex-col items-center justify-between relative overflow-hidden">
-                    <div class="w-full flex items-center justify-between mb-2">
-                        <span class="text-[11px] font-mono uppercase tracking-wider text-cyberCyan flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            Anatomical Lesion Visualizer
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mt-6">
+                <section class="lg:col-span-5 soft-panel p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-800">Lesion Location</h4>
+                            <p class="mt-1 text-xs text-slate-500">
+                                Visual reference for the recorded lesion area.
+                            </p>
+                        </div>
+
+                        <span id="visualizerLocationTag" class="text-[10px] font-semibold text-slate-500 bg-white px-2 py-1 border border-slate-200 rounded">
+                            Unspecified
                         </span>
-                        <span id="visualizerLocationTag" class="text-[10px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">Location: Unspecified</span>
                     </div>
 
-                    <!-- SVG Mouth Anatomy Graphic -->
-                    <div class="relative w-full max-w-[260px] aspect-square my-4">
-                        <svg class="w-full h-full text-slate-700" viewBox="0 0 200 200" fill="none">
-                            <!-- Lips Outer Contour -->
-                            <path d="M 30,100 Q 100,40 170,100 Q 100,160 30,100 Z" stroke="currentColor" stroke-width="2" fill="rgba(15, 23, 42, 0.5)"/>
-                            <!-- Inner Cavity -->
-                            <path d="M 45,100 Q 100,60 155,100 Q 100,145 45,100 Z" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" fill="rgba(3, 7, 18, 0.9)"/>
-                            
-                            <!-- Upper Teeth Row -->
-                            <path d="M 50,85 Q 100,65 150,85" stroke="rgba(255,255,255,0.3)" stroke-width="4" stroke-dasharray="6 2"/>
-                            <!-- Lower Teeth Row -->
-                            <path d="M 52,115 Q 100,135 148,115" stroke="rgba(255,255,255,0.3)" stroke-width="4" stroke-dasharray="6 2"/>
+                    <div class="mx-auto my-4 w-full max-w-[270px] aspect-square">
+                        <svg class="w-full h-full" viewBox="0 0 200 200" fill="none">
+                            <path
+                                d="M30,100 Q100,40 170,100 Q100,160 30,100 Z"
+                                stroke="#94a3b8"
+                                stroke-width="2"
+                                fill="#f8fafc">
+                            </path>
 
-                            <!-- Tongue Center -->
-                            <path d="M 70,110 Q 100,85 130,110 Q 100,140 70,110 Z" fill="rgba(244, 63, 94, 0.15)" stroke="rgba(244, 63, 94, 0.3)" stroke-width="1"/>
+                            <path
+                                d="M45,100 Q100,60 155,100 Q100,145 45,100 Z"
+                                stroke="#cbd5e1"
+                                stroke-width="1.5"
+                                fill="#ffffff">
+                            </path>
 
-                            <!-- Dynamic Lesion Mapping Hotspots -->
-                            <!-- Buccal Mucosa Right -->
+                            <path
+                                d="M50,85 Q100,65 150,85"
+                                stroke="#94a3b8"
+                                stroke-width="4"
+                                stroke-dasharray="6 2">
+                            </path>
+
+                            <path
+                                d="M52,115 Q100,135 148,115"
+                                stroke="#94a3b8"
+                                stroke-width="4"
+                                stroke-dasharray="6 2">
+                            </path>
+
+                            <path
+                                d="M70,110 Q100,85 130,110 Q100,140 70,110 Z"
+                                fill="#ffe4e6"
+                                stroke="#fda4af"
+                                stroke-width="1">
+                            </path>
+
                             <g id="loc-buccal-right" class="lesion-group hidden">
-                                <circle cx="45" cy="100" r="10" fill="rgba(244, 63, 94, 0.3)" />
-                                <circle class="lesion-target" cx="45" cy="100" r="5" fill="#f43f5e" />
+                                <circle cx="45" cy="100" r="10" fill="#fecdd3"></circle>
+                                <circle class="lesion-target" cx="45" cy="100" r="5" fill="#dc2626"></circle>
                             </g>
-                            <!-- Buccal Mucosa Left -->
+
                             <g id="loc-buccal-left" class="lesion-group hidden">
-                                <circle cx="155" cy="100" r="10" fill="rgba(244, 63, 94, 0.3)" />
-                                <circle class="lesion-target" cx="155" cy="100" r="5" fill="#f43f5e" />
+                                <circle cx="155" cy="100" r="10" fill="#fecdd3"></circle>
+                                <circle class="lesion-target" cx="155" cy="100" r="5" fill="#dc2626"></circle>
                             </g>
-                            <!-- Tongue Lateral/Dorsal -->
+
                             <g id="loc-tongue" class="lesion-group hidden">
-                                <circle cx="100" cy="105" r="12" fill="rgba(244, 63, 94, 0.3)" />
-                                <circle class="lesion-target" cx="100" cy="105" r="6" fill="#f43f5e" />
+                                <circle cx="100" cy="105" r="12" fill="#fecdd3"></circle>
+                                <circle class="lesion-target" cx="100" cy="105" r="6" fill="#dc2626"></circle>
                             </g>
-                            <!-- Labial Mucosa / Lip -->
+
                             <g id="loc-labial" class="lesion-group hidden">
-                                <circle cx="100" cy="52" r="9" fill="rgba(244, 63, 94, 0.3)" />
-                                <circle class="lesion-target" cx="100" cy="52" r="4.5" fill="#f43f5e" />
+                                <circle cx="100" cy="52" r="9" fill="#fecdd3"></circle>
+                                <circle class="lesion-target" cx="100" cy="52" r="4.5" fill="#dc2626"></circle>
                             </g>
-                            <!-- Hard / Soft Palate -->
+
                             <g id="loc-palate" class="lesion-group hidden">
-                                <circle cx="100" cy="75" r="10" fill="rgba(244, 63, 94, 0.3)" />
-                                <circle class="lesion-target" cx="100" cy="75" r="5" fill="#f43f5e" />
+                                <circle cx="100" cy="75" r="10" fill="#fecdd3"></circle>
+                                <circle class="lesion-target" cx="100" cy="75" r="5" fill="#dc2626"></circle>
                             </g>
-                            <!-- Alveolus / Gingiva / Floor -->
+
                             <g id="loc-floor" class="lesion-group hidden">
-                                <circle cx="100" cy="128" r="10" fill="rgba(244, 63, 94, 0.3)" />
-                                <circle class="lesion-target" cx="100" cy="128" r="5" fill="#f43f5e" />
+                                <circle cx="100" cy="128" r="10" fill="#fecdd3"></circle>
+                                <circle class="lesion-target" cx="100" cy="128" r="5" fill="#dc2626"></circle>
                             </g>
-                            <!-- Default Center Pin if Unknown -->
+
                             <g id="loc-default" class="lesion-group hidden">
-                                <circle cx="100" cy="100" r="10" fill="rgba(6, 182, 212, 0.3)" />
-                                <circle class="lesion-target" cx="100" cy="100" r="5" fill="#06b6d4" />
+                                <circle cx="100" cy="100" r="10" fill="#bfdbfe"></circle>
+                                <circle class="lesion-target" cx="100" cy="100" r="5" fill="#2563eb"></circle>
                             </g>
                         </svg>
                     </div>
 
-                    <div id="lesionSummaryFooter" class="w-full text-center bg-slate-900/90 p-3 rounded-xl border border-slate-800 text-[11px] font-mono text-slate-300">
-                        Select patient to dynamically render lesion zone.
+                    <div id="lesionSummaryFooter" class="rounded-lg border border-slate-200 bg-white p-3 text-center text-xs text-slate-600">
+                        Select a patient to view lesion location.
                     </div>
-                </div>
+                </section>
 
-                <!-- Right Column: Full Extended Data Matrix (7 cols) -->
-                <div class="lg:col-span-7 space-y-4">
-                    
-                    <!-- Demographic Matrix -->
-                    <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
-                        <span class="text-[10px] font-mono uppercase text-cyberCyan tracking-wider block mb-3">1. DEMOGRAPHIC PROFILE</span>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
-                            <div><span class="text-slate-500 block">Age / Sex:</span><span id="dAgeSex" class="font-bold text-white">--</span></div>
-                            <div><span class="text-slate-500 block">Marital Status:</span><span id="dMarital" class="font-bold text-white">--</span></div>
-                            <div><span class="text-slate-500 block">Religion:</span><span id="dReligion" class="font-bold text-white">--</span></div>
-                            <div><span class="text-slate-500 block">Occupation:</span><span id="dOccupation" class="font-bold text-white">--</span></div>
-                            <div class="col-span-2"><span class="text-slate-500 block">Residence Location:</span><span id="dLocation" class="font-bold text-white truncate block">--</span></div>
+                <section class="lg:col-span-7 space-y-4">
+                    <div class="soft-panel p-4">
+                        <h4 class="text-xs font-bold tracking-wide text-slate-700 uppercase">
+                            Demographic Profile
+                        </h4>
+
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                            <div>
+                                <span class="field-title">Age / Sex</span>
+                                <span id="dAgeSex" class="field-value">--</span>
+                            </div>
+
+                            <div>
+                                <span class="field-title">Marital Status</span>
+                                <span id="dMarital" class="field-value">--</span>
+                            </div>
+
+                            <div>
+                                <span class="field-title">Religion</span>
+                                <span id="dReligion" class="field-value">--</span>
+                            </div>
+
+                            <div>
+                                <span class="field-title">Occupation</span>
+                                <span id="dOccupation" class="field-value">--</span>
+                            </div>
+
+                            <div class="col-span-2">
+                                <span class="field-title">Residence Location</span>
+                                <span id="dLocation" class="field-value">--</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Clinical & Lesion Matrix -->
-                    <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
-                        <span class="text-[10px] font-mono uppercase text-cyberEmerald tracking-wider block mb-3">2. CLINICAL &amp; LESION CHARACTERISTICS</span>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
-                            <div><span class="text-slate-500 block">Lesion Location:</span><span id="dLesionLoc" class="font-bold text-emerald-400">--</span></div>
-                            <div><span class="text-slate-500 block">Color Spectrum:</span><span id="dLesionColor" class="font-bold text-white">--</span></div>
-                            <div><span class="text-slate-500 block">Max Diameter:</span><span id="dLesionSize" class="font-bold text-white">--</span></div>
-                            <div><span class="text-slate-500 block">OSMF Staging:</span><span id="dOsmfStage" class="font-bold text-amber-400">--</span></div>
-                            <div><span class="text-slate-500 block">Ulceration:</span><span id="dUlcer" class="font-bold text-white">--</span></div>
-                            <div><span class="text-slate-500 block">Palpable Nodes:</span><span id="dNodes" class="font-bold text-white">--</span></div>
+                    <div class="soft-panel p-4">
+                        <h4 class="text-xs font-bold tracking-wide text-slate-700 uppercase">
+                            Clinical & Lesion Characteristics
+                        </h4>
+
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                            <div>
+                                <span class="field-title">Lesion Location</span>
+                                <span id="dLesionLoc" class="field-value">--</span>
+                            </div>
+
+                            <div>
+                                <span class="field-title">Color</span>
+                                <span id="dLesionColor" class="field-value">--</span>
+                            </div>
+
+                            <div>
+                                <span class="field-title">Maximum Diameter</span>
+                                <span id="dLesionSize" class="field-value">--</span>
+                            </div>
+
+                            <div>
+                                <span class="field-title">OSMF Stage</span>
+                                <span id="dOsmfStage" class="field-value">--</span>
+                            </div>
+
+                            <div>
+                                <span class="field-title">Ulceration</span>
+                                <span id="dUlcer" class="field-value">--</span>
+                            </div>
+
+                            <div>
+                                <span class="field-title">Palpable Nodes</span>
+                                <span id="dNodes" class="field-value">--</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Habits & Risk Factor Analysis -->
-                    <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
-                        <span class="text-[10px] font-mono uppercase text-cyberRose tracking-wider block mb-3">3. HABITS &amp; HIGH-RISK EXPOSURE</span>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                            <div><span class="text-slate-500 block">Tobacco Chewing:</span><span id="dHabitChew" class="font-bold text-white">--</span></div>
-                            <div><span class="text-slate-500 block">Smoking Habits:</span><span id="dHabitSmoke" class="font-bold text-white">--</span></div>
-                            <div><span class="text-slate-500 block">Alcohol Usage:</span><span id="dHabitAlcohol" class="font-bold text-white">--</span></div>
-                            <div><span class="text-slate-500 block">Areca Nut:</span><span id="dHabitAreca" class="font-bold text-white">--</span></div>
+                    <div class="soft-panel p-4">
+                        <h4 class="text-xs font-bold tracking-wide text-slate-700 uppercase">
+                            Habits & Risk Factors
+                        </h4>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                            <div>
+                                <span class="field-title">Tobacco Chewing</span>
+                                <span id="dHabitChew" class="field-value">--</span>
+                            </div>
+
+                            <div>
+                                <span class="field-title">Smoking</span>
+                                <span id="dHabitSmoke" class="field-value">--</span>
+                            </div>
+
+                            <div>
+                                <span class="field-title">Alcohol</span>
+                                <span id="dHabitAlcohol" class="field-value">--</span>
+                            </div>
+
+                            <div>
+                                <span class="field-title">Areca Nut</span>
+                                <span id="dHabitAreca" class="field-value">--</span>
+                            </div>
                         </div>
                     </div>
-
-                </div>
+                </section>
             </div>
 
-            <!-- Modal Footer -->
-            <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between">
-                <span class="text-[10px] font-mono text-slate-500">DATABASE RECORD VERIFIED • SUPABASE POSTGRES ACTIVE</span>
-                <button onclick="closePatientDialog()" class="px-6 py-2.5 text-xs font-bold uppercase tracking-wider bg-slate-900 hover:bg-slate-800 text-slate-200 rounded-xl transition border border-slate-700">
-                    Close Diagnostic View
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-5 mt-6 border-t border-slate-200">
+                <span class="text-xs text-slate-500">
+                    Patient record loaded from Supabase.
+                </span>
+
+                <button type="button" onclick="closePatientDialog()" class="btn btn-secondary">
+                    Close
                 </button>
             </div>
         </div>
     </dialog>
 
-    <!-- Supabase Data Retrieval Script -->
     <script>
-        const TABLE_NAME = 'oral_clinical_assessments';
+        const TABLE_NAME = "oral_clinical_assessments";
+        const ARDUINO_API_BASE = "http://127.0.0.1:5000";
+
         let cachedPatients = [];
-        const selectEl = document.getElementById('patientSelect');
-        const dbBadge = document.getElementById('dbStatusBadge');
+        let ndefWriter = null;
+        let ndefReader = null;
+
+        const selectEl = document.getElementById("patientSelect");
+        const dbBadge = document.getElementById("dbStatusBadge");
+        const writeButton = document.getElementById("writeNfcButton");
+        const readButton = document.getElementById("readNfcButton");
+
+        const animDialog = document.getElementById("nfcAnimDialog");
+        const dialogIcon = document.getElementById("nfcDialogIcon");
+        const dialogTitle = document.getElementById("nfcDialogTitle");
+        const dialogText = document.getElementById("nfcDialogText");
+
+        const patientDialog = document.getElementById("patientInfoDialog");
+        const nfcBanner = document.getElementById("nfcStatusBanner");
+        const nfcBannerMessage = document.getElementById("nfcStatusMessage");
+
+        const isMobileNfcAvailable = "NDEFReader" in window;
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function setButtonLoading(button, isLoading, label) {
+            button.disabled = isLoading;
+
+            if (isLoading) {
+                button.dataset.originalText = button.innerHTML;
+                button.innerHTML = `
+                    <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9M20 20v-5h-.581m0 0a8.003 8.003 0 01-15.357-2">
+                        </path>
+                    </svg>
+                    ${label}
+                `;
+            } else if (button.dataset.originalText) {
+                button.innerHTML = button.dataset.originalText;
+            }
+        }
+
+        function updateDatabaseBadge(status, message) {
+            const dotClass =
+                status === "success" ? "success" :
+                status === "error" ? "error" : "";
+
+            dbBadge.innerHTML = `
+                <span class="status-dot ${dotClass}"></span>
+                <span>${escapeHtml(message)}</span>
+            `;
+        }
+
+        function showNfcBanner(message) {
+            nfcBannerMessage.textContent = message;
+            nfcBanner.classList.remove("hidden");
+        }
+
+        function closeNFCAnim() {
+            if (animDialog.open) {
+                animDialog.close();
+            }
+        }
+
+        function closePatientDialog() {
+            if (patientDialog.open) {
+                patientDialog.close();
+            }
+        }
+
+        function showNFCAnim(type, source) {
+            if (type === "write") {
+                dialogIcon.textContent = "💳";
+                dialogTitle.textContent = "Writing NFC Tag";
+                dialogText.textContent =
+                    source === "arduino"
+                        ? "Hold the tag near the Arduino NFC reader."
+                        : "Hold the NFC tag near your mobile device.";
+            } else {
+                dialogIcon.textContent = "📡";
+                dialogTitle.textContent = "Reading NFC Tag";
+                dialogText.textContent =
+                    source === "arduino"
+                        ? "Hold the tag near the Arduino NFC reader."
+                        : "Hold the NFC tag near your mobile device.";
+            }
+
+            if (!animDialog.open) {
+                animDialog.showModal();
+            }
+        }
+
+        function showNfcError(error, defaultMessage) {
+            console.error(error);
+
+            dialogIcon.textContent = "⚠️";
+            dialogTitle.textContent = "NFC Operation Failed";
+            dialogText.textContent =
+                error?.message || defaultMessage || "Unable to communicate with the NFC reader.";
+
+            if (!animDialog.open) {
+                animDialog.showModal();
+            }
+        }
 
         async function fetchPatientRecords() {
             try {
@@ -481,245 +930,458 @@
                 const key = window.CONFIG?.SUPABASE_ANON_KEY;
 
                 if (!url || !key) {
-                    throw new Error("SUPABASE_URL or SUPABASE_ANON_KEY missing in window.CONFIG");
+                    throw new Error("SUPABASE_URL or SUPABASE_ANON_KEY is missing in config/config.js.");
                 }
 
                 const supabase = window.supabase.createClient(url, key);
 
                 const { data, error } = await supabase
                     .from(TABLE_NAME)
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                    .select("*")
+                    .order("created_at", { ascending: false });
 
-                if (error) throw error;
+                if (error) {
+                    throw error;
+                }
 
                 cachedPatients = data || [];
                 populateDropdown(cachedPatients);
 
-                dbBadge.className = "text-xs font-mono bg-emerald-950/90 text-cyberEmerald border border-emerald-800/80 px-4 py-2 rounded-2xl flex items-center gap-2.5 shadow-lg backdrop-blur-md";
-                dbBadge.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-cyberEmerald"></span> Neural Core Online (${cachedPatients.length} Records Loaded)`;
-            } catch (err) {
-                console.error("Supabase connection error:", err);
-                dbBadge.className = "text-xs font-mono bg-rose-950/90 text-cyberRose border border-rose-800 px-4 py-2 rounded-2xl flex items-center gap-2.5 shadow-lg backdrop-blur-md";
-                dbBadge.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-cyberRose"></span> Configuration / Connection Error`;
+                updateDatabaseBadge(
+                    "success",
+                    `${cachedPatients.length} patient record${cachedPatients.length === 1 ? "" : "s"} loaded`
+                );
+            } catch (error) {
+                console.error("Supabase connection error:", error);
+
+                updateDatabaseBadge(
+                    "error",
+                    "Database connection failed"
+                );
+
+                selectEl.innerHTML = `
+                    <option value="" selected disabled>
+                        Unable to load patient records
+                    </option>
+                `;
             }
         }
 
         function populateDropdown(patients) {
-            selectEl.innerHTML = '<option value="" disabled selected>-- Select Clinical Patient Assessment --</option>';
-            if (patients.length === 0) {
-                selectEl.innerHTML = '<option value="" disabled selected>-- Zero Records Found in Table --</option>';
+            selectEl.innerHTML = `
+                <option value="" selected disabled>
+                    Select a clinical patient assessment
+                </option>
+            `;
+
+            if (!patients.length) {
+                selectEl.innerHTML = `
+                    <option value="" selected disabled>
+                        No patient records found
+                    </option>
+                `;
+                selectEl.disabled = true;
                 return;
             }
-            patients.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p.patient_id;
-                opt.textContent = `${p.patient_id} - ${p.patient_name || 'Anonymous Patient'} (OPD: ${p.opd_number || 'N/A'})`;
-                selectEl.appendChild(opt);
+
+            patients.forEach((patient) => {
+                const option = document.createElement("option");
+                option.value = patient.patient_id;
+                option.textContent =
+                    `${patient.patient_id} - ${patient.patient_name || "Anonymous Patient"} ` +
+                    `(OPD: ${patient.opd_number || "N/A"})`;
+
+                selectEl.appendChild(option);
             });
+
             selectEl.disabled = false;
         }
 
-        window.getPatientById = (id) => cachedPatients.find(p => p.patient_id === id);
-
-        document.addEventListener('DOMContentLoaded', fetchPatientRecords);
-    </script>
-
-    <!-- Web NFC & Diagnostic Rendering Script -->
-    <script>
-        const animDialog = document.getElementById('nfcAnimDialog');
-        const radarSvg = document.getElementById('radarSvg');
-        const dialogIcon = document.getElementById('nfcDialogIcon');
-        const dialogTitle = document.getElementById('nfcDialogTitle');
-        const dialogText = document.getElementById('nfcDialogText');
-        const patientDialog = document.getElementById('patientInfoDialog');
-
-        const checkNfcSupport = () => {
-            if (!('NDEFReader' in window)) {
-                document.getElementById('nfcStatusBanner').classList.remove('hidden');
-                return false;
-            }
-            return true;
+        window.getPatientById = function (id) {
+            return cachedPatients.find((patient) =>
+                String(patient.patient_id) === String(id)
+            );
         };
 
-        const showNFCAnim = (type) => {
-            if (type === 'write') {
-                dialogIcon.innerText = '💳';
-                dialogTitle.innerText = 'Encoding NFC Tag';
-                dialogText.innerText = 'Hold target NFC card steadily against the device reader coil...';
-            } else {
-                dialogIcon.innerText = '📡';
-                dialogTitle.innerText = 'Scanning Active';
-                dialogText.innerText = 'Searching for active patient card transponder signal...';
-            }
-            radarSvg.classList.remove('hidden');
-            animDialog.showModal();
-        };
-
-        const closeNFCAnim = () => {
-            radarSvg.classList.add('hidden');
-            animDialog.close();
-        };
-
-        const closePatientDialog = () => patientDialog.close();
-
-        // 1. NFC WRITE LOGIC
-        let ndefWriter = null;
-        async function startNFCWrite() {
-            if (!checkNfcSupport()) return;
-
+        function getSelectedPatientId() {
             const patientId = selectEl.value;
+
             if (!patientId) {
-                alert("Select a valid patient record from the dropdown menu first.");
+                alert("Please select a patient record first.");
+                return null;
+            }
+
+            return patientId;
+        }
+
+        function parseNdefTextRecord(record) {
+            const decoder = new TextDecoder();
+
+            if (record.encoding === "utf-16") {
+                return new TextDecoder("utf-16").decode(record.data);
+            }
+
+            return decoder.decode(record.data);
+        }
+
+        function extractPatientIdFromPayload(payload) {
+            if (!payload) {
+                return null;
+            }
+
+            if (typeof payload === "object") {
+                return payload.patient_id || payload.id || null;
+            }
+
+            const trimmedPayload = String(payload).trim();
+
+            try {
+                const parsed = JSON.parse(trimmedPayload);
+                return parsed.patient_id || parsed.id || null;
+            } catch {
+                return trimmedPayload || null;
+            }
+        }
+
+        function handlePatientId(patientId) {
+            if (!patientId) {
+                alert("The NFC tag does not contain a valid patient ID.");
                 return;
             }
 
-            showNFCAnim('write');
+            const patientRecord = window.getPatientById(patientId);
 
-            try {
-                if (!ndefWriter) ndefWriter = new NDEFReader();
-                const payload = JSON.stringify({ patient_id: patientId });
+            if (!patientRecord) {
+                alert(`Tag read successfully, but patient ID "${patientId}" was not found in the database.`);
+                return;
+            }
 
-                await ndefWriter.write({
-                    records: [{ recordType: "text", data: payload }]
-                });
+            renderFullPatientModal(patientRecord);
+        }
 
-                dialogIcon.innerText = '✅';
-                dialogTitle.innerText = 'Write Successful!';
-                dialogText.innerHTML = `NFC Tag provisioned with ID: <b class="text-cyberCyan">${patientId}</b>.`;
-                radarSvg.classList.add('hidden');
+        async function startNFCWrite() {
+            const patientId = getSelectedPatientId();
 
-                setTimeout(closeNFCAnim, 2000);
-            } catch (err) {
-                console.error(err);
-                dialogIcon.innerText = '❌';
-                dialogTitle.innerText = 'Encoding Failed';
-                dialogText.innerText = err.message || 'Write operation aborted by system.';
-                radarSvg.classList.add('hidden');
+            if (!patientId) {
+                return;
+            }
+
+            if (isMobileNfcAvailable) {
+                await writeUsingMobileNfc(patientId);
+            } else {
+                showNfcBanner(
+                    "Web NFC is not available on this computer. Writing through the local Arduino NFC bridge."
+                );
+                await writeUsingArduino(patientId);
             }
         }
 
-        // 2. NFC READ LOGIC
-        let ndefReader = null;
         async function startNFCRead() {
-            if (!checkNfcSupport()) return;
+            if (isMobileNfcAvailable) {
+                await readUsingMobileNfc();
+            } else {
+                showNfcBanner(
+                    "Web NFC is not available on this computer. Reading through the local Arduino NFC bridge."
+                );
+                await readUsingArduino();
+            }
+        }
 
-            showNFCAnim('read');
+        async function writeUsingMobileNfc(patientId) {
+            setButtonLoading(writeButton, true, "Writing…");
+            showNFCAnim("write", "mobile");
 
             try {
-                if (!ndefReader) ndefReader = new NDEFReader();
+                if (!ndefWriter) {
+                    ndefWriter = new NDEFReader();
+                }
+
+                const payload = JSON.stringify({
+                    patient_id: patientId
+                });
+
+                await ndefWriter.write({
+                    records: [
+                        {
+                            recordType: "text",
+                            data: payload
+                        }
+                    ]
+                });
+
+                dialogIcon.textContent = "✅";
+                dialogTitle.textContent = "Card Written Successfully";
+                dialogText.textContent = `Patient ID ${patientId} was stored on the NFC tag.`;
+
+                setTimeout(closeNFCAnim, 1800);
+            } catch (error) {
+                showNfcError(error, "Unable to write this NFC tag.");
+            } finally {
+                setButtonLoading(writeButton, false);
+            }
+        }
+
+        async function readUsingMobileNfc() {
+            setButtonLoading(readButton, true, "Waiting for tag…");
+            showNFCAnim("read", "mobile");
+
+            try {
+                if (!ndefReader) {
+                    ndefReader = new NDEFReader();
+                }
+
                 await ndefReader.scan();
 
                 ndefReader.onreading = ({ message }) => {
-                    closeNFCAnim();
-                    const record = message.records.find(r => r.recordType === "text");
-                    if (record) {
-                        const decoder = new TextDecoder();
-                        const decodedData = JSON.parse(decoder.decode(record.data));
-                        
-                        const patientId = decodedData.patient_id || decodedData.id;
-                        const patientRecord = window.getPatientById(patientId);
+                    try {
+                        const record = message.records.find(
+                            (item) => item.recordType === "text"
+                        );
 
-                        if (patientRecord) {
-                            renderFullPatientModal(patientRecord);
-                        } else {
-                            alert(`Card payload read (ID: ${patientId}), but record not found in database.`);
+                        if (!record) {
+                            throw new Error("No text patient payload was found on this NFC tag.");
                         }
+
+                        const rawText = parseNdefTextRecord(record);
+                        const patientId = extractPatientIdFromPayload(rawText);
+
+                        closeNFCAnim();
+                        handlePatientId(patientId);
+                    } catch (error) {
+                        showNfcError(error, "Unable to read the patient ID from this tag.");
+                    } finally {
+                        setButtonLoading(readButton, false);
                     }
                 };
-            } catch (err) {
-                console.error(err);
-                dialogIcon.innerText = '❌';
-                dialogTitle.innerText = 'Scan Error';
-                dialogText.innerText = err.message || 'Unable to scan NFC hardware.';
-                radarSvg.classList.add('hidden');
+            } catch (error) {
+                showNfcError(error, "Unable to start mobile NFC scanning.");
+                setButtonLoading(readButton, false);
             }
         }
 
-        // 3. FULL PATIENT RENDERER & ANATOMICAL MAP UPDATER
-        function renderFullPatientModal(p) {
-            // Basic Info
-            document.getElementById('dialogPatientName').innerText = p.patient_name || 'Anonymous Record';
-            document.getElementById('dialogPatientId').innerText = `ID: ${p.patient_id || 'N/A'}`;
-            document.getElementById('dialogOpdNo').innerText = `OPD: ${p.opd_number || 'N/A'}`;
-            document.getElementById('dialogCreatedDate').innerText = `Date: ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'N/A'}`;
+        async function writeUsingArduino(patientId) {
+            setButtonLoading(writeButton, true, "Writing through Arduino…");
+            showNFCAnim("write", "arduino");
 
-            // Risk Level Badge Styling
-            const riskBadge = document.getElementById('dialogRiskBadge');
-            const riskLevel = p.risk_level || 'Medium';
-            riskBadge.innerText = `${riskLevel} Risk`;
-            if (riskLevel.toLowerCase().includes('high')) {
-                riskBadge.className = "text-[10px] font-mono font-bold px-3 py-1 rounded-full bg-rose-950/90 border border-rose-800 text-cyberRose uppercase animate-pulse";
-            } else if (riskLevel.toLowerCase().includes('low')) {
-                riskBadge.className = "text-[10px] font-mono font-bold px-3 py-1 rounded-full bg-emerald-950/90 border border-emerald-800 text-cyberEmerald uppercase";
-            } else {
-                riskBadge.className = "text-[10px] font-mono font-bold px-3 py-1 rounded-full bg-amber-950/90 border border-amber-800 text-cyberAmber uppercase";
+            try {
+                const response = await fetch(`${ARDUINO_API_BASE}/nfc/write`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        patient_id: patientId
+                    })
+                });
+
+                const result = await response.json().catch(() => ({}));
+
+                if (!response.ok || !result.success) {
+                    throw new Error(
+                        result.error ||
+                        "Arduino NFC write request failed. Check the Flask bridge and Arduino connection."
+                    );
+                }
+
+                dialogIcon.textContent = "✅";
+                dialogTitle.textContent = "Card Written Successfully";
+                dialogText.textContent =
+                    `Patient ID ${result.patient_id || patientId} was stored on the NFC tag.`;
+
+                setTimeout(closeNFCAnim, 1800);
+            } catch (error) {
+                showNfcError(
+                    error,
+                    "Unable to connect to the local Arduino NFC bridge."
+                );
+            } finally {
+                setButtonLoading(writeButton, false);
             }
-
-            // Demographics
-            document.getElementById('dAgeSex').innerText = `${p.age || 'N/A'} Yrs / ${p.sex || 'N/A'}`;
-            document.getElementById('dMarital').innerText = p.marital_status || 'N/A';
-            document.getElementById('dReligion').innerText = p.religion || 'N/A';
-            document.getElementById('dOccupation').innerText = p.occupation || 'N/A';
-            document.getElementById('dLocation').innerText = p.patient_location || p.residence || 'N/A';
-
-            // Clinical Lesion Info
-            const lesionLoc = p.lesion_location || 'Not Specified';
-            document.getElementById('dLesionLoc').innerText = lesionLoc;
-            document.getElementById('dLesionColor').innerText = p.lesion_color || 'N/A';
-            document.getElementById('dLesionSize').innerText = p.lesion_maximum_diameter_mm ? `${p.lesion_maximum_diameter_mm} mm` : 'N/A';
-            document.getElementById('dOsmfStage').innerText = p.osmf_stage || 'None';
-            document.getElementById('dUlcer').innerText = p.ulceration || 'No';
-            document.getElementById('dNodes').innerText = p.palpable_lymph_nodes || 'None';
-
-            // Habits
-            document.getElementById('dHabitChew').innerText = p.any_chewing_habits || p.chewing_habits || 'No';
-            document.getElementById('dHabitSmoke').innerText = p.smoking || 'No';
-            document.getElementById('dHabitAlcohol').innerText = p.alcohol || 'No';
-            document.getElementById('dHabitAreca').innerText = p.areca_nut || 'No';
-
-            // Avatar Color based on Sex
-            const avatar = document.getElementById('dialogSexAvatar');
-            if (p.sex === 'Female') {
-                avatar.className = "w-16 h-16 rounded-2xl bg-cyberRose/20 text-cyberRose flex items-center justify-center text-3xl border border-cyberRose/30 shrink-0";
-            } else {
-                avatar.className = "w-16 h-16 rounded-2xl bg-cyberViolet/20 text-cyberViolet flex items-center justify-center text-3xl border border-cyberViolet/30 shrink-0";
-            }
-
-            // DYNAMIC LESION ANATOMICAL HIGHLIGHT LOGIC
-            document.querySelectorAll('.lesion-group').forEach(el => el.classList.add('hidden'));
-            const locTag = document.getElementById('visualizerLocationTag');
-            const summaryFooter = document.getElementById('lesionSummaryFooter');
-
-            const lowerLoc = lesionLoc.toLowerCase();
-
-            if (lowerLoc.includes('buccal') && lowerLoc.includes('right')) {
-                document.getElementById('loc-buccal-right').classList.remove('hidden');
-                locTag.innerText = "Location: Right Buccal Mucosa";
-            } else if (lowerLoc.includes('buccal')) {
-                document.getElementById('loc-buccal-left').classList.remove('hidden');
-                locTag.innerText = "Location: Buccal Mucosa";
-            } else if (lowerLoc.includes('tongue')) {
-                document.getElementById('loc-tongue').classList.remove('hidden');
-                locTag.innerText = "Location: Tongue Cavity Zone";
-            } else if (lowerLoc.includes('labial') || lowerLoc.includes('lip')) {
-                document.getElementById('loc-labial').classList.remove('hidden');
-                locTag.innerText = "Location: Labial Mucosa / Lip Zone";
-            } else if (lowerLoc.includes('palate')) {
-                document.getElementById('loc-palate').classList.remove('hidden');
-                locTag.innerText = "Location: Hard / Soft Palate";
-            } else if (lowerLoc.includes('floor') || lowerLoc.includes('gingiva') || lowerLoc.includes('alveolus')) {
-                document.getElementById('loc-floor').classList.remove('hidden');
-                locTag.innerText = "Location: Floor / Gingival Zone";
-            } else {
-                document.getElementById('loc-default').classList.remove('hidden');
-                locTag.innerText = `Location: ${lesionLoc}`;
-            }
-
-            summaryFooter.innerHTML = `Lesion Region: <b class="text-cyberRose">${lesionLoc}</b> | Diameter: <b class="text-cyberCyan">${p.lesion_maximum_diameter_mm || 'Unmeasured'}mm</b>`;
-
-            patientDialog.showModal();
         }
+
+        async function readUsingArduino() {
+            setButtonLoading(readButton, true, "Waiting for Arduino…");
+            showNFCAnim("read", "arduino");
+
+            try {
+                const response = await fetch(`${ARDUINO_API_BASE}/nfc/read`);
+                const result = await response.json().catch(() => ({}));
+
+                if (!response.ok || !result.success) {
+                    throw new Error(
+                        result.error ||
+                        "Arduino NFC read request failed. Place a tag near the reader and try again."
+                    );
+                }
+
+                closeNFCAnim();
+                handlePatientId(result.patient_id);
+            } catch (error) {
+                showNfcError(
+                    error,
+                    "Unable to connect to the local Arduino NFC bridge."
+                );
+            } finally {
+                setButtonLoading(readButton, false);
+            }
+        }
+
+        function setRiskBadge(riskLevel) {
+            const riskBadge = document.getElementById("dialogRiskBadge");
+            const normalizedRisk = String(riskLevel || "Medium").toLowerCase();
+
+            riskBadge.className = "risk-badge";
+
+            if (normalizedRisk.includes("high")) {
+                riskBadge.classList.add("risk-high");
+                riskBadge.textContent = "High Risk";
+            } else if (normalizedRisk.includes("low")) {
+                riskBadge.classList.add("risk-low");
+                riskBadge.textContent = "Low Risk";
+            } else {
+                riskBadge.classList.add("risk-medium");
+                riskBadge.textContent = "Medium Risk";
+            }
+        }
+
+        function updateLesionMap(lesionLocation, diameter) {
+            document.querySelectorAll(".lesion-group").forEach((element) => {
+                element.classList.add("hidden");
+            });
+
+            const locationTag = document.getElementById("visualizerLocationTag");
+            const footer = document.getElementById("lesionSummaryFooter");
+            const lowerLocation = String(lesionLocation || "").toLowerCase();
+
+            if (lowerLocation.includes("buccal") && lowerLocation.includes("right")) {
+                document.getElementById("loc-buccal-right").classList.remove("hidden");
+                locationTag.textContent = "Right buccal mucosa";
+            } else if (lowerLocation.includes("buccal")) {
+                document.getElementById("loc-buccal-left").classList.remove("hidden");
+                locationTag.textContent = "Buccal mucosa";
+            } else if (lowerLocation.includes("tongue")) {
+                document.getElementById("loc-tongue").classList.remove("hidden");
+                locationTag.textContent = "Tongue";
+            } else if (lowerLocation.includes("labial") || lowerLocation.includes("lip")) {
+                document.getElementById("loc-labial").classList.remove("hidden");
+                locationTag.textContent = "Labial mucosa / lip";
+            } else if (lowerLocation.includes("palate")) {
+                document.getElementById("loc-palate").classList.remove("hidden");
+                locationTag.textContent = "Hard / soft palate";
+            } else if (
+                lowerLocation.includes("floor") ||
+                lowerLocation.includes("gingiva") ||
+                lowerLocation.includes("alveolus")
+            ) {
+                document.getElementById("loc-floor").classList.remove("hidden");
+                locationTag.textContent = "Floor / gingival area";
+            } else {
+                document.getElementById("loc-default").classList.remove("hidden");
+                locationTag.textContent = lesionLocation || "Unspecified";
+            }
+
+            footer.innerHTML = `
+                <span class="font-semibold text-slate-700">Lesion region:</span>
+                ${escapeHtml(lesionLocation || "Not specified")}
+                <span class="mx-1 text-slate-300">|</span>
+                <span class="font-semibold text-slate-700">Diameter:</span>
+                ${escapeHtml(diameter ? `${diameter} mm` : "Not measured")}
+            `;
+        }
+
+        function renderFullPatientModal(patient) {
+            const lesionLocation = patient.lesion_location || "Not specified";
+            const lesionDiameter = patient.lesion_maximum_diameter_mm;
+
+            document.getElementById("dialogPatientName").textContent =
+                patient.patient_name || "Anonymous Record";
+
+            document.getElementById("dialogPatientId").textContent =
+                `ID: ${patient.patient_id || "N/A"}`;
+
+            document.getElementById("dialogOpdNo").textContent =
+                `OPD: ${patient.opd_number || "N/A"}`;
+
+            document.getElementById("dialogCreatedDate").textContent =
+                `Date: ${
+                    patient.created_at
+                        ? new Date(patient.created_at).toLocaleDateString()
+                        : "N/A"
+                }`;
+
+            setRiskBadge(patient.risk_level);
+
+            document.getElementById("dAgeSex").textContent =
+                `${patient.age || "N/A"} Yrs / ${patient.sex || "N/A"}`;
+
+            document.getElementById("dMarital").textContent =
+                patient.marital_status || "N/A";
+
+            document.getElementById("dReligion").textContent =
+                patient.religion || "N/A";
+
+            document.getElementById("dOccupation").textContent =
+                patient.occupation || "N/A";
+
+            document.getElementById("dLocation").textContent =
+                patient.patient_location || patient.residence || "N/A";
+
+            document.getElementById("dLesionLoc").textContent =
+                lesionLocation;
+
+            document.getElementById("dLesionColor").textContent =
+                patient.lesion_color || "N/A";
+
+            document.getElementById("dLesionSize").textContent =
+                lesionDiameter ? `${lesionDiameter} mm` : "N/A";
+
+            document.getElementById("dOsmfStage").textContent =
+                patient.osmf_stage || "None";
+
+            document.getElementById("dUlcer").textContent =
+                patient.ulceration || "No";
+
+            document.getElementById("dNodes").textContent =
+                patient.palpable_lymph_nodes || "None";
+
+            document.getElementById("dHabitChew").textContent =
+                patient.any_chewing_habits || patient.chewing_habits || "No";
+
+            document.getElementById("dHabitSmoke").textContent =
+                patient.smoking || "No";
+
+            document.getElementById("dHabitAlcohol").textContent =
+                patient.alcohol || "No";
+
+            document.getElementById("dHabitAreca").textContent =
+                patient.areca_nut || "No";
+
+            const avatar = document.getElementById("dialogSexAvatar");
+
+            if (String(patient.sex || "").toLowerCase() === "female") {
+                avatar.className =
+                    "w-14 h-14 rounded-full bg-rose-50 text-rose-700 border border-rose-100 flex items-center justify-center text-2xl shrink-0";
+            } else {
+                avatar.className =
+                    "w-14 h-14 rounded-full bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center text-2xl shrink-0";
+            }
+
+            updateLesionMap(lesionLocation, lesionDiameter);
+
+            if (!patientDialog.open) {
+                patientDialog.showModal();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchPatientRecords();
+
+            if (!isMobileNfcAvailable) {
+                showNfcBanner(
+                    "Web NFC is unavailable on this device. Connect your Arduino NFC reader and run the local Flask bridge on port 5000."
+                );
+            }
+        });
     </script>
 </body>
 </html>
