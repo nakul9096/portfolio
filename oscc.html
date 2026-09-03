@@ -3,8 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Oral Clinical Registry - Assessment Dashboard</title>
 
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Inter Font -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,628 +17,1654 @@
 <!-- Load App Configuration -->
 <script src="config/config.js"></script>
 
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        app: {
+          bg: '#090d16',
+          surface: '#111827',
+          hover: '#1f2937',
+          border: '#1f293d',
+          borderLight: '#2d3748',
+          blue: '#2563eb',
+          blueHover: '#1d4ed8'
+        }
+      }
+    }
+  }
+}
+</script>
+
 <style>
-:root {
-  --bg: #090d16;
-  --surface: #111827;
-  --surface-hover: #1f2937;
-  --border: #1f293d;
-  --border-light: #2d3748;
-  
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
-  
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --accent-light: rgba(37, 99, 235, 0.15);
-  
-  --danger: #f87171;
-  --danger-bg: rgba(248, 113, 113, 0.12);
-  --warning: #fbbf24;
-  --warning-bg: rgba(251, 191, 36, 0.12);
-  --success: #34d399;
-  --success-bg: rgba(52, 211, 153, 0.12);
+* {
+  box-sizing: border-box;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+  scroll-behavior: smooth;
+}
 
 body {
-  background: var(--bg);
+  margin: 0;
+  background: #090d16;
+  color: #f9fafb;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: var(--text-primary);
   line-height: 1.5;
   font-size: 14px;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
-/* App Navigation Bar */
+/* =========================================================
+   HEADER
+========================================================= */
+
 .app-nav {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background: rgba(17, 24, 39, 0.97);
+  border-bottom: 1px solid #1f293d;
+  backdrop-filter: blur(12px);
+}
+
+.nav-inner {
+  width: 100%;
+  max-width: 1440px;
+  min-height: 68px;
+  margin: 0 auto;
+  padding: 0 28px;
+
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 24px;
 }
 
 .nav-brand {
+  display: flex;
+  align-items: center;
+  min-width: 240px;
+}
+
+.nav-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.nav-brand-title {
+  color: #f9fafb;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--text-primary);
-  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.nav-brand-subtitle {
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-links a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 38px;
+  padding: 0 13px;
+
+  color: #9ca3af;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+
+  border-radius: 6px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.nav-links a:hover {
+  background: #1f2937;
+  color: #f9fafb;
+}
+
+.nav-links a.active {
+  background: rgba(37, 99, 235, 0.12);
+  color: #60a5fa;
+}
+
+.nav-patients {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 38px;
+  padding: 0 15px;
+
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.nav-patients:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+/* =========================================================
+   MAIN CONTAINER
+========================================================= */
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 26px;
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid #1f293d;
+}
+
+.title-area h1 {
+  margin: 0;
+
+  color: #f9fafb;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.title-area p {
+  margin: 5px 0 0;
+
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.header-actions {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.nav-links {
-  display: flex;
-  gap: 20px;
-}
+/* =========================================================
+   KPI CARDS
+========================================================= */
 
-.nav-links a {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 500;
-  transition: color 0.15s;
-}
-
-.nav-links a:hover, .nav-links a.active {
-  color: var(--text-primary);
-}
-
-.container {
-  max-width: 1280px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 32px 24px;
-  flex: 1;
-}
-
-/* Page Header */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.title-area h1 {
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.title-area p {
-  color: var(--text-secondary);
-  font-size: 13px;
-  margin-top: 2px;
-}
-
-.header-actions {
-  display: flex;
-  gap: 10px;
-}
-
-/* KPI Cards Grid */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-  margin-bottom: 28px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+
+  margin-bottom: 24px;
 }
 
 .kpi-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  min-height: 132px;
+
   padding: 18px 20px;
+
+  background: #111827;
+  border: 1px solid #1f293d;
+  border-radius: 8px;
+
   display: flex;
   flex-direction: column;
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  justify-content: center;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .kpi-card:hover {
-  border-color: var(--border-light);
-  transform: translateY(-2px);
+  background: #141d2d;
+  border-color: #2d3748;
 }
 
 .kpi-label {
+  margin-bottom: 8px;
+
+  color: #9ca3af;
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
 }
 
 .kpi-value {
+  color: #f9fafb;
+
   font-size: 28px;
-  font-weight: 700;
-  color: var(--text-primary);
   line-height: 1.1;
-  margin-bottom: 4px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
 .kpi-subtext {
-  font-size: 12px;
-  color: var(--text-muted);
+  margin-top: 7px;
+
+  color: #6b7280;
+  font-size: 11px;
 }
 
-/* Controls Bar */
+/* =========================================================
+   CONTROLS
+========================================================= */
+
 .controls-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px 20px;
-  margin-bottom: 24px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  margin-bottom: 18px;
+  padding: 14px;
+
+  background: #111827;
+  border: 1px solid #1f293d;
+  border-radius: 8px;
 }
 
 .search-box {
+  position: relative;
   flex: 1;
   min-width: 260px;
-  position: relative;
 }
 
 .search-box input {
   width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px 14px 10px 38px;
+  height: 40px;
+
+  padding: 0 13px;
+
   background: #0d1321;
-  color: var(--text-primary);
-  font: inherit;
+  border: 1px solid #1f293d;
+  border-radius: 6px;
+
+  color: #f9fafb;
+  font-family: inherit;
   font-size: 13px;
+
   outline: none;
-  transition: border-color 0.15s ease;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.search-box input::placeholder {
+  color: #6b7280;
 }
 
 .search-box input:focus {
-  border-color: var(--accent);
+  background: #101827;
+  border-color: #2563eb;
 }
 
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  font-size: 14px;
+.filter-group {
+  flex-shrink: 0;
 }
 
 .filter-group select {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px 32px 10px 14px;
+  height: 40px;
+
+  min-width: 245px;
+
+  padding: 0 34px 0 13px;
+
   background: #0d1321;
-  color: var(--text-primary);
-  font: inherit;
+  border: 1px solid #1f293d;
+  border-radius: 6px;
+
+  color: #f9fafb;
+  font-family: inherit;
   font-size: 13px;
+
   outline: none;
   cursor: pointer;
+
+  transition: border-color 0.15s ease;
 }
 
-/* Data Table */
+.filter-group select:focus {
+  border-color: #2563eb;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
 .table-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
   overflow: hidden;
+
   margin-bottom: 32px;
+
+  background: #111827;
+  border: 1px solid #1f293d;
+  border-radius: 8px;
 }
 
 .table-wrapper {
+  width: 100%;
   overflow-x: auto;
 }
 
 table {
   width: 100%;
+  min-width: 950px;
+
   border-collapse: collapse;
+
   text-align: left;
   font-size: 13px;
 }
 
-th {
+thead th {
+  padding: 13px 16px;
+
   background: #0d1321;
-  padding: 12px 16px;
+
+  color: #9ca3af;
+
+  border-bottom: 1px solid #1f293d;
+
+  font-size: 11px;
   font-weight: 600;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+
   white-space: nowrap;
 }
 
-td {
+tbody td {
   padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text-primary);
+
+  color: #f9fafb;
+
+  border-bottom: 1px solid #1f293d;
+
   white-space: nowrap;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr {
+  transition: background 0.12s ease;
 }
 
 tbody tr:hover {
-  background: var(--surface-hover);
+  background: #151e2e;
 }
 
-/* Badges & Buttons */
+tbody td strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* =========================================================
+   BADGES
+========================================================= */
+
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 8px;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
   border-radius: 4px;
+
   font-size: 11px;
   font-weight: 600;
 }
 
-.badge.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.2); }
-.badge.warning { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.2); }
-.badge.success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.2); }
-
-.btn {
-  border: 0;
-  border-radius: 6px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
+.badge.danger {
+  background: rgba(248, 113, 113, 0.10);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.20);
 }
 
-.btn.primary { background: var(--accent); color: #fff; }
-.btn.primary:hover { background: var(--accent-hover); }
-.btn.secondary { background: #1f293d; color: var(--text-primary); border: 1px solid var(--border-light); }
-.btn.secondary:hover { background: #2d3748; }
-.btn.sm { padding: 5px 10px; font-size: 12px; }
+.badge.warning {
+  background: rgba(251, 191, 36, 0.10);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.20);
+}
 
-/* Modal */
+.badge.success {
+  background: rgba(52, 211, 153, 0.10);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.20);
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 38px;
+
+  padding: 0 13px;
+
+  border-radius: 6px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn.primary {
+  background: #2563eb;
+  border: 1px solid #2563eb;
+  color: #ffffff;
+}
+
+.btn.primary:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.btn.secondary {
+  background: #1f293d;
+  border: 1px solid #2d3748;
+  color: #f9fafb;
+}
+
+.btn.secondary:hover {
+  background: #2d3748;
+  border-color: #3b475a;
+}
+
+.btn.sm {
+  min-height: 32px;
+  padding: 0 10px;
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: none;
-  justify-content: center;
-  align-items: center;
+
   z-index: 100;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
   padding: 20px;
-  backdrop-filter: blur(4px);
+
+  background: rgba(3, 7, 18, 0.82);
+
+  backdrop-filter: blur(5px);
 }
 
 .modal-content {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  max-width: 680px;
   width: 100%;
+  max-width: 680px;
   max-height: 85vh;
+
   overflow-y: auto;
+
   padding: 24px;
+
+  background: #111827;
+
+  border: 1px solid #2d3748;
+  border-radius: 8px;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.45);
 }
 
 .modal-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 12px;
-  margin-bottom: 16px;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+
+  border-bottom: 1px solid #1f293d;
+}
+
+.modal-header h3 {
+  margin: 0;
+
+  color: #f9fafb;
+
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .detail-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .detail-item {
+  padding: 12px 14px;
+
   background: #0d1321;
-  padding: 10px 12px;
+
+  border: 1px solid #1f293d;
   border-radius: 6px;
-  border: 1px solid var(--border);
 }
 
 .detail-item span {
   display: block;
-  color: var(--text-muted);
+
+  margin-bottom: 4px;
+
+  color: #6b7280;
+
   font-size: 11px;
-  margin-bottom: 2px;
 }
 
-/* Footer */
+.detail-item strong {
+  display: block;
+
+  color: #f9fafb;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  word-break: break-word;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
 .app-footer {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  padding: 20px;
-  text-align: center;
-  margin-top: auto;
+  background: #111827;
+
+  border-top: 1px solid #1f293d;
+
+  padding: 20px 24px;
 }
 
 .footer-content {
   max-width: 1280px;
   margin: 0 auto;
+
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--text-secondary);
+  align-items: center;
+
+  gap: 5px;
+
+  color: #9ca3af;
+
+  text-align: center;
+  font-size: 12px;
 }
 
 .footer-credits {
-  font-size: 12px;
-  color: var(--text-muted);
+  color: #6b7280;
+  font-size: 11px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .nav-inner {
+    padding: 0 20px;
+  }
+
+  .nav-right {
+    gap: 8px;
+  }
+
+  .nav-links a {
+    padding: 0 9px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+
+  .nav-inner {
+    min-height: auto;
+    padding: 14px 18px;
+
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav-brand {
+    min-width: 0;
+  }
+
+  .nav-right {
+    width: 100%;
+
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+  }
+
+  .nav-patients {
+    margin-left: auto;
+  }
+
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+  }
+
+  .controls-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .search-box {
+    min-width: 0;
+  }
+
+  .filter-group select {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .container {
+    padding: 24px 14px 36px;
+  }
+
+  .nav-inner {
+    padding: 13px 14px;
+  }
+
+  .nav-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav-links {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .nav-links a {
+    flex-shrink: 0;
+  }
+
+  .nav-patients {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .title-area h1 {
+    font-size: 20px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+  }
+
+  .header-actions .btn {
+    width: 100%;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-content {
+    padding: 18px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<!-- Header Navigation Bar -->
+<!-- =========================================================
+     HEADER NAVIGATION
+========================================================= -->
+
 <nav class="app-nav">
-  <div class="nav-brand">🩺 Oral Clinical Assessments Platform</div>
-  <div class="nav-links">
-    <a href="patients.html" class="active">Registry Records</a>
-    <a href="oral_clinical_assessment.html">+ New Assessment</a>
-    <a href="analytics.html">Analytics</a>
+
+  <div class="nav-inner">
+
+    <div class="nav-brand">
+      <div class="nav-brand-text">
+        <span class="nav-brand-title">
+          Oral Clinical Assessments
+        </span>
+
+        <span class="nav-brand-subtitle">
+          Clinical Registry Platform
+        </span>
+      </div>
+    </div>
+
+    <div class="nav-right">
+
+      <div class="nav-links">
+
+        <a href="patients.html" class="active">
+          Registry Records
+        </a>
+
+        <a href="oral_clinical_assessment.html">
+          New Assessment
+        </a>
+
+        <a href="analytics.html">
+          Analytics
+        </a>
+
+      </div>
+
+      <a href="patientinfo.html" class="nav-patients">
+        Get Patients
+      </a>
+
+    </div>
+
   </div>
+
 </nav>
+
+
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
 
 <div class="container">
 
+  <!-- Page Header -->
+
   <header class="page-header">
+
     <div class="title-area">
-      <h1>Oral Clinical Registry</h1>
-      <p>Schema-mapped patient diagnostic dashboard & history</p>
+
+      <h1>
+        Oral Clinical Registry
+      </h1>
+
+      <p>
+        Schema-mapped patient diagnostic dashboard &amp; history
+      </p>
+
     </div>
+
     <div class="header-actions">
-      <button class="btn secondary" onclick="fetchRecords()">↻ Refresh</button>
-      <a href="oral_clinical_assessment.html" class="btn primary">+ New Assessment</a>
+
+      <button
+        class="btn secondary"
+        onclick="fetchRecords()">
+        Refresh
+      </button>
+
+      <a
+        href="oral_clinical_assessment.html"
+        class="btn primary">
+        New Assessment
+      </a>
+
     </div>
+
   </header>
 
-  <!-- Metric KPI Overview -->
+
+  <!-- =======================================================
+       METRIC KPI OVERVIEW
+  ======================================================== -->
+
   <section class="kpi-grid">
+
     <div class="kpi-card">
-      <div class="kpi-label">Total Records</div>
-      <div class="kpi-value" id="mTotal">--</div>
-      <div class="kpi-subtext">Registered assessments</div>
+
+      <div class="kpi-label">
+        Total Records
+      </div>
+
+      <div
+        class="kpi-value"
+        id="mTotal">
+        --
+      </div>
+
+      <div class="kpi-subtext">
+        Registered assessments
+      </div>
+
     </div>
+
+
     <div class="kpi-card">
-      <div class="kpi-label">Active Swelling / Lesions</div>
-      <div class="kpi-value" id="mLesions">--</div>
-      <div class="kpi-subtext">Requires clinical evaluation</div>
+
+      <div class="kpi-label">
+        Active Swelling / Lesions
+      </div>
+
+      <div
+        class="kpi-value"
+        id="mLesions">
+        --
+      </div>
+
+      <div class="kpi-subtext">
+        Requires clinical evaluation
+      </div>
+
     </div>
+
+
     <div class="kpi-card">
-      <div class="kpi-label">Substance Exposure</div>
-      <div class="kpi-value" id="mHabits">--</div>
-      <div class="kpi-subtext">Smoking, chewing, or alcohol</div>
+
+      <div class="kpi-label">
+        Substance Exposure
+      </div>
+
+      <div
+        class="kpi-value"
+        id="mHabits">
+        --
+      </div>
+
+      <div class="kpi-subtext">
+        Smoking, chewing, or alcohol
+      </div>
+
     </div>
+
+
     <div class="kpi-card">
-      <div class="kpi-label">Palpable Lymph Nodes</div>
-      <div class="kpi-value" id="mLymph">--</div>
-      <div class="kpi-subtext">Regional involvement</div>
+
+      <div class="kpi-label">
+        Palpable Lymph Nodes
+      </div>
+
+      <div
+        class="kpi-value"
+        id="mLymph">
+        --
+      </div>
+
+      <div class="kpi-subtext">
+        Regional involvement
+      </div>
+
     </div>
+
   </section>
 
-  <!-- Controls Bar -->
+
+  <!-- =======================================================
+       CONTROLS
+  ======================================================== -->
+
   <section class="controls-card">
+
     <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" placeholder="Search Patient ID, Name, OPD, or Location..." oninput="applyFilters()">
+
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search Patient ID, Name, OPD, or Location..."
+        oninput="applyFilters()">
+
     </div>
+
+
     <div class="filter-group">
-      <select id="filterRisk" onchange="applyFilters()">
-        <option value="ALL">All Records</option>
-        <option value="HIGH_RISK">High Risk (Swelling + Palpable Nodes)</option>
-        <option value="HABITS">Habit Exposure Present</option>
-        <option value="ULCER">Ulcer > 2 Weeks</option>
+
+      <select
+        id="filterRisk"
+        onchange="applyFilters()">
+
+        <option value="ALL">
+          All Records
+        </option>
+
+        <option value="HIGH_RISK">
+          High Risk (Swelling + Palpable Nodes)
+        </option>
+
+        <option value="HABITS">
+          Habit Exposure Present
+        </option>
+
+        <option value="ULCER">
+          Ulcer &gt; 2 Weeks
+        </option>
+
       </select>
+
     </div>
+
   </section>
 
-  <!-- Data Table -->
+
+  <!-- =======================================================
+       DATA TABLE
+  ======================================================== -->
+
   <section class="table-card">
+
     <div class="table-wrapper">
+
       <table>
+
         <thead>
+
           <tr>
-            <th>Patient ID</th>
-            <th>Name</th>
-            <th>Age / Sex</th>
-            <th>OPD No.</th>
-            <th>Habits Exposure</th>
-            <th>Alcohol</th>
-            <th>Swelling</th>
-            <th>Lymph Nodes</th>
-            <th>Action</th>
+
+            <th>
+              Patient ID
+            </th>
+
+            <th>
+              Name
+            </th>
+
+            <th>
+              Age / Sex
+            </th>
+
+            <th>
+              OPD No.
+            </th>
+
+            <th>
+              Habits Exposure
+            </th>
+
+            <th>
+              Alcohol
+            </th>
+
+            <th>
+              Swelling
+            </th>
+
+            <th>
+              Lymph Nodes
+            </th>
+
+            <th>
+              Action
+            </th>
+
           </tr>
+
         </thead>
+
+
         <tbody id="tableBody">
+
           <tr>
-            <td colspan="9" style="text-align:center; padding: 40px; color: var(--text-muted);">Loading registry assessments...</td>
+
+            <td
+              colspan="9"
+              style="
+                text-align:center;
+                padding:40px;
+                color:#6b7280;
+              ">
+
+              Loading registry assessments...
+
+            </td>
+
           </tr>
+
         </tbody>
+
       </table>
+
     </div>
+
   </section>
 
 </div>
 
-<!-- Patient Detail Inspection Modal -->
-<div class="modal-overlay" id="detailModal">
+
+<!-- =========================================================
+     PATIENT DETAIL MODAL
+========================================================= -->
+
+<div
+  class="modal-overlay"
+  id="detailModal">
+
   <div class="modal-content">
+
     <div class="modal-header">
-      <h3 id="modalPatientTitle" style="font-size: 15px; font-weight: 600;">Patient Case File</h3>
-      <button class="btn secondary sm" onclick="closeModal()">✕ Close</button>
+
+      <h3 id="modalPatientTitle">
+        Patient Case File
+      </h3>
+
+      <button
+        class="btn secondary sm"
+        onclick="closeModal()">
+
+        Close
+
+      </button>
+
     </div>
-    <div class="detail-grid" id="modalBody"></div>
+
+
+    <div
+      class="detail-grid"
+      id="modalBody">
+    </div>
+
   </div>
+
 </div>
 
-<!-- Footer -->
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
 <footer class="app-footer">
+
   <div class="footer-content">
-    <div>Copyright © 2026 Nakul Dhande. All Rights Reserved.</div>
-    <div class="footer-credits">Developed in collaboration with Team Shantanu Marathe, Hardik Kunte, Chinmay Ashtankar</div>
+
+    <div>
+      Copyright © 2026 Nakul Dhande. All Rights Reserved.
+    </div>
+
+    <div class="footer-credits">
+      Developed in collaboration with Team Shantanu Marathe,
+      Hardik Kunte, Chinmay Ashtankar
+    </div>
+
   </div>
+
 </footer>
 
+
+<!-- =========================================================
+     EXISTING JAVASCRIPT
+     LOGIC KEPT UNCHANGED
+========================================================= -->
+
 <script>
+
 let rawRecords = [];
 
+
 function getAppConfig() {
-  if (typeof CONFIG !== 'undefined') return CONFIG;
-  if (typeof window.CONFIG !== 'undefined') return window.CONFIG;
-  throw new Error('CONFIG object missing in config/config.js');
+
+  if (typeof CONFIG !== 'undefined')
+    return CONFIG;
+
+  if (typeof window.CONFIG !== 'undefined')
+    return window.CONFIG;
+
+  throw new Error(
+    'CONFIG object missing in config/config.js'
+  );
+
 }
+
 
 async function fetchRecords() {
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:var(--text-muted)">Fetching clinical assessments...</td></tr>';
-  
-  try {
-    const cfg = getAppConfig();
-    const response = await fetch(`${cfg.SUPABASE_URL}/rest/v1/oral_clinical_assessments?select=*&order=created_at.desc`, {
-      method: 'GET',
-      headers: {
-        'apikey': cfg.SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${cfg.SUPABASE_ANON_KEY}`
-      }
-    });
 
-    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+  const tbody =
+    document.getElementById('tableBody');
+
+  tbody.innerHTML =
+    '<tr>' +
+    '<td colspan="9" style="text-align:center; padding:40px; color:#6b7280">' +
+    'Fetching clinical assessments...' +
+    '</td>' +
+    '</tr>';
+
+  try {
+
+    const cfg = getAppConfig();
+
+    const response = await fetch(
+      `${cfg.SUPABASE_URL}/rest/v1/oral_clinical_assessments?select=*&order=created_at.desc`,
+      {
+        method: 'GET',
+
+        headers: {
+          'apikey': cfg.SUPABASE_ANON_KEY,
+          'Authorization':
+            `Bearer ${cfg.SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+
+    if (!response.ok)
+      throw new Error(
+        `HTTP Error: ${response.status}`
+      );
 
     rawRecords = await response.json();
+
     updateMetrics(rawRecords);
+
     renderTable(rawRecords);
+
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:40px; color:var(--danger)">Error loading registry data: ${err.message}</td></tr>`;
+
+    tbody.innerHTML =
+      `<tr>
+        <td
+          colspan="9"
+          style="
+            text-align:center;
+            padding:40px;
+            color:#f87171;
+          ">
+          Error loading registry data: ${err.message}
+        </td>
+      </tr>`;
+
   }
+
 }
+
 
 function updateMetrics(data) {
-  document.getElementById('mTotal').textContent = data.length;
-  document.getElementById('mLesions').textContent = data.filter(d => (d.swelling || '').toLowerCase() === 'yes' || (d.swelling || '').toLowerCase() === 'true').length;
-  document.getElementById('mHabits').textContent = data.filter(d => (d.smoking || '').toLowerCase() === 'yes' || (d.any_chewing_habits || '').toLowerCase() === 'yes' || (d.alcohol || '').toLowerCase() === 'yes').length;
-  document.getElementById('mLymph').textContent = data.filter(d => (d.regional_lymph_node_palpability || '').toLowerCase().includes('palpable') && !(d.regional_lymph_node_palpability || '').toLowerCase().includes('non')).length;
+
+  document.getElementById('mTotal').textContent =
+    data.length;
+
+  document.getElementById('mLesions').textContent =
+    data.filter(
+      d =>
+        (d.swelling || '').toLowerCase() === 'yes' ||
+        (d.swelling || '').toLowerCase() === 'true'
+    ).length;
+
+  document.getElementById('mHabits').textContent =
+    data.filter(
+      d =>
+        (d.smoking || '').toLowerCase() === 'yes' ||
+        (d.any_chewing_habits || '').toLowerCase() === 'yes' ||
+        (d.alcohol || '').toLowerCase() === 'yes'
+    ).length;
+
+  document.getElementById('mLymph').textContent =
+    data.filter(
+      d =>
+        (d.regional_lymph_node_palpability || '')
+          .toLowerCase()
+          .includes('palpable') &&
+        !(d.regional_lymph_node_palpability || '')
+          .toLowerCase()
+          .includes('non')
+    ).length;
+
 }
 
+
 function renderTable(data) {
-  const tbody = document.getElementById('tableBody');
+
+  const tbody =
+    document.getElementById('tableBody');
+
   tbody.innerHTML = '';
 
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:var(--text-muted)">No matching clinical assessments found.</td></tr>';
+
+    tbody.innerHTML =
+      '<tr>' +
+      '<td colspan="9" style="text-align:center; padding:40px; color:#6b7280">' +
+      'No matching clinical assessments found.' +
+      '</td>' +
+      '</tr>';
+
     return;
+
   }
 
+
   data.forEach((p, idx) => {
-    const tr = document.createElement('tr');
-    
-    const isSwelling = (p.swelling || '').toLowerCase() === 'yes' || (p.swelling || '').toLowerCase() === 'true';
-    const isLymph = (p.regional_lymph_node_palpability || '').toLowerCase().includes('palpable') && !(p.regional_lymph_node_palpability || '').toLowerCase().includes('non');
-    
+
+    const tr =
+      document.createElement('tr');
+
+    const isSwelling =
+      (p.swelling || '').toLowerCase() === 'yes' ||
+      (p.swelling || '').toLowerCase() === 'true';
+
+    const isLymph =
+      (p.regional_lymph_node_palpability || '')
+        .toLowerCase()
+        .includes('palpable') &&
+      !(p.regional_lymph_node_palpability || '')
+        .toLowerCase()
+        .includes('non');
+
+
     let habitsSummary = [];
-    if ((p.smoking || '').toLowerCase() === 'yes') habitsSummary.push('Smoking');
-    if ((p.any_chewing_habits || '').toLowerCase() === 'yes') habitsSummary.push('Chewing');
-    
+
+    if (
+      (p.smoking || '').toLowerCase() === 'yes'
+    )
+      habitsSummary.push('Smoking');
+
+    if (
+      (p.any_chewing_habits || '').toLowerCase() === 'yes'
+    )
+      habitsSummary.push('Chewing');
+
+
     tr.innerHTML = `
-      <td><strong>${escapeHtml(p.patient_id || '-')}</strong></td>
-      <td>${escapeHtml(p.patient_name || '-')}</td>
-      <td>${escapeHtml(p.age || '-')} / ${escapeHtml(p.sex || '-')}</td>
-      <td>${escapeHtml(p.opd_number || '-')}</td>
-      <td>${habitsSummary.length > 0 ? habitsSummary.join(', ') : 'None'}</td>
-      <td>${escapeHtml(p.alcohol || 'No')}</td>
-      <td>${isSwelling ? '<span class="badge danger">Yes</span>' : '<span class="badge success">No</span>'}</td>
-      <td>${isLymph ? '<span class="badge warning">Palpable</span>' : '<span class="badge success">Normal</span>'}</td>
-      <td><button class="btn secondary sm" onclick="viewDetails(${idx})">Inspect</button></td>
+
+      <td>
+        <strong>
+          ${escapeHtml(p.patient_id || '-')}
+        </strong>
+      </td>
+
+      <td>
+        ${escapeHtml(p.patient_name || '-')}
+      </td>
+
+      <td>
+        ${escapeHtml(p.age || '-')}
+        /
+        ${escapeHtml(p.sex || '-')}
+      </td>
+
+      <td>
+        ${escapeHtml(p.opd_number || '-')}
+      </td>
+
+      <td>
+        ${habitsSummary.length > 0
+          ? habitsSummary.join(', ')
+          : 'None'}
+      </td>
+
+      <td>
+        ${escapeHtml(p.alcohol || 'No')}
+      </td>
+
+      <td>
+        ${
+          isSwelling
+            ? '<span class="badge danger">Yes</span>'
+            : '<span class="badge success">No</span>'
+        }
+      </td>
+
+      <td>
+        ${
+          isLymph
+            ? '<span class="badge warning">Palpable</span>'
+            : '<span class="badge success">Normal</span>'
+        }
+      </td>
+
+      <td>
+
+        <button
+          class="btn secondary sm"
+          onclick="viewDetails(${idx})">
+
+          Inspect
+
+        </button>
+
+      </td>
+
     `;
+
     tbody.appendChild(tr);
+
   });
+
 }
+
 
 function applyFilters() {
-  const query = document.getElementById('searchInput').value.toLowerCase();
-  const riskFilter = document.getElementById('filterRisk').value;
 
-  const filtered = rawRecords.filter(p => {
-    const matchSearch = 
-      (p.patient_id && p.patient_id.toLowerCase().includes(query)) ||
-      (p.patient_name && p.patient_name.toLowerCase().includes(query)) ||
-      (p.opd_number && p.opd_number.toLowerCase().includes(query)) ||
-      (p.lesion_location && p.lesion_location.toLowerCase().includes(query));
+  const query =
+    document
+      .getElementById('searchInput')
+      .value
+      .toLowerCase();
 
-    let matchRisk = true;
-    if (riskFilter === 'HIGH_RISK') {
-      const isSwelling = (p.swelling || '').toLowerCase() === 'yes';
-      const isLymph = (p.regional_lymph_node_palpability || '').toLowerCase().includes('palpable');
-      matchRisk = isSwelling && isLymph;
-    } else if (riskFilter === 'HABITS') {
-      matchRisk = (p.smoking || '').toLowerCase() === 'yes' || (p.any_chewing_habits || '').toLowerCase() === 'yes' || (p.alcohol || '').toLowerCase() === 'yes';
-    } else if (riskFilter === 'ULCER') {
-      matchRisk = (p.ulcer_greater_than_2_weeks || '').toLowerCase() === 'yes';
-    }
+  const riskFilter =
+    document
+      .getElementById('filterRisk')
+      .value;
 
-    return matchSearch && matchRisk;
-  });
+
+  const filtered =
+    rawRecords.filter(p => {
+
+      const matchSearch =
+
+        (p.patient_id &&
+          p.patient_id
+            .toLowerCase()
+            .includes(query)) ||
+
+        (p.patient_name &&
+          p.patient_name
+            .toLowerCase()
+            .includes(query)) ||
+
+        (p.opd_number &&
+          p.opd_number
+            .toLowerCase()
+            .includes(query)) ||
+
+        (p.lesion_location &&
+          p.lesion_location
+            .toLowerCase()
+            .includes(query));
+
+
+      let matchRisk = true;
+
+
+      if (riskFilter === 'HIGH_RISK') {
+
+        const isSwelling =
+          (p.swelling || '')
+            .toLowerCase() === 'yes';
+
+        const isLymph =
+          (p.regional_lymph_node_palpability || '')
+            .toLowerCase()
+            .includes('palpable');
+
+        matchRisk =
+          isSwelling && isLymph;
+
+      }
+
+      else if (riskFilter === 'HABITS') {
+
+        matchRisk =
+          (p.smoking || '')
+            .toLowerCase() === 'yes' ||
+
+          (p.any_chewing_habits || '')
+            .toLowerCase() === 'yes' ||
+
+          (p.alcohol || '')
+            .toLowerCase() === 'yes';
+
+      }
+
+      else if (riskFilter === 'ULCER') {
+
+        matchRisk =
+          (p.ulcer_greater_than_2_weeks || '')
+            .toLowerCase() === 'yes';
+
+      }
+
+
+      return matchSearch && matchRisk;
+
+    });
+
 
   renderTable(filtered);
+
 }
+
 
 function viewDetails(index) {
-  const p = rawRecords[index];
-  if (!p) return;
 
-  document.getElementById('modalPatientTitle').textContent = `Assessment Details: ${p.patient_name || 'Patient'} (${p.patient_id || 'N/A'})`;
-  const container = document.getElementById('modalBody');
+  const p = rawRecords[index];
+
+  if (!p)
+    return;
+
+
+  document.getElementById(
+    'modalPatientTitle'
+  ).textContent =
+    `Assessment Details: ${
+      p.patient_name || 'Patient'
+    } (${
+      p.patient_id || 'N/A'
+    })`;
+
+
+  const container =
+    document.getElementById('modalBody');
+
   container.innerHTML = '';
 
+
   const fields = [
+
     ['OPD Number', p.opd_number],
-    ['Age / Sex', `${p.age || '-'} / ${p.sex || '-'}`],
-    ['Smoking Habits', `${p.smoking || 'No'} (Duration: ${p.smoking_duration_years || 0} yrs)`],
-    ['Chewing Habits', p.any_chewing_habits],
-    ['Alcohol Consumption', `${p.alcohol || 'No'} (${p.alcohol_frequency || 'N/A'})`],
-    ['Ulcer > 2 Weeks', p.ulcer_greater_than_2_weeks],
-    ['Swelling Present', p.swelling],
-    ['Lesion Anatomical Site', p.lesion_location],
-    ['Lesion Color / Shape', `${p.lesion_color || '-'} / ${p.lesion_shape || '-'}`],
-    ['Max Diameter (cm)', p.lesion_maximum_diameter_cm],
-    ['Mouth Opening Status', p.mouth_opening_assessment],
-    ['Lymph Node Status', p.regional_lymph_node_palpability],
-    ['Lymph Node Size (mm)', p.regional_lymph_node_size_mm],
-    ['Systemic History', `${(p.diabetes_mellitus || '').toLowerCase() === 'yes' ? 'Diabetes ' : ''}${(p.hypertension || '').toLowerCase() === 'yes' ? 'Hypertension' : 'None'}`]
+
+    [
+      'Age / Sex',
+      `${p.age || '-'} / ${p.sex || '-'}`
+    ],
+
+    [
+      'Smoking Habits',
+      `${p.smoking || 'No'} (Duration: ${
+        p.smoking_duration_years || 0
+      } yrs)`
+    ],
+
+    [
+      'Chewing Habits',
+      p.any_chewing_habits
+    ],
+
+    [
+      'Alcohol Consumption',
+      `${p.alcohol || 'No'} (${
+        p.alcohol_frequency || 'N/A'
+      })`
+    ],
+
+    [
+      'Ulcer > 2 Weeks',
+      p.ulcer_greater_than_2_weeks
+    ],
+
+    [
+      'Swelling Present',
+      p.swelling
+    ],
+
+    [
+      'Lesion Anatomical Site',
+      p.lesion_location
+    ],
+
+    [
+      'Lesion Color / Shape',
+      `${p.lesion_color || '-'} / ${
+        p.lesion_shape || '-'
+      }`
+    ],
+
+    [
+      'Max Diameter (cm)',
+      p.lesion_maximum_diameter_cm
+    ],
+
+    [
+      'Mouth Opening Status',
+      p.mouth_opening_assessment
+    ],
+
+    [
+      'Lymph Node Status',
+      p.regional_lymph_node_palpability
+    ],
+
+    [
+      'Lymph Node Size (mm)',
+      p.regional_lymph_node_size_mm
+    ],
+
+    [
+      'Systemic History',
+      `${
+        (p.diabetes_mellitus || '')
+          .toLowerCase() === 'yes'
+          ? 'Diabetes '
+          : ''
+      }${
+        (p.hypertension || '')
+          .toLowerCase() === 'yes'
+          ? 'Hypertension'
+          : 'None'
+      }`
+    ]
+
   ];
 
+
   fields.forEach(([label, val]) => {
-    const item = document.createElement('div');
-    item.className = 'detail-item';
-    item.innerHTML = `<span>${label}</span><strong>${escapeHtml(val || 'N/A')}</strong>`;
+
+    const item =
+      document.createElement('div');
+
+    item.className =
+      'detail-item';
+
+    item.innerHTML =
+      `<span>${label}</span>
+       <strong>${
+         escapeHtml(val || 'N/A')
+       }</strong>`;
+
     container.appendChild(item);
+
   });
 
-  document.getElementById('detailModal').style.display = 'flex';
+
+  document.getElementById(
+    'detailModal'
+  ).style.display = 'flex';
+
 }
+
 
 function closeModal() {
-  document.getElementById('detailModal').style.display = 'none';
+
+  document.getElementById(
+    'detailModal'
+  ).style.display = 'none';
+
 }
+
 
 function escapeHtml(str) {
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
 }
 
-document.addEventListener('DOMContentLoaded', fetchRecords);
+
+document.addEventListener(
+  'DOMContentLoaded',
+  fetchRecords
+);
+
 </script>
 
 </body>
