@@ -1,173 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web NFC Module - Patient Info</title>
-    <!-- Supabase JS Client v2 -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Configuration file containing SUPABASE_URL and SUPABASE_ANON_KEY -->
-    <script src="config/config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NFC Patient Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6 font-sans">
+  <div class="max-w-4xl mx-auto space-y-6">
 
-    <!-- Web NFC Handler Script -->
-    <script>
-        const TABLE_NAME = 'oral_clinical_assessments';
-        let supabaseClient = null;
-        let cachedPatients = [];
-        let ndefWriter = null;
-        let ndefReader = null;
+    <!-- Status Banner -->
+    <div id="statusBanner" class="hidden p-4 rounded-lg font-medium text-center"></div>
 
-        // Initialize Supabase Connection
-        function initSupabase() {
-            try {
-                const url = window.CONFIG?.SUPABASE_URL;
-                const key = window.CONFIG?.SUPABASE_ANON_KEY;
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                if (!url || !key) {
-                    console.error("Missing SUPABASE_URL or SUPABASE_ANON_KEY in window.CONFIG");
-                    return;
-                }
+      <!-- SECTION 1: Activate/Write NFC Card -->
+      <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
+        <h2 class="text-xl font-bold mb-4 text-cyan-400 flex items-center gap-2">
+          <span>💳</span> Activate NFC Card
+        </h2>
+        
+        <form id="nfcWriteForm" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">PATIENT ID</label>
+            <input type="text" id="patientId" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" placeholder="e.g. PAT-90421" />
+          </div>
 
-                supabaseClient = window.supabase.createClient(url, key);
-                fetchAllPatientRecords();
-            } catch (err) {
-                console.error("Failed to initialize Supabase:", err);
-            }
-        }
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">FULL NAME</label>
+            <input type="text" id="patientName" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" placeholder="John Doe" />
+          </div>
 
-        // Fetch all patient records from Supabase
-        async function fetchAllPatientRecords() {
-            if (!supabaseClient) return;
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">SEX</label>
+              <select id="patientSex" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">AGE</label>
+              <input type="number" id="patientAge" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" placeholder="34" />
+            </div>
+          </div>
 
-            try {
-                const { data, error } = await supabaseClient
-                    .from(TABLE_NAME)
-                    .select('*')
-                    .order('created_at', { ascending: false });
+          <button type="button" id="writeBtn" onclick="writeNFC()" class="w-full mt-4 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 rounded-lg transition duration-200">
+            Tap Card to Activate
+          </button>
+        </form>
+      </div>
 
-                if (error) throw error;
+      <!-- SECTION 2: Scan/Read NFC Card -->
+      <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl flex flex-col justify-between">
+        <div>
+          <h2 class="text-xl font-bold mb-4 text-emerald-400 flex items-center gap-2">
+            <span>🔍</span> Scan Patient Card
+          </h2>
+          <p class="text-sm text-slate-400 mb-6">
+            Click the button below and hold the patient's NFC card near the back of your device to retrieve their record.
+          </p>
+        </div>
 
-                cachedPatients = data || [];
-                console.log(`Loaded ${cachedPatients.length} patient records from Supabase.`);
+        <button type="button" id="readBtn" onclick="readNFC()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg transition duration-200">
+          Start Scanning NFC Card
+        </button>
+      </div>
+
+    </div>
+
+    <!-- SECTION 3: Patient Overview Modal / Container -->
+    <div id="patientOverview" class="hidden bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-4">
+        <h3 class="text-lg font-bold text-slate-200">Patient Overview</h3>
+        <span class="text-xs font-mono bg-emerald-950 text-emerald-400 border border-emerald-800 px-2.5 py-1 rounded-full">Active Card</span>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-slate-900/60 p-3 rounded-lg">
+          <span class="text-xs text-slate-500 block font-medium">PATIENT ID</span>
+          <span id="overviewId" class="text-slate-100 font-semibold font-mono">--</span>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-lg">
+          <span class="text-xs text-slate-500 block font-medium">NAME</span>
+          <span id="overviewName" class="text-slate-100 font-semibold">--</span>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-lg">
+          <span class="text-xs text-slate-500 block font-medium">SEX</span>
+          <span id="overviewSex" class="text-slate-100 font-semibold">--</span>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-lg">
+          <span class="text-xs text-slate-500 block font-medium">AGE</span>
+          <span id="overviewAge" class="text-slate-100 font-semibold">--</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const showStatus = (message, isError = false) => {
+      const banner = document.getElementById('statusBanner');
+      banner.classList.remove('hidden', 'bg-red-900/50', 'text-red-200', 'bg-cyan-900/50', 'text-cyan-200');
+      banner.classList.add(isError ? 'bg-red-900/50' : 'bg-cyan-900/50');
+      banner.classList.add(isError ? 'text-red-200' : 'text-cyan-200');
+      banner.innerText = message;
+    };
+
+    // 1. Write Information to NFC Card
+    async function writeNFC() {
+      if (!('NDEFReader' in window)) {
+        showStatus('Web NFC API is not supported on this device/browser. Please use Chrome on Android.', true);
+        return;
+      }
+
+      const id = document.getElementById('patientId').value;
+      const name = document.getElementById('patientName').value;
+      const sex = document.getElementById('patientSex').value;
+      const age = document.getElementById('patientAge').value;
+
+      if (!id || !name || !age) {
+        showStatus('Please fill in all form fields before tapping card.', true);
+        return;
+      }
+
+      const patientData = JSON.stringify({ id, name, sex, age });
+
+      try {
+        const ndef = new NDEFReader();
+        showStatus('Hold NFC card to the back of device to write...');
+        
+        await ndef.write({
+          records: [{ recordType: "text", data: patientData }]
+        });
+
+        showStatus('NFC Card Activated & Written Successfully!');
+      } catch (error) {
+        showStatus(`Write error: ${error.message || error}`, true);
+      }
+    }
+
+    // 2. Read Information from NFC Card
+    async function readNFC() {
+      if (!('NDEFReader' in window)) {
+        showStatus('Web NFC API is not supported on this device/browser. Please use Chrome on Android.', true);
+        return;
+      }
+
+      try {
+        const ndef = new NDEFReader();
+        await ndef.scan();
+        showStatus('Scanning... Tap patient NFC card now.');
+
+        ndef.addEventListener("reading", ({ message }) => {
+          for (const record of message.records) {
+            if (record.recordType === "text") {
+              const textDecoder = new TextDecoder(record.encoding);
+              const jsonString = textDecoder.decode(record.data);
+              
+              try {
+                const data = JSON.parse(jsonString);
                 
-                // Optional: Update dropdown element if present in DOM
-                const selectEl = document.getElementById('patientSelect');
-                if (selectEl) {
-                    selectEl.innerHTML = '<option value="" disabled selected>-- Select Patient Record --</option>';
-                    cachedPatients.forEach(p => {
-                        const opt = document.createElement('option');
-                        opt.value = p.patient_id;
-                        opt.textContent = `${p.patient_id} - ${p.patient_name} (OPD: ${p.opd_number})`;
-                        selectEl.appendChild(opt);
-                    });
-                    selectEl.disabled = false;
-                }
-            } catch (err) {
-                console.error("Error fetching patient records:", err);
+                // Update Overview
+                document.getElementById('overviewId').innerText = data.id || '--';
+                document.getElementById('overviewName').innerText = data.name || '--';
+                document.getElementById('overviewSex').innerText = data.sex || '--';
+                document.getElementById('overviewAge').innerText = data.age || '--';
+
+                document.getElementById('patientOverview').classList.remove('hidden');
+                showStatus('Patient Card Scanned Successfully!');
+              } catch (e) {
+                showStatus('Card scanned, but data format was invalid.', true);
+              }
             }
-        }
-
-        // Helper to retrieve cached patient object by ID
-        window.getPatientById = (id) => cachedPatients.find(p => p.patient_id === id);
-
-        // Check Web NFC API Compatibility
-        function checkNFCSupport() {
-            if (!('NDEFReader' in window)) {
-                alert("Web NFC is not supported on this browser or device. Please use Chrome on Android over HTTPS.");
-                return false;
-            }
-            return true;
-        }
-
-        /**
-         * WRITE PATIENT ID TO NFC TAG
-         * @param {string} patientId - Target patient_id string to encode
-         */
-        async function writePatientNFC(patientId) {
-            if (!checkNFCSupport()) return;
-
-            if (!patientId) {
-                alert("Please select or provide a valid Patient ID first.");
-                return;
-            }
-
-            try {
-                if (!ndefWriter) ndefWriter = new NDEFReader();
-
-                // Format JSON Payload
-                const payload = JSON.stringify({ patient_id: patientId });
-
-                console.log("Approaching NFC Tag to write payload:", payload);
-                
-                await ndefWriter.write({
-                    records: [{ recordType: "text", data: payload }]
-                });
-
-                alert(`Successfully encoded Patient ID: ${patientId} onto NFC Tag!`);
-            } catch (err) {
-                console.error("NFC Write Error:", err);
-                alert(`NFC Write Failed: ${err.message || 'Operation aborted.'}`);
-            }
-        }
-
-        /**
-         * START READING/SCANNING NFC TAG
-         * @param {Function} onRecordFoundCallback - Callback returning full database patient object
-         */
-        async function startNFCScan(onRecordFoundCallback) {
-            if (!checkNFCSupport()) return;
-
-            try {
-                if (!ndefReader) ndefReader = new NDEFReader();
-                await ndefReader.scan();
-                console.log("NFC Scanner initialized and active. Waiting for NFC tap...");
-
-                ndefReader.onreading = ({ message }) => {
-                    const record = message.records.find(r => r.recordType === "text");
-                    if (record) {
-                        const decoder = new TextDecoder();
-                        const decodedString = decoder.decode(record.data);
-                        
-                        try {
-                            const decodedData = JSON.parse(decodedString);
-                            const patientId = decodedData.patient_id || decodedData.id;
-
-                            console.log("Scanned NFC Patient ID:", patientId);
-
-                            const patientRecord = window.getPatientById(patientId);
-
-                            if (patientRecord) {
-                                if (typeof onRecordFoundCallback === 'function') {
-                                    onRecordFoundCallback(patientRecord);
-                                } else if (typeof renderCompletePatientData === 'function') {
-                                    renderCompletePatientData(patientRecord);
-                                } else {
-                                    console.log("Patient Record Retrieved:", patientRecord);
-                                }
-                            } else {
-                                alert(`NFC Tag scanned (Patient ID: "${patientId}"), but no matching record was found in the database.`);
-                            }
-                        } catch (jsonErr) {
-                            console.error("Invalid JSON content on NFC tag:", decodedString);
-                            alert("Scanned NFC tag contains unreadable or non-JSON data.");
-                        }
-                    }
-                };
-
-                ndefReader.onreadingerror = () => {
-                    alert("NFC Read Error: Unable to process tag reading.");
-                };
-
-            } catch (err) {
-                console.error("NFC Scan Error:", err);
-                alert(`NFC Scan Failed to start: ${err.message || 'Hardware error.'}`);
-            }
-        }
-
-        // Initialize connection on DOM load
-        document.addEventListener('DOMContentLoaded', initSupabase);
-    </script>
+          }
+        });
+      } catch (error) {
+        showStatus(`Scan error: ${error.message || error}`, true);
+      }
+    }
+  </script>
 </body>
 </html>
