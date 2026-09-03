@@ -66,7 +66,7 @@
 </head>
 <body class="bg-darkBg text-slate-100 min-h-screen font-sans p-4 md:p-8 selection:bg-cyanAccent selection:text-darkBg">
 
-    <!-- Ambient Glowing Background Spheres -->
+    <!-- Ambient Background Spheres -->
     <div class="fixed top-0 left-1/4 w-96 h-96 bg-cyanAccent/10 rounded-full blur-3xl pointer-events-none"></div>
     <div class="fixed bottom-0 right-1/4 w-96 h-96 bg-violetAccent/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -110,7 +110,6 @@
                     </div>
                 </div>
 
-                <!-- Supabase Dropdown -->
                 <div class="space-y-2">
                     <label class="block text-xs font-mono uppercase tracking-wider text-cyanAccent">SELECT PATIENT (oral_clinical_assessments)</label>
                     <select id="patientSelect" disabled class="w-full h-12 bg-slate-950/80 border border-slate-700/80 rounded-xl px-4 text-sm text-slate-200 focus:outline-none focus:border-cyanAccent focus:ring-1 focus:ring-cyanAccent transition">
@@ -236,7 +235,6 @@
 
     <!-- Supabase Data Retrieval Script -->
     <script>
-        // Define table name locally in HTML
         const TABLE_NAME = 'oral_clinical_assessments';
 
         let cachedPatients = [];
@@ -245,15 +243,14 @@
 
         async function fetchPatientRecords() {
             try {
-                // Flexible fallback checking for window variables or global variables from config.js
-                const url = window.SUPABASE_URL || window.supabaseUrl || (typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : null);
-                const key = window.SUPABASE_ANON_KEY || window.supabaseKey || (typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : null);
+                // Read directly from window.CONFIG
+                const url = window.CONFIG?.SUPABASE_URL;
+                const key = window.CONFIG?.SUPABASE_ANON_KEY;
 
                 if (!url || !key) {
-                    throw new Error("Credentials missing. Ensure SUPABASE_URL and SUPABASE_ANON_KEY are set in config/config.js");
+                    throw new Error("SUPABASE_URL or SUPABASE_ANON_KEY missing in window.CONFIG");
                 }
 
-                // Initialize Supabase Client
                 const supabase = window.supabase.createClient(url, key);
 
                 const { data, error } = await supabase
@@ -271,7 +268,7 @@
             } catch (err) {
                 console.error("Supabase connection error:", err);
                 dbBadge.className = "text-xs font-mono bg-rose-950/80 text-rose-300 border border-rose-800 px-3 py-1.5 rounded-full flex items-center gap-2";
-                dbBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-roseAccent"></span> DB Error: Check config.js`;
+                dbBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-roseAccent"></span> Config Error`;
             }
         }
 
