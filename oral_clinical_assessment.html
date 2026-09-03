@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enhanced Oral Clinical Assessment - Universal Dictation</title>
+<title>Oral Clinical Assessment</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -518,6 +518,72 @@ input:focus, select:focus, textarea:focus {
 @media(max-width: 560px) {
   .grid { grid-template-columns: 1fr; }
 }
+
+.camera-capture-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(3, 10, 22, .82);
+  backdrop-filter: blur(8px);
+}
+.camera-capture-modal.open { display: flex; }
+.camera-capture-card {
+  width: min(760px, 96vw);
+  overflow: hidden;
+  border: 1px solid rgba(79, 150, 255, .28);
+  border-radius: 20px;
+  background: #0b1526;
+  box-shadow: 0 25px 80px rgba(0,0,0,.45);
+}
+.camera-capture-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  color: #fff;
+}
+.camera-capture-header strong { display: block; }
+#activeCameraName {
+  display: block;
+  margin-top: 4px;
+  color: #8fa5c4;
+  font-size: 12px;
+}
+.camera-close-btn {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+}
+#lesionCameraVideo {
+  display: block;
+  width: 100%;
+  max-height: 65vh;
+  object-fit: contain;
+  background: #02060d;
+}
+.camera-capture-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+}
+@media (max-width: 600px) {
+  .camera-capture-modal { padding: 8px; }
+  .camera-capture-card { border-radius: 16px; }
+  .camera-capture-actions { flex-direction: column; }
+  .camera-capture-actions .btn { width: 100%; }
+}
+
 </style>
 </head>
 
@@ -1031,7 +1097,7 @@ input:focus, select:focus, textarea:focus {
                 </div>
               </div>
 
-              <input id="lesion_image" name="lesion_image" type="file" accept="image/*" capture="environment" class="camera-input">
+              <input id="lesion_image" name="lesion_image" type="file" accept="image/*" class="camera-input">
 
               <div class="camera-actions">
                 <button type="button" class="btn primary camera-btn" onclick="openLesionCamera(event)">
@@ -2067,37 +2133,137 @@ function resetFormState() {
 /* =========================================
    LESION CAMERA CAPTURE UI
 ========================================= */
+let activeCameraStream = null;
+
 async function openLesionCamera(event) {
   if (event) event.stopPropagation();
 
-  const input = $('lesion_image');
-  if (!input) return;
-
-  // Request camera permission first. If permission is already granted,
-  // getUserMedia resolves immediately. The stream is opened only briefly
-  // to trigger/verify permission, then the native camera picker is opened.
-  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' } },
-        audio: false
-      });
-
-      stream.getTracks().forEach(track => track.stop());
-
-      // Permission granted -> open the device camera/file capture UI.
-      input.click();
-      return;
-    } catch (error) {
-      // If permission is denied/unavailable, still allow the browser's
-      // native capture UI to handle the device/file selection.
-      input.click();
-      return;
-    }
+  const box = $('cameraBox');
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showToast('Camera access is not supported by this browser.', 'error');
+    return;
   }
 
-  // Fallback for browsers without getUserMedia support.
-  input.click();
+  try {
+    // Ask for permission and enumerate the actual cameras.
+    const initialStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    });
+
+    initialStream.getTracks().forEach(track => track.stop());
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cameras = devices.filter(device => device.kind === 'videoinput');
+
+    if (!cameras.length) {
+      showToast('No camera connected. Please connect a camera and try again.', 'error');
+      return;
+    }
+
+    // Prefer an external/USB camera when one is available.
+    // Browser labels commonly expose USB/Webcam/HD Camera names.
+    const usbCamera = cameras.find(device => {
+      const label = (device.label || '').toLowerCase();
+      return /usb|webcam|external|hd camera|logitech|brio|c920|c922|elgato/.test(label);
+    });
+
+    const selectedCamera = usbCamera || cameras.find(device => {
+      const label = (device.label || '').toLowerCase();
+      return !/integrated|built.?in|facetime|front camera/.test(label);
+    }) || cameras[0];
+
+    // Open the camera directly in our own capture interface.
+    activeCameraStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        deviceId: { exact: selectedCamera.deviceId },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 }
+      },
+      audio: false
+    });
+
+    openCameraCaptureModal(activeCameraStream, selectedCamera.label || 'Camera');
+  } catch (error) {
+    console.error('Camera access error:', error);
+    showToast('Camera permission is required to capture the lesion image.', 'error');
+  }
+}
+
+function openCameraCaptureModal(stream, cameraName) {
+  // Reuse an existing camera modal if present.
+  let modal = $('lesionCameraModal');
+
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'lesionCameraModal';
+    modal.className = 'camera-capture-modal';
+    modal.innerHTML = `
+      <div class="camera-capture-card">
+        <div class="camera-capture-header">
+          <div>
+            <strong>Capture Lesion Image</strong>
+            <span id="activeCameraName"></span>
+          </div>
+          <button type="button" class="camera-close-btn" onclick="closeLesionCamera()">×</button>
+        </div>
+        <video id="lesionCameraVideo" autoplay playsinline muted></video>
+        <div class="camera-capture-actions">
+          <button type="button" class="btn primary" onclick="takeLesionSnapshot()">Capture Image</button>
+          <button type="button" class="btn secondary" onclick="closeLesionCamera()">Cancel</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+
+  $('activeCameraName').textContent = cameraName ? ` · ${cameraName}` : '';
+  const video = $('lesionCameraVideo');
+  video.srcObject = stream;
+  modal.classList.add('open');
+}
+
+function takeLesionSnapshot() {
+  const video = $('lesionCameraVideo');
+  const input = $('lesion_image');
+  if (!video || !input || !video.videoWidth) return;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  canvas.toBlob(blob => {
+    if (!blob) return;
+
+    const file = new File(
+      [blob],
+      `lesion_${Date.now()}.jpg`,
+      { type: 'image/jpeg' }
+    );
+
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    input.files = dataTransfer.files;
+
+    updateLesionImagePreview();
+    closeLesionCamera();
+  }, 'image/jpeg', 0.92);
+}
+
+function closeLesionCamera() {
+  const modal = $('lesionCameraModal');
+  const video = $('lesionCameraVideo');
+
+  if (activeCameraStream) {
+    activeCameraStream.getTracks().forEach(track => track.stop());
+    activeCameraStream = null;
+  }
+
+  if (video) video.srcObject = null;
+  if (modal) modal.classList.remove('open');
 }
 
 function updateLesionImagePreview() {
