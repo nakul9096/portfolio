@@ -489,10 +489,11 @@ input:focus, select:focus, textarea:focus {
         </select>
       </div>
       <div class="field">
-        <label for="tobacco_containing_tooth_powder">Tobacco Tooth Powder</label>
-        <select id="tobacco_containing_tooth_powder" name="tobacco_containing_tooth_powder">
+        <label for="tobacco_containing_tooth_powder">Tooth Powder</label>
+        <select id="tooth_powder" name="tooth_powder">
           <option value="">Select</option>
-          <option value="Yes">Yes</option>
+          <option value="Danth Manjan">Danth Manjan</option>
+          <option value="Yes">Yes (Other)</option>
           <option value="No">No</option>
         </select>
       </div>
@@ -543,10 +544,9 @@ input:focus, select:focus, textarea:focus {
         <label for="alcohol_quantity">Quantity / Day</label>
         <select id="alcohol_quantity" name="alcohol_quantity">
           <option value="">Select</option>
-          <option value="1 Unit">1 Unit</option>
-          <option value="2 Units">2 Units</option>
-          <option value="3 Units">3 Units</option>
-          <option value="4+ Units">4+ Units</option>
+          <option value="30 Ml">30 Ml</option>
+          <option value="60 Ml">60 Ml</option>
+          <option value="90 Ml+">90 Ml+</option>
         </select>
       </div>
       <div class="field">
@@ -565,7 +565,7 @@ input:focus, select:focus, textarea:focus {
 
 <!-- ================= 5. MEDICAL HISTORY ================= -->
 <div class="card">
-  <h2 class="section-title"><span>5</span> Medical & Oral History</h2>
+  <h2 class="section-title"><span>5</span> Medical History</h2>
   <div class="grid">
     <div class="field">
       <label for="diabetes_mellitus">Diabetes Mellitus</label>
@@ -594,6 +594,14 @@ input:focus, select:focus, textarea:focus {
     <div class="field">
       <label for="tuberculosis">Tuberculosis</label>
       <select id="tuberculosis" name="tuberculosis">
+        <option value="">Select</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="bleeding_disorders">Bleeding Disorders</label>
+      <select id="bleeding_disorders" name="bleeding_disorders">
         <option value="">Select</option>
         <option value="Yes">Yes</option>
         <option value="No">No</option>
@@ -726,8 +734,7 @@ input:focus, select:focus, textarea:focus {
               <option value="">Select</option>
               <option value="Irregular">Irregular</option>
               <option value="Ill-defined">Ill-defined</option>
-              <option value="Regular">Regular</option>
-            </select>
+                          </select>
           </div>
           <div class="field">
             <label for="lesion_surface_characteristics">Surface Characteristics</label>
@@ -751,6 +758,10 @@ input:focus, select:focus, textarea:focus {
           <div class="field"><label for="lesion_length_mm">Lesion Length (mm)</label><input id="lesion_length_mm" name="lesion_length_mm" type="number" min="0" step="0.1"></div>
           <div class="field"><label for="lesion_width_mm">Lesion Width (mm)</label><input id="lesion_width_mm" name="lesion_width_mm" type="number" min="0" step="0.1"></div>
           <div class="field"><label for="lesion_maximum_diameter_mm">Maximum Diameter (mm)</label><input id="lesion_maximum_diameter_mm" name="lesion_maximum_diameter_mm" type="number" min="0" step="0.1"></div>
+          <div class="field">
+            <label for="lesion_image">Lesion Image <span class="hint">(Optional)</span></label>
+            <input id="lesion_image" name="lesion_image" type="file" accept="image/*">
+          </div>
           <div class="field">
             <label for="lesion_extension">Lesion Extension</label>
             <select id="lesion_extension" name="lesion_extension">
@@ -1452,7 +1463,9 @@ function buildPayload() {
 
   for (const [key, value] of Object.entries(raw)) {
     const trimmed = typeof value === 'string' ? value.trim() : value;
-    if (trimmed === '') {
+    if (value instanceof File) {
+      payload[key] = value && value.size > 0 ? value.name : null;
+    } else if (trimmed === '') {
       payload[key] = null;
     } else if (INT_FIELDS.includes(key)) {
       const n = parseInt(trimmed, 10);
