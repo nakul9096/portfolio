@@ -466,6 +466,17 @@
             </p>
         </div>
 
+        <div class="card p-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+                <div class="text-sm font-bold text-slate-800">Arduino NFC Reader</div>
+                <div class="text-xs text-slate-500 mt-1">Direct USB connection • Arduino UNO + RC522 • 9600 baud</div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="arduinoStatus" class="text-xs font-bold text-red-600">● Disconnected</span>
+                <button type="button" id="connectArduinoButton" onclick="connectArduinoFromButton()" class="btn btn-primary" style="width:auto; min-width:170px;">🔌 Connect Arduino</button>
+            </div>
+        </div>
+
         <main class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <section class="card p-5 md:p-6">
                 <div class="flex items-start justify-between gap-4 pb-5 border-b border-slate-200">
@@ -820,218 +831,19 @@
         let serialReader = null;
         let serialBuffer = "";
         let serialConnected = false;
+        let serialOperation = null;
 
-        let cachedPatients = [];
-        let ndefWriter = null;
-        let ndefReader = null;
-
-        const selectEl = document.getElementById("patientSelect");
-        const dbBadge = document.getElementById("dbStatusBadge");
-        const writeButton = document.getElementById("writeNfcButton");
-        const readButton = document.getElementById("readNfcButton");
-
-        const animDialog = document.getElementById("nfcAnimDialog");
-        const dialogIcon = document.getElementById("nfcDialogIcon");
-        const dialogTitle = document.getElementById("nfcDialogTitle");
-        const dialogText = document.getElementById("nfcDialogText");
-
-        const patientDialog = document.getElementById("patientInfoDialog");
-        const nfcBanner = document.getElementById("nfcStatusBanner");
-        const nfcBannerMessage = document.getElementById("nfcStatusMessage");
-
-        const isMobileNfcAvailable = "NDEFReader" in window;
-        const isWebSerialAvailable = "serial" in navigator;
-
-        function escapeHtml(value) {
-            return String(value ?? "")
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
-
-        function setButtonLoading(button, isLoading, label) {
-            button.disabled = isLoading;
-
-            if (isLoading) {
-                button.dataset.originalText = button.innerHTML;
-                button.innerHTML = `
-                    <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9M20 20v-5h-.581m0 0a8.003 8.003 0 01-15.357-2">
-                        </path>
-                    </svg>
-                    ${label}
-                `;
-            } else if (button.dataset.originalText) {
-                button.innerHTML = button.dataset.originalText;
-            }
-        }
-
-        function updateDatabaseBadge(status, message) {
-            const dotClass =
-                status === "success" ? "success" :
-                status === "error" ? "error" : "";
-
-            dbBadge.innerHTML = `
-                <span class="status-dot ${dotClass}"></span>
-                <span>${escapeHtml(message)}</span>
-            `;
-        }
-
-        function showNfcBanner(message) {
-            nfcBannerMessage.textContent = message;
-            nfcBanner.classList.remove("hidden");
-        }
-
-        function closeNFCAnim() {
-            if (animDialog.open) animDialog.close();
-        }
-
-        function closePatientDialog() {
-            if (patientDialog.open) patientDialog.close();
-        }
-
-        function showNFCAnim(type, source = "arduino") {
-            if (type === "write") {
-                dialogIcon.textContent = "💳";
-                dialogTitle.textContent = "Writing NFC Tag";
-                dialogText.textContent =
-                    source === "mobile"
-                        ? "Hold the NFC tag near your mobile device."
-                        : "Hold the NFC tag near the RC522 reader.";
-            } else {
-                dialogIcon.textContent = "📡";
-                dialogTitle.textContent = "Reading NFC Tag";
-                dialogText.textContent =
-                    source === "mobile"
-                        ? "Hold the NFC tag near your mobile device."
-                        : "Hold the NFC tag near the RC522 reader.";
-            }
-
-            if (!animDialog.open) animDialog.showModal();
-        }
-
-        function showNfcError(error, defaultMessage) {
-            console.error(error);
-
-            dialogIcon.textContent = "⚠️";
-            dialogTitle.textContent = "NFC Operation Failed";
-            dialogText.textContent =
-                error?.message || defaultMessage || "Unable to communicate with the NFC reader.";
-
-            if (!animDialog.open) animDialog.showModal();
-        }
-
-        // =========================
-        // SUPABASE
-        // =========================
-        async function fetchPatientRecords() {
-            try {
-                const url = window.CONFIG?.SUPABASE_URL;
-                const key = window.CONFIG?.SUPABASE_ANON_KEY;
-
-                if (!url || !key) {
-                    throw new Error(
-                        "SUPABASE_URL or SUPABASE_ANON_KEY is missing in config/config.js."
-                    );
-                }
-
-                const supabase = window.supabase.createClient(url, key);
-
-                const { data, error } = await supabase
-                    .from(TABLE_NAME)
-                    .select("*")
-                    .order("created_at", { ascending: false });
-
-                if (error) throw error;
-
-                cachedPatients = data || [];
-                populateDropdown(cachedPatients);
-
-                updateDatabaseBadge(
-                    "success",
-                    `${cachedPatients.length} patient record${cachedPatients.length === 1 ? "" : "s"} loaded`
-                );
-            } catch (error) {
-                console.error("Supabase connection error:", error);
-
-                updateDatabaseBadge("error", "Database connection failed");
-
-                selectEl.innerHTML = `
-                    <option value="" selected disabled>
-                        Unable to load patient records
-                    </option>
-                `;
-            }
-        }
-
-        function populateDropdown(patients) {
-            selectEl.innerHTML = `
-                <option value="" selected disabled>
-                    Select a clinical patient assessment
-                </option>
-            `;
-
-            if (!patients.length) {
-                selectEl.innerHTML = `
-                    <option value="" selected disabled>
-                        No patient records found
-                    </option>
-                `;
-                selectEl.disabled = true;
-                return;
-            }
-
-            patients.forEach((patient) => {
-                const option = document.createElement("option");
-                option.value = patient.patient_id;
-                option.textContent =
-                    `${patient.patient_id} - ${patient.patient_name || "Anonymous Patient"} ` +
-                    `(OPD: ${patient.opd_number || "N/A"})`;
-
-                selectEl.appendChild(option);
-            });
-
-            selectEl.disabled = false;
-        }
-
-        window.getPatientById = function (id) {
-            return cachedPatients.find((patient) =>
-                String(patient.patient_id).trim().toUpperCase() ===
-                String(id).trim().toUpperCase()
-            );
-        };
-
-        function getSelectedPatientId() {
-            const patientId = selectEl.value;
-
-            if (!patientId) {
-                alert("Please select a patient record first.");
-                return null;
-            }
-
-            return patientId;
-        }
-
-        // =========================
-        // WEB SERIAL
-        // =========================
         async function connectArduino() {
-            if (!isWebSerialAvailable) {
-                throw new Error(
-                    "Web Serial is not supported. Use Google Chrome or Microsoft Edge on a desktop."
-                );
+            if (!("serial" in navigator)) {
+                throw new Error("Web Serial is not supported. Use Google Chrome or Microsoft Edge on a desktop.");
             }
 
-            // Reuse already-open connection.
             if (serialPort && serialPort.readable && serialPort.writable) {
                 serialConnected = true;
+                updateSerialStatus(true);
                 return;
             }
 
-            // Browser security requires the user to select the serial port.
             serialPort = await navigator.serial.requestPort();
 
             await serialPort.open({
@@ -1045,32 +857,42 @@
 
             serialConnected = true;
             serialBuffer = "";
-
             updateSerialStatus(true);
 
-            // Start the continuous reader.
             readSerialLoop();
 
-            // Give Arduino time to reset after opening the port.
+            // UNO resets when the serial port opens.
             await new Promise(resolve => setTimeout(resolve, 1800));
         }
 
         function updateSerialStatus(connected) {
             serialConnected = connected;
+            const banner = document.getElementById("nfcStatusBanner");
+            const message = document.getElementById("nfcStatusMessage");
 
-            if (connected) {
-                showNfcBanner(
-                    "Arduino connected directly through USB. RC522 NFC reader is ready."
-                );
-            } else {
-                showNfcBanner(
-                    "Connect Arduino through USB, then click Read or Write and select its COM port."
-                );
+            const status = document.getElementById("arduinoStatus");
+            const connectButton = document.getElementById("connectArduinoButton");
+
+            if (status) {
+                status.textContent = connected ? "● Connected" : "● Disconnected";
+                status.className = connected ? "text-xs font-bold text-green-600" : "text-xs font-bold text-red-600";
             }
+
+            if (connectButton) {
+                connectButton.textContent = connected ? "✓ Arduino Connected" : "🔌 Connect Arduino";
+                connectButton.disabled = connected;
+            }
+
+            if (!banner || !message) return;
+
+            banner.classList.remove("hidden");
+            message.textContent = connected
+                ? "Arduino connected directly through USB. RC522 is ready."
+                : "Arduino disconnected. Connect the UNO through USB and try again.";
         }
 
         async function readSerialLoop() {
-            if (!serialPort?.readable) return;
+            if (!serialPort || !serialPort.readable || serialReader) return;
 
             serialReader = serialPort.readable.getReader();
             const decoder = new TextDecoder();
@@ -1078,100 +900,139 @@
             try {
                 while (true) {
                     const { value, done } = await serialReader.read();
-
                     if (done) break;
                     if (!value) continue;
 
                     serialBuffer += decoder.decode(value, { stream: true });
-
                     const lines = serialBuffer.split(/\r?\n/);
                     serialBuffer = lines.pop() || "";
 
-                    for (const line of lines) {
-                        const cleanLine = line.trim();
-
-                        if (cleanLine) {
-                            console.log("Arduino:", cleanLine);
-                            handleArduinoLine(cleanLine);
-                        }
+                    for (const rawLine of lines) {
+                        const line = rawLine.trim();
+                        if (!line) continue;
+                        console.log("Arduino →", line);
+                        handleArduinoLine(line);
                     }
                 }
             } catch (error) {
-                console.error("Serial read error:", error);
+                console.error("Serial reader error:", error);
             } finally {
-                try {
-                    serialReader.releaseLock();
-                } catch (_) {}
-
+                try { serialReader.releaseLock(); } catch (_) {}
                 serialReader = null;
                 serialConnected = false;
                 updateSerialStatus(false);
             }
         }
 
-        async function sendArduinoCommand(command, expectedPrefix, timeout = 12000) {
-            if (!serialPort?.writable) {
+        function handleArduinoLine(line) {
+            const operation = serialOperation;
+            if (!operation) {
+                console.log("Arduino message (no active operation):", line);
+                return;
+            }
+
+            if (line === "ARDUINO_READY") {
+                return;
+            }
+
+            if (line === "WAITING_FOR_CARD") {
+                if (operation.type === "write") {
+                    showNFCAnim("write", "arduino");
+                    dialogTitle.textContent = "Place NFC Card";
+                    dialogIcon.textContent = "💳";
+                    dialogText.textContent = "Waiting for your MIFARE Classic 1K card. Place it directly on the RC522 reader.";
+                } else {
+                    showNFCAnim("read", "arduino");
+                    dialogTitle.textContent = "Place NFC Card";
+                    dialogIcon.textContent = "💳";
+                    dialogText.textContent = "Waiting for your MIFARE Classic 1K card. Place it directly on the RC522 reader.";
+                }
+                return;
+            }
+
+            if (line === "CARD_DETECTED") {
+                dialogIcon.textContent = "🔍";
+                dialogTitle.textContent = "Card Detected";
+                dialogText.textContent = operation.type === "write"
+                    ? "Card detected. Writing and verifying the patient ID..."
+                    : "Card detected. Reading the stored patient ID...";
+                return;
+            }
+
+            if (line.startsWith("UID:")) {
+                operation.uid = line.substring(4).trim();
+                return;
+            }
+
+            const isFinal =
+                line === "CARD_TIMEOUT" ||
+                line.startsWith("WRITE_OK:") ||
+                line.startsWith("WRITE_ERROR:") ||
+                line.startsWith("READ_OK:") ||
+                line.startsWith("READ_ERROR:");
+
+            if (!isFinal) return;
+
+            clearTimeout(operation.timer);
+            serialOperation = null;
+            operation.resolve(line);
+        }
+
+        async function connectArduinoFromButton() {
+            try {
+                await connectArduino();
+            } catch (error) {
+                showNfcError(error, "Unable to connect to Arduino.");
+            }
+        }
+
+        async function sendArduinoCommand(command, type, timeout = 20000) {
+            if (!serialPort || !serialPort.writable) {
                 await connectArduino();
             }
 
-            if (!serialPort?.writable) {
+            if (!serialPort || !serialPort.writable) {
                 throw new Error("Arduino serial port is not connected.");
             }
 
+            if (serialOperation) {
+                throw new Error("Another NFC operation is already running.");
+            }
+
+            // IMPORTANT: register the response handler BEFORE writing the command.
+            const responsePromise = new Promise((resolve, reject) => {
+                const timer = setTimeout(() => {
+                    if (!serialOperation) return;
+                    serialOperation = null;
+                    reject(new Error("NFC operation timed out. No card was detected within 20 seconds."));
+                }, timeout);
+
+                serialOperation = {
+                    type,
+                    resolve,
+                    reject,
+                    timer,
+                    uid: null
+                };
+            });
+
             const writer = serialPort.writable.getWriter();
-            const encoder = new TextEncoder();
 
             try {
+                const encoder = new TextEncoder();
                 await writer.write(encoder.encode(command + "\n"));
+            } catch (error) {
+                if (serialOperation) {
+                    clearTimeout(serialOperation.timer);
+                    const reject = serialOperation.reject;
+                    serialOperation = null;
+                    reject(error);
+                }
             } finally {
                 writer.releaseLock();
             }
 
-            return await waitForArduinoResponse(expectedPrefix, timeout);
-        }
-
-        let pendingResponse = null;
-
-        function handleArduinoLine(line) {
-            if (!pendingResponse) return;
-
-            if (
-                line.startsWith(pendingResponse.prefix) ||
-                line === "READ_ERROR" ||
-                line.startsWith("WRITE_ERROR")
-            ) {
-                const response = pendingResponse;
-                pendingResponse = null;
-                clearTimeout(response.timer);
-                response.resolve(line);
-            }
-        }
-
-        function waitForArduinoResponse(prefix, timeout) {
-            return new Promise((resolve, reject) => {
-                if (pendingResponse) {
-                    clearTimeout(pendingResponse.timer);
-                    pendingResponse.reject(
-                        new Error("Another Arduino command is already running.")
-                    );
-                }
-
-                const timer = setTimeout(() => {
-                    pendingResponse = null;
-                    reject(
-                        new Error(
-                            "Arduino timeout. Make sure the RC522 is connected and place an NFC card near it."
-                        )
-                    );
-                }, timeout);
-
-                pendingResponse = {
-                    prefix,
-                    resolve,
-                    reject,
-                    timer
-                };
-            });
+            return responsePromise;
         }
 
         // =========================
@@ -1180,230 +1041,101 @@
         async function startNFCWrite() {
             const patientId = getSelectedPatientId();
             if (!patientId) return;
-
-            // Keep Web NFC for supported mobile devices.
-            if (isMobileNfcAvailable && /Android/i.test(navigator.userAgent)) {
-                await writeUsingMobileNfc(patientId);
-                return;
-            }
-
             await writeUsingArduino(patientId);
         }
 
         async function startNFCRead() {
-            // Keep Web NFC for supported mobile devices.
-            if (isMobileNfcAvailable && /Android/i.test(navigator.userAgent)) {
-                await readUsingMobileNfc();
-                return;
-            }
-
             await readUsingArduino();
         }
 
-        async function writeUsingMobileNfc(patientId) {
-            setButtonLoading(writeButton, true, "Writing…");
-            showNFCAnim("write", "mobile");
-
-            try {
-                if (!ndefWriter) ndefWriter = new NDEFReader();
-
-                const payload = JSON.stringify({
-                    patient_id: patientId
-                });
-
-                await ndefWriter.write({
-                    records: [
-                        {
-                            recordType: "text",
-                            data: payload
-                        }
-                    ]
-                });
-
-                dialogIcon.textContent = "✅";
-                dialogTitle.textContent = "Card Written Successfully";
-                dialogText.textContent =
-                    `Patient ID ${patientId} was stored on the NFC tag.`;
-
-                setTimeout(closeNFCAnim, 1800);
-            } catch (error) {
-                showNfcError(error, "Unable to write this NFC tag.");
-            } finally {
-                setButtonLoading(writeButton, false);
-            }
-        }
-
-        async function readUsingMobileNfc() {
-            setButtonLoading(readButton, true, "Waiting for tag…");
-            showNFCAnim("read", "mobile");
-
-            try {
-                if (!ndefReader) ndefReader = new NDEFReader();
-
-                await ndefReader.scan();
-
-                ndefReader.onreading = ({ message }) => {
-                    try {
-                        const record = message.records.find(
-                            item => item.recordType === "text"
-                        );
-
-                        if (!record) {
-                            throw new Error(
-                                "No text patient payload was found on this NFC tag."
-                            );
-                        }
-
-                        const rawText = parseNdefTextRecord(record);
-                        const patientId = extractPatientIdFromPayload(rawText);
-
-                        closeNFCAnim();
-                        handlePatientId(patientId);
-                    } catch (error) {
-                        showNfcError(
-                            error,
-                            "Unable to read the patient ID from this tag."
-                        );
-                    } finally {
-                        setButtonLoading(readButton, false);
-                    }
-                };
-            } catch (error) {
-                showNfcError(
-                    error,
-                    "Unable to start mobile NFC scanning."
-                );
-                setButtonLoading(readButton, false);
-            }
-        }
-
         async function writeUsingArduino(patientId) {
-            setButtonLoading(writeButton, true, "Connect Arduino…");
+            setButtonLoading(writeButton, true, "Writing…");
             showNFCAnim("write", "arduino");
+            dialogTitle.textContent = "Connect Arduino";
+            dialogIcon.textContent = "🔌";
+            dialogText.textContent = "Select the Arduino UNO COM port. Make sure Arduino Serial Monitor is closed.";
 
             try {
                 await connectArduino();
 
-                dialogText.textContent =
-                    "Arduino connected. Place the NFC card on the RC522 reader.";
+                dialogTitle.textContent = "Place NFC Card";
+                dialogIcon.textContent = "💳";
+                dialogText.textContent = "Place the MIFARE Classic 1K card directly on the RC522 reader.";
 
                 const response = await sendArduinoCommand(
                     `WRITE:${patientId}`,
-                    "WRITE_OK",
-                    15000
+                    "write",
+                    20000
                 );
 
-                if (response.startsWith("WRITE_ERROR")) {
-                    throw new Error(response.substring("WRITE_ERROR".length + 1));
+                if (response.startsWith("WRITE_OK:")) {
+                    dialogIcon.textContent = "✅";
+                    dialogTitle.textContent = "Card Written Successfully";
+                    dialogText.textContent = `Patient ID ${patientId} was written to the MIFARE Classic 1K card and verified successfully.`;
+                    showNfcBanner(`NFC write successful. Patient ID ${patientId} is stored on the card.`);
+                    setTimeout(closeNFCAnim, 1800);
+                    return;
                 }
 
-                if (!response.startsWith("WRITE_OK")) {
-                    throw new Error("Unexpected Arduino response: " + response);
+                if (response === "CARD_TIMEOUT" || response === "WRITE_ERROR:NO_CARD") {
+                    throw new Error("No NFC card was detected. Place the MIFARE Classic 1K card on the RC522 and try again.");
                 }
 
-                dialogIcon.textContent = "✅";
-                dialogTitle.textContent = "Card Written Successfully";
-                dialogText.textContent =
-                    `Patient ID ${patientId} was written to the NFC card.`;
+                if (response.startsWith("WRITE_ERROR:")) {
+                    throw new Error("Arduino write failed: " + response.substring("WRITE_ERROR:".length));
+                }
 
-                setTimeout(closeNFCAnim, 1800);
+                throw new Error("Unexpected Arduino response: " + response);
             } catch (error) {
-                showNfcError(
-                    error,
-                    "Unable to communicate directly with Arduino."
-                );
+                showNfcError(error, "Unable to communicate with the Arduino NFC reader.");
             } finally {
                 setButtonLoading(writeButton, false);
             }
         }
 
         async function readUsingArduino() {
-            setButtonLoading(readButton, true, "Connect Arduino…");
+            setButtonLoading(readButton, true, "Reading…");
             showNFCAnim("read", "arduino");
+            dialogTitle.textContent = "Connect Arduino";
+            dialogIcon.textContent = "🔌";
+            dialogText.textContent = "Select the Arduino UNO COM port. Make sure Arduino Serial Monitor is closed.";
 
             try {
                 await connectArduino();
 
-                dialogText.textContent =
-                    "Arduino connected. Place the NFC card on the RC522 reader.";
+                dialogTitle.textContent = "Place NFC Card";
+                dialogIcon.textContent = "💳";
+                dialogText.textContent = "Place the MIFARE Classic 1K card directly on the RC522 reader.";
 
                 const response = await sendArduinoCommand(
                     "READ",
-                    "READ:",
-                    15000
+                    "read",
+                    20000
                 );
 
-                if (response === "READ_ERROR") {
-                    throw new Error(
-                        "No NFC card detected. Place the card directly on the RC522 reader."
-                    );
+                if (response.startsWith("READ_OK:")) {
+                    const patientId = response.substring("READ_OK:".length).trim();
+                    closeNFCAnim();
+                    handlePatientId(patientId);
+                    return;
                 }
 
-                if (!response.startsWith("READ:")) {
-                    throw new Error("Unexpected Arduino response: " + response);
+                if (response === "CARD_TIMEOUT" || response === "READ_ERROR:NO_CARD") {
+                    throw new Error("No NFC card was detected. Place the MIFARE Classic 1K card on the RC522 and try again.");
                 }
 
-                const payload = response.substring(5).trim();
+                if (response.startsWith("READ_ERROR:")) {
+                    throw new Error("Arduino read failed: " + response.substring("READ_ERROR:".length));
+                }
 
-                closeNFCAnim();
-
-                // The current Arduino sketch returns the NFC UID.
-                // If your DB patient_id stores the UID, this opens the record.
-                handlePatientId(payload);
+                throw new Error("Unexpected Arduino response: " + response);
             } catch (error) {
-                showNfcError(
-                    error,
-                    "Unable to communicate directly with Arduino."
-                );
+                showNfcError(error, "Unable to communicate with the Arduino NFC reader.");
             } finally {
                 setButtonLoading(readButton, false);
             }
         }
 
-        function parseNdefTextRecord(record) {
-            const decoder = new TextDecoder();
-
-            if (record.encoding === "utf-16") {
-                return new TextDecoder("utf-16").decode(record.data);
-            }
-
-            return decoder.decode(record.data);
-        }
-
-        function extractPatientIdFromPayload(payload) {
-            if (!payload) return null;
-
-            if (typeof payload === "object") {
-                return payload.patient_id || payload.id || null;
-            }
-
-            const trimmedPayload = String(payload).trim();
-
-            try {
-                const parsed = JSON.parse(trimmedPayload);
-                return parsed.patient_id || parsed.id || null;
-            } catch {
-                return trimmedPayload || null;
-            }
-        }
-
-        function handlePatientId(patientId) {
-            if (!patientId) {
-                alert("The NFC tag does not contain a valid patient ID.");
-                return;
-            }
-
-            const patientRecord = window.getPatientById(patientId);
-
-            if (!patientRecord) {
-                alert(
-                    `NFC value "${patientId}" was read successfully, but no matching patient_id was found in Supabase.`
-                );
-                return;
-            }
-
-            renderFullPatientModal(patientRecord);
-        }
 
         // =========================
         // PATIENT DISPLAY
@@ -1564,13 +1296,13 @@
         document.addEventListener("DOMContentLoaded", () => {
             fetchPatientRecords();
 
-            if (!isWebSerialAvailable && !isMobileNfcAvailable) {
+            if (!isWebSerialAvailable) {
                 showNfcBanner(
-                    "Web Serial is not supported in this browser. Use Google Chrome or Microsoft Edge."
+                    "Web Serial is not supported in this browser. Use Google Chrome or Microsoft Edge on a desktop."
                 );
-            } else if (isWebSerialAvailable) {
+            } else {
                 showNfcBanner(
-                    "Direct Arduino mode enabled. Click Read/Write and select the Arduino COM port. No Flask server is required."
+                    "Direct Arduino mode enabled. Click Connect Arduino, select the UNO COM port, then use Read or Write. No Flask/Python server is required."
                 );
             }
         });
