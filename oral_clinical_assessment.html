@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oral Clinical Assessment</title>
+<title>Enhanced Oral Clinical Assessment - Universal Dictation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -200,23 +200,70 @@ input:focus, select:focus, textarea:focus {
 }
 
 .dictation-master-btn {
-  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-  border: 0;
-  color: #fff;
-  border-radius: var(--radius-md);
-  padding: 12px 20px;
-  font-size: 14px;
+  background: rgba(15, 23, 42, .82);
+  border: 1px solid rgba(96, 165, 250, .45);
+  color: #eaf2ff;
+  border-radius: 14px;
+  min-height: 50px;
+  padding: 8px 12px 8px 10px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .22);
   transition: all .2s ease;
+  backdrop-filter: blur(10px);
 }
 
-.dictation-master-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6); }
-.dictation-master-btn.active { background: #15803d; box-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
+.dictation-master-btn:hover { transform: translateY(-1px); border-color: #60a5fa; box-shadow: 0 10px 28px rgba(37, 99, 235, .22); }
+.dictation-master-btn.active { border-color: #34d399; box-shadow: 0 0 0 1px rgba(52, 211, 153, .18), 0 10px 30px rgba(16, 185, 129, .2); }
+.voice-btn-icon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+.voice-btn-icon svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.voice-btn-status { color: #93c5fd; font-size: 11px; font-weight: 600; padding-left: 2px; }
+.dictation-master-btn.active .voice-btn-icon { background: linear-gradient(135deg, #059669, #047857); }
+.dictation-master-btn.active .voice-btn-status { color: #6ee7b7; }
+
+/* Conversational voice assistant */
+.voice-assistant-panel {
+  position: fixed; right: 24px; bottom: 88px; width: min(390px, calc(100vw - 32px));
+  background: rgba(15, 23, 42, .97); border: 1px solid rgba(96, 165, 250, .35);
+  border-radius: 20px; box-shadow: 0 24px 70px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.03);
+  z-index: 9999; overflow: hidden; display: none; backdrop-filter: blur(18px);
+}
+.voice-assistant-panel.open { display: block; animation: voicePanelIn .18s ease-out; }
+@keyframes voicePanelIn { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+.voice-assistant-head { display:flex; align-items:center; justify-content:space-between; padding:16px 17px; border-bottom:1px solid rgba(148,163,184,.14); }
+.voice-assistant-title { display:flex; align-items:center; gap:10px; }
+.voice-assistant-avatar { width:36px; height:36px; border-radius:11px; display:grid; place-items:center; background:linear-gradient(135deg,#2563eb,#4f46e5); box-shadow:0 6px 18px rgba(37,99,235,.3); }
+.voice-assistant-avatar svg { width:19px; height:19px; fill:none; stroke:#fff; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.voice-assistant-title strong { display:block; font-size:14px; color:#f8fafc; }
+.voice-assistant-title span { display:block; font-size:11px; color:#94a3b8; margin-top:2px; }
+.voice-assistant-close { border:0; background:transparent; color:#94a3b8; cursor:pointer; font-size:20px; width:30px; height:30px; border-radius:8px; }
+.voice-assistant-close:hover { background:#1e293b; color:#fff; }
+.voice-assistant-body { padding:15px; }
+.voice-live-status { display:flex; align-items:center; gap:9px; padding:11px 12px; border:1px solid rgba(96,165,250,.18); background:#0b1220; border-radius:12px; color:#cbd5e1; font-size:12px; }
+.voice-live-dot { width:8px; height:8px; border-radius:50%; background:#64748b; flex:0 0 auto; }
+.voice-live-dot.listening { background:#22c55e; box-shadow:0 0 0 5px rgba(34,197,94,.10); animation:voicePulse 1.2s infinite; }
+.voice-live-dot.thinking { background:#60a5fa; animation:voicePulse .9s infinite; }
+@keyframes voicePulse { 50% { opacity:.45; transform:scale(.78); } }
+.voice-transcript { margin-top:12px; min-height:58px; max-height:120px; overflow:auto; padding:12px; border-radius:12px; background:#111827; border:1px solid rgba(148,163,184,.12); color:#e2e8f0; font-size:13px; line-height:1.5; }
+.voice-transcript:empty::before { content:'Say multiple fields naturally, for example: “Patient name is Rahul, age 42, sex male, lesion shape irregular.”'; color:#64748b; }
+.voice-changes { margin-top:10px; display:flex; flex-direction:column; gap:6px; max-height:125px; overflow:auto; }
+.voice-change { display:flex; justify-content:space-between; gap:12px; padding:8px 10px; background:#0b1220; border-radius:9px; font-size:11px; border:1px solid rgba(52,211,153,.12); }
+.voice-change span:first-child { color:#94a3b8; }
+.voice-change span:last-child { color:#6ee7b7; text-align:right; font-weight:600; }
+.voice-assistant-actions { display:flex; gap:8px; margin-top:12px; }
+.voice-listen-btn { flex:1; border:0; border-radius:11px; padding:11px 12px; background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-weight:700; cursor:pointer; }
+.voice-listen-btn.stop { background:linear-gradient(135deg,#dc2626,#b91c1c); }
+.voice-clear-btn { border:1px solid #334155; background:#111827; color:#cbd5e1; border-radius:11px; padding:11px 13px; cursor:pointer; }
+.voice-assistant-note { margin-top:10px; color:#64748b; font-size:10px; line-height:1.45; }
+.voice-fab { position:fixed; right:24px; bottom:24px; width:56px; height:56px; border:0; border-radius:18px; background:linear-gradient(135deg,#2563eb,#4f46e5); color:#fff; display:grid; place-items:center; cursor:pointer; z-index:10000; box-shadow:0 12px 35px rgba(37,99,235,.38); transition:.2s ease; }
+.voice-fab:hover { transform:translateY(-2px) scale(1.02); box-shadow:0 16px 42px rgba(37,99,235,.48); }
+.voice-fab.active { background:linear-gradient(135deg,#059669,#047857); }
+.voice-fab svg { width:24px; height:24px; fill:none; stroke:#fff; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+@media(max-width:560px) { .voice-assistant-panel { right:12px; bottom:80px; width:calc(100vw - 24px); } .voice-fab { right:14px; bottom:14px; } }
 
 .subsection {
   margin-top: 24px;
@@ -483,15 +530,44 @@ input:focus, select:focus, textarea:focus {
     <h1>Oral Clinical Assessment</h1>
     <p>Hands-Free Sequential Voice Assistant & Anatomical Lesion Map</p>
   </div>
-  <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-    <button id="masterDictationBtn" type="button" class="dictation-master-btn" onclick="toggleAutoDictationFlow()">
-      🎙 Start Auto-Dictation Flow
+  <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+    <button id="masterDictationBtn" type="button" class="dictation-master-btn" onclick="toggleVoiceAssistant()" aria-label="Open AI voice assistant">
+      <span class="voice-btn-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14.5a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 1 0-7 0v5a3.5 3.5 0 0 0 3.5 3.5Z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3M8.5 21h7"/></svg>
+      </span>
+      <span id="masterDictationLabel">Voice Assistant</span>
+      <span class="voice-btn-status" id="masterVoiceStatus">Ready</span>
     </button>
     <div class="risk-indicator-badge">
       <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Real-Time Malignancy Risk</div>
       <div id="riskLevelDisplay" class="risk-level">LOW RISK</div>
       <div id="osmfStageDisplay" style="font-size: 12px; color: var(--text-muted);">OSMF Stage: Normal</div>
     </div>
+  </div>
+</div>
+
+<!-- Floating conversational voice assistant -->
+<button id="voiceAssistantFab" class="voice-fab" type="button" onclick="toggleVoiceAssistant()" aria-label="Open voice form assistant" title="Voice form assistant">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14.5a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 1 0-7 0v5a3.5 3.5 0 0 0 3.5 3.5Z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3M8.5 21h7"/></svg>
+</button>
+
+<div id="voiceAssistantPanel" class="voice-assistant-panel" aria-live="polite">
+  <div class="voice-assistant-head">
+    <div class="voice-assistant-title">
+      <div class="voice-assistant-avatar"><svg viewBox="0 0 24 24"><path d="M12 14.5a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 1 0-7 0v5a3.5 3.5 0 0 0 3.5 3.5Z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3M8.5 21h7"/></svg></div>
+      <div><strong>Clinical Voice Assistant</strong><span>Conversational multi-field form filling</span></div>
+    </div>
+    <button class="voice-assistant-close" type="button" onclick="closeVoiceAssistant()" aria-label="Close">×</button>
+  </div>
+  <div class="voice-assistant-body">
+    <div class="voice-live-status"><span id="voiceLiveDot" class="voice-live-dot"></span><span id="voiceLiveStatus">Ready — speak naturally</span></div>
+    <div id="voiceTranscript" class="voice-transcript"></div>
+    <div id="voiceChanges" class="voice-changes"></div>
+    <div class="voice-assistant-actions">
+      <button id="voiceListenBtn" class="voice-listen-btn" type="button" onclick="toggleConversationalListening()">Start Listening</button>
+      <button class="voice-clear-btn" type="button" onclick="clearVoiceAssistant()">Clear</button>
+    </div>
+    <div class="voice-assistant-note">You can fill several fields in one sentence. Example: “Patient name is Rahul, age 42, sex male, smoking no, lesion shape irregular, lesion length 12 millimeters.” Review values before submitting the clinical record.</div>
   </div>
 </div>
 
@@ -1226,7 +1302,350 @@ function captureGeoLocation() {
 }
 
 /* =========================================
+   CONVERSATIONAL AI-STYLE VOICE FORM ASSISTANT
+   Browser speech recognition + clinical field/value parsing.
+   Supports multiple fields in one utterance and all input/select controls.
+========================================= */
+let isConversationalListening = false;
+let conversationalRecognition = null;
+let voiceAssistantOpen = false;
+
+function getVoiceFieldElements() {
+  return Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="file"]):not([readonly]), select, textarea'))
+    .filter(el => el.id && el.name);
+}
+
+function normalizeVoiceText(text) {
+  return text.toLowerCase()
+    .replace(/[“”‘’]/g, '"')
+    .replace(/\bmillimetres?\b/g, 'mm')
+    .replace(/\bmillimeters?\b/g, 'mm')
+    .replace(/\byears?\b/g, 'years')
+    .replace(/\bdays?\b/g, 'days')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function cleanVoiceValue(value) {
+  return value.replace(/^[\s,:-]+|[\s,.!?]+$/g, '').trim();
+}
+
+function getFieldLabel(element) {
+  const label = document.querySelector(`label[for="${element.id}"]`) || element.closest('.field')?.querySelector('label');
+  return label ? label.innerText.replace('*', '').replace('(Optional)', '').trim() : element.name;
+}
+
+function getFieldAliases(element) {
+  const label = getFieldLabel(element).toLowerCase();
+  const aliases = new Set([label, element.id.toLowerCase(), element.name.toLowerCase()]);
+  const special = {
+    patient_name: ['name', 'patient name', 'name of patient'],
+    patient_id: ['patient id', 'patient number', 'id'],
+    opd_number: ['opd', 'opd number'],
+    age: ['age'],
+    sex: ['sex', 'gender'],
+    lesion_shape: ['shape', 'lesion shape'],
+    lesion_location: ['location', 'lesion location', 'site', 'lesion site'],
+    lesion_color: ['color', 'colour', 'lesion color', 'lesion colour'],
+    lesion_length_mm: ['length', 'lesion length', 'length in mm'],
+    lesion_width_mm: ['width', 'lesion width', 'width in mm'],
+    lesion_maximum_diameter_mm: ['maximum diameter', 'diameter', 'max diameter'],
+    smoking: ['smoking', 'smoking status'],
+    any_chewing_habits: ['chewing', 'chewing habits', 'any chewing habits'],
+    alcohol: ['alcohol', 'alcohol use'],
+    tooth_powder: ['tooth powder', 'toothpowder'],
+    bleeding_disorders: ['bleeding disorder', 'bleeding disorders'],
+    regional_lymph_node_palpability: ['lymph node palpable', 'lymph node palpability', 'node palpable'],
+    lymph_node_involvement: ['lymph node involvement', 'node involvement', 'involvement'],
+    lymph_node_laterality: ['laterality', 'unilateral bilateral', 'side'],
+    regional_lymph_node_number: ['node number', 'number of nodes'],
+    regional_lymph_node_size_mm: ['node size', 'lymph node size']
+  };
+  (special[element.id] || []).forEach(x => aliases.add(x));
+  return [...aliases].filter(Boolean).sort((a,b) => b.length - a.length);
+}
+
+function findFieldFromVoicePhrase(phrase) {
+  const normalized = normalizeVoiceText(phrase);
+  const fields = getVoiceFieldElements();
+  let best = null;
+  let bestScore = 0;
+  fields.forEach(field => {
+    getFieldAliases(field).forEach(alias => {
+      if (normalized === alias) bestScore = Math.max(bestScore, 100);
+      else if (normalized.includes(alias)) bestScore = Math.max(bestScore, 80 + Math.min(alias.length, 15));
+    });
+    const labelWords = getFieldLabel(field).toLowerCase().split(/\s+/).filter(w => w.length > 2);
+    const overlap = labelWords.filter(w => normalized.includes(w)).length;
+    const score = overlap * 12;
+    if (score > bestScore) bestScore = score;
+    if (score > 0 && score >= bestScore) best = field;
+  });
+  if (!best) {
+    for (const field of fields) {
+      const aliases = getFieldAliases(field);
+      if (aliases.some(a => normalized.includes(a))) { best = field; break; }
+    }
+  }
+  return best;
+}
+
+function optionSimilarity(optionText, spoken) {
+  const a = normalizeVoiceText(optionText);
+  const b = normalizeVoiceText(spoken);
+  if (!a || !b) return 0;
+  if (a === b) return 100;
+  if (a.includes(b) || b.includes(a)) return 85;
+  const aw = new Set(a.split(/\s+/));
+  const bw = new Set(b.split(/\s+/));
+  let common = 0; bw.forEach(w => { if (aw.has(w)) common++; });
+  return common ? 50 + common * 10 : 0;
+}
+
+function setFieldFromVoice(field, rawValue) {
+  if (!field) return null;
+  let value = cleanVoiceValue(rawValue);
+  if (!value) return null;
+
+  if (field.tagName === 'SELECT') {
+    const options = Array.from(field.options).filter(o => o.value !== '');
+    let best = null, score = 0;
+    options.forEach(opt => {
+      const s = optionSimilarity(opt.text, value) + optionSimilarity(opt.value, value);
+      if (s > score) { score = s; best = opt; }
+    });
+    if (best && score >= 50) {
+      field.value = best.value;
+      field.dispatchEvent(new Event('change', { bubbles: true }));
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      return best.text;
+    }
+    return null;
+  }
+
+  if (field.type === 'number') {
+    const numberMatch = value.replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
+    if (!numberMatch) return null;
+    field.value = numberMatch[0];
+  } else if (field.type === 'text' || field.tagName === 'TEXTAREA') {
+    field.value = value;
+  } else {
+    field.value = value;
+  }
+  field.dispatchEvent(new Event('input', { bubbles: true }));
+  field.dispatchEvent(new Event('change', { bubbles: true }));
+  return field.value;
+}
+
+function splitVoiceStatements(transcript) {
+  return transcript
+    .replace(/\bthen\b/gi, ',')
+    .replace(/\band\s+(?=(?:patient|opd|age|sex|gender|smoking|chewing|alcohol|lesion|pain|swelling|bleeding|ulcer|lymph|node|weight|loss|mouth|residence|occupation|religion|marital))/gi, ',')
+    .split(/[,;]+/)
+    .map(x => x.trim())
+    .filter(Boolean);
+}
+
+function parseVoiceFieldStatements(transcript) {
+  const fields = getVoiceFieldElements();
+  const normalized = normalizeVoiceText(transcript);
+  const matches = [];
+
+  // First pass: detect explicit "field is/set/to/value" patterns.
+  const aliasEntries = [];
+  fields.forEach(field => getFieldAliases(field).forEach(alias => aliasEntries.push({ field, alias })));
+  aliasEntries.sort((a,b) => b.alias.length - a.alias.length);
+
+  const markers = [];
+  aliasEntries.forEach(({field, alias}) => {
+    const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(?:^|[,;]|\\bthen\\b|\\band\\s+)(?:the\\s+)?' + escaped + '\\s+(?:is|are|was|were|equals?|=|to|should\\s+be)\\s+', 'i');
+    const m = re.exec(transcript);
+    if (m) markers.push({ field, index: m.index + m[0].length, aliasLength: alias.length });
+  });
+
+  markers.sort((a,b) => a.index - b.index || b.aliasLength - a.aliasLength);
+  for (let i=0; i<markers.length; i++) {
+    const start = markers[i].index;
+    const end = i + 1 < markers.length ? markers[i+1].index : transcript.length;
+    const value = transcript.slice(start, end).replace(/^\s*(?:and|then)\s+/i, '').trim();
+    if (value) matches.push({ field: markers[i].field, value });
+  }
+
+  // Second pass: handle common natural phrases without "is".
+  if (!matches.length) {
+    const statements = splitVoiceStatements(transcript);
+    statements.forEach(statement => {
+      const field = findFieldFromVoicePhrase(statement);
+      if (!field) return;
+      let value = statement;
+      getFieldAliases(field).forEach(alias => {
+        const re = new RegExp('^\\s*(?:the\\s+)?' + alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*', 'i');
+        value = value.replace(re, '').replace(/^\s*(?:is|are|was|were|=|to)\s*/i, '');
+      });
+      if (value.trim()) matches.push({ field, value: value.trim() });
+    });
+  }
+
+  return matches.filter((m, i, arr) => arr.findIndex(x => x.field.id === m.field.id) === i);
+}
+
+function addVoiceChange(label, value) {
+  const wrap = $('voiceChanges');
+  if (!wrap) return;
+  const row = document.createElement('div');
+  row.className = 'voice-change';
+  const a = document.createElement('span');
+  const b = document.createElement('span');
+  a.textContent = label;
+  b.textContent = value;
+  row.append(a,b);
+  wrap.prepend(row);
+}
+
+function processConversationalTranscript(transcript) {
+  const matches = parseVoiceFieldStatements(transcript);
+  let filled = 0;
+  matches.forEach(({field, value}) => {
+    const applied = setFieldFromVoice(field, value);
+    if (applied !== null) {
+      filled++;
+      addVoiceChange(getFieldLabel(field), applied);
+      field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+
+  if (filled) {
+    updateVoiceStatus(`${filled} field${filled > 1 ? 's' : ''} updated — you can continue speaking`, 'ready');
+    speakText(`${filled} field${filled > 1 ? 's' : ''} updated.`);
+  } else {
+    updateVoiceStatus('I heard you, but could not confidently map that to a field. Try “field is value”.', 'thinking');
+  }
+}
+
+function updateVoiceStatus(text, mode='ready') {
+  const status = $('voiceLiveStatus');
+  const dot = $('voiceLiveDot');
+  if (status) status.textContent = text;
+  if (dot) dot.className = `voice-live-dot ${mode}`;
+}
+
+function initConversationalRecognition() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Voice recognition is not supported by this browser. Use Google Chrome or Microsoft Edge.');
+    return null;
+  }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const r = new SpeechRecognition();
+  r.lang = 'en-IN';
+  r.continuous = true;
+  r.interimResults = true;
+  r.maxAlternatives = 3;
+
+  r.onstart = () => updateVoiceStatus('Listening — speak naturally and mention one or many fields', 'listening');
+  r.onresult = (event) => {
+    let finalText = '';
+    let interimText = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const text = event.results[i][0].transcript;
+      if (event.results[i].isFinal) finalText += text + ' ';
+      else interimText += text;
+    }
+    if (interimText) {
+      const box = $('voiceTranscript');
+      if (box) box.textContent = interimText.trim();
+    }
+    if (finalText.trim()) {
+      const clean = finalText.trim();
+      const box = $('voiceTranscript');
+      if (box) box.textContent = clean;
+      processConversationalTranscript(clean);
+    }
+  };
+  r.onerror = (event) => {
+    if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+      updateVoiceStatus('Microphone permission is required.', 'thinking');
+      stopConversationalListening();
+    } else if (isConversationalListening) {
+      updateVoiceStatus('Voice service paused — restarting…', 'thinking');
+    }
+  };
+  r.onend = () => {
+    if (isConversationalListening) {
+      try { r.start(); } catch (_) {}
+    } else {
+      updateVoiceStatus('Ready — speak naturally', '');
+    }
+  };
+  return r;
+}
+
+function startConversationalListening() {
+  if (isConversationalListening) return;
+  conversationalRecognition = initConversationalRecognition();
+  if (!conversationalRecognition) return;
+  isConversationalListening = true;
+  const btn = $('voiceListenBtn');
+  if (btn) { btn.textContent = 'Stop Listening'; btn.classList.add('stop'); }
+  const fab = $('voiceAssistantFab');
+  if (fab) fab.classList.add('active');
+  const topBtn = $('masterDictationBtn');
+  if (topBtn) topBtn.classList.add('active');
+  const topStatus = $('masterVoiceStatus');
+  if (topStatus) topStatus.textContent = 'Listening';
+  try { conversationalRecognition.start(); } catch (_) {}
+}
+
+function stopConversationalListening() {
+  isConversationalListening = false;
+  if (conversationalRecognition) {
+    try { conversationalRecognition.stop(); } catch (_) {}
+  }
+  const btn = $('voiceListenBtn');
+  if (btn) { btn.textContent = 'Start Listening'; btn.classList.remove('stop'); }
+  const fab = $('voiceAssistantFab');
+  if (fab) fab.classList.remove('active');
+  const topBtn = $('masterDictationBtn');
+  if (topBtn) topBtn.classList.remove('active');
+  const topStatus = $('masterVoiceStatus');
+  if (topStatus) topStatus.textContent = 'Ready';
+  updateVoiceStatus('Ready — speak naturally', '');
+}
+
+function toggleConversationalListening() {
+  if (isConversationalListening) stopConversationalListening();
+  else startConversationalListening();
+}
+
+function toggleVoiceAssistant() {
+  voiceAssistantOpen = !voiceAssistantOpen;
+  const panel = $('voiceAssistantPanel');
+  if (panel) panel.classList.toggle('open', voiceAssistantOpen);
+  if (voiceAssistantOpen) {
+    setTimeout(() => startConversationalListening(), 120);
+  } else {
+    stopConversationalListening();
+  }
+}
+
+function closeVoiceAssistant() {
+  voiceAssistantOpen = false;
+  const panel = $('voiceAssistantPanel');
+  if (panel) panel.classList.remove('open');
+  stopConversationalListening();
+}
+
+function clearVoiceAssistant() {
+  const changes = $('voiceChanges');
+  const transcript = $('voiceTranscript');
+  if (changes) changes.innerHTML = '';
+  if (transcript) transcript.textContent = '';
+  updateVoiceStatus('Ready — speak naturally', '');
+}
+
+/* =========================================
    UNIVERSAL SEQUENTIAL AUTO-DICTATION FLOW
+   Kept for compatibility with the previous implementation.
 ========================================= */
 function getEmptyFieldsSequence() {
   const inputs = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([readonly]), select'));
@@ -1240,11 +1659,7 @@ function getEmptyFieldsSequence() {
 }
 
 function toggleAutoDictationFlow() {
-  if (isAutoDictating) {
-    stopAutoDictation();
-  } else {
-    startNextDictationStep();
-  }
+  toggleVoiceAssistant();
 }
 
 function startNextDictationStep() {
@@ -1353,7 +1768,7 @@ function stopAutoDictation() {
   }
   const btn = $('masterDictationBtn');
   btn.classList.remove('active');
-  btn.textContent = '🎙 Start Auto-Dictation Flow';
+  btn.textContent = 'Voice Assistant';
 }
 
 /* =========================================
