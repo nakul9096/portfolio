@@ -1,451 +1,630 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OSCC Multimodal NFC Diagnostic System</title>
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Supabase JS Client v2 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- External Configuration Script -->
-    <script src="config/config.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinical Analytics - Oral Assessment Platform</title>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#050811',
-                        panelBg: '#0b132b',
-                        cyanAccent: '#06b6d4',
-                        emeraldAccent: '#10b981',
-                        violetAccent: '#8b5cf6',
-                        roseAccent: '#f43f5e',
-                    },
-                    boxShadow: {
-                        'neon-cyan': '0 0 20px rgba(6, 182, 212, 0.25)',
-                        'neon-emerald': '0 0 20px rgba(16, 185, 129, 0.25)',
-                        'neon-violet': '0 0 25px rgba(139, 92, 246, 0.3)',
-                    }
-                }
-            }
-        }
-    </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <style>
-        .glass-panel {
-            background: rgba(11, 19, 43, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        
-        @keyframes radar-pulse {
-            0% { transform: scale(0.4); opacity: 0.8; }
-            50% { opacity: 0.4; }
-            100% { transform: scale(1.6); opacity: 0; }
-        }
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        .radar-ring {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid #06b6d4;
-            opacity: 0;
-            animation: radar-pulse 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-        }
+<!-- Chart.js for Data Visualizations -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        .radar-ring:nth-child(2) { animation-delay: 0.6s; }
-        .radar-ring:nth-child(3) { animation-delay: 1.2s; }
-    </style>
+<!-- Central Config -->
+<script src="config/config.js"></script>
+
+<style>
+:root {
+  --bg: #090d16;
+  --surface: #111827;
+  --surface-hover: #1f2937;
+  --border: #1f293d;
+  --border-light: #2d3748;
+  
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  
+  --accent: #2563eb;
+  --accent-light: rgba(37, 99, 235, 0.15);
+  
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --success: #34d399;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Shared Navigation */
+.app-nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-brand {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  color: var(--text-primary);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.title-area h1 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.title-area p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+/* Top Level Stat KPI Cards Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.kpi-value-container {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.kpi-percent {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Section Structure */
+.section-heading {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin: 28px 0 16px;
+}
+
+/* Charts & Breakdown Grids */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-header {
+  margin-bottom: 16px;
+}
+
+.chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chart-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.chart-container {
+  position: relative;
+  height: 260px;
+  width: 100%;
+}
+
+/* Data Table List Component for Itemized Percentages */
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0d1321;
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  border-radius: 6px;
+}
+
+.stats-row-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.stats-row-val {
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  gap: 8px;
+}
+
+.stats-badge {
+  background: var(--accent-light);
+  color: #60a5fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+/* Loading Indicator */
+.loading-box {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-muted);
+  padding: 60px 0;
+}
+</style>
 </head>
-<body class="bg-darkBg text-slate-100 min-h-screen font-sans p-4 md:p-8 selection:bg-cyanAccent selection:text-darkBg">
 
-    <!-- Ambient Glowing Background Spheres -->
-    <div class="fixed top-0 left-1/4 w-96 h-96 bg-cyanAccent/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="fixed bottom-0 right-1/4 w-96 h-96 bg-violetAccent/10 rounded-full blur-3xl pointer-events-none"></div>
+<body>
 
-    <!-- Header Section -->
-    <header class="max-w-7xl mx-auto flex items-center justify-between pb-6 border-b border-slate-800/80 mb-8 relative z-10">
-        <div>
-            <div class="flex items-center gap-2">
-                <span class="inline-block w-3 h-3 rounded-full bg-cyanAccent animate-ping"></span>
-                <h1 class="text-2xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyanAccent via-slate-100 to-violetAccent">
-                    OSCC DIAGNOSTICS PORTAL
-                </h1>
-            </div>
-            <p class="text-slate-400 text-xs font-mono mt-1">Multimodal OSCC Assessment &amp; Web NFC Integration</p>
+<!-- Header Navigation -->
+<nav class="app-nav">
+  <div class="nav-brand">🩺 Oral Clinical Assessments Platform</div>
+  <div class="nav-links">
+    <a href="patients.html">Records</a>
+    <a href="add-patient.html">+ New Assessment</a>
+    <a href="analytics.html" class="active">Analytics</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <header class="page-header">
+    <div class="title-area">
+      <h1>Clinical Analytics & Epidemiology</h1>
+      <p>Data distribution, risk exposures, and lesion statistics (Displaying factors with ≥ 1 record)</p>
+    </div>
+    <div id="totalPatientsBadge" style="font-size: 13px; font-weight: 600; background: #192233; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
+      Total Assessments: 0
+    </div>
+  </header>
+
+  <!-- Key Clinical Indicators Grid -->
+  <div class="section-heading">Key Clinical Indicators</div>
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="loading-box">Calculating clinical stats from database...</div>
+  </div>
+
+  <!-- Detailed Charts Grid -->
+  <div class="section-heading">Demographic & Habits Breakdown</div>
+  <div class="charts-grid">
+    <!-- Sex Demographics -->
+    <div class="chart-card" id="cardSexChart">
+      <div class="chart-header">
+        <div class="chart-title">Gender Distribution</div>
+        <div class="chart-subtitle">Breakdown by Male, Female, and Other</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="sexChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Habits Breakdown -->
+    <div class="chart-card" id="cardHabitsChart">
+      <div class="chart-header">
+        <div class="chart-title">High-Risk Substance Habits</div>
+        <div class="chart-subtitle">Prevalence of smoking, chewing, and alcohol</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="habitsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Pathology & Systemic Risk Grid -->
+  <div class="charts-grid">
+    <!-- Lesion Sites List -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Lesion Anatomical Locations (≥1)</div>
+        <div class="chart-subtitle">Observed sites of oral lesions</div>
+      </div>
+      <div class="stats-list" id="lesionLocationsList">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- Systemic Comorbidities List -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Systemic Comorbidities (≥1)</div>
+        <div class="chart-subtitle">Prevalence of recorded systemic conditions</div>
+      </div>
+      <div class="stats-list" id="systemicDiseasesList">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let supabaseClient = null;
+
+function initSupabase() {
+  if (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY) {
+    supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  }
+}
+
+// Utility: Calculate Percentage String
+function calcPercent(count, total) {
+  if (!total || total === 0) return '0%';
+  return `${((count / total) * 100).toFixed(1)}%`;
+}
+
+// Global Chart Options with dark theme
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { labels: { color: '#9ca3af', font: { family: 'Inter', size: 12 } } }
+  },
+  scales: {
+    x: { ticks: { color: '#9ca3af' }, grid: { color: '#1f293d' } },
+    y: { ticks: { color: '#9ca3af' }, grid: { color: '#1f293d' }, beginAtZero: true }
+  }
+};
+
+async function loadAnalyticsData() {
+  if (!supabaseClient) initSupabase();
+
+  if (!supabaseClient) {
+    document.getElementById('kpiGrid').innerHTML = `<div class="loading-box" style="color: var(--danger)">Error: Unable to connect to Supabase. Check config/config.js.</div>`;
+    return;
+  }
+
+  try {
+    const { data: records, error } = await supabaseClient
+      .from('oral_clinical_assessments')
+      .select('*');
+
+    if (error) throw error;
+
+    const total = records ? records.length : 0;
+    document.getElementById('totalPatientsBadge').textContent = `Total Assessments: ${total}`;
+
+    if (total === 0) {
+      document.getElementById('kpiGrid').innerHTML = `<div class="loading-box">No clinical records found in oral_clinical_assessments.</div>`;
+      return;
+    }
+
+    // 1. Process Metrics
+    let maleCount = 0, femaleCount = 0, otherSexCount = 0;
+    let smokingCount = 0, chewingCount = 0, alcoholCount = 0;
+    let ulcerPresentCount = 0, swellingCount = 0, lymphNodePalpableCount = 0;
+    
+    // Detailed Chewing Types
+    const chewingTypes = {
+      'Tobacco Chewing': 0,
+      'Gutkha': 0,
+      'Khaini': 0,
+      'Snuff': 0,
+      'Mawa': 0,
+      'Betel Nut': 0,
+      'Betel Quid': 0
+    };
+
+    // Systemic Diseases
+    const systemic = {
+      'Diabetes Mellitus': 0,
+      'Hypertension': 0,
+      'HIV Infection': 0,
+      'Tuberculosis': 0,
+      'Bronchial Asthma': 0
+    };
+
+    // Lesion Locations
+    const lesionLocations = {};
+
+    records.forEach(r => {
+      // Gender
+      const sex = (r.sex || '').toLowerCase();
+      if (sex === 'male') maleCount++;
+      else if (sex === 'female') femaleCount++;
+      else if (sex) otherSexCount++;
+
+      // Key Habits
+      if ((r.smoking || '').toLowerCase() === 'yes') smokingCount++;
+      if ((r.any_chewing_habits || '').toLowerCase() === 'yes') chewingCount++;
+      if ((r.alcohol || '').toLowerCase() === 'yes') alcoholCount++;
+
+      // Detailed Chewing
+      if ((r.tobacco_chewing || '').toLowerCase() === 'yes') chewingTypes['Tobacco Chewing']++;
+      if ((r.gutkha || '').toLowerCase() === 'yes') chewingTypes['Gutkha']++;
+      if ((r.khaini || '').toLowerCase() === 'yes') chewingTypes['Khaini']++;
+      if ((r.snuff || '').toLowerCase() === 'yes') chewingTypes['Snuff']++;
+      if ((r.mawa || '').toLowerCase() === 'yes') chewingTypes['Mawa']++;
+      if ((r.betel_nut_chewing || '').toLowerCase() === 'yes') chewingTypes['Betel Nut']++;
+      if ((r.betel_quid_consumption || '').toLowerCase() === 'yes') chewingTypes['Betel Quid']++;
+
+      // Ulcers (< 2 wks OR > 2 wks)
+      if ((r.ulcer_less_than_2_weeks || '').toLowerCase() === 'yes' || (r.ulcer_greater_than_2_weeks || '').toLowerCase() === 'yes') {
+        ulcerPresentCount++;
+      }
+
+      // Swelling
+      if ((r.swelling || '').toLowerCase() === 'yes') swellingCount++;
+
+      // Lymph Nodes Palpable
+      if ((r.regional_lymph_node_palpability || '').toLowerCase().includes('palpable') && !(r.regional_lymph_node_palpability || '').toLowerCase().includes('non')) {
+        lymphNodePalpableCount++;
+      }
+
+      // Systemic
+      if ((r.diabetes_mellitus || '').toLowerCase() === 'yes') systemic['Diabetes Mellitus']++;
+      if ((r.hypertension || '').toLowerCase() === 'yes') systemic['Hypertension']++;
+      if ((r.hiv_infection || '').toLowerCase() === 'yes') systemic['HIV Infection']++;
+      if ((r.tuberculosis || '').toLowerCase() === 'yes') systemic['Tuberculosis']++;
+      if ((r.bronchial_asthma || '').toLowerCase() === 'yes') systemic['Bronchial Asthma']++;
+
+      // Lesion Location
+      if (r.lesion_location && r.lesion_location.trim() !== '') {
+        const loc = r.lesion_location.trim();
+        lesionLocations[loc] = (lesionLocations[loc] || 0) + 1;
+      }
+    });
+
+    // 2. Render Top KPI Grid (Only display cards where count >= 1)
+    const kpiCandidates = [
+      { label: 'Male Patients', count: maleCount },
+      { label: 'Female Patients', count: femaleCount },
+      { label: 'Other Gender', count: otherSexCount },
+      { label: 'Tobacco Smokers', count: smokingCount },
+      { label: 'Chewing Habits Present', count: chewingCount },
+      { label: 'Alcohol Consumers', count: alcoholCount },
+      { label: 'Ulcers Present', count: ulcerPresentCount },
+      { label: 'Swelling Present', count: swellingCount },
+      { label: 'Palpable Lymph Nodes', count: lymphNodePalpableCount }
+    ];
+
+    const kpiContainer = document.getElementById('kpiGrid');
+    kpiContainer.innerHTML = '';
+
+    kpiCandidates.filter(item => item.count >= 1).forEach(item => {
+      const pct = calcPercent(item.count, total);
+      const card = document.createElement('div');
+      card.className = 'kpi-card';
+      card.innerHTML = `
+        <div class="kpi-label">${item.label}</div>
+        <div class="kpi-value-container">
+          <span class="kpi-value">${item.count}</span>
+          <span class="kpi-percent">(${pct})</span>
         </div>
-        <div class="flex items-center gap-3">
-            <span id="dbStatusBadge" class="text-xs font-mono bg-slate-900/80 text-slate-400 border border-slate-700/60 px-3 py-1.5 rounded-full flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span> Connecting to Supabase...
-            </span>
-        </div>
-    </header>
+      `;
+      kpiContainer.appendChild(card);
+    });
 
-    <main class="max-w-7xl mx-auto space-y-8 relative z-10">
-        
-        <!-- NFC API Warning Banner -->
-        <div id="nfcStatusBanner" class="hidden flex items-center gap-3 p-4 bg-red-950/40 border border-red-800/60 text-red-200 rounded-2xl backdrop-blur-md">
-            <span class="text-xl">⚠️</span>
-            <p id="nfcStatusMessage" class="text-sm font-medium">Web NFC API unavailable. Please open using Chrome on an Android NFC device over HTTPS.</p>
-        </div>
+    // 3. Render Gender Doughnut Chart (Only if total >= 1)
+    const sexLabels = [];
+    const sexData = [];
+    const sexColors = [];
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            <!-- PANEL 1: ACTIVATE NEW CARD -->
-            <section class="glass-panel p-8 rounded-3xl shadow-neon-cyan space-y-6">
-                <div class="flex items-center gap-4 pb-4 border-b border-slate-800">
-                    <div class="w-12 h-12 rounded-2xl bg-cyanAccent/10 border border-cyanAccent/30 flex items-center justify-center text-cyanAccent text-2xl">
-                        💳
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-bold text-white">Activate Patient Card</h2>
-                        <p class="text-slate-400 text-xs">Write patient record directly to NFC tag</p>
-                    </div>
-                </div>
+    if (maleCount >= 1) { sexLabels.push('Male'); sexData.push(maleCount); sexColors.push('#2563eb'); }
+    if (femaleCount >= 1) { sexLabels.push('Female'); sexData.push(femaleCount); sexColors.push('#ec4899'); }
+    if (otherSexCount >= 1) { sexLabels.push('Other'); sexData.push(otherSexCount); sexColors.push('#8b5cf6'); }
 
-                <!-- Supabase Live Dropdown -->
-                <div class="space-y-2">
-                    <label class="block text-xs font-mono uppercase tracking-wider text-cyanAccent">SELECT PATIENT (oral_clinical_assessment)</label>
-                    <select id="patientSelect" disabled class="w-full h-12 bg-slate-950/80 border border-slate-700/80 rounded-xl px-4 text-sm text-slate-200 focus:outline-none focus:border-cyanAccent focus:ring-1 focus:ring-cyanAccent transition">
-                        <option value="" disabled selected>-- Fetching Records from Database... --</option>
-                    </select>
-                </div>
-
-                <button onclick="startNFCWrite()" class="w-full h-14 bg-gradient-to-r from-cyan-500 to-cyan-600 text-darkBg font-bold text-sm tracking-wide uppercase rounded-xl flex items-center justify-center gap-3 hover:shadow-neon-cyan hover:opacity-95 transition active:scale-95">
-                    <span>📡</span> Tap Card to Write &amp; Activate
-                </button>
-            </section>
-
-            <!-- PANEL 2: SEARCH VIA CARD -->
-            <section class="glass-panel p-8 rounded-3xl shadow-neon-emerald space-y-6 flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center gap-4 pb-4 border-b border-slate-800 mb-6">
-                        <div class="w-12 h-12 rounded-2xl bg-emeraldAccent/10 border border-emeraldAccent/30 flex items-center justify-center text-emeraldAccent text-2xl">
-                            🔍
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-bold text-white">NFC Patient Search</h2>
-                            <p class="text-slate-400 text-xs">Instant lookup via encoded NFC card</p>
-                        </div>
-                    </div>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        Tap an activated patient NFC card against the reader. The system reads the <code class="text-emeraldAccent font-mono text-xs">patient_id</code>, queries the <code class="text-emeraldAccent font-mono text-xs">oral_clinical_assessment</code> table, and retrieves full diagnostics.
-                    </p>
-                </div>
-
-                <button onclick="startNFCRead()" class="w-full h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 text-darkBg font-bold text-sm tracking-wide uppercase rounded-xl flex items-center justify-center gap-3 hover:shadow-neon-emerald hover:opacity-95 transition active:scale-95 mt-6">
-                    <span>📡</span> Start Scanning NFC Card
-                </button>
-            </section>
-        </div>
-
-    </main>
-
-    <!-- RADAR ANIMATION DIALOG -->
-    <dialog id="nfcAnimDialog" class="bg-transparent backdrop:bg-darkBg/90 outline-none p-0 overflow-hidden">
-        <div class="w-80 md:w-96 glass-panel border-2 border-slate-700/80 rounded-3xl p-8 flex flex-col items-center text-center space-y-6 relative shadow-2xl">
-            
-            <button onclick="closeNFCAnim()" class="absolute top-4 right-4 text-slate-500 hover:text-white text-2xl font-light focus:outline-none">✕</button>
-
-            <!-- Radar Graphic -->
-            <div class="relative w-36 h-36 flex items-center justify-center my-2">
-                <div id="radarRings" class="hidden">
-                    <div class="radar-ring"></div>
-                    <div class="radar-ring"></div>
-                    <div class="radar-ring"></div>
-                </div>
-                <div class="w-28 h-28 rounded-full bg-slate-950 border border-slate-700 flex items-center justify-center text-6xl shadow-inner relative z-10">
-                    <span id="nfcDialogIcon">📡</span>
-                </div>
-            </div>
-
-            <div class="space-y-1">
-                <h3 id="nfcDialogTitle" class="text-lg font-bold text-white">NFC Reader Initialized</h3>
-                <p id="nfcDialogText" class="text-slate-400 text-xs leading-relaxed">Hold your NFC card against the back of your mobile device.</p>
-            </div>
-
-            <span class="text-[10px] font-mono text-slate-500 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">SUPABASE DATABASE SYNC ACTIVE</span>
-        </div>
-    </dialog>
-
-    <!-- FULL OVERVIEW DIALOG (RETRIEVED FROM SUPABASE) -->
-    <dialog id="patientInfoDialog" class="bg-transparent backdrop:bg-darkBg/90 outline-none p-0 overflow-hidden w-full max-w-4xl mx-4">
-        <div class="glass-panel border-2 border-slate-700/80 rounded-3xl p-6 md:p-8 space-y-6 relative shadow-neon-violet">
-            
-            <button onclick="closePatientDialog()" class="absolute top-4 right-4 text-slate-500 hover:text-white text-2xl font-light focus:outline-none">✕</button>
-
-            <!-- Patient Header -->
-            <div class="flex flex-wrap items-center gap-4 pb-6 border-b border-slate-800">
-                <div id="dialogSexAvatar" class="w-16 h-16 rounded-2xl bg-violetAccent/20 text-violetAccent flex items-center justify-center text-3xl border border-violetAccent/30">
-                    👤
-                </div>
-                <div>
-                    <h3 id="dialogPatientName" class="text-2xl font-extrabold text-white">--</h3>
-                    <div class="flex items-center gap-3 mt-1">
-                        <span id="dialogPatientId" class="text-cyanAccent font-mono text-xs font-bold bg-cyan-950/60 border border-cyan-800 px-2.5 py-0.5 rounded-md">--</span>
-                        <span id="dialogOpdNo" class="text-slate-400 font-mono text-xs">OPD: --</span>
-                    </div>
-                </div>
-                <span class="ml-auto text-xs font-mono bg-emerald-950/80 text-emeraldAccent border border-emerald-800 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emeraldAccent animate-pulse"></span> NFC VERIFIED
-                </span>
-            </div>
-
-            <!-- Full Patient Data Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                
-                <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-500 block font-mono text-[10px] uppercase">AGE / SEX</span>
-                    <span id="dialogAgeSex" class="text-slate-200 font-bold text-sm">--</span>
-                </div>
-
-                <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-500 block font-mono text-[10px] uppercase">RELIGION</span>
-                    <span id="dialogReligion" class="text-slate-200 font-bold text-sm">--</span>
-                </div>
-
-                <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-500 block font-mono text-[10px] uppercase">OCCUPATION</span>
-                    <span id="dialogOccupation" class="text-slate-200 font-bold text-sm">--</span>
-                </div>
-
-                <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-500 block font-mono text-[10px] uppercase">LOCATION</span>
-                    <span id="dialogLocation" class="text-slate-200 font-bold text-sm truncate block">--</span>
-                </div>
-
-                <!-- Clinical Details Row -->
-                <div class="col-span-2 md:col-span-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-500 block font-mono text-[10px] uppercase">HABITS HISTORY</span>
-                    <div id="dialogHabits" class="text-slate-300 mt-1 space-x-2">--</div>
-                </div>
-
-                <div class="col-span-2 md:col-span-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-500 block font-mono text-[10px] uppercase">HISTOLOGY / STAGING</span>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span id="dialogHistGrade" class="bg-violet-950 text-violet-300 border border-violet-800 px-2 py-0.5 rounded font-mono text-[11px]">Grade: --</span>
-                        <span id="dialogTceStage" class="bg-rose-950 text-rose-300 border border-rose-800 px-2 py-0.5 rounded font-mono text-[11px]">Stage: --</span>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Footer Buttons -->
-            <div class="pt-4 border-t border-slate-800 flex justify-end gap-3">
-                <button onclick="closePatientDialog()" class="px-5 py-2.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl transition">
-                    Dismiss
-                </button>
-            </div>
-        </div>
-    </dialog>
-
-    <!-- Supabase Data Retrieval Script -->
-    <script>
-        let cachedPatients = [];
-        const selectEl = document.getElementById('patientSelect');
-        const dbBadge = document.getElementById('dbStatusBadge');
-
-        // Fetch records from oral_clinical_assessment on page load
-        async function fetchPatientRecords() {
-            try {
-                // Ensure config variables exist
-                const url = window.supabaseUrl || window.SUPABASE_URL;
-                const key = window.supabaseKey || window.SUPABASE_KEY;
-                const table = window.tableName || 'oral_clinical_assessment';
-
-                if (!url || !key) {
-                    throw new Error("Missing Supabase credentials in config/config.js");
-                }
-
-                // Initialize Supabase client
-                const supabase = window.supabase.createClient(url, key);
-
-                const { data, error } = await supabase
-                    .from(table)
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                cachedPatients = data || [];
-                populateDropdown(cachedPatients);
-
-                dbBadge.className = "text-xs font-mono bg-emerald-950/80 text-emeraldAccent border border-emerald-800/80 px-3 py-1.5 rounded-full flex items-center gap-2";
-                dbBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emeraldAccent"></span> Supabase Connected (${cachedPatients.length} Records)`;
-            } catch (err) {
-                console.error("Supabase connection error:", err);
-                dbBadge.className = "text-xs font-mono bg-rose-950/80 text-rose-300 border border-rose-800 px-3 py-1.5 rounded-full flex items-center gap-2";
-                dbBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-roseAccent"></span> DB Error: Check config.js`;
+    if (sexData.length >= 1) {
+      new Chart(document.getElementById('sexChart'), {
+        type: 'doughnut',
+        data: {
+          labels: sexLabels,
+          datasets: [{
+            data: sexData,
+            backgroundColor: sexColors,
+            borderColor: '#111827',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#9ca3af' } },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.label}: ${ctx.raw} (${calcPercent(ctx.raw, total)})`
+              }
             }
+          }
         }
+      });
+    } else {
+      document.getElementById('cardSexChart').style.display = 'none';
+    }
 
-        function populateDropdown(patients) {
-            selectEl.innerHTML = '<option value="" disabled selected>-- Select Patient Record --</option>';
-            if (patients.length === 0) {
-                selectEl.innerHTML = '<option value="" disabled selected>-- No Patient Records Found --</option>';
-                return;
+    // 4. Render Habits Bar Chart (Only include habits with >= 1 entry)
+    const habitLabels = [];
+    const habitData = [];
+
+    if (smokingCount >= 1) { habitLabels.push('Smoking'); habitData.push(smokingCount); }
+    if (chewingCount >= 1) { habitLabels.push('Any Chewing'); habitData.push(chewingCount); }
+    if (alcoholCount >= 1) { habitLabels.push('Alcohol'); habitData.push(alcoholCount); }
+
+    // Add specific chewing subtypes if >= 1
+    Object.keys(chewingTypes).forEach(type => {
+      if (chewingTypes[type] >= 1) {
+        habitLabels.push(type);
+        habitData.push(chewingTypes[type]);
+      }
+    });
+
+    if (habitData.length >= 1) {
+      new Chart(document.getElementById('habitsChart'), {
+        type: 'bar',
+        data: {
+          labels: habitLabels,
+          datasets: [{
+            label: 'Patients',
+            data: habitData,
+            backgroundColor: '#3b82f6',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          ...chartOptions,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `Count: ${ctx.raw} (${calcPercent(ctx.raw, total)})`
+              }
             }
-            patients.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p.patient_id;
-                opt.textContent = `${p.patient_id} - ${p.patient_name || 'Anonymous'} (${p.sex || 'N/A'}, ${p.age || 'N/A'})`;
-                selectEl.appendChild(opt);
-            });
-            selectEl.disabled = false;
+          }
         }
+      });
+    } else {
+      document.getElementById('cardHabitsChart').style.display = 'none';
+    }
 
-        window.getPatientById = (id) => cachedPatients.find(p => p.patient_id === id);
+    // 5. Render Lesion Locations List (Filter >= 1)
+    const lesionListContainer = document.getElementById('lesionLocationsList');
+    lesionListContainer.innerHTML = '';
 
-        // Run fetch when document is ready
-        document.addEventListener('DOMContentLoaded', fetchPatientRecords);
-    </script>
+    const validLocations = Object.entries(lesionLocations).filter(([loc, count]) => count >= 1);
 
-    <!-- Web NFC Interactions -->
-    <script>
-        const animDialog = document.getElementById('nfcAnimDialog');
-        const radarRings = document.getElementById('radarRings');
-        const dialogIcon = document.getElementById('nfcDialogIcon');
-        const dialogTitle = document.getElementById('nfcDialogTitle');
-        const dialogText = document.getElementById('nfcDialogText');
-        const patientDialog = document.getElementById('patientInfoDialog');
+    if (validLocations.length >= 1) {
+      validLocations.sort((a, b) => b[1] - a[1]).forEach(([loc, count]) => {
+        const row = document.createElement('div');
+        row.className = 'stats-row';
+        row.innerHTML = `
+          <span class="stats-row-label">${loc}</span>
+          <div class="stats-row-val">
+            <span>${count}</span>
+            <span class="stats-badge">${calcPercent(count, total)}</span>
+          </div>
+        `;
+        lesionListContainer.appendChild(row);
+      });
+    } else {
+      lesionListContainer.innerHTML = `<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px;">No lesion location entries recorded.</div>`;
+    }
 
-        const checkNfcSupport = () => {
-            if (!('NDEFReader' in window)) {
-                document.getElementById('nfcStatusBanner').classList.remove('hidden');
-                return false;
-            }
-            return true;
-        };
+    // 6. Render Systemic Conditions List (Filter >= 1)
+    const systemicContainer = document.getElementById('systemicDiseasesList');
+    systemicContainer.innerHTML = '';
 
-        const showNFCAnim = (type) => {
-            if (type === 'write') {
-                dialogIcon.innerText = '💳';
-                dialogTitle.innerText = 'Ready to Write NFC Card';
-                dialogText.innerText = 'Tap your NFC card against the back of your phone to save the patient record.';
-            } else {
-                dialogIcon.innerText = '🔍';
-                dialogTitle.innerText = 'NFC Reader Active';
-                dialogText.innerText = 'Tap any patient NFC card to bring up full assessment details.';
-            }
-            radarRings.classList.remove('hidden');
-            animDialog.showModal();
-        };
+    const validSystemic = Object.entries(systemic).filter(([disease, count]) => count >= 1);
 
-        const closeNFCAnim = () => {
-            radarRings.classList.add('hidden');
-            animDialog.close();
-        };
+    if (validSystemic.length >= 1) {
+      validSystemic.sort((a, b) => b[1] - a[1]).forEach(([disease, count]) => {
+        const row = document.createElement('div');
+        row.className = 'stats-row';
+        row.innerHTML = `
+          <span class="stats-row-label">${disease}</span>
+          <div class="stats-row-val">
+            <span>${count}</span>
+            <span class="stats-badge">${calcPercent(count, total)}</span>
+          </div>
+        `;
+        systemicContainer.appendChild(row);
+      });
+    } else {
+      systemicContainer.innerHTML = `<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px;">No systemic conditions recorded (Count < 1).</div>`;
+    }
 
-        const closePatientDialog = () => patientDialog.close();
+  } catch (err) {
+    console.error('Error fetching analytics:', err);
+    document.getElementById('kpiGrid').innerHTML = `<div class="loading-box" style="color: var(--danger)">Failed to compute analytics: ${err.message}</div>`;
+  }
+}
 
-        // 1. NFC WRITE LOGIC
-        let ndefWriter = null;
-        async function startNFCWrite() {
-            if (!checkNfcSupport()) return;
+window.addEventListener('DOMContentLoaded', loadAnalyticsData);
+</script>
 
-            const patientId = selectEl.value;
-            if (!patientId) {
-                alert("Please select a patient record from the dropdown first.");
-                return;
-            }
-
-            showNFCAnim('write');
-
-            try {
-                if (!ndefWriter) ndefWriter = new NDEFReader();
-
-                const payload = JSON.stringify({ patient_id: patientId });
-
-                await ndefWriter.write({
-                    records: [{ recordType: "text", data: payload }]
-                });
-
-                dialogIcon.innerText = '✅';
-                dialogTitle.innerText = 'Card Written!';
-                dialogText.innerHTML = `Linked successfully to <b class="text-cyanAccent">${patientId}</b>.`;
-                radarRings.classList.add('hidden');
-
-                setTimeout(closeNFCAnim, 2200);
-            } catch (err) {
-                console.error(err);
-                dialogIcon.innerText = '❌';
-                dialogTitle.innerText = 'Write Aborted';
-                dialogText.innerText = err.message || 'Failed to write data to NFC card.';
-                radarRings.classList.add('hidden');
-            }
-        }
-
-        // 2. NFC READ LOGIC
-        let ndefReader = null;
-        async function startNFCRead() {
-            if (!checkNfcSupport()) return;
-
-            showNFCAnim('read');
-
-            try {
-                if (!ndefReader) ndefReader = new NDEFReader();
-                await ndefReader.scan();
-
-                ndefReader.onreading = ({ message }) => {
-                    closeNFCAnim();
-                    const record = message.records.find(r => r.recordType === "text");
-                    if (record) {
-                        const decoder = new TextDecoder();
-                        const decodedData = JSON.parse(decoder.decode(record.data));
-                        
-                        const patientId = decodedData.patient_id || decodedData.id;
-                        const patientRecord = window.getPatientById(patientId);
-
-                        if (patientRecord) {
-                            renderFullPatientModal(patientRecord);
-                        } else {
-                            alert(`Card scanned (ID: ${patientId}), but record was not found in oral_clinical_assessment.`);
-                        }
-                    }
-                };
-            } catch (err) {
-                console.error(err);
-                dialogIcon.innerText = '❌';
-                dialogTitle.innerText = 'Scan Error';
-                dialogText.innerText = err.message || 'Unable to scan NFC tag.';
-                radarRings.classList.add('hidden');
-            }
-        }
-
-        // 3. RENDER FULL OVERVIEW
-        function renderFullPatientModal(p) {
-            document.getElementById('dialogPatientName').innerText = p.patient_name || 'Anonymous';
-            document.getElementById('dialogPatientId').innerText = p.patient_id || 'N/A';
-            document.getElementById('dialogOpdNo').innerText = `OPD: ${p.opd_no || 'N/A'}`;
-            document.getElementById('dialogAgeSex').innerText = `${p.age || 'N/A'} Yrs / ${p.sex || 'N/A'}`;
-            document.getElementById('dialogReligion').innerText = p.religion || 'N/A';
-            document.getElementById('dialogOccupation').innerText = p.occupation || 'N/A';
-            document.getElementById('dialogLocation').innerText = p.patient_location || 'N/A';
-
-            const cigarette = p.cigarette_smoking === 'Yes' ? '🚬 Smoker' : null;
-            const alcohol = p.alcohol === 'Yes' ? '🍷 Alcohol' : null;
-            const habits = [cigarette, alcohol].filter(Boolean).join(' • ') || 'No reported habits';
-            document.getElementById('dialogHabits').innerText = habits;
-
-            document.getElementById('dialogHistGrade').innerText = `Grade: ${p.hist_grade || 'N/A'}`;
-            document.getElementById('dialogTceStage').innerText = `Stage: ${p.tce_stage || 'N/A'}`;
-
-            const avatar = document.getElementById('dialogSexAvatar');
-            if (p.sex === 'Female') {
-                avatar.className = "w-16 h-16 rounded-2xl bg-roseAccent/20 text-roseAccent flex items-center justify-center text-3xl border border-roseAccent/30";
-            } else {
-                avatar.className = "w-16 h-16 rounded-2xl bg-violetAccent/20 text-violetAccent flex items-center justify-center text-3xl border border-violetAccent/30";
-            }
-
-            patientDialog.showModal();
-        }
-    </script>
 </body>
 </html>
