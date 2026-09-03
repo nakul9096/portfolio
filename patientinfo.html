@@ -462,7 +462,7 @@
             </svg>
 
             <p id="nfcStatusMessage">
-                Web NFC is not available on this device. The system will use the local Arduino NFC bridge.
+                Desktop direct-serial mode is available through Chrome/Edge.
             </p>
         </div>
 
@@ -497,7 +497,7 @@
                 </button>
 
                 <p class="mt-3 text-xs text-slate-500">
-                    Mobile: uses Web NFC. Laptop: uses the Arduino bridge at <code>127.0.0.1:5000</code>.
+                    Desktop: connects directly to the Arduino USB serial port using Web Serial. No Flask/server required.
                 </p>
             </section>
 
@@ -515,7 +515,7 @@
 
                 <div class="mt-6 soft-panel p-4">
                     <p class="text-sm leading-6 text-slate-600">
-                        The NFC tag stores a small payload containing the
+                        The NFC tag stores the patient identifier. The desktop browser communicates directly with Arduino over USB.
                         <code class="font-semibold text-slate-800">patient_id</code>.
                         The dashboard uses that ID to retrieve and display the patient assessment.
                     </p>
@@ -531,7 +531,7 @@
                 </button>
 
                 <p class="mt-3 text-xs text-slate-500">
-                    Keep the tag close to your phone or Arduino NFC reader while scanning.
+                    Keep the NFC tag directly over the RC522 reader while scanning.
                 </p>
             </section>
         </main>
@@ -812,7 +812,14 @@
 
     <script>
         const TABLE_NAME = "oral_clinical_assessments";
-        const ARDUINO_API_BASE = "http://127.0.0.1:5000";
+
+        // =========================
+        // DIRECT ARDUINO WEB SERIAL
+        // =========================
+        let serialPort = null;
+        let serialReader = null;
+        let serialBuffer = "";
+        let serialConnected = false;
 
         let cachedPatients = [];
         let ndefWriter = null;
@@ -833,6 +840,7 @@
         const nfcBannerMessage = document.getElementById("nfcStatusMessage");
 
         const isMobileNfcAvailable = "NDEFReader" in window;
+        const isWebSerialAvailable = "serial" in navigator;
 
         function escapeHtml(value) {
             return String(value ?? "")
@@ -878,37 +886,31 @@
         }
 
         function closeNFCAnim() {
-            if (animDialog.open) {
-                animDialog.close();
-            }
+            if (animDialog.open) animDialog.close();
         }
 
         function closePatientDialog() {
-            if (patientDialog.open) {
-                patientDialog.close();
-            }
+            if (patientDialog.open) patientDialog.close();
         }
 
-        function showNFCAnim(type, source) {
+        function showNFCAnim(type, source = "arduino") {
             if (type === "write") {
                 dialogIcon.textContent = "💳";
                 dialogTitle.textContent = "Writing NFC Tag";
                 dialogText.textContent =
-                    source === "arduino"
-                        ? "Hold the tag near the Arduino NFC reader."
-                        : "Hold the NFC tag near your mobile device.";
+                    source === "mobile"
+                        ? "Hold the NFC tag near your mobile device."
+                        : "Hold the NFC tag near the RC522 reader.";
             } else {
                 dialogIcon.textContent = "📡";
                 dialogTitle.textContent = "Reading NFC Tag";
                 dialogText.textContent =
-                    source === "arduino"
-                        ? "Hold the tag near the Arduino NFC reader."
-                        : "Hold the NFC tag near your mobile device.";
+                    source === "mobile"
+                        ? "Hold the NFC tag near your mobile device."
+                        : "Hold the NFC tag near the RC522 reader.";
             }
 
-            if (!animDialog.open) {
-                animDialog.showModal();
-            }
+            if (!animDialog.open) animDialog.showModal();
         }
 
         function showNfcError(error, defaultMessage) {
@@ -919,18 +921,21 @@
             dialogText.textContent =
                 error?.message || defaultMessage || "Unable to communicate with the NFC reader.";
 
-            if (!animDialog.open) {
-                animDialog.showModal();
-            }
+            if (!animDialog.open) animDialog.showModal();
         }
 
+        // =========================
+        // SUPABASE
+        // =========================
         async function fetchPatientRecords() {
             try {
                 const url = window.CONFIG?.SUPABASE_URL;
                 const key = window.CONFIG?.SUPABASE_ANON_KEY;
 
                 if (!url || !key) {
-                    throw new Error("SUPABASE_URL or SUPABASE_ANON_KEY is missing in config/config.js.");
+                    throw new Error(
+                        "SUPABASE_URL or SUPABASE_ANON_KEY is missing in config/config.js."
+                    );
                 }
 
                 const supabase = window.supabase.createClient(url, key);
@@ -940,9 +945,7 @@
                     .select("*")
                     .order("created_at", { ascending: false });
 
-                if (error) {
-                    throw error;
-                }
+                if (error) throw error;
 
                 cachedPatients = data || [];
                 populateDropdown(cachedPatients);
@@ -954,10 +957,7 @@
             } catch (error) {
                 console.error("Supabase connection error:", error);
 
-                updateDatabaseBadge(
-                    "error",
-                    "Database connection failed"
-                );
+                updateDatabaseBadge("error", "Database connection failed");
 
                 selectEl.innerHTML = `
                     <option value="" selected disabled>
@@ -999,7 +999,8 @@
 
         window.getPatientById = function (id) {
             return cachedPatients.find((patient) =>
-                String(patient.patient_id) === String(id)
+                String(patient.patient_id).trim().toUpperCase() ===
+                String(id).trim().toUpperCase()
             );
         };
 
@@ -1014,6 +1015,351 @@
             return patientId;
         }
 
+        // =========================
+        // WEB SERIAL
+        // =========================
+        async function connectArduino() {
+            if (!isWebSerialAvailable) {
+                throw new Error(
+                    "Web Serial is not supported. Use Google Chrome or Microsoft Edge on a desktop."
+                );
+            }
+
+            // Reuse already-open connection.
+            if (serialPort && serialPort.readable && serialPort.writable) {
+                serialConnected = true;
+                return;
+            }
+
+            // Browser security requires the user to select the serial port.
+            serialPort = await navigator.serial.requestPort();
+
+            await serialPort.open({
+                baudRate: 9600,
+                dataBits: 8,
+                stopBits: 1,
+                parity: "none",
+                bufferSize: 256,
+                flowControl: "none"
+            });
+
+            serialConnected = true;
+            serialBuffer = "";
+
+            updateSerialStatus(true);
+
+            // Start the continuous reader.
+            readSerialLoop();
+
+            // Give Arduino time to reset after opening the port.
+            await new Promise(resolve => setTimeout(resolve, 1800));
+        }
+
+        function updateSerialStatus(connected) {
+            serialConnected = connected;
+
+            if (connected) {
+                showNfcBanner(
+                    "Arduino connected directly through USB. RC522 NFC reader is ready."
+                );
+            } else {
+                showNfcBanner(
+                    "Connect Arduino through USB, then click Read or Write and select its COM port."
+                );
+            }
+        }
+
+        async function readSerialLoop() {
+            if (!serialPort?.readable) return;
+
+            serialReader = serialPort.readable.getReader();
+            const decoder = new TextDecoder();
+
+            try {
+                while (true) {
+                    const { value, done } = await serialReader.read();
+
+                    if (done) break;
+                    if (!value) continue;
+
+                    serialBuffer += decoder.decode(value, { stream: true });
+
+                    const lines = serialBuffer.split(/\r?\n/);
+                    serialBuffer = lines.pop() || "";
+
+                    for (const line of lines) {
+                        const cleanLine = line.trim();
+
+                        if (cleanLine) {
+                            console.log("Arduino:", cleanLine);
+                            handleArduinoLine(cleanLine);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Serial read error:", error);
+            } finally {
+                try {
+                    serialReader.releaseLock();
+                } catch (_) {}
+
+                serialReader = null;
+                serialConnected = false;
+                updateSerialStatus(false);
+            }
+        }
+
+        async function sendArduinoCommand(command, expectedPrefix, timeout = 12000) {
+            if (!serialPort?.writable) {
+                await connectArduino();
+            }
+
+            if (!serialPort?.writable) {
+                throw new Error("Arduino serial port is not connected.");
+            }
+
+            const writer = serialPort.writable.getWriter();
+            const encoder = new TextEncoder();
+
+            try {
+                await writer.write(encoder.encode(command + "\n"));
+            } finally {
+                writer.releaseLock();
+            }
+
+            return await waitForArduinoResponse(expectedPrefix, timeout);
+        }
+
+        let pendingResponse = null;
+
+        function handleArduinoLine(line) {
+            if (!pendingResponse) return;
+
+            if (
+                line.startsWith(pendingResponse.prefix) ||
+                line === "READ_ERROR" ||
+                line.startsWith("WRITE_ERROR")
+            ) {
+                const response = pendingResponse;
+                pendingResponse = null;
+                clearTimeout(response.timer);
+                response.resolve(line);
+            }
+        }
+
+        function waitForArduinoResponse(prefix, timeout) {
+            return new Promise((resolve, reject) => {
+                if (pendingResponse) {
+                    clearTimeout(pendingResponse.timer);
+                    pendingResponse.reject(
+                        new Error("Another Arduino command is already running.")
+                    );
+                }
+
+                const timer = setTimeout(() => {
+                    pendingResponse = null;
+                    reject(
+                        new Error(
+                            "Arduino timeout. Make sure the RC522 is connected and place an NFC card near it."
+                        )
+                    );
+                }, timeout);
+
+                pendingResponse = {
+                    prefix,
+                    resolve,
+                    reject,
+                    timer
+                };
+            });
+        }
+
+        // =========================
+        // NFC OPERATIONS
+        // =========================
+        async function startNFCWrite() {
+            const patientId = getSelectedPatientId();
+            if (!patientId) return;
+
+            // Keep Web NFC for supported mobile devices.
+            if (isMobileNfcAvailable && /Android/i.test(navigator.userAgent)) {
+                await writeUsingMobileNfc(patientId);
+                return;
+            }
+
+            await writeUsingArduino(patientId);
+        }
+
+        async function startNFCRead() {
+            // Keep Web NFC for supported mobile devices.
+            if (isMobileNfcAvailable && /Android/i.test(navigator.userAgent)) {
+                await readUsingMobileNfc();
+                return;
+            }
+
+            await readUsingArduino();
+        }
+
+        async function writeUsingMobileNfc(patientId) {
+            setButtonLoading(writeButton, true, "Writing…");
+            showNFCAnim("write", "mobile");
+
+            try {
+                if (!ndefWriter) ndefWriter = new NDEFReader();
+
+                const payload = JSON.stringify({
+                    patient_id: patientId
+                });
+
+                await ndefWriter.write({
+                    records: [
+                        {
+                            recordType: "text",
+                            data: payload
+                        }
+                    ]
+                });
+
+                dialogIcon.textContent = "✅";
+                dialogTitle.textContent = "Card Written Successfully";
+                dialogText.textContent =
+                    `Patient ID ${patientId} was stored on the NFC tag.`;
+
+                setTimeout(closeNFCAnim, 1800);
+            } catch (error) {
+                showNfcError(error, "Unable to write this NFC tag.");
+            } finally {
+                setButtonLoading(writeButton, false);
+            }
+        }
+
+        async function readUsingMobileNfc() {
+            setButtonLoading(readButton, true, "Waiting for tag…");
+            showNFCAnim("read", "mobile");
+
+            try {
+                if (!ndefReader) ndefReader = new NDEFReader();
+
+                await ndefReader.scan();
+
+                ndefReader.onreading = ({ message }) => {
+                    try {
+                        const record = message.records.find(
+                            item => item.recordType === "text"
+                        );
+
+                        if (!record) {
+                            throw new Error(
+                                "No text patient payload was found on this NFC tag."
+                            );
+                        }
+
+                        const rawText = parseNdefTextRecord(record);
+                        const patientId = extractPatientIdFromPayload(rawText);
+
+                        closeNFCAnim();
+                        handlePatientId(patientId);
+                    } catch (error) {
+                        showNfcError(
+                            error,
+                            "Unable to read the patient ID from this tag."
+                        );
+                    } finally {
+                        setButtonLoading(readButton, false);
+                    }
+                };
+            } catch (error) {
+                showNfcError(
+                    error,
+                    "Unable to start mobile NFC scanning."
+                );
+                setButtonLoading(readButton, false);
+            }
+        }
+
+        async function writeUsingArduino(patientId) {
+            setButtonLoading(writeButton, true, "Connect Arduino…");
+            showNFCAnim("write", "arduino");
+
+            try {
+                await connectArduino();
+
+                dialogText.textContent =
+                    "Arduino connected. Place the NFC card on the RC522 reader.";
+
+                const response = await sendArduinoCommand(
+                    `WRITE:${patientId}`,
+                    "WRITE_OK",
+                    15000
+                );
+
+                if (response.startsWith("WRITE_ERROR")) {
+                    throw new Error(response.substring("WRITE_ERROR".length + 1));
+                }
+
+                if (!response.startsWith("WRITE_OK")) {
+                    throw new Error("Unexpected Arduino response: " + response);
+                }
+
+                dialogIcon.textContent = "✅";
+                dialogTitle.textContent = "Card Written Successfully";
+                dialogText.textContent =
+                    `Patient ID ${patientId} was written to the NFC card.`;
+
+                setTimeout(closeNFCAnim, 1800);
+            } catch (error) {
+                showNfcError(
+                    error,
+                    "Unable to communicate directly with Arduino."
+                );
+            } finally {
+                setButtonLoading(writeButton, false);
+            }
+        }
+
+        async function readUsingArduino() {
+            setButtonLoading(readButton, true, "Connect Arduino…");
+            showNFCAnim("read", "arduino");
+
+            try {
+                await connectArduino();
+
+                dialogText.textContent =
+                    "Arduino connected. Place the NFC card on the RC522 reader.";
+
+                const response = await sendArduinoCommand(
+                    "READ",
+                    "READ:",
+                    15000
+                );
+
+                if (response === "READ_ERROR") {
+                    throw new Error(
+                        "No NFC card detected. Place the card directly on the RC522 reader."
+                    );
+                }
+
+                if (!response.startsWith("READ:")) {
+                    throw new Error("Unexpected Arduino response: " + response);
+                }
+
+                const payload = response.substring(5).trim();
+
+                closeNFCAnim();
+
+                // The current Arduino sketch returns the NFC UID.
+                // If your DB patient_id stores the UID, this opens the record.
+                handlePatientId(payload);
+            } catch (error) {
+                showNfcError(
+                    error,
+                    "Unable to communicate directly with Arduino."
+                );
+            } finally {
+                setButtonLoading(readButton, false);
+            }
+        }
+
         function parseNdefTextRecord(record) {
             const decoder = new TextDecoder();
 
@@ -1025,9 +1371,7 @@
         }
 
         function extractPatientIdFromPayload(payload) {
-            if (!payload) {
-                return null;
-            }
+            if (!payload) return null;
 
             if (typeof payload === "object") {
                 return payload.patient_id || payload.id || null;
@@ -1052,180 +1396,18 @@
             const patientRecord = window.getPatientById(patientId);
 
             if (!patientRecord) {
-                alert(`Tag read successfully, but patient ID "${patientId}" was not found in the database.`);
+                alert(
+                    `NFC value "${patientId}" was read successfully, but no matching patient_id was found in Supabase.`
+                );
                 return;
             }
 
             renderFullPatientModal(patientRecord);
         }
 
-        async function startNFCWrite() {
-            const patientId = getSelectedPatientId();
-
-            if (!patientId) {
-                return;
-            }
-
-            if (isMobileNfcAvailable) {
-                await writeUsingMobileNfc(patientId);
-            } else {
-                showNfcBanner(
-                    "Web NFC is not available on this computer. Writing through the local Arduino NFC bridge."
-                );
-                await writeUsingArduino(patientId);
-            }
-        }
-
-        async function startNFCRead() {
-            if (isMobileNfcAvailable) {
-                await readUsingMobileNfc();
-            } else {
-                showNfcBanner(
-                    "Web NFC is not available on this computer. Reading through the local Arduino NFC bridge."
-                );
-                await readUsingArduino();
-            }
-        }
-
-        async function writeUsingMobileNfc(patientId) {
-            setButtonLoading(writeButton, true, "Writing…");
-            showNFCAnim("write", "mobile");
-
-            try {
-                if (!ndefWriter) {
-                    ndefWriter = new NDEFReader();
-                }
-
-                const payload = JSON.stringify({
-                    patient_id: patientId
-                });
-
-                await ndefWriter.write({
-                    records: [
-                        {
-                            recordType: "text",
-                            data: payload
-                        }
-                    ]
-                });
-
-                dialogIcon.textContent = "✅";
-                dialogTitle.textContent = "Card Written Successfully";
-                dialogText.textContent = `Patient ID ${patientId} was stored on the NFC tag.`;
-
-                setTimeout(closeNFCAnim, 1800);
-            } catch (error) {
-                showNfcError(error, "Unable to write this NFC tag.");
-            } finally {
-                setButtonLoading(writeButton, false);
-            }
-        }
-
-        async function readUsingMobileNfc() {
-            setButtonLoading(readButton, true, "Waiting for tag…");
-            showNFCAnim("read", "mobile");
-
-            try {
-                if (!ndefReader) {
-                    ndefReader = new NDEFReader();
-                }
-
-                await ndefReader.scan();
-
-                ndefReader.onreading = ({ message }) => {
-                    try {
-                        const record = message.records.find(
-                            (item) => item.recordType === "text"
-                        );
-
-                        if (!record) {
-                            throw new Error("No text patient payload was found on this NFC tag.");
-                        }
-
-                        const rawText = parseNdefTextRecord(record);
-                        const patientId = extractPatientIdFromPayload(rawText);
-
-                        closeNFCAnim();
-                        handlePatientId(patientId);
-                    } catch (error) {
-                        showNfcError(error, "Unable to read the patient ID from this tag.");
-                    } finally {
-                        setButtonLoading(readButton, false);
-                    }
-                };
-            } catch (error) {
-                showNfcError(error, "Unable to start mobile NFC scanning.");
-                setButtonLoading(readButton, false);
-            }
-        }
-
-        async function writeUsingArduino(patientId) {
-            setButtonLoading(writeButton, true, "Writing through Arduino…");
-            showNFCAnim("write", "arduino");
-
-            try {
-                const response = await fetch(`${ARDUINO_API_BASE}/nfc/write`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        patient_id: patientId
-                    })
-                });
-
-                const result = await response.json().catch(() => ({}));
-
-                if (!response.ok || !result.success) {
-                    throw new Error(
-                        result.error ||
-                        "Arduino NFC write request failed. Check the Flask bridge and Arduino connection."
-                    );
-                }
-
-                dialogIcon.textContent = "✅";
-                dialogTitle.textContent = "Card Written Successfully";
-                dialogText.textContent =
-                    `Patient ID ${result.patient_id || patientId} was stored on the NFC tag.`;
-
-                setTimeout(closeNFCAnim, 1800);
-            } catch (error) {
-                showNfcError(
-                    error,
-                    "Unable to connect to the local Arduino NFC bridge."
-                );
-            } finally {
-                setButtonLoading(writeButton, false);
-            }
-        }
-
-        async function readUsingArduino() {
-            setButtonLoading(readButton, true, "Waiting for Arduino…");
-            showNFCAnim("read", "arduino");
-
-            try {
-                const response = await fetch(`${ARDUINO_API_BASE}/nfc/read`);
-                const result = await response.json().catch(() => ({}));
-
-                if (!response.ok || !result.success) {
-                    throw new Error(
-                        result.error ||
-                        "Arduino NFC read request failed. Place a tag near the reader and try again."
-                    );
-                }
-
-                closeNFCAnim();
-                handlePatientId(result.patient_id);
-            } catch (error) {
-                showNfcError(
-                    error,
-                    "Unable to connect to the local Arduino NFC bridge."
-                );
-            } finally {
-                setButtonLoading(readButton, false);
-            }
-        }
-
+        // =========================
+        // PATIENT DISPLAY
+        // =========================
         function setRiskBadge(riskLevel) {
             const riskBadge = document.getElementById("dialogRiskBadge");
             const normalizedRisk = String(riskLevel || "Medium").toLowerCase();
@@ -1245,7 +1427,7 @@
         }
 
         function updateLesionMap(lesionLocation, diameter) {
-            document.querySelectorAll(".lesion-group").forEach((element) => {
+            document.querySelectorAll(".lesion-group").forEach(element => {
                 element.classList.add("hidden");
             });
 
@@ -1262,7 +1444,10 @@
             } else if (lowerLocation.includes("tongue")) {
                 document.getElementById("loc-tongue").classList.remove("hidden");
                 locationTag.textContent = "Tongue";
-            } else if (lowerLocation.includes("labial") || lowerLocation.includes("lip")) {
+            } else if (
+                lowerLocation.includes("labial") ||
+                lowerLocation.includes("lip")
+            ) {
                 document.getElementById("loc-labial").classList.remove("hidden");
                 locationTag.textContent = "Labial mucosa / lip";
             } else if (lowerLocation.includes("palate")) {
@@ -1345,7 +1530,9 @@
                 patient.palpable_lymph_nodes || "None";
 
             document.getElementById("dHabitChew").textContent =
-                patient.any_chewing_habits || patient.chewing_habits || "No";
+                patient.any_chewing_habits ||
+                patient.chewing_habits ||
+                "No";
 
             document.getElementById("dHabitSmoke").textContent =
                 patient.smoking || "No";
@@ -1368,20 +1555,33 @@
 
             updateLesionMap(lesionLocation, lesionDiameter);
 
-            if (!patientDialog.open) {
-                patientDialog.showModal();
-            }
+            if (!patientDialog.open) patientDialog.showModal();
         }
 
+        // =========================
+        // INITIALIZE
+        // =========================
         document.addEventListener("DOMContentLoaded", () => {
             fetchPatientRecords();
 
-            if (!isMobileNfcAvailable) {
+            if (!isWebSerialAvailable && !isMobileNfcAvailable) {
                 showNfcBanner(
-                    "Web NFC is unavailable on this device. Connect your Arduino NFC reader and run the local Flask bridge on port 5000."
+                    "Web Serial is not supported in this browser. Use Google Chrome or Microsoft Edge."
+                );
+            } else if (isWebSerialAvailable) {
+                showNfcBanner(
+                    "Direct Arduino mode enabled. Click Read/Write and select the Arduino COM port. No Flask server is required."
                 );
             }
         });
+
+        // If the USB device is unplugged.
+        if ("serial" in navigator) {
+            navigator.serial.addEventListener("disconnect", () => {
+                serialConnected = false;
+                updateSerialStatus(false);
+            });
+        }
     </script>
 </body>
 </html>
