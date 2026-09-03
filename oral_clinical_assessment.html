@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enhanced Oral Clinical Assessment - Universal Dictation</title>
+<title>Oral Assessment</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -584,10 +584,177 @@ input:focus, select:focus, textarea:focus {
   .camera-capture-actions .btn { width: 100%; }
 }
 
+
+/* Oral Assessment header & footer */
+.oa-header {
+  position: relative;
+  z-index: 100;
+  width: 100%;
+  border-bottom: 1px solid rgba(80, 150, 255, 0.18);
+  background: rgba(7, 17, 32, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.oa-header-inner {
+  width: min(1400px, calc(100% - 40px));
+  min-height: 72px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.oa-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.oa-brand-mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(84, 158, 255, 0.35);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(39, 111, 211, 0.28), rgba(15, 45, 84, 0.5));
+  color: #8fc4ff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.oa-brand-title {
+  color: #f4f8ff;
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -0.2px;
+}
+
+.oa-brand-subtitle {
+  margin-top: 3px;
+  color: #7f96b5;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.oa-header-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(78, 211, 153, 0.16);
+  border-radius: 999px;
+  background: rgba(31, 170, 112, 0.07);
+  color: #9cb8ad;
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.oa-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #42d89b;
+  box-shadow: 0 0 0 4px rgba(66, 216, 155, 0.08);
+}
+
+.oa-footer {
+  margin-top: 48px;
+  border-top: 1px solid rgba(80, 150, 255, 0.14);
+  background: rgba(5, 13, 25, 0.78);
+}
+
+.oa-footer-inner {
+  width: min(1400px, calc(100% - 40px));
+  min-height: 68px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.oa-footer-inner strong {
+  display: block;
+  color: #c9d9ef;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.oa-footer-inner span {
+  display: block;
+  margin-top: 3px;
+  color: #687e9b;
+  font-size: 10px;
+}
+
+.oa-footer-right {
+  color: #617792;
+  font-size: 10px;
+}
+
+@media (max-width: 640px) {
+  .oa-header-inner,
+  .oa-footer-inner {
+    width: min(100% - 24px, 1400px);
+  }
+
+  .oa-header-inner {
+    min-height: 64px;
+  }
+
+  .oa-brand-mark {
+    width: 38px;
+    height: 38px;
+  }
+
+  .oa-brand-title {
+    font-size: 16px;
+  }
+
+  .oa-brand-subtitle {
+    font-size: 10px;
+  }
+
+  .oa-header-status {
+    padding: 7px 9px;
+    font-size: 10px;
+  }
+
+  .oa-footer-inner {
+    padding: 12px 0;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
 </style>
 </head>
 
 <body>
+
+<header class="oa-header">
+  <div class="oa-header-inner">
+    <div class="oa-brand">
+      <div class="oa-brand-mark">OA</div>
+      <div>
+        <div class="oa-brand-title">Oral Assessment</div>
+        <div class="oa-brand-subtitle">Clinical Assessment &amp; Registry</div>
+      </div>
+    </div>
+    <div class="oa-header-status">
+      <span class="oa-status-dot"></span>
+      Clinical Assessment
+    </div>
+  </div>
+</header>
+
 
 <div class="container">
 
@@ -2533,5 +2700,16 @@ window.addEventListener('DOMContentLoaded', () => {
   sync();
 });
 </script>
+
+<footer class="oa-footer">
+  <div class="oa-footer-inner">
+    <div>
+      <strong>Oral Assessment</strong>
+      <span>Clinical Assessment &amp; Registry Platform</span>
+    </div>
+    <div class="oa-footer-right">Secure clinical data entry</div>
+  </div>
+</footer>
+
 </body>
 </html>
