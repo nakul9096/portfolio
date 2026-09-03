@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oral Clinical Assessment</title>
+<title>Enhanced Oral Clinical Assessment - Universal Dictation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1382,34 +1382,47 @@ function getVoiceFieldElements() {
 }
 
 function normalizeVoiceText(text) {
-  return text.toLowerCase()
+  return String(text || '')
+    .toLowerCase()
     .replace(/[“”‘’]/g, '"')
     .replace(/\bmillimetres?\b/g, 'mm')
     .replace(/\bmillimeters?\b/g, 'mm')
     .replace(/\byears?\b/g, 'years')
     .replace(/\bdays?\b/g, 'days')
+    // Speech-recognition commonly hears "male" as "mail".
+    .replace(/\bmail\b/g, 'male')
+    .replace(/\bmail\b/g, 'male')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
 function cleanVoiceValue(value) {
-  return value.replace(/^[\s,:-]+|[\s,.!?]+$/g, '').trim();
+  return String(value || '')
+    .replace(/^[\s,:-]+|[\s,.!?]+$/g, '')
+    .trim();
 }
 
 function getFieldLabel(element) {
-  const label = document.querySelector(`label[for="${element.id}"]`) || element.closest('.field')?.querySelector('label');
-  return label ? label.innerText.replace('*', '').replace('(Optional)', '').trim() : element.name;
+  const label = document.querySelector(`label[for="${element.id}"]`) ||
+                element.closest('.field')?.querySelector('label');
+  return label
+    ? label.innerText.replace('*', '').replace('(Optional)', '').trim()
+    : element.name;
 }
 
 function getFieldAliases(element) {
   const label = getFieldLabel(element).toLowerCase();
   const aliases = new Set([label, element.id.toLowerCase(), element.name.toLowerCase()]);
+
   const special = {
-    patient_name: ['name', 'patient name', 'name of patient'],
-    patient_id: ['patient id', 'patient number', 'id'],
-    opd_number: ['opd', 'opd number'],
+    patient_name: ['name', 'patient name', 'name of patient', 'patient'],
+    patient_id: ['patient id', 'patient number', 'id', 'patient identifier'],
+    opd_number: ['opd', 'opd number', 'opd no', 'opd number is'],
     age: ['age'],
-    sex: ['sex', 'gender'],
+    sex: ['sex', 'gender', 'biological sex'],
+    religion: ['religion', 'religious'],
+    occupation: ['occupation', 'profession', 'job'],
+    marital_status: ['marital status', 'marital'],
     lesion_shape: ['shape', 'lesion shape'],
     lesion_location: ['location', 'lesion location', 'site', 'lesion site'],
     lesion_color: ['color', 'colour', 'lesion color', 'lesion colour'],
@@ -1427,8 +1440,9 @@ function getFieldAliases(element) {
     regional_lymph_node_number: ['node number', 'number of nodes'],
     regional_lymph_node_size_mm: ['node size', 'lymph node size']
   };
+
   (special[element.id] || []).forEach(x => aliases.add(x));
-  return [...aliases].filter(Boolean).sort((a,b) => b.length - a.length);
+  return [...aliases].filter(Boolean).sort((a, b) => b.length - a.length);
 }
 
 function findFieldFromVoicePhrase(phrase) {
@@ -1436,23 +1450,24 @@ function findFieldFromVoicePhrase(phrase) {
   const fields = getVoiceFieldElements();
   let best = null;
   let bestScore = 0;
+
   fields.forEach(field => {
     getFieldAliases(field).forEach(alias => {
-      if (normalized === alias) bestScore = Math.max(bestScore, 100);
-      else if (normalized.includes(alias)) bestScore = Math.max(bestScore, 80 + Math.min(alias.length, 15));
+      if (normalized === alias) {
+        if (100 > bestScore) {
+          best = field;
+          bestScore = 100;
+        }
+      } else if (normalized.includes(alias)) {
+        const score = 80 + Math.min(alias.length, 15);
+        if (score > bestScore) {
+          best = field;
+          bestScore = score;
+        }
+      }
     });
-    const labelWords = getFieldLabel(field).toLowerCase().split(/\s+/).filter(w => w.length > 2);
-    const overlap = labelWords.filter(w => normalized.includes(w)).length;
-    const score = overlap * 12;
-    if (score > bestScore) bestScore = score;
-    if (score > 0 && score >= bestScore) best = field;
   });
-  if (!best) {
-    for (const field of fields) {
-      const aliases = getFieldAliases(field);
-      if (aliases.some(a => normalized.includes(a))) { best = field; break; }
-    }
-  }
+
   return best;
 }
 
@@ -1462,98 +1477,204 @@ function optionSimilarity(optionText, spoken) {
   if (!a || !b) return 0;
   if (a === b) return 100;
   if (a.includes(b) || b.includes(a)) return 85;
+
   const aw = new Set(a.split(/\s+/));
   const bw = new Set(b.split(/\s+/));
-  let common = 0; bw.forEach(w => { if (aw.has(w)) common++; });
+  let common = 0;
+  bw.forEach(w => { if (aw.has(w)) common++; });
   return common ? 50 + common * 10 : 0;
+}
+
+function normalizeSpokenFieldValue(field, value) {
+  let v = cleanVoiceValue(value);
+  let n = normalizeVoiceText(v);
+
+  // Correct common speech-recognition substitutions.
+  if (field && (field.id === 'sex' || field.name === 'sex' || /sex|gender/i.test(getFieldLabel(field)))) {
+    if (/^(mail|male|man|boy)$/i.test(n)) return 'Male';
+    if (/^(female|femail|woman|girl)$/i.test(n)) return 'Female';
+  }
+
+  return v;
 }
 
 function setFieldFromVoice(field, rawValue) {
   if (!field) return null;
-  let value = cleanVoiceValue(rawValue);
+
+  let value = normalizeSpokenFieldValue(field, rawValue);
   if (!value) return null;
 
   if (field.tagName === 'SELECT') {
     const options = Array.from(field.options).filter(o => o.value !== '');
-    let best = null, score = 0;
+    let best = null;
+    let score = 0;
+
     options.forEach(opt => {
-      const s = optionSimilarity(opt.text, value) + optionSimilarity(opt.value, value);
-      if (s > score) { score = s; best = opt; }
+      let s = optionSimilarity(opt.text, value) + optionSimilarity(opt.value, value);
+
+      // Strong exact normalization for values such as Male/Female.
+      if (normalizeVoiceText(opt.text) === normalizeVoiceText(value)) s += 100;
+      if (normalizeVoiceText(opt.value) === normalizeVoiceText(value)) s += 100;
+
+      if (s > score) {
+        score = s;
+        best = opt;
+      }
     });
+
     if (best && score >= 50) {
       field.value = best.value;
       field.dispatchEvent(new Event('change', { bubbles: true }));
       field.dispatchEvent(new Event('input', { bubbles: true }));
       return best.text;
     }
+
     return null;
   }
 
   if (field.type === 'number') {
+    // Understand both "28" and spoken number phrases where possible.
     const numberMatch = value.replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
     if (!numberMatch) return null;
     field.value = numberMatch[0];
-  } else if (field.type === 'text' || field.tagName === 'TEXTAREA') {
-    field.value = value;
   } else {
     field.value = value;
   }
+
   field.dispatchEvent(new Event('input', { bubbles: true }));
   field.dispatchEvent(new Event('change', { bubbles: true }));
   return field.value;
 }
 
 function splitVoiceStatements(transcript) {
-  return transcript
-    .replace(/\bthen\b/gi, ',')
-    .replace(/\band\s+(?=(?:patient|opd|age|sex|gender|smoking|chewing|alcohol|lesion|pain|swelling|bleeding|ulcer|lymph|node|weight|loss|mouth|residence|occupation|religion|marital))/gi, ',')
+  return normalizeVoiceText(transcript)
+    .replace(/\bthen\b/g, ',')
+    .replace(/\band\s+(?=(?:patient|opd|age|sex|gender|religion|occupation|profession|marital|smoking|chewing|alcohol|lesion|pain|swelling|bleeding|ulcer|lymph|node|weight|loss|mouth|residence))/g, ',')
     .split(/[,;]+/)
     .map(x => x.trim())
     .filter(Boolean);
 }
 
+/*
+ * Conversational parser:
+ * "patient ID 01 patient name is Rahul OPD number is 654 age is 28
+ *  sex male religion is Hindu occupation is student"
+ *
+ * Each field marker is located independently. The value for a field ends
+ * exactly where the NEXT field marker begins. This prevents the old bug
+ * where one spoken sentence was inserted into a single field.
+ */
 function parseVoiceFieldStatements(transcript) {
   const fields = getVoiceFieldElements();
-  const normalized = normalizeVoiceText(transcript);
-  const matches = [];
+  const source = String(transcript || '').trim();
+  if (!source) return [];
 
-  // First pass: detect explicit "field is/set/to/value" patterns.
   const aliasEntries = [];
-  fields.forEach(field => getFieldAliases(field).forEach(alias => aliasEntries.push({ field, alias })));
-  aliasEntries.sort((a,b) => b.alias.length - a.alias.length);
-
-  const markers = [];
-  aliasEntries.forEach(({field, alias}) => {
-    const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const re = new RegExp('(?:^|[,;]|\\bthen\\b|\\band\\s+)(?:the\\s+)?' + escaped + '\\s+(?:is|are|was|were|equals?|=|to|should\\s+be)\\s+', 'i');
-    const m = re.exec(transcript);
-    if (m) markers.push({ field, index: m.index + m[0].length, aliasLength: alias.length });
+  fields.forEach(field => {
+    getFieldAliases(field).forEach(alias => {
+      aliasEntries.push({ field, alias });
+    });
   });
 
-  markers.sort((a,b) => a.index - b.index || b.aliasLength - a.aliasLength);
-  for (let i=0; i<markers.length; i++) {
-    const start = markers[i].index;
-    const end = i + 1 < markers.length ? markers[i+1].index : transcript.length;
-    const value = transcript.slice(start, end).replace(/^\s*(?:and|then)\s+/i, '').trim();
-    if (value) matches.push({ field: markers[i].field, value });
+  aliasEntries.sort((a, b) => b.alias.length - a.alias.length);
+
+  const markerRegexParts = aliasEntries.map(({ alias }) => {
+    return alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  });
+
+  if (!markerRegexParts.length) return [];
+
+  // Require a field boundary or a natural field-start word.
+  const markerPattern =
+    '(?:^|(?<=[,;:.!?\\s]))(?:the\\s+)?(' +
+    markerRegexParts.join('|') +
+    ')(?=\\s*(?:is|are|was|were|equals?|to|:|=|\\d|[a-zA-Z]))';
+
+  const regex = new RegExp(markerPattern, 'gi');
+  const markers = [];
+  let match;
+
+  while ((match = regex.exec(source)) !== null) {
+    const matchedText = match[0];
+    const aliasText = match[1];
+    const normalizedAlias = normalizeVoiceText(aliasText);
+
+    // Find the best exact alias/field for this marker.
+    let candidate = null;
+    for (const entry of aliasEntries) {
+      if (normalizeVoiceText(entry.alias) === normalizedAlias) {
+        candidate = entry;
+        break;
+      }
+    }
+
+    if (!candidate) continue;
+
+    // Avoid duplicate shorter aliases inside a longer field phrase.
+    if (markers.some(m =>
+      m.field.id === candidate.field.id &&
+      Math.abs(m.markerStart - match.index) < candidate.alias.length + 3
+    )) continue;
+
+    markers.push({
+      field: candidate.field,
+      markerStart: match.index,
+      markerEnd: regex.lastIndex
+    });
   }
 
-  // Second pass: handle common natural phrases without "is".
+  // Sort in spoken order.
+  markers.sort((a, b) => a.markerStart - b.markerStart);
+
+  const matches = [];
+
+  for (let i = 0; i < markers.length; i++) {
+    const marker = markers[i];
+    const next = markers[i + 1];
+
+    let valueStart = marker.markerEnd;
+    let valueEnd = next ? next.markerStart : source.length;
+
+    let value = source.slice(valueStart, valueEnd)
+      .replace(/^\s*(?:is|are|was|were|equals?|to|:|=)\s*/i, '')
+      .replace(/^\s*(?:and|then)\s+/i, '')
+      .trim();
+
+    // For bare phrases like "sex male", the regex marker consumes "sex"
+    // and the value remains "male".
+    if (value) {
+      matches.push({
+        field: marker.field,
+        value
+      });
+    }
+  }
+
+  // Fallback for comma-separated short statements.
   if (!matches.length) {
-    const statements = splitVoiceStatements(transcript);
-    statements.forEach(statement => {
+    splitVoiceStatements(source).forEach(statement => {
       const field = findFieldFromVoicePhrase(statement);
       if (!field) return;
+
       let value = statement;
       getFieldAliases(field).forEach(alias => {
-        const re = new RegExp('^\\s*(?:the\\s+)?' + alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*', 'i');
-        value = value.replace(re, '').replace(/^\s*(?:is|are|was|were|=|to)\s*/i, '');
+        const re = new RegExp(
+          '^\\s*(?:the\\s+)?' +
+          alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') +
+          '\\s*(?:is|are|was|were|equals?|to|:|=)?\\s*',
+          'i'
+        );
+        value = value.replace(re, '');
       });
+
       if (value.trim()) matches.push({ field, value: value.trim() });
     });
   }
 
-  return matches.filter((m, i, arr) => arr.findIndex(x => x.field.id === m.field.id) === i);
+  // Keep the first valid occurrence of each field in the utterance.
+  return matches.filter((m, i, arr) =>
+    arr.findIndex(x => x.field.id === m.field.id) === i
+  );
 }
 
 function addVoiceChange(label, value) {
