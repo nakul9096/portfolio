@@ -1,185 +1,336 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NFC Patient Management</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-6 font-sans">
-  <div class="max-w-4xl mx-auto space-y-6">
-
-    <!-- Status Banner -->
-    <div id="statusBanner" class="hidden p-4 rounded-lg font-medium text-center"></div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-      <!-- SECTION 1: Activate/Write NFC Card -->
-      <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
-        <h2 class="text-xl font-bold mb-4 text-cyan-400 flex items-center gap-2">
-          <span>💳</span> Activate NFC Card
-        </h2>
-        
-        <form id="nfcWriteForm" class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">PATIENT ID</label>
-            <input type="text" id="patientId" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" placeholder="e.g. PAT-90421" />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">FULL NAME</label>
-            <input type="text" id="patientName" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" placeholder="John Doe" />
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1">SEX</label>
-              <select id="patientSex" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500">
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1">AGE</label>
-              <input type="number" id="patientAge" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" placeholder="34" />
-            </div>
-          </div>
-
-          <button type="button" id="writeBtn" onclick="writeNFC()" class="w-full mt-4 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2.5 rounded-lg transition duration-200">
-            Tap Card to Activate
-          </button>
-        </form>
-      </div>
-
-      <!-- SECTION 2: Scan/Read NFC Card -->
-      <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl flex flex-col justify-between">
-        <div>
-          <h2 class="text-xl font-bold mb-4 text-emerald-400 flex items-center gap-2">
-            <span>🔍</span> Scan Patient Card
-          </h2>
-          <p class="text-sm text-slate-400 mb-6">
-            Click the button below and hold the patient's NFC card near the back of your device to retrieve their record.
-          </p>
-        </div>
-
-        <button type="button" id="readBtn" onclick="readNFC()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg transition duration-200">
-          Start Scanning NFC Card
-        </button>
-      </div>
-
-    </div>
-
-    <!-- SECTION 3: Patient Overview Modal / Container -->
-    <div id="patientOverview" class="hidden bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-4">
-        <h3 class="text-lg font-bold text-slate-200">Patient Overview</h3>
-        <span class="text-xs font-mono bg-emerald-950 text-emerald-400 border border-emerald-800 px-2.5 py-1 rounded-full">Active Card</span>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-slate-900/60 p-3 rounded-lg">
-          <span class="text-xs text-slate-500 block font-medium">PATIENT ID</span>
-          <span id="overviewId" class="text-slate-100 font-semibold font-mono">--</span>
-        </div>
-        <div class="bg-slate-900/60 p-3 rounded-lg">
-          <span class="text-xs text-slate-500 block font-medium">NAME</span>
-          <span id="overviewName" class="text-slate-100 font-semibold">--</span>
-        </div>
-        <div class="bg-slate-900/60 p-3 rounded-lg">
-          <span class="text-xs text-slate-500 block font-medium">SEX</span>
-          <span id="overviewSex" class="text-slate-100 font-semibold">--</span>
-        </div>
-        <div class="bg-slate-900/60 p-3 rounded-lg">
-          <span class="text-xs text-slate-500 block font-medium">AGE</span>
-          <span id="overviewAge" class="text-slate-100 font-semibold">--</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-    const showStatus = (message, isError = false) => {
-      const banner = document.getElementById('statusBanner');
-      banner.classList.remove('hidden', 'bg-red-900/50', 'text-red-200', 'bg-cyan-900/50', 'text-cyan-200');
-      banner.classList.add(isError ? 'bg-red-900/50' : 'bg-cyan-900/50');
-      banner.classList.add(isError ? 'text-red-200' : 'text-cyan-200');
-      banner.innerText = message;
-    };
-
-    // 1. Write Information to NFC Card
-    async function writeNFC() {
-      if (!('NDEFReader' in window)) {
-        showStatus('Web NFC API is not supported on this device/browser. Please use Chrome on Android.', true);
-        return;
-      }
-
-      const id = document.getElementById('patientId').value;
-      const name = document.getElementById('patientName').value;
-      const sex = document.getElementById('patientSex').value;
-      const age = document.getElementById('patientAge').value;
-
-      if (!id || !name || !age) {
-        showStatus('Please fill in all form fields before tapping card.', true);
-        return;
-      }
-
-      const patientData = JSON.stringify({ id, name, sex, age });
-
-      try {
-        const ndef = new NDEFReader();
-        showStatus('Hold NFC card to the back of device to write...');
-        
-        await ndef.write({
-          records: [{ recordType: "text", data: patientData }]
-        });
-
-        showStatus('NFC Card Activated & Written Successfully!');
-      } catch (error) {
-        showStatus(`Write error: ${error.message || error}`, true);
-      }
-    }
-
-    // 2. Read Information from NFC Card
-    async function readNFC() {
-      if (!('NDEFReader' in window)) {
-        showStatus('Web NFC API is not supported on this device/browser. Please use Chrome on Android.', true);
-        return;
-      }
-
-      try {
-        const ndef = new NDEFReader();
-        await ndef.scan();
-        showStatus('Scanning... Tap patient NFC card now.');
-
-        ndef.addEventListener("reading", ({ message }) => {
-          for (const record of message.records) {
-            if (record.recordType === "text") {
-              const textDecoder = new TextDecoder(record.encoding);
-              const jsonString = textDecoder.decode(record.data);
-              
-              try {
-                const data = JSON.parse(jsonString);
-                
-                // Update Overview
-                document.getElementById('overviewId').innerText = data.id || '--';
-                document.getElementById('overviewName').innerText = data.name || '--';
-                document.getElementById('overviewSex').innerText = data.sex || '--';
-                document.getElementById('overviewAge').innerText = data.age || '--';
-
-                document.getElementById('patientOverview').classList.remove('hidden');
-                showStatus('Patient Card Scanned Successfully!');
-              } catch (e) {
-                showStatus('Card scanned, but data format was invalid.', true);
-              }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSCC NFC Patient Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#090d16',
+                        panelBg: '#0f172a',
+                        cyanAccent: '#06b6d4',
+                        emeraldAccent: '#10b981',
+                        violetAccent: '#8b5cf6',
+                        roseAccent: '#f43f5e',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 5s linear infinite',
+                    }
+                }
             }
-          }
-        });
-      } catch (error) {
-        showStatus(`Scan error: ${error.message || error}`, true);
-      }
-    }
-  </script>
+        }
+    </script>
+    <style>
+        /* CSS Animation for the radar pulse */
+        @keyframes radar-pulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .radar-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid #06b6d4;
+            opacity: 0;
+            animation: radar-pulse 2s infinite;
+        }
+        .radar-ring:nth-child(2) { animation-delay: 0.5s; }
+        .radar-ring:nth-child(3) { animation-delay: 1s; }
+    </style>
+</head>
+<body class="bg-darkBg text-slate-100 min-h-screen font-sans p-4 md:p-8">
+
+    <!-- Supabase Interoperability Header -->
+    <header class="max-w-7xl mx-auto flex items-center justify-between pb-8 border-b border-slate-800 mb-8">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-f8fafc">OSCC Multimodal Diagnostic System</h1>
+            <p class="text-slate-500 text-sm">Supabase Integrated NFC Module v2.1</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-xs font-mono bg-emerald-950 text-emeraldAccent px-3 py-1.5 rounded-full border border-emerald-800">JEEVANDAYINI Sync Active</span>
+            <div class="w-10 h-10 rounded-full bg-panelBg border border-slate-700 flex items-center justify-center text-cyanAccent font-bold">A</div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- NFC Status Banner -->
+        <div id="nfcStatusBanner" class="hidden flex items-center gap-3 p-4 bg-red-950/50 border border-red-800 text-red-200 rounded-xl">
+            <span class="text-xl">⚠️</span>
+            <p id="nfcStatusMessage" class="text-sm font-medium">Web NFC not supported. Use Chrome on Android.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- PANEL 1: ACTIVATE NEW CARD -->
+            <section class="bg-panelBg p-7 rounded-2xl border border-slate-800 shadow-xl space-y-6">
+                <div class="flex items-center gap-3 pb-3 border-b border-slate-800">
+                    <span class="text-3xl text-cyanAccent">💳</span>
+                    <div>
+                        <h2 class="text-xl font-bold">Activate Patient Card</h2>
+                        <p class="text-slate-500 text-sm">Link physical NFC card to existing patient record.</p>
+                    </div>
+                </div>
+
+                <!-- Dropdown Selector -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold text-slate-400">SELECT PATIENT</label>
+                    <select id="patientSelect" class="w-full h-12 bg-darkBg border border-slate-700 rounded-lg px-4 text-sm focus:outline-none focus:border-cyanAccent transition">
+                        <option value="" disabled selected>-- Search Patient ID or Name --</option>
+                        <option value="P-1001" data-name="Rajesh Sharma" data-sex="Male" data-dob="1978-05-12">P-1001 - Rajesh Sharma (M, 48)</option>
+                        <option value="P-1002" data-name="Sunita Patel" data-sex="Female" data-dob="1990-11-03">P-1002 - Sunita Patel (F, 36)</option>
+                        <option value="P-1003" data-name="Mohammed Ansari" data-sex="Male" data-dob="1971-08-21">P-1003 - Mohammed Ansari (M, 55)</option>
+                        <option value="P-1010" data-name="Lakshmi Narasimhan" data-sex="Female" data-dob="1959-02-14">P-1010 - Lakshmi Narasimhan (F, 67)</option>
+                    </select>
+                </div>
+
+                <button onclick="startNFCWrite()" class="w-full h-14 bg-cyanAccent text-darkBg font-bold rounded-xl flex items-center justify-center gap-3 hover:opacity-90 transition active:scale-95">
+                    <span>📡</span>
+                    Tap Card to Activate
+                </button>
+            </section>
+
+            <!-- PANEL 2: SEARCH VIA CARD -->
+            <section class="bg-panelBg p-7 rounded-2xl border border-slate-800 shadow-xl space-y-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3 pb-3 border-b border-slate-800 mb-6">
+                        <span class="text-3xl text-emeraldAccent">🔍</span>
+                        <div>
+                            <h2 class="text-xl font-bold">NFC Search</h2>
+                            <p class="text-slate-500 text-sm">Scan card to retrieve full overview.</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed">Instantly open the comprehensive diagnostic overview by tapping the patient’s JEEVANDAYINI card.</p>
+                </div>
+
+                <button onclick="startNFCRead()" class="w-full h-14 bg-emeraldAccent text-darkBg font-bold rounded-xl flex items-center justify-center gap-3 hover:opacity-90 transition active:scale-95 mt-6">
+                    <span>📡</span>
+                    Start Scanning...
+                </button>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- NFC ANIMATION DIALOG (Writing & Reading) -->
+    <dialog id="nfcAnimDialog" class="bg-transparent backdrop:bg-darkBg/90 outline-none p-0 overflow-hidden rounded-3xl">
+        <div class="w-80 md:w-96 bg-panelBg border-4 border-slate-800 rounded-3xl p-8 flex flex-col items-center text-center space-y-8 relative shadow-2xl">
+            
+            <!-- Close Button -->
+            <button onclick="closeNFCAnim()" class="absolute top-4 right-4 text-slate-600 hover:text-white text-3xl font-light">×</button>
+
+            <!-- Icon Stack with Radar Pulse -->
+            <div class="relative w-40 h-40 flex items-center justify-center">
+                <div id="radarRings" class="hidden">
+                    <div class="radar-ring"></div>
+                    <div class="radar-ring"></div>
+                    <div class="radar-ring"></div>
+                </div>
+                <div class="w-32 h-32 rounded-full bg-darkBg border-2 border-slate-700 flex items-center justify-center text-8xl shadow-inner relative z-10">
+                    <span id="nfcDialogIcon">📡</span>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <h3 id="nfcDialogTitle" class="text-xl font-bold text-white">NFC Activated</h3>
+                <p id="nfcDialogText" class="text-slate-400 text-sm leading-relaxed">Approach the NFC card to the back of the device.</p>
+            </div>
+
+            <p class="text-xs text-slate-600 font-mono">[ Supabase Transaction Active ]</p>
+        </div>
+    </dialog>
+
+    <!-- PATIENT FULL INFORMATION DIALOG (Read Success) -->
+    <dialog id="patientInfoDialog" class="bg-transparent backdrop:bg-darkBg/90 outline-none p-0 overflow-hidden rounded-3xl w-full max-w-4xl mx-4">
+        <div class="bg-panelBg border-4 border-slate-800 rounded-3xl p-8 space-y-6 relative shadow-2xl">
+            
+            <!-- Close Button -->
+            <button onclick="closePatientDialog()" class="absolute top-4 right-4 text-slate-600 hover:text-white text-3xl font-light">×</button>
+
+            <!-- Header -->
+            <div class="flex items-center gap-4 pb-4 border-b border-slate-800">
+                <div id="dialogSexColor" class="w-16 h-16 rounded-2xl bg-violetAccent/20 text-violetAccent flex items-center justify-center text-4xl border border-violetAccent/30">👤</div>
+                <div>
+                    <h3 id="dialogPatientName" class="text-2xl font-bold text-white">-- --</h3>
+                    <p id="dialogPatientId" class="text-slate-500 font-mono text-sm">-- --</p>
+                </div>
+                <span class="ml-auto text-xs font-mono bg-emerald-950 text-emeraldAccent px-3 py-1 rounded-full border border-emerald-800">NFC VERIFIED</span>
+            </div>
+
+            <!-- Content Grid (Full Fields) -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                
+                <!-- Demographic -->
+                <div class="col-span-2 md:col-span-1 space-y-1 bg-darkBg p-3 rounded-lg"><label class="text-slate-500 text-xs">SEX</label><p id="dialogSex" class="font-semibold">--</p></div>
+                <div class="col-span-2 md:col-span-1 space-y-1 bg-darkBg p-3 rounded-lg"><label class="text-slate-500 text-xs">DATE OF BIRTH</label><p id="dialogDob" class="font-semibold">--</p></div>
+                <div class="col-span-2 md:col-span-1 space-y-1 bg-darkBg p-3 rounded-lg"><label class="text-slate-500 text-xs">AGE (SYSTEM CALC)</label><p id="dialogAge" class="font-semibold">--</p></div>
+                <div class="col-span-2 md:col-span-1 space-y-1 bg-darkBg p-3 rounded-lg"><label class="text-slate-500 text-xs">RELIGION</label><p class="font-semibold">Hinduism</p></div>
+                
+                <!-- Clinical/Location -->
+                <div class="col-span-2 space-y-1 bg-darkBg p-3 rounded-lg"><label class="text-slate-500 text-xs">PATIENT LOCATION (JEEVANDAYINI REG.)</label><p class="font-semibold">Mayo Hospital, Nagpur [HQ]</p></div>
+                <div class="col-span-1 space-y-1 bg-darkBg p-3 rounded-lg"><label class="text-slate-500 text-xs">LAST VISIT</label><p class="font-semibold">2026-08-15</p></div>
+                <div class="col-span-1 space-y-1 bg-darkBg p-3 rounded-lg"><label class="text-slate-500 text-xs">OPD NO.</label><p class="font-semibold font-mono text-cyanAccent">OPD-2026-003</p></div>
+
+                <!-- Habits/Risk (Placeholder for demo) -->
+                <div class="col-span-4 space-y-2 pt-3 border-t border-slate-800 mt-2">
+                    <label class="text-slate-500 text-xs font-semibold">MULTIMODAL DIAGNOSTIC SUMMARY (v2.1)</label>
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="bg-violetAccent/10 border border-violetAccent/30 p-2.5 rounded-md flex items-center gap-2"><span class="text-lg">🔬</span> Hist Grade: Moderately Differentiated (Grade 2)</div>
+                        <div class="bg-roseAccent/10 border border-roseAccent/30 p-2.5 rounded-md flex items-center gap-2"><span class="text-lg">📊</span> Clinical Stage: Stage III (T3 N1 M0)</div>
+                        <div class="bg-darkBg p-2.5 rounded-md flex items-center gap-2 col-span-2 text-slate-400">Risk Profile: Combined Habits (Gutkha + Smoking 20Yrs). OSMF Stage II.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-800 flex justify-end gap-3">
+                <button onclick="closePatientDialog()" class="px-5 py-2.5 text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg">Dismiss</button>
+                <button class="px-5 py-2.5 text-sm bg-violetAccent text-white font-bold rounded-lg flex items-center gap-2">View Full Multimodal Overview ➔</button>
+            </div>
+        </div>
+    </dialog>
+
+    <script>
+        // Core Web NFC logic placeholders (requires HTTPS and Android Chrome)
+        const checkNfcSupport = () => {
+            if (!('NDEFReader' in window)) {
+                const banner = document.getElementById('nfcStatusBanner');
+                banner.classList.remove('hidden');
+                return false;
+            }
+            return true;
+        };
+
+        const animDialog = document.getElementById('nfcAnimDialog');
+        const radarRings = document.getElementById('radarRings');
+        const dialogIcon = document.getElementById('nfcDialogIcon');
+        const dialogTitle = document.getElementById('nfcDialogTitle');
+        const dialogText = document.getElementById('nfcDialogText');
+
+        const showNFCAnim = (type) => {
+            if (type === 'write') {
+                dialogIcon.innerText = '💳';
+                dialogTitle.innerText = 'Initializing Card...';
+                dialogText.innerText = ' yaklaş Approching NFC card to the back of the device for initialization.';
+            } else {
+                dialogIcon.innerText = '🔍';
+                dialogTitle.innerText = 'NFC Search Activated';
+                dialogText.innerText = 'Approach JEEVANDAYINI card to instantly scan patient record.';
+            }
+            animDialog.showModal();
+        };
+
+        const closeNFCAnim = () => {
+            radarRings.classList.add('hidden'); // Ensure pulse stops
+            animDialog.close();
+        };
+
+        const calculateAge = (dob) => {
+            const birthDate = new Date(dob);
+            const difference = Date.now() - birthDate.getTime();
+            const ageDate = new Date(difference);
+            return Math.abs(ageDate.getUTCFullYear() - 1970);
+        };
+
+        // --- NFC Write Workflow ---
+        let ndefWriter = null;
+        async function startNFCWrite() {
+            if (!checkNfcSupport()) return;
+            const select = document.getElementById('patientSelect');
+            const patientId = select.value;
+            if (!patientId) {
+                alert("Please select a patient from the list first.");
+                return;
+            }
+
+            const selectedOption = select.options[select.selectedIndex];
+            const patientName = selectedOption.getAttribute('data-name');
+            const sex = selectedOption.getAttribute('data-sex');
+            const dob = selectedOption.getAttribute('data-dob');
+
+            const payload = JSON.stringify({ patientId, patientName, sex, dob });
+
+            showNFCAnim('write');
+            radarRings.classList.remove('hidden'); // Start the pulse
+
+            try {
+                if (!ndefWriter) ndefWriter = new NDEFReader();
+                await ndefWriter.write({
+                    records: [{ recordType: "text", data: payload }]
+                });
+                
+                // Success feedback
+                dialogIcon.innerText = '✅';
+                dialogTitle.innerText = 'Card Activated!';
+                dialogText.innerHTML = `Linked to <b>${patientId}</b>: ${patientName}. Supabase synced.`;
+                radarRings.classList.add('hidden'); // Stop the pulse
+
+                setTimeout(closeNFCAnim, 2500); // Close automatically after success
+            } catch (error) {
+                console.error(error);
+                dialogIcon.innerText = '❌';
+                dialogTitle.innerText = 'Activation Failed';
+                dialogText.innerText = `NFC write error: ${error.message || 'Operation aborted.'}`;
+                radarRings.classList.add('hidden');
+            }
+        }
+
+        // --- NFC Read Workflow ---
+        let ndefReader = null;
+        async function startNFCRead() {
+            if (!checkNfcSupport()) return;
+            showNFCAnim('read');
+            radarRings.classList.remove('hidden'); // Start the pulse
+
+            try {
+                if (!ndefReader) ndefReader = new NDEFReader();
+                await ndefReader.scan();
+
+                ndefReader.onreading = ({ message }) => {
+                    closeNFCAnim(); // Close anim dialog immediately when card detected
+                    const record = message.records.find(r => r.recordType === "text");
+                    if (record) {
+                        const decoder = new TextDecoder();
+                        const cardData = JSON.parse(decoder.decode(record.data));
+                        displayPatientFullOverview(cardData);
+                    }
+                };
+            } catch (error) {
+                console.error(error);
+                dialogIcon.innerText = '❌';
+                dialogTitle.innerText = 'Scan Error';
+                dialogText.innerText = `Could not start NFC scan: ${error.message || 'Check browser permissions.'}`;
+                radarRings.classList.add('hidden');
+            }
+        }
+
+        const patientDialog = document.getElementById('patientInfoDialog');
+        const displayPatientFullOverview = (data) => {
+            document.getElementById('dialogPatientName').innerText = data.patientName || '--';
+            document.getElementById('dialogPatientId').innerText = data.patientId || '--';
+            document.getElementById('dialogSex').innerText = data.sex || '--';
+            document.getElementById('dialogDob').innerText = data.dob || '--';
+            document.getElementById('dialogAge').innerText = data.dob ? calculateAge(data.dob) : '--';
+            
+            // Sex Icon color change for visual variety
+            const colorDiv = document.getElementById('dialogSexColor');
+            if(data.sex === 'Female') {
+                colorDiv.className = "w-16 h-16 rounded-2xl bg-roseAccent/20 text-roseAccent flex items-center justify-center text-4xl border border-roseAccent/30";
+            } else {
+                colorDiv.className = "w-16 h-16 rounded-2xl bg-violetAccent/20 text-violetAccent flex items-center justify-center text-4xl border border-violetAccent/30";
+            }
+
+            patientDialog.showModal();
+        };
+
+        const closePatientDialog = () => patientDialog.close();
+
+    </script>
 </body>
 </html>
