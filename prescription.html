@@ -1,0 +1,2622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Oral Clinical Registry - Prescription</title>
+
+<style>
+:root{
+    --bg:#090d16;
+    --surface:#111827;
+    --surface2:#0d1422;
+    --hover:#1f2937;
+    --border:#1f293d;
+    --border2:#2d3748;
+
+    --blue:#2563eb;
+    --blueHover:#1d4ed8;
+
+    --text:#f1f5f9;
+    --muted:#94a3b8;
+
+    --green:#34d399;
+    --yellow:#fbbf24;
+    --red:#f87171;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,
+    BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+/* ================= HEADER ================= */
+
+.header{
+    position:sticky;
+    top:0;
+    z-index:20;
+
+    background:rgba(17,24,39,.97);
+    backdrop-filter:blur(14px);
+
+    border-bottom:1px solid var(--border);
+}
+
+.header-inner{
+    max-width:1450px;
+    margin:auto;
+
+    padding:15px 22px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:20px;
+}
+
+.brand h1{
+    font-size:19px;
+    margin:0;
+    font-weight:750;
+}
+
+.brand p{
+    margin:4px 0 0;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.nav{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+}
+
+.nav a{
+    color:#cbd5e1;
+    text-decoration:none;
+
+    padding:9px 12px;
+
+    border:1px solid transparent;
+    border-radius:9px;
+
+    font-size:13px;
+}
+
+.nav a:hover{
+    background:var(--hover);
+    border-color:var(--border2);
+    color:#fff;
+}
+
+/* ================= MAIN ================= */
+
+.container{
+    max-width:1450px;
+    margin:auto;
+
+    padding:28px 22px 45px;
+}
+
+.page-title{
+    margin-bottom:22px;
+}
+
+.page-title h2{
+    font-size:27px;
+    margin:0 0 7px;
+}
+
+.page-title p{
+    color:var(--muted);
+    margin:0;
+}
+
+/* ================= GRID ================= */
+
+.grid{
+    display:grid;
+
+    grid-template-columns:
+        minmax(430px,1fr)
+        minmax(430px,1fr);
+
+    gap:22px;
+
+    align-items:start;
+}
+
+/* ================= CARD ================= */
+
+.card{
+    background:var(--surface);
+
+    border:1px solid var(--border);
+
+    border-radius:15px;
+
+    box-shadow:0 14px 35px rgba(0,0,0,.18);
+}
+
+.card-head{
+    padding:18px 20px;
+
+    border-bottom:1px solid var(--border);
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    gap:12px;
+}
+
+.card-head h3{
+    margin:0;
+    font-size:16px;
+}
+
+.card-head span{
+    font-size:12px;
+    color:var(--muted);
+}
+
+.card-body{
+    padding:20px;
+}
+
+/* ================= SECTIONS ================= */
+
+.section{
+    margin-bottom:22px;
+}
+
+.section:last-child{
+    margin-bottom:0;
+}
+
+.section-title{
+    font-size:12px;
+
+    color:#cbd5e1;
+
+    text-transform:uppercase;
+
+    letter-spacing:.08em;
+
+    margin-bottom:12px;
+
+    font-weight:750;
+}
+
+/* ================= FORMS ================= */
+
+.form-grid{
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:12px;
+}
+
+.form-grid.three{
+    grid-template-columns:repeat(3,1fr);
+}
+
+.field label{
+    display:block;
+
+    font-size:12px;
+
+    color:var(--muted);
+
+    margin-bottom:6px;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+
+    background:#0b1220;
+
+    color:#f8fafc;
+
+    border:1px solid var(--border2);
+
+    border-radius:9px;
+
+    outline:none;
+
+    padding:10px 11px;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+    border-color:#3b82f6;
+
+    box-shadow:
+        0 0 0 3px rgba(37,99,235,.12);
+}
+
+textarea{
+    resize:vertical;
+
+    min-height:92px;
+
+    line-height:1.5;
+}
+
+select option{
+    background:#0b1220;
+    color:#fff;
+}
+
+/* ================= BUTTONS ================= */
+
+.btn{
+    border:1px solid var(--border2);
+
+    background:#172033;
+
+    color:#fff !important;
+
+    border-radius:9px;
+
+    padding:9px 13px;
+
+    font-weight:650;
+
+    font-size:13px;
+}
+
+.btn:hover{
+    background:var(--hover);
+}
+
+.btn.primary{
+    background:var(--blue);
+    border-color:var(--blue);
+}
+
+.btn.primary:hover{
+    background:var(--blueHover);
+}
+
+.btn.green{
+    background:#065f46;
+    border-color:#047857;
+}
+
+.btn.danger{
+    background:#3f1820;
+    border-color:#6b2734;
+
+    color:#fecaca !important;
+}
+
+.btn.small{
+    padding:7px 10px;
+    font-size:12px;
+}
+
+/* ================= PATIENT ================= */
+
+.patient-actions{
+    display:flex;
+
+    gap:9px;
+
+    margin-top:10px;
+
+    flex-wrap:wrap;
+}
+
+.note{
+    font-size:11px;
+
+    color:var(--muted);
+
+    line-height:1.5;
+}
+
+#registryStatus{
+    margin-top:8px;
+}
+
+/* ================= VOICE ================= */
+
+.voice-row{
+    display:flex;
+
+    gap:10px;
+
+    align-items:center;
+
+    flex-wrap:wrap;
+}
+
+.voice-status{
+    font-size:12px;
+    color:var(--muted);
+}
+
+.voice-status.live{
+    color:var(--green);
+}
+
+.voice-status.error{
+    color:var(--red);
+}
+
+/* ================= MEDICINES ================= */
+
+.rx-head{
+    display:grid;
+
+    grid-template-columns:
+        1.35fr
+        .75fr
+        .8fr
+        .75fr
+        auto;
+
+    gap:8px;
+
+    margin-bottom:8px;
+
+    color:var(--muted);
+
+    font-size:11px;
+}
+
+.rx-row{
+    display:grid;
+
+    grid-template-columns:
+        1.35fr
+        .75fr
+        .8fr
+        .75fr
+        auto;
+
+    gap:8px;
+
+    margin-bottom:8px;
+
+    align-items:center;
+}
+
+.rx-row input{
+    min-width:0;
+}
+
+.freq-buttons{
+    display:flex;
+
+    gap:6px;
+
+    flex-wrap:wrap;
+
+    margin-top:8px;
+
+    grid-column:1/-1;
+}
+
+.freq-buttons button{
+    border:1px solid var(--border2);
+
+    background:#0b1220;
+
+    color:#cbd5e1;
+
+    border-radius:7px;
+
+    padding:5px 8px;
+
+    font-size:11px;
+}
+
+.freq-buttons button:hover{
+    background:var(--hover);
+    color:#fff;
+}
+
+.add-row{
+    margin-top:10px;
+}
+
+/* ================= ACTIONS ================= */
+
+.actions{
+    display:flex;
+
+    gap:9px;
+
+    flex-wrap:wrap;
+
+    margin-top:18px;
+}
+
+/* ================= PREVIEW ================= */
+
+.preview-wrap{
+    background:#080c14;
+
+    padding:20px;
+
+    border-radius:12px;
+
+    overflow:auto;
+}
+
+.paper{
+    width:794px;
+
+    min-height:1123px;
+
+    background:#fff;
+
+    color:#172033;
+
+    margin:0 auto;
+
+    padding:42px 48px;
+
+    box-shadow:0 16px 40px rgba(0,0,0,.35);
+
+    position:relative;
+}
+
+/* paper header */
+
+.paper-top{
+    border-bottom:2px solid #172033;
+
+    padding-bottom:14px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:25px;
+}
+
+.doctor h1{
+    font-size:23px;
+
+    margin:0 0 5px;
+
+    color:#111827;
+}
+
+.doctor p{
+    margin:2px 0;
+
+    color:#475569;
+
+    font-size:11px;
+}
+
+.rx-mark{
+    font-size:31px;
+
+    font-weight:800;
+
+    color:#172033;
+}
+
+/* patient */
+
+.paper-patient{
+    margin-top:16px;
+
+    border:1px solid #d7dde7;
+
+    border-radius:7px;
+
+    padding:11px 13px;
+
+    display:grid;
+
+    grid-template-columns:
+        1.5fr
+        1fr
+        1fr
+        1fr;
+
+    gap:10px;
+}
+
+.paper-label{
+    font-size:9px;
+
+    color:#64748b;
+
+    text-transform:uppercase;
+
+    letter-spacing:.05em;
+}
+
+.paper-value{
+    font-size:11px;
+
+    font-weight:650;
+
+    margin-top:3px;
+
+    color:#111827;
+
+    min-height:14px;
+}
+
+/* paper sections */
+
+.paper-section{
+    margin-top:18px;
+}
+
+.paper-section h4{
+    margin:0 0 7px;
+
+    font-size:11px;
+
+    color:#334155;
+
+    text-transform:uppercase;
+
+    letter-spacing:.06em;
+}
+
+.paper-section p{
+    font-size:11px;
+
+    line-height:1.55;
+
+    margin:0;
+
+    white-space:pre-wrap;
+
+    color:#1e293b;
+}
+
+/* prescription table */
+
+.rx-table{
+    width:100%;
+
+    border-collapse:collapse;
+
+    font-size:10px;
+}
+
+.rx-table th{
+    text-align:left;
+
+    background:#f1f5f9;
+
+    padding:7px;
+
+    border-bottom:1px solid #cbd5e1;
+}
+
+.rx-table td{
+    padding:8px 7px;
+
+    border-bottom:1px solid #e2e8f0;
+
+    vertical-align:top;
+}
+
+.rx-num{
+    width:28px;
+}
+
+/* signature */
+
+.signature{
+    margin-top:42px;
+
+    margin-left:auto;
+
+    width:180px;
+
+    text-align:center;
+
+    font-size:10px;
+
+    color:#334155;
+}
+
+.signature-line{
+    border-top:1px solid #64748b;
+
+    margin-bottom:5px;
+}
+
+/* footer */
+
+.footer-line{
+    position:absolute;
+
+    bottom:35px;
+
+    left:48px;
+
+    right:48px;
+
+    border-top:1px solid #d7dde7;
+
+    padding-top:8px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    font-size:9px;
+
+    color:#64748b;
+}
+
+.empty-preview{
+    color:#64748b !important;
+
+    font-size:11px;
+}
+
+/* ================= TOAST ================= */
+
+.toast{
+    position:fixed;
+
+    right:20px;
+
+    bottom:20px;
+
+    z-index:100;
+
+    background:#172033;
+
+    color:#fff;
+
+    border:1px solid var(--border2);
+
+    padding:11px 14px;
+
+    border-radius:9px;
+
+    box-shadow:0 10px 30px #0008;
+
+    display:none;
+}
+
+.toast.show{
+    display:block;
+
+    animation:toastIn .25s ease;
+}
+
+@keyframes toastIn{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+
+    to{
+        opacity:1;
+        transform:none;
+    }
+}
+
+/* ================= FOOTER ================= */
+
+footer{
+    text-align:center;
+
+    color:var(--muted);
+
+    font-size:11px;
+
+    padding:0 20px 25px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:1050px){
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .paper{
+        margin:auto;
+    }
+}
+
+@media(max-width:700px){
+
+    .header-inner{
+        align-items:flex-start;
+
+        flex-direction:column;
+    }
+
+    .nav{
+        justify-content:flex-start;
+    }
+
+    .container{
+        padding:20px 12px 35px;
+    }
+
+    .form-grid,
+    .form-grid.three{
+        grid-template-columns:1fr;
+    }
+
+    .rx-head{
+        display:none;
+    }
+
+    .rx-row{
+        grid-template-columns:1fr 1fr;
+
+        position:relative;
+
+        padding:10px;
+
+        background:#0d1422;
+
+        border:1px solid var(--border);
+
+        border-radius:9px;
+    }
+
+    .rx-row input:first-child{
+        grid-column:1/-1;
+    }
+
+    .rx-row .remove{
+        position:absolute;
+
+        right:8px;
+
+        top:8px;
+    }
+
+    .preview-wrap{
+        padding:8px;
+
+        min-height:650px;
+    }
+}
+
+/* ================= PRINT ================= */
+
+@media print{
+
+    @page{
+        size:A4;
+
+        margin:0;
+    }
+
+    body{
+        background:#fff !important;
+    }
+
+    .header,
+    .editor,
+    .preview-head,
+    footer,
+    .no-print{
+        display:none !important;
+    }
+
+    .container{
+        padding:0 !important;
+
+        max-width:none;
+    }
+
+    .grid{
+        display:block;
+    }
+
+    .preview-card{
+        border:0 !important;
+
+        box-shadow:none !important;
+    }
+
+    .preview-wrap{
+        padding:0 !important;
+
+        background:#fff !important;
+
+        overflow:visible !important;
+    }
+
+    .paper{
+        box-shadow:none !important;
+
+        margin:0 !important;
+
+        width:210mm;
+
+        min-height:297mm;
+
+        padding:14mm 16mm;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+
+<header class="header">
+
+    <div class="header-inner">
+
+        <div class="brand">
+
+            <h1>
+                Oral Clinical Registry - Prescription
+            </h1>
+
+            <p>
+                Developed By Nakul Dhande With Team Hardik, Chinmay, Shantanu
+            </p>
+
+        </div>
+
+        <nav class="nav">
+
+            <a href="patients.html">
+                Registry Records
+            </a>
+
+            <a href="oral_clinical_assessment.html">
+                New Assessment
+            </a>
+
+            <a href="analytics.html">
+                Analytics
+            </a>
+
+            <a href="patientinfo.html">
+                Get Patients
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="container">
+
+    <div class="page-title">
+
+        <h2>
+            Write Prescription
+        </h2>
+
+        <p>
+            Create a prescription quickly using typing or voice,
+            then print it or save it as a PDF.
+        </p>
+
+    </div>
+
+
+    <div class="grid">
+
+        <!-- ================= EDITOR ================= -->
+
+        <section class="card editor">
+
+            <div class="card-head">
+
+                <h3>
+                    Prescription Details
+                </h3>
+
+                <span id="todayText"></span>
+
+            </div>
+
+
+            <div class="card-body">
+
+
+                <!-- PATIENT -->
+
+                <div class="section">
+
+                    <div class="section-title">
+                        Patient
+                    </div>
+
+
+                    <div class="form-grid three">
+
+                        <div class="field">
+
+                            <label>
+                                Patient Name
+                            </label>
+
+                            <input
+                                id="patientName"
+                                placeholder="Enter patient name"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>
+                                Patient ID
+                            </label>
+
+                            <input
+                                id="patientId"
+                                placeholder="P-1001"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>
+                                OPD Number
+                            </label>
+
+                            <input
+                                id="opd"
+                                placeholder="OPD number"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>
+                                Age
+                            </label>
+
+                            <input
+                                id="age"
+                                type="number"
+                                min="0"
+                                placeholder="Age"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>
+                                Sex
+                            </label>
+
+                            <select id="sex">
+
+                                <option value="">
+                                    Select
+                                </option>
+
+                                <option>
+                                    Male
+                                </option>
+
+                                <option>
+                                    Female
+                                </option>
+
+                                <option>
+                                    Other
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>
+                                Date
+                            </label>
+
+                            <input
+                                id="date"
+                                type="date"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="patient-actions">
+
+                        <button
+                            class="btn small"
+                            onclick="loadFromRegistry()"
+                        >
+                            Load Patient From Registry
+                        </button>
+
+
+                        <button
+                            class="btn small"
+                            onclick="clearPatient()"
+                        >
+                            Clear Patient
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        class="note"
+                        id="registryStatus"
+                    ></div>
+
+                </div>
+
+
+                <!-- DOCTOR -->
+
+                <div class="section">
+
+                    <div class="section-title">
+                        Doctor
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <div class="field">
+
+                            <label>
+                                Doctor Name
+                            </label>
+
+                            <input
+                                id="doctorName"
+                                placeholder="Dr. Name"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>
+                                Registration Number
+                            </label>
+
+                            <input
+                                id="doctorReg"
+                                placeholder="Registration number"
+                            >
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DIAGNOSIS -->
+
+                <div class="section">
+
+                    <div class="section-title">
+                        Diagnosis & Notes
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Diagnosis / Clinical Notes
+                        </label>
+
+                        <textarea
+                            id="diagnosis"
+                            placeholder="Type diagnosis, findings or clinical notes..."
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MEDICINES -->
+
+                <div class="section">
+
+                    <div class="section-title">
+                        Medicines
+                    </div>
+
+
+                    <div class="rx-head">
+
+                        <div>
+                            Medicine
+                        </div>
+
+                        <div>
+                            Dosage
+                        </div>
+
+                        <div>
+                            Frequency
+                        </div>
+
+                        <div>
+                            Duration
+                        </div>
+
+                        <div></div>
+
+                    </div>
+
+
+                    <div id="medicineRows"></div>
+
+
+                    <button
+                        class="btn small add-row"
+                        onclick="addMedicine()"
+                    >
+                        + Add Medicine
+                    </button>
+
+                </div>
+
+
+                <!-- INSTRUCTIONS -->
+
+                <div class="section">
+
+                    <div class="section-title">
+                        Instructions
+                    </div>
+
+
+                    <div class="voice-row">
+
+                        <button
+                            class="btn green"
+                            id="voiceBtn"
+                            onclick="toggleVoice()"
+                        >
+                            🎙 Start Voice
+                        </button>
+
+
+                        <span
+                            class="voice-status"
+                            id="voiceStatus"
+                        >
+                            Voice input ready
+                        </span>
+
+                    </div>
+
+
+                    <textarea
+                        id="instructions"
+                        style="margin-top:10px"
+                        placeholder="Type or dictate instructions, precautions, diet advice, follow-up, etc."
+                    ></textarea>
+
+                </div>
+
+
+                <!-- FOLLOW UP -->
+
+                <div class="section">
+
+                    <div class="section-title">
+                        Follow-up
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <div class="field">
+
+                            <label>
+                                Follow-up Date
+                            </label>
+
+                            <input
+                                id="followup"
+                                type="date"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label>
+                                Additional Note
+                            </label>
+
+                            <input
+                                id="additional"
+                                placeholder="e.g. Review after 7 days"
+                            >
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div class="actions">
+
+                    <button
+                        class="btn primary"
+                        onclick="updatePreview()"
+                    >
+                        Update Preview
+                    </button>
+
+
+                    <button
+                        class="btn"
+                        onclick="window.print()"
+                    >
+                        🖨 Print / Save PDF
+                    </button>
+
+
+                    <button
+                        class="btn danger"
+                        onclick="clearPrescription()"
+                    >
+                        Clear All
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="note"
+                    style="margin-top:12px"
+                >
+                    For PDF: click
+                    <b>Print / Save PDF</b>,
+                    then choose
+                    <b>Save as PDF</b>
+                    in the browser print window.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PREVIEW ================= -->
+
+        <section class="card preview-card">
+
+            <div class="card-head preview-head">
+
+                <h3>
+                    Prescription Preview
+                </h3>
+
+                <span>
+                    A4 format
+                </span>
+
+            </div>
+
+
+            <div class="preview-wrap">
+
+                <div
+                    class="paper"
+                    id="paper"
+                >
+
+                    <!-- PAPER HEADER -->
+
+                    <div class="paper-top">
+
+                        <div class="doctor">
+
+                            <h1 id="pDoctor">
+                                Dr. Doctor Name
+                            </h1>
+
+                            <p id="pReg">
+                                Registration No.: —
+                            </p>
+
+                            <p>
+                                Oral Clinical Registry
+                            </p>
+
+                        </div>
+
+
+                        <div class="rx-mark">
+                            Rx
+                        </div>
+
+                    </div>
+
+
+                    <!-- PATIENT -->
+
+                    <div class="paper-patient">
+
+                        <div>
+
+                            <div class="paper-label">
+                                Patient
+                            </div>
+
+                            <div
+                                class="paper-value"
+                                id="pName"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+
+                        <div>
+
+                            <div class="paper-label">
+                                Patient ID
+                            </div>
+
+                            <div
+                                class="paper-value"
+                                id="pId"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+
+                        <div>
+
+                            <div class="paper-label">
+                                OPD
+                            </div>
+
+                            <div
+                                class="paper-value"
+                                id="pOpd"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+
+                        <div>
+
+                            <div class="paper-label">
+                                Age / Sex
+                            </div>
+
+                            <div
+                                class="paper-value"
+                                id="pAgeSex"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DIAGNOSIS -->
+
+                    <div class="paper-section">
+
+                        <h4>
+                            Diagnosis / Clinical Notes
+                        </h4>
+
+                        <p
+                            id="pDiagnosis"
+                            class="empty-preview"
+                        >
+                            No diagnosis entered.
+                        </p>
+
+                    </div>
+
+
+                    <!-- PRESCRIPTION -->
+
+                    <div class="paper-section">
+
+                        <h4>
+                            Prescription
+                        </h4>
+
+
+                        <table class="rx-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th class="rx-num">
+                                        #
+                                    </th>
+
+                                    <th>
+                                        Medicine
+                                    </th>
+
+                                    <th>
+                                        Dosage
+                                    </th>
+
+                                    <th>
+                                        Frequency
+                                    </th>
+
+                                    <th>
+                                        Duration
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="pMedicines">
+
+                                <tr>
+
+                                    <td
+                                        colspan="5"
+                                        class="empty-preview"
+                                    >
+                                        No medicines added.
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <!-- INSTRUCTIONS -->
+
+                    <div class="paper-section">
+
+                        <h4>
+                            Instructions
+                        </h4>
+
+                        <p
+                            id="pInstructions"
+                            class="empty-preview"
+                        >
+                            No instructions entered.
+                        </p>
+
+                    </div>
+
+
+                    <!-- FOLLOW UP -->
+
+                    <div class="paper-section">
+
+                        <h4>
+                            Follow-up
+                        </h4>
+
+                        <p
+                            id="pFollowup"
+                            class="empty-preview"
+                        >
+                            No follow-up date entered.
+                        </p>
+
+                    </div>
+
+
+                    <!-- SIGNATURE -->
+
+                    <div class="signature">
+
+                        <div class="signature-line"></div>
+
+                        <b id="pSignature">
+                            Dr. Doctor Name
+                        </b>
+
+                        <div id="pSignatureReg">
+                            Registration No.: —
+                        </div>
+
+                    </div>
+
+
+                    <!-- FOOTER -->
+
+                    <div class="footer-line">
+
+                        <span id="pDate">
+                            Date: —
+                        </span>
+
+                        <span>
+                            Oral Clinical Registry
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer>
+
+    Copyright © 2026 Nakul Dhande. All Rights Reserved.
+
+    <br>
+
+    Developed in collaboration with Team Shantanu Marathe,
+    Hardik Kunte, Chinmay Ashtankar
+
+</footer>
+
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
+<!-- ================= SUPABASE ================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="config/config.js"></script>
+
+
+<script>
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const TABLE_NAME = "oral_clinical_assessments";
+
+let supabaseClient = null;
+
+let recognition = null;
+
+let listening = false;
+
+
+/* =========================================================
+   SHORT SELECTOR
+========================================================= */
+
+const $ = id => document.getElementById(id);
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/[&<>"']/g, c => ({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#039;"
+        }[c]));
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message){
+
+    const toast = $("toast");
+
+    toast.textContent = message;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    },2600);
+
+}
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+function todayISO(){
+
+    const d = new Date();
+
+    const offset = d.getTimezoneOffset();
+
+    return new Date(
+        d - offset * 60000
+    ).toISOString().slice(0,10);
+
+}
+
+
+function formatDate(value){
+
+    if(!value)
+        return "—";
+
+    const d =
+        new Date(value + "T00:00:00");
+
+    if(isNaN(d))
+        return value;
+
+    return d.toLocaleDateString(
+        "en-IN",
+        {
+            day:"2-digit",
+            month:"short",
+            year:"numeric"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   MEDICINE ROW
+========================================================= */
+
+function addMedicine(data = {}){
+
+    const row =
+        document.createElement("div");
+
+    row.className = "rx-row";
+
+
+    row.innerHTML = `
+
+        <input
+            class="med-name"
+            placeholder="Medicine name"
+            value="${escapeHTML(data.name || "")}"
+        >
+
+        <input
+            class="med-dose"
+            placeholder="e.g. 500 mg"
+            value="${escapeHTML(data.dose || "")}"
+        >
+
+        <input
+            class="med-freq"
+            placeholder="e.g. BD"
+            value="${escapeHTML(data.freq || "")}"
+        >
+
+        <input
+            class="med-duration"
+            placeholder="e.g. 5 days"
+            value="${escapeHTML(data.duration || "")}"
+        >
+
+        <button
+            class="btn danger small remove"
+            type="button"
+            onclick="this.closest('.rx-row').remove();updatePreview()"
+        >
+            Remove
+        </button>
+
+        <div class="freq-buttons">
+
+            <button
+                type="button"
+                onclick="setFreq(this,'OD')"
+            >
+                OD
+            </button>
+
+            <button
+                type="button"
+                onclick="setFreq(this,'BD')"
+            >
+                BD
+            </button>
+
+            <button
+                type="button"
+                onclick="setFreq(this,'TDS')"
+            >
+                TDS
+            </button>
+
+            <button
+                type="button"
+                onclick="setFreq(this,'SOS')"
+            >
+                SOS
+            </button>
+
+            <button
+                type="button"
+                onclick="setFreq(this,'HS')"
+            >
+                HS
+            </button>
+
+        </div>
+    `;
+
+
+    $("medicineRows").appendChild(row);
+
+}
+
+
+function setFreq(button,value){
+
+    button
+        .closest(".rx-row")
+        .querySelector(".med-freq")
+        .value = value;
+
+    updatePreview();
+
+}
+
+
+/* =========================================================
+   GET MEDICINES
+========================================================= */
+
+function getMedicines(){
+
+    return [
+        ...document.querySelectorAll(".rx-row")
+    ]
+
+    .map(row => ({
+
+        name:
+            row.querySelector(".med-name")
+            .value.trim(),
+
+        dose:
+            row.querySelector(".med-dose")
+            .value.trim(),
+
+        freq:
+            row.querySelector(".med-freq")
+            .value.trim(),
+
+        duration:
+            row.querySelector(".med-duration")
+            .value.trim()
+
+    }))
+
+    .filter(
+        medicine =>
+            medicine.name ||
+            medicine.dose ||
+            medicine.freq ||
+            medicine.duration
+    );
+
+}
+
+
+/* =========================================================
+   UPDATE PREVIEW
+========================================================= */
+
+function updatePreview(){
+
+    const doctor =
+        $("doctorName").value.trim()
+        || "Dr. Doctor Name";
+
+    const reg =
+        $("doctorReg").value.trim();
+
+    const name =
+        $("patientName").value.trim();
+
+    const id =
+        $("patientId").value.trim();
+
+    const opd =
+        $("opd").value.trim();
+
+    const age =
+        $("age").value.trim();
+
+    const sex =
+        $("sex").value;
+
+    const diagnosis =
+        $("diagnosis").value.trim();
+
+    const instructions =
+        $("instructions").value.trim();
+
+    const follow =
+        $("followup").value;
+
+    const additional =
+        $("additional").value.trim();
+
+
+    /* doctor */
+
+    $("pDoctor").textContent =
+        doctor;
+
+    $("pReg").textContent =
+        "Registration No.: " +
+        (reg || "—");
+
+
+    /* patient */
+
+    $("pName").textContent =
+        name || "—";
+
+    $("pId").textContent =
+        id || "—";
+
+    $("pOpd").textContent =
+        opd || "—";
+
+    $("pAgeSex").textContent =
+        (age || "—") +
+        " / " +
+        (sex || "—");
+
+
+    /* diagnosis */
+
+    $("pDiagnosis").textContent =
+        diagnosis ||
+        "No diagnosis entered.";
+
+    $("pDiagnosis")
+        .classList
+        .toggle(
+            "empty-preview",
+            !diagnosis
+        );
+
+
+    /* medicines */
+
+    const medicines =
+        getMedicines();
+
+
+    if(medicines.length){
+
+        $("pMedicines").innerHTML =
+            medicines.map(
+                (medicine,index) => `
+
+                    <tr>
+
+                        <td>
+                            ${index + 1}
+                        </td>
+
+                        <td>
+                            <b>
+                                ${escapeHTML(
+                                    medicine.name || "—"
+                                )}
+                            </b>
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                medicine.dose || "—"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                medicine.freq || "—"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                medicine.duration || "—"
+                            )}
+                        </td>
+
+                    </tr>
+
+                `
+            ).join("");
+
+    }else{
+
+        $("pMedicines").innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="5"
+                    class="empty-preview"
+                >
+                    No medicines added.
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+
+    /* instructions */
+
+    const instructionText = [
+
+        instructions,
+
+        additional
+            ? "Note: " + additional
+            : ""
+
+    ]
+    .filter(Boolean)
+    .join("\n");
+
+
+    $("pInstructions").textContent =
+        instructionText ||
+        "No instructions entered.";
+
+    $("pInstructions")
+        .classList
+        .toggle(
+            "empty-preview",
+            !instructionText
+        );
+
+
+    /* follow up */
+
+    $("pFollowup").textContent =
+        follow
+            ? formatDate(follow)
+            : "No follow-up date entered.";
+
+    $("pFollowup")
+        .classList
+        .toggle(
+            "empty-preview",
+            !follow
+        );
+
+
+    /* signature */
+
+    $("pSignature").textContent =
+        doctor;
+
+    $("pSignatureReg").textContent =
+        "Registration No.: " +
+        (reg || "—");
+
+
+    /* date */
+
+    $("pDate").textContent =
+        "Date: " +
+        formatDate(
+            $("date").value
+        );
+
+}
+
+
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+async function initSupabase(){
+
+    if(typeof supabase === "undefined")
+        return null;
+
+
+    try{
+
+        const cfg =
+            window.SUPABASE_CONFIG ||
+            window.supabaseConfig ||
+            window.CONFIG;
+
+
+        if(
+            cfg?.url &&
+            cfg?.anonKey
+        ){
+
+            supabaseClient =
+                supabase.createClient(
+                    cfg.url,
+                    cfg.anonKey
+                );
+
+        }
+
+        else if(
+            window.SUPABASE_URL &&
+            window.SUPABASE_ANON_KEY
+        ){
+
+            supabaseClient =
+                supabase.createClient(
+                    window.SUPABASE_URL,
+                    window.SUPABASE_ANON_KEY
+                );
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+    }
+
+
+    return supabaseClient;
+
+}
+
+
+/* =========================================================
+   LOAD PATIENT
+========================================================= */
+
+async function loadFromRegistry(){
+
+    const patientId =
+        $("patientId")
+        .value
+        .trim();
+
+
+    if(!patientId){
+
+        showToast(
+            "Enter Patient ID first"
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        if(!supabaseClient)
+            await initSupabase();
+
+
+        if(!supabaseClient){
+
+            showToast(
+                "Supabase is not configured"
+            );
+
+            return;
+
+        }
+
+
+        $("registryStatus").textContent =
+            "Loading patient...";
+
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+            .from(TABLE_NAME)
+            .select("*")
+            .eq(
+                "patient_id",
+                patientId
+            )
+            .order(
+                "created_at",
+                {
+                    ascending:false
+                }
+            )
+            .limit(1);
+
+
+        if(error)
+            throw error;
+
+
+        if(!data || !data.length){
+
+            $("registryStatus").textContent =
+                "Patient not found.";
+
+            showToast(
+                "Patient not found"
+            );
+
+            return;
+
+        }
+
+
+        const patient =
+            data[0];
+
+
+        $("patientName").value =
+            patient.patient_name || "";
+
+        $("opd").value =
+            patient.opd_number || "";
+
+        $("age").value =
+            patient.age ?? "";
+
+        $("sex").value =
+            patient.sex || "";
+
+
+        $("registryStatus").textContent =
+            "Patient details loaded from registry.";
+
+
+        updatePreview();
+
+
+        showToast(
+            "Patient loaded"
+        );
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        $("registryStatus").textContent =
+            "Could not load patient.";
+
+        showToast(
+            "Could not load patient"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CLEAR PATIENT
+========================================================= */
+
+function clearPatient(){
+
+    [
+        "patientName",
+        "patientId",
+        "opd",
+        "age"
+    ]
+
+    .forEach(
+        id => $(id).value = ""
+    );
+
+
+    $("sex").value = "";
+
+    $("registryStatus").textContent = "";
+
+    updatePreview();
+
+}
+
+
+/* =========================================================
+   CLEAR EVERYTHING
+========================================================= */
+
+function clearPrescription(){
+
+    if(
+        !confirm(
+            "Clear the complete prescription?"
+        )
+    )
+        return;
+
+
+    clearPatient();
+
+
+    $("doctorName").value = "";
+
+    $("doctorReg").value = "";
+
+    $("diagnosis").value = "";
+
+    $("instructions").value = "";
+
+    $("followup").value = "";
+
+    $("additional").value = "";
+
+
+    $("medicineRows").innerHTML = "";
+
+    addMedicine();
+
+
+    $("date").value =
+        todayISO();
+
+
+    updatePreview();
+
+
+    showToast(
+        "Prescription cleared"
+    );
+
+}
+
+
+/* =========================================================
+   VOICE INPUT
+========================================================= */
+
+function setupVoice(){
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    if(!SpeechRecognition){
+
+        $("voiceBtn").disabled = true;
+
+        $("voiceStatus").textContent =
+            "Voice input is not supported in this browser.";
+
+        return;
+
+    }
+
+
+    recognition =
+        new SpeechRecognition();
+
+
+    recognition.lang =
+        "en-IN";
+
+    recognition.continuous =
+        true;
+
+    recognition.interimResults =
+        true;
+
+
+    recognition.onstart = () => {
+
+        listening = true;
+
+        $("voiceBtn").textContent =
+            "⏹ Stop Voice";
+
+        $("voiceStatus").textContent =
+            "Listening... speak now";
+
+        $("voiceStatus").className =
+            "voice-status live";
+
+    };
+
+
+    recognition.onresult = event => {
+
+        let finalText = "";
+
+
+        for(
+            let i = event.resultIndex;
+            i < event.results.length;
+            i++
+        ){
+
+            if(
+                event.results[i].isFinal
+            ){
+
+                finalText +=
+                    event.results[i][0]
+                    .transcript;
+
+            }
+
+        }
+
+
+        if(finalText){
+
+            const box =
+                $("instructions");
+
+
+            box.value +=
+                (
+                    box.value.trim()
+                        ? " "
+                        : ""
+                ) +
+                finalText.trim();
+
+
+            updatePreview();
+
+        }
+
+    };
+
+
+    recognition.onerror = event => {
+
+        $("voiceStatus").textContent =
+            "Voice input error: " +
+            event.error;
+
+        $("voiceStatus").className =
+            "voice-status error";
+
+
+        listening = false;
+
+
+        $("voiceBtn").textContent =
+            "🎙 Start Voice";
+
+    };
+
+
+    recognition.onend = () => {
+
+        listening = false;
+
+        $("voiceBtn").textContent =
+            "🎙 Start Voice";
+
+
+        if(
+            !$("voiceStatus")
+            .classList
+            .contains("error")
+        ){
+
+            $("voiceStatus").textContent =
+                "Voice input ready";
+
+            $("voiceStatus").className =
+                "voice-status";
+
+        }
+
+    };
+
+}
+
+
+/* =========================================================
+   TOGGLE VOICE
+========================================================= */
+
+function toggleVoice(){
+
+    if(!recognition){
+
+        setupVoice();
+
+        if(!recognition)
+            return;
+
+    }
+
+
+    if(listening){
+
+        recognition.stop();
+
+    }
+
+    else{
+
+        $("voiceStatus").className =
+            "voice-status";
+
+
+        try{
+
+            recognition.start();
+
+        }
+
+        catch(error){
+
+            console.log(error);
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   LIVE PREVIEW
+========================================================= */
+
+document.addEventListener(
+    "input",
+    event => {
+
+        if(
+            event.target
+            .closest(".editor")
+        ){
+
+            updatePreview();
+
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    "change",
+    event => {
+
+        if(
+            event.target
+            .closest(".editor")
+        ){
+
+            updatePreview();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+$("date").value =
+    todayISO();
+
+
+$("todayText").textContent =
+    new Date().toLocaleDateString(
+        "en-IN",
+        {
+            day:"2-digit",
+            month:"short",
+            year:"numeric"
+        }
+    );
+
+
+addMedicine();
+
+setupVoice();
+
+initSupabase();
+
+updatePreview();
+
+</script>
+
+</body>
+</html>
