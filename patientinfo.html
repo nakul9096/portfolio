@@ -839,44 +839,15 @@ function handleLaptopPatientId(patientId){
 
 
 function handleRC522UID(uid){
+  // UID is only the physical card identifier. Do NOT try to match it
+  // with patient_id here because the patient ID is stored in MIFARE block 4.
+  // The actual patient lookup is performed after Arduino sends PATIENT_ID:.
   updateSerialStatus('MIFARE card detected · UID '+uid,'connected');
-  appendSerialLog('Card detected.\nUID: '+uid+'\nSearching clinical registry...');
-
-  /*
-   * The current Supabase records are cached in cachedPatients.
-   * This supports common UID column names if they already exist,
-   * while also allowing patient_id itself to equal the card UID.
-   */
-  const patientRecord=cachedPatients.find(p=>{
-    const candidates=[
-      p.patient_id,
-      p.nfc_uid,
-      p.card_uid,
-      p.rfid_uid,
-      p.uid
-    ].filter(v=>v!==undefined && v!==null);
-
-    return candidates.some(v=>String(v).trim().toUpperCase()===uid);
-  });
-
-  if(patientRecord){
-    appendSerialLog(
-      'Patient matched.\n'+
-      (patientRecord.patient_name || 'Anonymous Patient')+
-      '\nPatient ID: '+(patientRecord.patient_id || 'N/A')
-    );
-    renderFullPatientModal(patientRecord);
-  }else{
-    appendSerialLog(
-      'Card read successfully, but no matching patient record was found.\n'+
-      'UID: '+uid+'\n\n'+
-      'If your database stores UID separately, add the UID to one of these fields:\n'+
-      'nfc_uid / card_uid / rfid_uid / uid'
-    );
-    alert(
-      'Card UID '+uid+' was read successfully, but no matching patient was found in the clinical registry.'
-    );
-  }
+  appendSerialLog(
+    'Card detected.\n'+
+    'UID: '+uid+'\n'+
+    'Reading/writing patient data from MIFARE block 4...'
+  );
 }
 
 
