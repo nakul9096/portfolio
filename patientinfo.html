@@ -364,7 +364,7 @@ dialog::backdrop{background:rgba(3,7,18,.84);backdrop-filter:blur(5px)}
           <div class="icon-box">⌁</div>
           <div>
             <h2>Laptop NFC Reader</h2>
-            <p>Use Arduino UNO + RC522 when Web NFC is unavailable</p>
+            <p>Arduino UNO + RC522 for MIFARE Classic 1K read/write</p>
           </div>
         </div>
         <span class="mode">SERIAL MODE</span>
@@ -376,12 +376,6 @@ dialog::backdrop{background:rgba(3,7,18,.84);backdrop-filter:blur(5px)}
           <span id="serialStatusText">Reader not connected</span>
         </div>
 
-        <p class="card-note">
-          Connect the Arduino UNO to the laptop with USB. Click
-          <strong>Search Connected NFC Reader</strong>, select the Arduino serial port,
-          then bring the MIFARE Classic 1K card near the RC522 antenna.
-        </p>
-
         <div class="reader-actions">
           <button id="connectSerialBtn" class="action" onclick="connectRC522Reader()">
             Search Connected NFC Reader
@@ -391,10 +385,34 @@ dialog::backdrop{background:rgba(3,7,18,.84);backdrop-filter:blur(5px)}
           </button>
         </div>
 
+        <div style="height:18px"></div>
+
+        <label class="label" for="laptopPatientSelect">Clinical Record for NFC Card</label>
+        <select id="laptopPatientSelect" disabled>
+          <option>Retrieving clinical records...</option>
+        </select>
+
+        <div style="height:12px"></div>
+
+        <div class="reader-actions">
+          <button id="laptopWriteBtn" class="action" onclick="startLaptopNFCWrite()" disabled>
+            Write Patient ID to Card
+          </button>
+          <button id="laptopReadBtn" class="action green" onclick="startLaptopNFCRead()" disabled>
+            Read Patient Card
+          </button>
+        </div>
+
         <div id="serialLog" class="serial-log">Waiting for Arduino RC522 reader...</div>
+
+        <p class="card-note" style="margin-top:14px;margin-bottom:0">
+          <strong>Write:</strong> select a clinical record, click Write Patient ID to Card,
+          then place a MIFARE Classic 1K card on the RC522.
+          <br>
+          <strong>Read:</strong> click Read Patient Card and place the programmed card on the RC522.
+        </p>
       </div>
     </div>
-
   </section>
 
   <div id="nfcStatusBanner" class="info-strip" style="display:none">
@@ -507,6 +525,7 @@ let serialKeepReading = false;
 let serialBuffer = '';
 
 const selectEl = document.getElementById('patientSelect');
+const laptopSelectEl = document.getElementById('laptopPatientSelect');
 const dbBadge = document.getElementById('dbStatusBadge');
 
 function getConfig(){
@@ -537,17 +556,32 @@ async function fetchPatientRecords(){
 
 function populateDropdown(patients){
   selectEl.innerHTML='<option value="" disabled selected>-- Select Clinical Patient Assessment --</option>';
+  laptopSelectEl.innerHTML='<option value="" disabled selected>-- Select Clinical Patient Assessment --</option>';
+
   if(!patients.length){
     selectEl.innerHTML='<option value="" disabled selected>-- No Records Found --</option>';
+    laptopSelectEl.innerHTML='<option value="" disabled selected>-- No Records Found --</option>';
     return;
   }
+
   patients.forEach(p=>{
+    const text=(p.patient_id||'N/A')+' - '+(p.patient_name||'Anonymous Patient')+' (OPD: '+(p.opd_number||'N/A')+')';
+
     const opt=document.createElement('option');
     opt.value=p.patient_id;
-    opt.textContent=(p.patient_id||'N/A')+' - '+(p.patient_name||'Anonymous Patient')+' (OPD: '+(p.opd_number||'N/A')+')';
+    opt.textContent=text;
     selectEl.appendChild(opt);
+
+    const laptopOpt=document.createElement('option');
+    laptopOpt.value=p.patient_id;
+    laptopOpt.textContent=text;
+    laptopSelectEl.appendChild(laptopOpt);
   });
+
   selectEl.disabled=false;
+
+  /* Laptop dropdown can be used after the Arduino is connected. */
+  laptopSelectEl.disabled=!serialPort;
 }
 
 function checkNfcSupport(){
@@ -679,6 +713,9 @@ async function connectRC522Reader(){
 
     document.getElementById('connectSerialBtn').disabled=true;
     document.getElementById('disconnectSerialBtn').disabled=false;
+    laptopSelectEl.disabled=cachedPatients.length===0;
+    document.getElementById('laptopWriteBtn').disabled=false;
+    document.getElementById('laptopReadBtn').disabled=false;
 
     updateSerialStatus('Arduino UNO connected · RC522 ready','connected');
     appendSerialLog('Reader connected.\nBring a MIFARE Classic 1K card close to the RC522.');
@@ -694,6 +731,9 @@ async function connectRC522Reader(){
     serialReader=null;
     document.getElementById('connectSerialBtn').disabled=false;
     document.getElementById('disconnectSerialBtn').disabled=true;
+    laptopSelectEl.disabled=true;
+    document.getElementById('laptopWriteBtn').disabled=true;
+    document.getElementById('laptopReadBtn').disabled=true;
   }
 }
 
@@ -737,11 +777,66 @@ function processArduinoSerialData(chunk){
       handleRC522UID(uid);
     }
 
+    if(clean.toUpperCase().startsWith('PATIENT_ID:')){
+      const patientId=clean.substring(11).trim();
+      handleLaptopPatientId(patientId);
+    }
+
+    if(clean.toUpperCase()==='WRITE_SUCCESS'){
+      updateSerialStatus('Card written successfully','connected');
+    }
+
+    if(clean.toUpperCase().startsWith('WRITE_ERROR:')){
+      updateSerialStatus('Card write failed','error');
+      appendSerialLog(clean);
+    }
+
+    if(clean.toUpperCase().startsWith('READ_ERROR:')){
+      updateSerialStatus('Card read failed','error');
+      appendSerialLog(clean);
+    }
+
     if(clean.toUpperCase().includes('CARD REMOVED')){
       updateSerialStatus('Arduino connected · waiting for card','connected');
     }
   });
 }
+
+
+function handleLaptopPatientId(patientId){
+  const normalized=String(patientId).trim();
+
+  if(!normalized || normalized==='EMPTY'){
+    appendSerialLog('No patient ID is stored on this card.');
+    alert('The MIFARE card does not contain an OSCC patient ID.');
+    return;
+  }
+
+  const patientRecord=cachedPatients.find(p=>{
+    return String(p.patient_id||'').trim().toUpperCase()===normalized.toUpperCase();
+  });
+
+  if(patientRecord){
+    updateSerialStatus('Patient card verified · '+normalized,'connected');
+    appendSerialLog(
+      'Patient card verified.\n'+
+      'Patient ID: '+normalized+'\n'+
+      'Patient: '+(patientRecord.patient_name||'Anonymous Patient')
+    );
+    renderFullPatientModal(patientRecord);
+  }else{
+    updateSerialStatus('Card read · patient not found','error');
+    appendSerialLog(
+      'Patient ID read from card: '+normalized+
+      '\nNo matching clinical registry record was found.'
+    );
+    alert(
+      'Patient ID '+normalized+' was read from the MIFARE card, '+
+      'but it was not found in the clinical registry.'
+    );
+  }
+}
+
 
 function handleRC522UID(uid){
   updateSerialStatus('MIFARE card detected · UID '+uid,'connected');
@@ -784,6 +879,95 @@ function handleRC522UID(uid){
   }
 }
 
+
+async function sendSerialCommand(command){
+  if(!serialPort || !serialPort.writable)
+    throw new Error('Arduino reader is not connected.');
+
+  const writer=serialPort.writable.getWriter();
+
+  try{
+    await writer.write(new TextEncoder().encode(command+'\n'));
+  }finally{
+    writer.releaseLock();
+  }
+}
+
+async function startLaptopNFCWrite(){
+  if(!serialPort){
+    alert('Connect the Arduino UNO + RC522 reader first.');
+    return;
+  }
+
+  const patientId=laptopSelectEl.value;
+
+  if(!patientId){
+    alert('Select a clinical patient record first.');
+    return;
+  }
+
+  /*
+   * MIFARE Classic block 4 holds up to 16 bytes.
+   * The Arduino stores: OSCC:<patient_id>
+   * Keep patient_id within 11 characters for this format.
+   */
+  const encoded=('OSCC:'+String(patientId)).length;
+
+  if(encoded>16){
+    alert(
+      'This patient ID is too long for the current MIFARE block format.\n\n'+
+      'Maximum supported patient ID length: 11 characters.'
+    );
+    return;
+  }
+
+  updateSerialStatus('Ready to write · waiting for MIFARE card','connected');
+  appendSerialLog(
+    'WRITE MODE\n'+
+    'Patient ID: '+patientId+'\n'+
+    'Place the MIFARE Classic 1K card on the RC522.'
+  );
+
+  try{
+    await sendSerialCommand('WRITE:'+String(patientId));
+
+    document.getElementById('laptopWriteBtn').disabled=true;
+    document.getElementById('laptopReadBtn').disabled=true;
+
+    setTimeout(()=>{
+      if(serialPort){
+        document.getElementById('laptopWriteBtn').disabled=false;
+        document.getElementById('laptopReadBtn').disabled=false;
+      }
+    },3000);
+
+  }catch(err){
+    console.error(err);
+    appendSerialLog('WRITE ERROR: '+(err.message||'Unable to send write command.'));
+  }
+}
+
+async function startLaptopNFCRead(){
+  if(!serialPort){
+    alert('Connect the Arduino UNO + RC522 reader first.');
+    return;
+  }
+
+  updateSerialStatus('Read mode · waiting for MIFARE card','connected');
+  appendSerialLog(
+    'READ MODE\n'+
+    'Place the programmed MIFARE Classic 1K card on the RC522.'
+  );
+
+  try{
+    await sendSerialCommand('READ');
+  }catch(err){
+    console.error(err);
+    appendSerialLog('READ ERROR: '+(err.message||'Unable to send read command.'));
+  }
+}
+
+
 async function disconnectRC522Reader(){
   serialKeepReading=false;
 
@@ -804,6 +988,11 @@ async function disconnectRC522Reader(){
 
   if(connectBtn) connectBtn.disabled=false;
   if(disconnectBtn) disconnectBtn.disabled=true;
+  if(laptopSelectEl) laptopSelectEl.disabled=true;
+  const writeBtn=document.getElementById('laptopWriteBtn');
+  const readBtn=document.getElementById('laptopReadBtn');
+  if(writeBtn) writeBtn.disabled=true;
+  if(readBtn) readBtn.disabled=true;
 
   updateSerialStatus('Reader not connected');
   appendSerialLog('Arduino RC522 reader disconnected.');
