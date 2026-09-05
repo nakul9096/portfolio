@@ -242,6 +242,41 @@ dialog::backdrop{background:rgba(3,7,18,.84);backdrop-filter:blur(5px)}
   .matrix{grid-template-columns:1fr}
   .detail-section{grid-column:1}
 }
+
+/* Laptop RC522 reader card */
+.reader-card{
+  grid-column:1/-1;
+  margin-top:0;
+}
+.reader-status{
+  display:flex;align-items:center;gap:9px;
+  margin:0 0 16px;padding:10px 12px;
+  background:#0d1321;border:1px solid #1f293d;border-radius:6px;
+  color:#9ca3af;font-size:12px;
+}
+.reader-status .reader-dot{
+  width:8px;height:8px;border-radius:50%;background:#fbbf24;flex:none;
+}
+.reader-status.connected .reader-dot{background:#34d399}
+.reader-status.error .reader-dot{background:#f87171}
+.reader-actions{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+.reader-actions .action{width:100%}
+.action.dark{
+  background:#1f293d;border-color:#2d3748;
+}
+.action.dark:hover{background:#2d3748}
+.serial-log{
+  margin-top:14px;padding:12px;
+  background:#090d16;border:1px solid #1f293d;border-radius:6px;
+  color:#9ca3af;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;
+  min-height:44px;white-space:pre-wrap;word-break:break-word;
+}
+@media(max-width:600px){
+  .reader-actions{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 
@@ -318,6 +353,45 @@ dialog::backdrop{background:rgba(3,7,18,.84);backdrop-filter:blur(5px)}
           stored assessment information.
         </p>
         <button class="action green" onclick="startNFCRead()">Activate NFC Telemetry Scanner</button>
+      </div>
+    </div>
+
+
+    <!-- Laptop RC522 / Arduino Reader -->
+    <div class="card reader-card">
+      <div class="card-head">
+        <div class="card-title">
+          <div class="icon-box">⌁</div>
+          <div>
+            <h2>Laptop NFC Reader</h2>
+            <p>Use Arduino UNO + RC522 when Web NFC is unavailable</p>
+          </div>
+        </div>
+        <span class="mode">SERIAL MODE</span>
+      </div>
+
+      <div class="card-body">
+        <div id="serialStatus" class="reader-status">
+          <span class="reader-dot"></span>
+          <span id="serialStatusText">Reader not connected</span>
+        </div>
+
+        <p class="card-note">
+          Connect the Arduino UNO to the laptop with USB. Click
+          <strong>Search Connected NFC Reader</strong>, select the Arduino serial port,
+          then bring the MIFARE Classic 1K card near the RC522 antenna.
+        </p>
+
+        <div class="reader-actions">
+          <button id="connectSerialBtn" class="action" onclick="connectRC522Reader()">
+            Search Connected NFC Reader
+          </button>
+          <button id="disconnectSerialBtn" class="action dark" onclick="disconnectRC522Reader()" disabled>
+            Disconnect Reader
+          </button>
+        </div>
+
+        <div id="serialLog" class="serial-log">Waiting for Arduino RC522 reader...</div>
       </div>
     </div>
 
@@ -425,6 +499,12 @@ const TABLE_NAME = 'oral_clinical_assessments';
 let cachedPatients = [];
 let ndefWriter = null;
 let ndefReader = null;
+
+/* Arduino UNO + RC522 Web Serial state */
+let serialPort = null;
+let serialReader = null;
+let serialKeepReading = false;
+let serialBuffer = '';
 
 const selectEl = document.getElementById('patientSelect');
 const dbBadge = document.getElementById('dbStatusBadge');
@@ -550,6 +630,196 @@ async function startNFCRead(){
     document.getElementById('nfcDialogIcon').classList.remove('active');
   }
 }
+
+
+/* =========================================================
+   LAPTOP MODE: Arduino UNO + RC522 over Web Serial
+   ========================================================= */
+
+function updateSerialStatus(message, state=''){
+  const box=document.getElementById('serialStatus');
+  const text=document.getElementById('serialStatusText');
+  if(!box || !text) return;
+  box.className='reader-status '+state;
+  text.textContent=message;
+}
+
+function appendSerialLog(message){
+  const log=document.getElementById('serialLog');
+  if(!log) return;
+  log.textContent=message;
+}
+
+function supportsWebSerial(){
+  if(!('serial' in navigator)){
+    updateSerialStatus('Web Serial is not supported in this browser. Use Chrome or Edge on the laptop.','error');
+    appendSerialLog('Web Serial unavailable. Open this page in Chrome/Edge over HTTPS or localhost.');
+    return false;
+  }
+  return true;
+}
+
+async function connectRC522Reader(){
+  if(!supportsWebSerial()) return;
+
+  try{
+    if(serialPort){
+      await disconnectRC522Reader();
+    }
+
+    updateSerialStatus('Waiting for Arduino serial port selection...');
+    appendSerialLog('Select the Arduino UNO USB serial port in the browser dialog.');
+
+    serialPort=await navigator.serial.requestPort();
+
+    /* Must match Serial.begin(9600) in the Arduino sketch. */
+    await serialPort.open({baudRate:9600});
+
+    serialKeepReading=true;
+
+    document.getElementById('connectSerialBtn').disabled=true;
+    document.getElementById('disconnectSerialBtn').disabled=false;
+
+    updateSerialStatus('Arduino UNO connected · RC522 ready','connected');
+    appendSerialLog('Reader connected.\nBring a MIFARE Classic 1K card close to the RC522.');
+
+    readRC522SerialLoop();
+
+  }catch(err){
+    console.error(err);
+    updateSerialStatus('Reader connection failed','error');
+    appendSerialLog(err.message || 'Unable to open the Arduino serial port.');
+
+    serialPort=null;
+    serialReader=null;
+    document.getElementById('connectSerialBtn').disabled=false;
+    document.getElementById('disconnectSerialBtn').disabled=true;
+  }
+}
+
+async function readRC522SerialLoop(){
+  if(!serialPort || !serialPort.readable) return;
+
+  const decoder=new TextDecoderStream();
+  const inputDone=serialPort.readable.pipeTo(decoder.writable).catch(()=>{});
+  serialReader=decoder.readable.getReader();
+
+  try{
+    while(serialKeepReading){
+      const {value,done}=await serialReader.read();
+      if(done) break;
+      if(value) processArduinoSerialData(value);
+    }
+  }catch(err){
+    if(serialKeepReading) console.error('Serial read error:',err);
+  }finally{
+    try{serialReader.releaseLock()}catch(e){}
+    serialReader=null;
+    try{await inputDone}catch(e){}
+  }
+}
+
+function processArduinoSerialData(chunk){
+  serialBuffer+=chunk;
+
+  const lines=serialBuffer.split(/\r?\n/);
+  serialBuffer=lines.pop() || '';
+
+  lines.forEach(line=>{
+    const clean=line.trim();
+    if(!clean) return;
+
+    appendSerialLog(clean);
+
+    /* Arduino sends: UID: 10 DC 8A 3F */
+    if(clean.toUpperCase().startsWith('UID:')){
+      const uid=clean.substring(4).trim().replace(/\s+/g,' ').toUpperCase();
+      handleRC522UID(uid);
+    }
+
+    if(clean.toUpperCase().includes('CARD REMOVED')){
+      updateSerialStatus('Arduino connected · waiting for card','connected');
+    }
+  });
+}
+
+function handleRC522UID(uid){
+  updateSerialStatus('MIFARE card detected · UID '+uid,'connected');
+  appendSerialLog('Card detected.\nUID: '+uid+'\nSearching clinical registry...');
+
+  /*
+   * The current Supabase records are cached in cachedPatients.
+   * This supports common UID column names if they already exist,
+   * while also allowing patient_id itself to equal the card UID.
+   */
+  const patientRecord=cachedPatients.find(p=>{
+    const candidates=[
+      p.patient_id,
+      p.nfc_uid,
+      p.card_uid,
+      p.rfid_uid,
+      p.uid
+    ].filter(v=>v!==undefined && v!==null);
+
+    return candidates.some(v=>String(v).trim().toUpperCase()===uid);
+  });
+
+  if(patientRecord){
+    appendSerialLog(
+      'Patient matched.\n'+
+      (patientRecord.patient_name || 'Anonymous Patient')+
+      '\nPatient ID: '+(patientRecord.patient_id || 'N/A')
+    );
+    renderFullPatientModal(patientRecord);
+  }else{
+    appendSerialLog(
+      'Card read successfully, but no matching patient record was found.\n'+
+      'UID: '+uid+'\n\n'+
+      'If your database stores UID separately, add the UID to one of these fields:\n'+
+      'nfc_uid / card_uid / rfid_uid / uid'
+    );
+    alert(
+      'Card UID '+uid+' was read successfully, but no matching patient was found in the clinical registry.'
+    );
+  }
+}
+
+async function disconnectRC522Reader(){
+  serialKeepReading=false;
+
+  try{
+    if(serialReader) await serialReader.cancel();
+  }catch(e){}
+
+  try{
+    if(serialPort) await serialPort.close();
+  }catch(e){}
+
+  serialReader=null;
+  serialPort=null;
+  serialBuffer='';
+
+  const connectBtn=document.getElementById('connectSerialBtn');
+  const disconnectBtn=document.getElementById('disconnectSerialBtn');
+
+  if(connectBtn) connectBtn.disabled=false;
+  if(disconnectBtn) disconnectBtn.disabled=true;
+
+  updateSerialStatus('Reader not connected');
+  appendSerialLog('Arduino RC522 reader disconnected.');
+}
+
+/* If the USB cable is unplugged while the page is open. */
+if('serial' in navigator){
+  navigator.serial.addEventListener('disconnect', async event=>{
+    if(serialPort===event.target){
+      await disconnectRC522Reader();
+      updateSerialStatus('Arduino reader disconnected','error');
+      appendSerialLog('The Arduino USB serial connection was removed.');
+    }
+  });
+}
+
 
 function setText(id,value){
   document.getElementById(id).textContent=value??'N/A';
