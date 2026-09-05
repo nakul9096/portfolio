@@ -805,7 +805,15 @@ function processESP32SerialData(chunk){
     }
 
     if(upper.startsWith('NDEF_JSON:')){
-      appendSerialLog('NDEF JSON received: '+clean.substring(9).trim());
+      const jsonText=clean.substring(9).trim();
+      appendSerialLog('NDEF JSON received: '+jsonText);
+      try{
+        const payload=JSON.parse(jsonText);
+        const patientId=payload.patient_id||payload.id;
+        if(patientId) handleLaptopPatientId(patientId);
+      }catch(e){
+        console.warn('NDEF JSON parse failed:',e);
+      }
     }
 
     if(upper==='NDEF_AREA_READ'){
@@ -834,6 +842,10 @@ function processESP32SerialData(chunk){
 
     if(upper.startsWith('READ_ERROR:') || upper.startsWith('READ_BLOCK_ERROR:')){
       updateSerialStatus('Card read failed','error');
+    }
+
+    if(upper==='READ_SUCCESS'){
+      updateSerialStatus('Patient card read successfully','connected');
     }
 
     if(upper.startsWith('AUTH_ERROR:')){
