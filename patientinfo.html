@@ -364,7 +364,7 @@ dialog::backdrop{background:rgba(3,7,18,.84);backdrop-filter:blur(5px)}
           <div class="icon-box">⌁</div>
           <div>
             <h2>Laptop NFC Reader</h2>
-            <p>Arduino UNO + RC522 for MIFARE Classic 1K read/write</p>
+            <p>ESP32 + RC522 for MIFARE Classic 1K NDEF read/write</p>
           </div>
         </div>
         <span class="mode">SERIAL MODE</span>
@@ -403,13 +403,13 @@ dialog::backdrop{background:rgba(3,7,18,.84);backdrop-filter:blur(5px)}
           </button>
         </div>
 
-        <div id="serialLog" class="serial-log">Waiting for Arduino RC522 reader...</div>
+        <div id="serialLog" class="serial-log">Waiting for ESP32 RC522 reader...</div>
 
         <p class="card-note" style="margin-top:14px;margin-bottom:0">
           <strong>Write:</strong> select a clinical record, click Write Patient ID to Card,
-          then place a MIFARE Classic 1K card on the RC522.
+          then place a MIFARE Classic 1K card on the RC522. The ESP32 writes the NDEF patient record.
           <br>
-          <strong>Read:</strong> click Read Patient Card and place the programmed card on the RC522.
+          <strong>Read:</strong> click Read Patient Card and place the programmed card on the RC522. The ESP32 reads the NDEF patient record and matches patient_id with Supabase.
         </p>
       </div>
     </div>
@@ -518,7 +518,7 @@ let cachedPatients = [];
 let ndefWriter = null;
 let ndefReader = null;
 
-/* Arduino UNO + RC522 Web Serial state */
+/* ESP32 + RC522 Web Serial state */
 let serialPort = null;
 let serialReader = null;
 let serialKeepReading = false;
@@ -667,7 +667,7 @@ async function startNFCRead(){
 
 
 /* =========================================================
-   LAPTOP MODE: Arduino UNO + RC522 over Web Serial
+   LAPTOP MODE: ESP32 + RC522 over USB Web Serial
    ========================================================= */
 
 function updateSerialStatus(message, state=''){
@@ -686,8 +686,8 @@ function appendSerialLog(message){
 
 function supportsWebSerial(){
   if(!('serial' in navigator)){
-    updateSerialStatus('Web Serial is not supported in this browser. Use Chrome or Edge on the laptop.','error');
-    appendSerialLog('Web Serial unavailable. Open this page in Chrome/Edge over HTTPS or localhost.');
+    updateSerialStatus('Web Serial is not supported in this browser. Use Chrome or Edge.','error');
+    appendSerialLog('Web Serial is unavailable. Use Chrome/Edge over HTTPS or localhost.');
     return false;
   }
   return true;
@@ -701,34 +701,51 @@ async function connectRC522Reader(){
       await disconnectRC522Reader();
     }
 
-    updateSerialStatus('Waiting for Arduino serial port selection...');
-    appendSerialLog('Select the Arduino UNO USB serial port in the browser dialog.');
+    updateSerialStatus('Select ESP32 USB port...');
+    appendSerialLog(
+      'Select the ESP32 USB serial port.\n'+
+      'IMPORTANT: close Arduino Serial Monitor before connecting this webpage.'
+    );
 
     serialPort=await navigator.serial.requestPort();
 
-    /* Must match Serial.begin(9600) in the Arduino sketch. */
-    await serialPort.open({baudRate:9600});
+    // ESP32 sketch uses Serial.begin(115200)
+    await serialPort.open({baudRate:115200});
 
     serialKeepReading=true;
 
     document.getElementById('connectSerialBtn').disabled=true;
     document.getElementById('disconnectSerialBtn').disabled=false;
     laptopSelectEl.disabled=cachedPatients.length===0;
-    document.getElementById('laptopWriteBtn').disabled=false;
+    document.getElementById('laptopWriteBtn').disabled=cachedPatients.length===0;
     document.getElementById('laptopReadBtn').disabled=false;
 
-    updateSerialStatus('Arduino UNO connected · RC522 ready','connected');
-    appendSerialLog('Reader connected.\nBring a MIFARE Classic 1K card close to the RC522.');
+    updateSerialStatus('ESP32 connected · RC522 ready','connected');
+    appendSerialLog(
+      'ESP32 connected successfully.\n'+
+      'Click Read or Write, then place the MIFARE Classic 1K card on the RC522.'
+    );
 
     readRC522SerialLoop();
 
   }catch(err){
     console.error(err);
-    updateSerialStatus('Reader connection failed','error');
-    appendSerialLog(err.message || 'Unable to open the Arduino serial port.');
+    updateSerialStatus('ESP32 serial connection failed','error');
+    appendSerialLog(
+      'SERIAL ERROR: '+(err.message||'Unable to open serial port.')+'\n\n'+
+      'Check that Arduino Serial Monitor is CLOSED and that the correct ESP32 USB port is selected.'
+    );
+
+    try{
+      if(serialPort && serialPort.readable){
+        // no-op; the port may still be open and will be handled by disconnect
+      }
+    }catch(e){}
 
     serialPort=null;
     serialReader=null;
+    serialKeepReading=false;
+
     document.getElementById('connectSerialBtn').disabled=false;
     document.getElementById('disconnectSerialBtn').disabled=true;
     laptopSelectEl.disabled=true;
@@ -748,19 +765,22 @@ async function readRC522SerialLoop(){
     while(serialKeepReading){
       const {value,done}=await serialReader.read();
       if(done) break;
-      if(value) processArduinoSerialData(value);
+      if(value) processESP32SerialData(value);
     }
   }catch(err){
-    if(serialKeepReading) console.error('Serial read error:',err);
+    if(serialKeepReading){
+      console.error('Serial read error:',err);
+      appendSerialLog('SERIAL READ ERROR: '+(err.message||err));
+    }
   }finally{
-    try{serialReader.releaseLock()}catch(e){}
+    try{serialReader.releaseLock();}catch(e){}
     serialReader=null;
-    try{await inputDone}catch(e){}
+    try{await inputDone;}catch(e){}
   }
 }
 
-function processArduinoSerialData(chunk){
-  serialBuffer+=chunk;
+function processESP32SerialData(chunk){
+  serialBuffer += chunk;
 
   const lines=serialBuffer.split(/\r?\n/);
   serialBuffer=lines.pop() || '';
@@ -769,52 +789,76 @@ function processArduinoSerialData(chunk){
     const clean=line.trim();
     if(!clean) return;
 
+    // Keep the latest meaningful serial message visible.
     appendSerialLog(clean);
 
-    /* Arduino sends: UID: 10 DC 8A 3F */
-    if(clean.toUpperCase().startsWith('UID:')){
+    const upper=clean.toUpperCase();
+
+    if(upper.startsWith('UID:')){
       const uid=clean.substring(4).trim().replace(/\s+/g,' ').toUpperCase();
-      handleRC522UID(uid);
+      updateSerialStatus('MIFARE card detected · UID '+uid,'connected');
     }
 
-    if(clean.toUpperCase().startsWith('PATIENT_ID:')){
+    if(upper.startsWith('PATIENT_ID:')){
       const patientId=clean.substring(11).trim();
       handleLaptopPatientId(patientId);
     }
 
-    if(clean.toUpperCase()==='WRITE_SUCCESS'){
+    if(upper.startsWith('NDEF_JSON:')){
+      appendSerialLog('NDEF JSON received: '+clean.substring(9).trim());
+    }
+
+    if(upper==='NDEF_AREA_READ'){
+      updateSerialStatus('NDEF data read · processing patient ID','connected');
+    }
+
+    if(upper==='WAITING_FOR_CARD'){
+      updateSerialStatus('Waiting for MIFARE Classic 1K card...','connected');
+    }
+
+    if(upper==='NDEF_DATA_CREATED'){
+      updateSerialStatus('NDEF data prepared · waiting for card','connected');
+    }
+
+    if(upper.startsWith('WRITING BLOCK')){
+      updateSerialStatus(clean,'connected');
+    }
+
+    if(upper==='WRITE_SUCCESS'){
       updateSerialStatus('Card written successfully','connected');
     }
 
-    if(clean.toUpperCase().startsWith('WRITE_ERROR:')){
+    if(upper.startsWith('WRITE_ERROR:') || upper.startsWith('WRITE_BLOCK_ERROR:')){
       updateSerialStatus('Card write failed','error');
-      appendSerialLog(clean);
     }
 
-    if(clean.toUpperCase().startsWith('READ_ERROR:')){
+    if(upper.startsWith('READ_ERROR:') || upper.startsWith('READ_BLOCK_ERROR:')){
       updateSerialStatus('Card read failed','error');
-      appendSerialLog(clean);
     }
 
-    if(clean.toUpperCase().includes('CARD REMOVED')){
-      updateSerialStatus('Arduino connected · waiting for card','connected');
+    if(upper.startsWith('AUTH_ERROR:')){
+      updateSerialStatus('Card authentication failed','error');
+    }
+
+    if(upper.includes('ESP32 RC522 NFC SYSTEM READY')){
+      updateSerialStatus('ESP32 connected · RC522 ready','connected');
     }
   });
 }
-
 
 function handleLaptopPatientId(patientId){
   const normalized=String(patientId).trim();
 
   if(!normalized || normalized==='EMPTY'){
-    appendSerialLog('No patient ID is stored on this card.');
+    updateSerialStatus('No patient ID found on card','error');
+    appendSerialLog('No patient ID is stored on this NFC card.');
     alert('The MIFARE card does not contain an OSCC patient ID.');
     return;
   }
 
-  const patientRecord=cachedPatients.find(p=>{
-    return String(p.patient_id||'').trim().toUpperCase()===normalized.toUpperCase();
-  });
+  const patientRecord=cachedPatients.find(p=>
+    String(p.patient_id||'').trim().toUpperCase()===normalized.toUpperCase()
+  );
 
   if(patientRecord){
     updateSerialStatus('Patient card verified · '+normalized,'connected');
@@ -825,35 +869,21 @@ function handleLaptopPatientId(patientId){
     );
     renderFullPatientModal(patientRecord);
   }else{
-    updateSerialStatus('Card read · patient not found','error');
+    updateSerialStatus('Patient ID read · record not found','error');
     appendSerialLog(
-      'Patient ID read from card: '+normalized+
-      '\nNo matching clinical registry record was found.'
+      'Patient ID read from card: '+normalized+'\n'+
+      'No matching clinical registry record was found.'
     );
     alert(
-      'Patient ID '+normalized+' was read from the MIFARE card, '+
-      'but it was not found in the clinical registry.'
+      'Patient ID '+normalized+' was read from the NFC card, but it was not found in the clinical registry.'
     );
   }
 }
 
-
-function handleRC522UID(uid){
-  // UID is only the physical card identifier. Do NOT try to match it
-  // with patient_id here because the patient ID is stored in MIFARE block 4.
-  // The actual patient lookup is performed after Arduino sends PATIENT_ID:.
-  updateSerialStatus('MIFARE card detected · UID '+uid,'connected');
-  appendSerialLog(
-    'Card detected.\n'+
-    'UID: '+uid+'\n'+
-    'Reading/writing patient data from MIFARE block 4...'
-  );
-}
-
-
 async function sendSerialCommand(command){
-  if(!serialPort || !serialPort.writable)
-    throw new Error('Arduino reader is not connected.');
+  if(!serialPort || !serialPort.writable){
+    throw new Error('ESP32 reader is not connected.');
+  }
 
   const writer=serialPort.writable.getWriter();
 
@@ -866,7 +896,7 @@ async function sendSerialCommand(command){
 
 async function startLaptopNFCWrite(){
   if(!serialPort){
-    alert('Connect the Arduino UNO + RC522 reader first.');
+    alert('Connect the ESP32 + RC522 reader first.');
     return;
   }
 
@@ -877,50 +907,35 @@ async function startLaptopNFCWrite(){
     return;
   }
 
-  /*
-   * MIFARE Classic block 4 holds up to 16 bytes.
-   * The Arduino stores: OSCC:<patient_id>
-   * Keep patient_id within 11 characters for this format.
-   */
-  const encoded=('OSCC:'+String(patientId)).length;
+  // JSON format: {"patient_id":"P-1006"}
+  const json='{"patient_id":"'+String(patientId).replace(/\\/g,'\\\\').replace(/"/g,'\\"')+'"}';
 
-  if(encoded>16){
-    alert(
-      'This patient ID is too long for the current MIFARE block format.\n\n'+
-      'Maximum supported patient ID length: 11 characters.'
-    );
+  // The ESP32 creates the NDEF record, so only enforce a practical ID limit here.
+  if(String(patientId).length>20){
+    alert('Patient ID is unusually long. Please use a shorter patient ID.');
     return;
   }
 
-  updateSerialStatus('Ready to write · waiting for MIFARE card','connected');
+  updateSerialStatus('Write mode · waiting for MIFARE card','connected');
   appendSerialLog(
     'WRITE MODE\n'+
     'Patient ID: '+patientId+'\n'+
+    'NDEF: '+json+'\n'+
     'Place the MIFARE Classic 1K card on the RC522.'
   );
 
   try{
     await sendSerialCommand('WRITE:'+String(patientId));
-
-    document.getElementById('laptopWriteBtn').disabled=true;
-    document.getElementById('laptopReadBtn').disabled=true;
-
-    setTimeout(()=>{
-      if(serialPort){
-        document.getElementById('laptopWriteBtn').disabled=false;
-        document.getElementById('laptopReadBtn').disabled=false;
-      }
-    },3000);
-
   }catch(err){
     console.error(err);
-    appendSerialLog('WRITE ERROR: '+(err.message||'Unable to send write command.'));
+    updateSerialStatus('Write command failed','error');
+    appendSerialLog('WRITE COMMAND ERROR: '+(err.message||err));
   }
 }
 
 async function startLaptopNFCRead(){
   if(!serialPort){
-    alert('Connect the Arduino UNO + RC522 reader first.');
+    alert('Connect the ESP32 + RC522 reader first.');
     return;
   }
 
@@ -934,16 +949,22 @@ async function startLaptopNFCRead(){
     await sendSerialCommand('READ');
   }catch(err){
     console.error(err);
-    appendSerialLog('READ ERROR: '+(err.message||'Unable to send read command.'));
+    updateSerialStatus('Read command failed','error');
+    appendSerialLog('READ COMMAND ERROR: '+(err.message||err));
   }
 }
-
 
 async function disconnectRC522Reader(){
   serialKeepReading=false;
 
   try{
     if(serialReader) await serialReader.cancel();
+  }catch(e){}
+
+  try{
+    if(serialPort && serialPort.readable){
+      // Reader cancellation above releases the read lock.
+    }
   }catch(e){}
 
   try{
@@ -960,26 +981,35 @@ async function disconnectRC522Reader(){
   if(connectBtn) connectBtn.disabled=false;
   if(disconnectBtn) disconnectBtn.disabled=true;
   if(laptopSelectEl) laptopSelectEl.disabled=true;
+
   const writeBtn=document.getElementById('laptopWriteBtn');
   const readBtn=document.getElementById('laptopReadBtn');
   if(writeBtn) writeBtn.disabled=true;
   if(readBtn) readBtn.disabled=true;
 
   updateSerialStatus('Reader not connected');
-  appendSerialLog('Arduino RC522 reader disconnected.');
+  appendSerialLog('ESP32 RC522 reader disconnected.');
 }
 
-/* If the USB cable is unplugged while the page is open. */
 if('serial' in navigator){
   navigator.serial.addEventListener('disconnect', async event=>{
     if(serialPort===event.target){
-      await disconnectRC522Reader();
-      updateSerialStatus('Arduino reader disconnected','error');
-      appendSerialLog('The Arduino USB serial connection was removed.');
+      serialKeepReading=false;
+      serialPort=null;
+      serialReader=null;
+      serialBuffer='';
+
+      document.getElementById('connectSerialBtn').disabled=false;
+      document.getElementById('disconnectSerialBtn').disabled=true;
+      laptopSelectEl.disabled=true;
+      document.getElementById('laptopWriteBtn').disabled=true;
+      document.getElementById('laptopReadBtn').disabled=true;
+
+      updateSerialStatus('ESP32 reader disconnected','error');
+      appendSerialLog('The ESP32 USB serial connection was removed.');
     }
   });
 }
-
 
 function setText(id,value){
   document.getElementById(id).textContent=value??'N/A';
