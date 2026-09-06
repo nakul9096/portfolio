@@ -3,474 +3,1225 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OSCC Clinical Patient Dashboard</title>
+<title>NFC Card - Oral Clinical Registry</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config/config.js"></script>
 
 <style>
-*{box-sizing:border-box}
+
+/* =========================
+   GLOBAL
+========================= */
+
+*{
+  box-sizing:border-box
+}
+
 body{
-  margin:0;background:#090d16;color:#ffffff;
-  font-family:Inter,Arial,sans-serif;font-size:14px
+  margin:0;
+  background:#090d16;
+  color:#ffffff;
+  font-family:Inter,Arial,sans-serif;
+  font-size:14px
 }
-button,select{font:inherit}
-button{cursor:pointer}
 
-nav{
-  position:sticky;top:0;z-index:20;
-  background:rgba(17,24,39,.96);
-  border-bottom:1px solid #253044;
-  backdrop-filter:blur(12px)
+button,select{
+  font:inherit
 }
-.nav{
-  max-width:1400px;margin:auto;padding:15px 25px;
-  display:flex;align-items:center;justify-content:space-between;
-  gap:20px
-}
-.brand b{display:block;font-size:14px}
-.brand span{font-size:11px;color:#778195}
-.links{display:flex;gap:6px;flex-wrap:wrap}
-.links a{
-  text-decoration:none;color:#9ca3af;
-  padding:9px 12px;border-radius:7px;font-size:12px
-}
-.links a:hover,.links a.active{background:#182235;color:#60a5fa}
 
-main{max-width:1400px;margin:auto;padding:30px 22px 50px}
+button{
+  cursor:pointer
+}
+
+
+/* =========================
+   NEW THEMED HEADER
+========================= */
+
+.top-nav{
+  max-width:1280px;
+  margin:0 auto;
+  padding:18px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  border-bottom:1px solid #1f293d;
+}
+
+.brand-area{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  flex-shrink:0;
+}
+
+.brand-icon{
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(37,99,235,.12);
+  color:#60a5fa;
+  border:1px solid rgba(37,99,235,.25);
+  border-radius:8px;
+}
+
+.brand-title{
+  color:#f9fafb;
+  font-size:14px;
+  font-weight:700;
+}
+
+.brand-subtitle{
+  color:#6b7280;
+  font-size:11px;
+  margin-top:1px;
+}
+
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.nav-link{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 11px;
+  color:#9ca3af;
+  text-decoration:none;
+  font-size:12px;
+  font-weight:500;
+  border:1px solid transparent;
+  border-radius:6px;
+  transition:all .15s ease;
+}
+
+.nav-link:hover{
+  color:#f9fafb;
+  background:#111827;
+  border-color:#1f293d;
+}
+
+.nav-link.active{
+  color:#fff;
+  background:#1f293d;
+  border-color:#2d3748;
+}
+
+
+/* =========================
+   MAIN
+========================= */
+
+main{
+  max-width:1400px;
+  margin:auto;
+  padding:30px 22px 50px
+}
+
 .pageHead{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:15px;margin-bottom:22px
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:22px
 }
-h1{font-size:23px;margin:0 0 5px}
-.subtitle{color:#778195;font-size:12px}
+
+h1{
+  font-size:23px;
+  margin:0 0 5px
+}
+
+.subtitle{
+  color:#778195;
+  font-size:12px
+}
+
+
+/* =========================
+   DATABASE STATUS
+========================= */
 
 .db{
-  border:1px solid #293449;background:#111827;
-  padding:9px 12px;border-radius:8px;font-size:11px;color:#9ca3af
+  border:1px solid #293449;
+  background:#111827;
+  padding:9px 12px;
+  border-radius:8px;
+  font-size:11px;
+  color:#9ca3af
 }
+
 .dot{
-  width:7px;height:7px;border-radius:50%;
-  display:inline-block;background:#fbbf24;margin-right:7px
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  display:inline-block;
+  background:#fbbf24;
+  margin-right:7px
 }
-.dot.ok{background:#34d399}
-.dot.bad{background:#f87171}
+
+.dot.ok{
+  background:#34d399
+}
+
+.dot.bad{
+  background:#f87171
+}
+
+
+/* =========================
+   GRID / CARDS
+========================= */
 
 .grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:18px
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px
 }
+
 .card{
-  background:#111827;border:1px solid #253044;
-  border-radius:12px;overflow:hidden
+  background:#111827;
+  border:1px solid #253044;
+  border-radius:12px;
+  overflow:hidden
 }
+
 .cardHead{
-  padding:18px 20px;border-bottom:1px solid #253044;
-  display:flex;justify-content:space-between;align-items:center
+  padding:18px 20px;
+  border-bottom:1px solid #253044;
+  display:flex;
+  justify-content:space-between;
+  align-items:center
 }
-.cardHead h2{margin:0;font-size:15px}
-.cardHead p{margin:4px 0 0;color:#718096;font-size:11px}
+
+.cardHead h2{
+  margin:0;
+  font-size:15px
+}
+
+.cardHead p{
+  margin:4px 0 0;
+  color:#718096;
+  font-size:11px
+}
+
 .badge{
-  padding:5px 8px;border-radius:5px;
-  background:#182235;color:#60a5fa;font-size:10px
+  padding:5px 8px;
+  border-radius:5px;
+  background:#182235;
+  color:#60a5fa;
+  font-size:10px
 }
-.cardBody{padding:20px}
+
+.cardBody{
+  padding:20px
+}
+
+
+/* =========================
+   SELECT
+========================= */
 
 select{
-  width:100%;height:44px;padding:0 12px;
-  background:#0b1220;color:white;border:1px solid #293449;
-  border-radius:7px;outline:none
+  width:100%;
+  height:44px;
+  padding:0 12px;
+  background:#0b1220;
+  color:white;
+  border:1px solid #293449;
+  border-radius:7px;
+  outline:none
 }
-select:focus{border-color:#2563eb}
+
+select:focus{
+  border-color:#2563eb
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
 
 .btn{
-  width:100%;height:43px;border:0;border-radius:7px;
-  margin-top:12px;font-weight:600;font-size:12px;
-  background:#2563eb;color:white
+  width:100%;
+  height:43px;
+  border:0;
+  border-radius:7px;
+  margin-top:12px;
+  font-weight:600;
+  font-size:12px;
+  background:#2563eb;
+  color:white
 }
-.btn:hover{background:#1d4ed8}
-.btn.green{background:#059669}
-.btn.green:hover{background:#047857}
-.btn.gray{background:#1f2937}
-.btn.gray:hover{background:#2d3748}
+
+.btn:hover{
+  background:#1d4ed8
+}
+
+.btn.green{
+  background:#059669
+}
+
+.btn.green:hover{
+  background:#047857
+}
+
+.btn.gray{
+  background:#1f2937
+}
+
+.btn.gray:hover{
+  background:#2d3748
+}
+
+
+/* =========================
+   STATUS
+========================= */
 
 .statusBox{
-  margin-top:18px;padding:13px 15px;
-  border:1px solid #253044;background:#0d1321;
-  border-radius:8px;color:#9ca3af;font-size:12px
+  margin-top:18px;
+  padding:13px 15px;
+  border:1px solid #253044;
+  background:#0d1321;
+  border-radius:8px;
+  color:#9ca3af;
+  font-size:12px
 }
 
-/* NFC DIALOG */
+
+/* =========================
+   NFC DIALOG
+========================= */
+
 dialog{
-  border:0;padding:0;background:transparent;
+  border:0;
+  padding:0;
+  background:transparent;
   width:min(430px,calc(100% - 28px))
 }
+
 dialog::backdrop{
   background:rgba(2,6,15,.82);
   backdrop-filter:blur(7px)
 }
+
 .nfcBox{
-  background:#111827;border:1px solid #2d3748;
-  border-radius:18px;padding:35px 25px;
-  text-align:center;box-shadow:0 25px 80px #000
+  background:#111827;
+  border:1px solid #2d3748;
+  border-radius:18px;
+  padding:35px 25px;
+  text-align:center;
+  box-shadow:0 25px 80px #000
 }
+
 .nfcIcon{
-  width:92px;height:92px;border-radius:50%;
+  width:92px;
+  height:92px;
+  border-radius:50%;
   margin:0 auto 20px;
-  display:flex;align-items:center;justify-content:center;
-  background:#0c1527;border:1px solid #29446e;
-  font-size:36px;position:relative
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#0c1527;
+  border:1px solid #29446e;
+  font-size:36px;
+  position:relative
 }
+
 .nfcIcon.active{
   animation:pulse 1.5s infinite
 }
+
 .nfcIcon.active:after{
-  content:"";position:absolute;
-  width:120px;height:120px;border:1px solid #2563eb;
-  border-radius:50%;animation:wave 1.5s infinite
-}
-@keyframes pulse{
-  50%{box-shadow:0 0 30px rgba(37,99,235,.35)}
-}
-@keyframes wave{
-  0%{transform:scale(.7);opacity:.8}
-  100%{transform:scale(1.2);opacity:0}
-}
-.nfcBox h2{font-size:17px;margin:0}
-.nfcBox p{color:#7c8799;font-size:12px;margin:8px 0 20px}
-.loader{
-  width:130px;height:3px;background:#1f2937;
-  margin:auto;overflow:hidden;border-radius:5px
-}
-.loader i{
-  display:block;width:45%;height:100%;
-  background:#2563eb;animation:load 1.2s infinite
-}
-@keyframes load{
-  0%{transform:translateX(-120%)}
-  100%{transform:translateX(300%)}
-}
-.closeSmall{
-  position:absolute;right:15px;top:12px;
-  background:none;border:0;color:#8792a5;font-size:22px
+  content:"";
+  position:absolute;
+  width:120px;
+  height:120px;
+  border:1px solid #2563eb;
+  border-radius:50%;
+  animation:wave 1.5s infinite
 }
 
-/* PATIENT DIALOG */
+@keyframes pulse{
+  50%{
+    box-shadow:0 0 30px rgba(37,99,235,.35)
+  }
+}
+
+@keyframes wave{
+  0%{
+    transform:scale(.7);
+    opacity:.8
+  }
+
+  100%{
+    transform:scale(1.2);
+    opacity:0
+  }
+}
+
+.nfcBox h2{
+  font-size:17px;
+  margin:0
+}
+
+.nfcBox p{
+  color:#7c8799;
+  font-size:12px;
+  margin:8px 0 20px
+}
+
+.loader{
+  width:130px;
+  height:3px;
+  background:#1f2937;
+  margin:auto;
+  overflow:hidden;
+  border-radius:5px
+}
+
+.loader i{
+  display:block;
+  width:45%;
+  height:100%;
+  background:#2563eb;
+  animation:load 1.2s infinite
+}
+
+@keyframes load{
+  0%{
+    transform:translateX(-120%)
+  }
+
+  100%{
+    transform:translateX(300%)
+  }
+}
+
+.closeSmall{
+  position:absolute;
+  right:15px;
+  top:12px;
+  background:none;
+  border:0;
+  color:#8792a5;
+  font-size:22px
+}
+
+
+/* =========================
+   PATIENT DIALOG
+========================= */
+
 .patientDialog{
   width:min(1180px,calc(100% - 20px))
 }
+
 .patientBox{
-  background:#0d1321;border:1px solid #2b374b;
-  border-radius:15px;overflow:hidden;
-  max-height:90vh;overflow-y:auto
+  background:#0d1321;
+  border:1px solid #2b374b;
+  border-radius:15px;
+  overflow:hidden;
+  max-height:90vh;
+  overflow-y:auto
 }
+
 .patientHeader{
   padding:22px 24px;
   background:linear-gradient(135deg,#111827,#0d1628);
   border-bottom:1px solid #263247;
-  display:flex;justify-content:space-between;
-  gap:15px;align-items:flex-start
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  align-items:flex-start
 }
-.patientHeader h2{margin:0;font-size:22px}
-.patientMeta{
-  display:flex;flex-wrap:wrap;gap:7px;margin-top:9px
-}
-.patientMeta span{
-  padding:5px 8px;background:#172033;
-  border:1px solid #29364c;border-radius:5px;
-  color:#9ca3af;font-size:11px
-}
-.risk{
-  padding:9px 13px;border-radius:7px;
-  font-weight:700;font-size:11px;white-space:nowrap
-}
-.risk.high{color:#fb7185;background:#351721;border:1px solid #71303e}
-.risk.medium{color:#fbbf24;background:#302712;border:1px solid #67521c}
-.risk.low{color:#34d399;background:#102b23;border:1px solid #21604c}
 
-.patientBody{padding:20px}
+.patientHeader h2{
+  margin:0;
+  font-size:22px
+}
+
+.patientMeta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:9px
+}
+
+.patientMeta span{
+  padding:5px 8px;
+  background:#172033;
+  border:1px solid #29364c;
+  border-radius:5px;
+  color:#9ca3af;
+  font-size:11px
+}
+
+
+/* =========================
+   RISK
+========================= */
+
+.risk{
+  padding:9px 13px;
+  border-radius:7px;
+  font-weight:700;
+  font-size:11px;
+  white-space:nowrap
+}
+
+.risk.high{
+  color:#fb7185;
+  background:#351721;
+  border:1px solid #71303e
+}
+
+.risk.medium{
+  color:#fbbf24;
+  background:#302712;
+  border:1px solid #67521c
+}
+
+.risk.low{
+  color:#34d399;
+  background:#102b23;
+  border:1px solid #21604c
+}
+
+
+/* =========================
+   PATIENT BODY
+========================= */
+
+.patientBody{
+  padding:20px
+}
+
+
+/* =========================
+   QUICK CARDS
+========================= */
 
 .quick{
-  display:grid;grid-template-columns:repeat(5,1fr);
-  gap:10px;margin-bottom:20px
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+  margin-bottom:20px
 }
+
 .quickCard{
-  background:#111827;border:1px solid #253044;
-  border-radius:9px;padding:13px
+  background:#111827;
+  border:1px solid #253044;
+  border-radius:9px;
+  padding:13px
 }
+
 .quickCard small{
-  display:block;color:#68758a;font-size:10px;margin-bottom:5px
+  display:block;
+  color:#68758a;
+  font-size:10px;
+  margin-bottom:5px
 }
-.quickCard b{font-size:13px}
+
+.quickCard b{
+  font-size:13px
+}
+
+
+/* =========================
+   SECTIONS
+========================= */
 
 .section{
-  margin-top:18px;border:1px solid #253044;
-  border-radius:10px;overflow:hidden;background:#111827
+  margin-top:18px;
+  border:1px solid #253044;
+  border-radius:10px;
+  overflow:hidden;
+  background:#111827
 }
+
 .sectionTitle{
-  padding:12px 15px;background:#151e2e;
+  padding:12px 15px;
+  background:#151e2e;
   border-bottom:1px solid #253044;
-  color:#60a5fa;font-size:11px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.05em
+  color:#60a5fa;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.05em
 }
+
 .infoGrid{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:1px;background:#253044
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:#253044
 }
+
 .info{
-  padding:11px 13px;background:#111827;min-height:56px
+  padding:11px 13px;
+  background:#111827;
+  min-height:56px
 }
+
 .info small{
-  display:block;color:#68758a;font-size:10px;margin-bottom:4px
+  display:block;
+  color:#68758a;
+  font-size:10px;
+  margin-bottom:4px
 }
+
 .info b{
-  display:block;font-size:12px;color:#edf2f7;
+  display:block;
+  font-size:12px;
+  color:#edf2f7;
   word-break:break-word
 }
-.yes b{color:#fbbf24}
-.no b{color:#34d399}
+
+.yes b{
+  color:#fbbf24
+}
+
+.no b{
+  color:#34d399
+}
+
+
+/* =========================
+   LESION
+========================= */
 
 .lesion{
-  display:grid;grid-template-columns:1fr 1fr;gap:15px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
   padding:15px
 }
+
 .lesionVisual{
-  min-height:260px;border:1px solid #253044;
-  background:#0a101c;border-radius:9px;
-  display:flex;align-items:center;justify-content:center;
+  min-height:260px;
+  border:1px solid #253044;
+  background:#0a101c;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   position:relative
 }
+
 .mouth{
-  width:210px;height:150px;border:3px solid #526174;
-  border-radius:50%;position:relative
+  width:210px;
+  height:150px;
+  border:3px solid #526174;
+  border-radius:50%;
+  position:relative
 }
+
 .mouth:before{
-  content:"";position:absolute;
-  width:130px;height:70px;left:37px;top:36px;
-  border:2px solid #37465a;border-radius:50%
+  content:"";
+  position:absolute;
+  width:130px;
+  height:70px;
+  left:37px;
+  top:36px;
+  border:2px solid #37465a;
+  border-radius:50%
 }
+
 .lesionPoint{
-  position:absolute;width:18px;height:18px;
-  border-radius:50%;background:#f87171;
-  box-shadow:0 0 0 8px rgba(248,113,113,.13),
-             0 0 25px rgba(248,113,113,.6);
+  position:absolute;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:#f87171;
+  box-shadow:
+    0 0 0 8px rgba(248,113,113,.13),
+    0 0 25px rgba(248,113,113,.6);
   animation:lesionPulse 1.3s infinite
 }
+
 @keyframes lesionPulse{
-  50%{transform:scale(1.3)}
+  50%{
+    transform:scale(1.3)
+  }
 }
-.lesionInfo{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+.lesionInfo{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px
+}
+
+
+/* =========================
+   FOOTER
+========================= */
 
 .footer{
-  padding:15px 20px;border-top:1px solid #253044;
-  color:#667085;font-size:10px;
-  display:flex;justify-content:space-between
+  padding:15px 20px;
+  border-top:1px solid #253044;
+  color:#667085;
+  font-size:10px;
+  display:flex;
+  justify-content:space-between
 }
-.nfcTitle {
-    color: #ffffff;
+
+.nfcTitle{
+  color:#ffffff
 }
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
 @media(max-width:900px){
-  .grid{grid-template-columns:1fr}
-  .quick{grid-template-columns:repeat(2,1fr)}
-  .infoGrid{grid-template-columns:repeat(2,1fr)}
-  .lesion{grid-template-columns:1fr}
+
+  .grid{
+    grid-template-columns:1fr
+  }
+
+  .quick{
+    grid-template-columns:repeat(2,1fr)
+  }
+
+  .infoGrid{
+    grid-template-columns:repeat(2,1fr)
+  }
+
+  .lesion{
+    grid-template-columns:1fr
+  }
+
+  .top-nav{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .nav-links{
+    width:100%;
+    justify-content:flex-start;
+  }
+
 }
+
+
 @media(max-width:600px){
-  .nav{flex-direction:column;align-items:flex-start}
-  .links{width:100%;overflow:auto}
-  .pageHead{flex-direction:column;align-items:flex-start}
-  .quick{grid-template-columns:1fr 1fr}
-  .infoGrid{grid-template-columns:1fr}
-  .patientHeader{flex-direction:column}
-  .lesionInfo{grid-template-columns:1fr}
+
+  .nav-links{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    width:100%;
+  }
+
+  .nav-link{
+    justify-content:center;
+  }
+
+  .pageHead{
+    flex-direction:column;
+    align-items:flex-start
+  }
+
+  .quick{
+    grid-template-columns:1fr 1fr
+  }
+
+  .infoGrid{
+    grid-template-columns:1fr
+  }
+
+  .patientHeader{
+    flex-direction:column
+  }
+
+  .lesionInfo{
+    grid-template-columns:1fr
+  }
+
 }
+
 </style>
 </head>
 
+
 <body>
 
-<nav>
-<div class="nav">
-  <div class="brand">
-    <b>Oral Clinical Registry - Assessment Dashboard</b>
-    <span>Developed By Nakul Dhande With Team Hardik, Chinmay, Shantanu</span>
+
+<!-- =========================
+     NEW HEADER
+========================= -->
+
+<nav class="top-nav">
+
+  <div class="brand-area">
+
+    <div class="brand-icon">
+
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+
+        <path d="M12 3v18"/>
+
+        <path d="M3 12h18"/>
+
+        <path d="M5 5l14 14"/>
+
+        <path d="M19 5L5 19"/>
+
+      </svg>
+
+    </div>
+
+
+    <div>
+
+      <div class="brand-title">
+        Oral Clinical Registry
+      </div>
+
+      <div class="brand-subtitle">
+        Assessment Dashboard
+      </div>
+
+    </div>
+
   </div>
 
-  <div class="links">
-    <a href="patients.html">Registry Records</a>
-    <a href="oral_clinical_assessment.html">New Assessment</a>
-    <a href="analytics.html">Analytics</a>
-    <a href="patientinfo.html" class="active">Get Patients</a>
+
+  <div class="nav-links">
+
+    <a
+      href="patients.html"
+      class="nav-link"
+    >
+      Registry Records
+    </a>
+
+
+    <a
+      href="registerpatients.html"
+      class="nav-link"
+    >
+      Register Patient
+    </a>
+
+
+    <a
+      href="analytics.html"
+      class="nav-link"
+    >
+      Analytics
+    </a>
+
+
+    <a
+      href="oral_clinical_assessment.html"
+      class="nav-link"
+    >
+      Assessment
+    </a>
+
+
+    <a
+      href="nfc.html"
+      class="nav-link active"
+    >
+      NFC Card
+    </a>
+
   </div>
-</div>
+
 </nav>
+
+
 
 <main>
 
+
+<!-- =========================
+     PAGE HEADER
+========================= -->
+
 <div class="pageHead">
+
   <div>
-    <h1>Patient Information</h1>
+
+    <h1>
+      Patient Information
+    </h1>
+
     <div class="subtitle">
       Read a patient card or choose a clinical record
     </div>
+
   </div>
 
-  <div class="db" id="dbStatus">
-    <span class="dot"></span> Connecting...
+
+  <div
+    class="db"
+    id="dbStatus"
+  >
+
+    <span class="dot"></span>
+    Connecting...
+
   </div>
+
 </div>
+
+
+
+<!-- =========================
+     MAIN CARDS
+========================= -->
 
 <div class="grid">
 
+
   <!-- WRITE -->
+
   <div class="card">
+
     <div class="cardHead">
+
       <div>
-        <h2>Write Patient Card</h2>
-        <p>Save the selected patient ID to the NFC card</p>
+
+        <h2>
+          Write Patient Card
+        </h2>
+
+        <p>
+          Save the selected patient ID to the NFC card
+        </p>
+
       </div>
-      <span class="badge">ESP32 + RC522</span>
+
+      <span class="badge">
+        ESP32 + RC522
+      </span>
+
     </div>
+
 
     <div class="cardBody">
 
-      <select id="patientSelect" disabled>
-        <option>Loading patients...</option>
+
+      <select
+        id="patientSelect"
+        disabled
+      >
+
+        <option>
+          Loading patients...
+        </option>
+
       </select>
 
-      <button class="btn gray" onclick="connectESP32()">
+
+      <button
+        class="btn gray"
+        onclick="connectESP32()"
+      >
         Connect ESP32
       </button>
 
-      <button class="btn" onclick="writeCard()">
+
+      <button
+        class="btn"
+        onclick="writeCard()"
+      >
         Write Patient Card
       </button>
 
+
     </div>
+
   </div>
 
+
+
   <!-- READ -->
+
   <div class="card">
+
     <div class="cardHead">
+
       <div>
-        <h2>Read Patient Card</h2>
-        <p>Read the patient ID from ESP32 + RC522</p>
+
+        <h2>
+          Read Patient Card
+        </h2>
+
+        <p>
+          Read the patient ID from ESP32 + RC522
+        </p>
+
       </div>
-      <span class="badge">READ MODE</span>
+
+      <span class="badge">
+        READ MODE
+      </span>
+
     </div>
+
 
     <div class="cardBody">
 
-      <div class="statusBox" id="serialStatus">
+
+      <div
+        class="statusBox"
+        id="serialStatus"
+      >
         ESP32 is not connected.
       </div>
 
-      <button class="btn green" onclick="readCard()">
+
+      <button
+        class="btn green"
+        onclick="readCard()"
+      >
         Read NFC Card
       </button>
 
+
     </div>
+
   </div>
 
+
 </div>
 
-<div class="statusBox" id="mainStatus">
+
+
+<div
+  class="statusBox"
+  id="mainStatus"
+>
   Select a patient or connect the ESP32.
 </div>
+
 
 </main>
 
 
-<!-- SIMPLE NFC DIALOG -->
+
+<!-- =========================
+     NFC DIALOG
+========================= -->
+
 <dialog id="nfcDialog">
+
   <div class="nfcBox">
 
-    <button class="closeSmall" onclick="closeNFC()">×</button>
 
-    <div class="nfcIcon active" id="nfcIcon">📡</div>
+    <button
+      class="closeSmall"
+      onclick="closeNFC()"
+    >
+      ×
+    </button>
 
-    <h2 id="nfcTitle">Reading Card</h2>
+
+    <div
+      class="nfcIcon active"
+      id="nfcIcon"
+    >
+      📡
+    </div>
+
+
+    <h2 id="nfcTitle">
+      Reading Card
+    </h2>
+
 
     <p id="nfcText">
       Place the card near the RC522 reader.
     </p>
 
+
     <div class="loader">
       <i></i>
     </div>
 
+
   </div>
+
 </dialog>
 
 
-<!-- PATIENT DIALOG -->
-<dialog id="patientDialog" class="patientDialog">
+
+<!-- =========================
+     PATIENT DIALOG
+========================= -->
+
+<dialog
+  id="patientDialog"
+  class="patientDialog"
+>
 
 <div class="patientBox">
 
+
   <div class="patientHeader">
 
+
     <div>
-      <h2 id="patientName">Patient</h2>
+
+      <h2 id="patientName">
+        Patient
+      </h2>
+
 
       <div class="patientMeta">
-        <span id="patientId">ID: --</span>
-        <span id="patientOPD">OPD: --</span>
-        <span id="patientDate">Date: --</span>
+
+        <span id="patientId">
+          ID: --
+        </span>
+
+        <span id="patientOPD">
+          OPD: --
+        </span>
+
+        <span id="patientDate">
+          Date: --
+        </span>
+
       </div>
+
     </div>
 
-    <div id="riskBadge" class="risk medium">
+
+    <div
+      id="riskBadge"
+      class="risk medium"
+    >
       Risk: --
     </div>
 
+
   </div>
+
+
 
   <div class="patientBody">
 
+
     <div class="quick">
 
-      <div class="quickCard">
-        <small>AGE</small>
-        <b id="qAge">--</b>
-      </div>
 
       <div class="quickCard">
-        <small>SEX</small>
-        <b id="qSex">--</b>
+
+        <small>
+          AGE
+        </small>
+
+        <b id="qAge">
+          --
+        </b>
+
       </div>
 
-      <div class="quickCard">
-        <small>LESION</small>
-        <b id="qLesion">--</b>
-      </div>
 
       <div class="quickCard">
-        <small>DIAMETER</small>
-        <b id="qSize">--</b>
+
+        <small>
+          SEX
+        </small>
+
+        <b id="qSex">
+          --
+        </b>
+
       </div>
 
+
       <div class="quickCard">
-        <small>OSMF STAGE</small>
-        <b id="qStage">--</b>
+
+        <small>
+          LESION
+        </small>
+
+        <b id="qLesion">
+          --
+        </b>
+
       </div>
+
+
+      <div class="quickCard">
+
+        <small>
+          DIAMETER
+        </small>
+
+        <b id="qSize">
+          --
+        </b>
+
+      </div>
+
+
+      <div class="quickCard">
+
+        <small>
+          OSMF STAGE
+        </small>
+
+        <b id="qStage">
+          --
+        </b>
+
+      </div>
+
 
     </div>
 
+
     <div id="patientSections"></div>
 
+
   </div>
+
+
 
   <div class="footer">
-    <span>Clinical Record • Supabase</span>
-    <button class="btn gray"
+
+    <span>
+      Clinical Record • Supabase
+    </span>
+
+
+    <button
+      class="btn gray"
       style="width:auto;margin:0;padding:0 15px"
-      onclick="closePatient()">
+      onclick="closePatient()"
+    >
       Close
     </button>
+
   </div>
 
+
 </div>
+
 </dialog>
+
 
 
 <script>
@@ -479,7 +1230,8 @@ dialog::backdrop{
    CONFIG
 ========================= */
 
-const TABLE_NAME = "oral_clinical_assessments";
+const TABLE_NAME =
+  "oral_clinical_assessments";
 
 let cachedPatients = [];
 
@@ -488,13 +1240,25 @@ let reader = null;
 let writer = null;
 let serialBuffer = "";
 
-const patientSelect = document.getElementById("patientSelect");
-const dbStatus = document.getElementById("dbStatus");
-const serialStatus = document.getElementById("serialStatus");
-const mainStatus = document.getElementById("mainStatus");
 
-const nfcDialog = document.getElementById("nfcDialog");
-const patientDialog = document.getElementById("patientDialog");
+const patientSelect =
+  document.getElementById("patientSelect");
+
+const dbStatus =
+  document.getElementById("dbStatus");
+
+const serialStatus =
+  document.getElementById("serialStatus");
+
+const mainStatus =
+  document.getElementById("mainStatus");
+
+
+const nfcDialog =
+  document.getElementById("nfcDialog");
+
+const patientDialog =
+  document.getElementById("patientDialog");
 
 
 /* =========================
@@ -503,13 +1267,16 @@ const patientDialog = document.getElementById("patientDialog");
 
 function getConfig(){
 
-  if(window.CONFIG) return window.CONFIG;
+  if(window.CONFIG)
+    return window.CONFIG;
 
-  if(typeof CONFIG !== "undefined") return CONFIG;
+  if(typeof CONFIG !== "undefined")
+    return CONFIG;
 
   throw new Error(
     "config/config.js not found or CONFIG is missing."
   );
+
 }
 
 
@@ -517,70 +1284,108 @@ async function loadPatients(){
 
   try{
 
-    const cfg = getConfig();
+    const cfg =
+      getConfig();
 
-    if(!cfg.SUPABASE_URL ||
-       !cfg.SUPABASE_ANON_KEY){
 
-      throw new Error("Supabase configuration missing.");
+    if(
+      !cfg.SUPABASE_URL ||
+      !cfg.SUPABASE_ANON_KEY
+    ){
+
+      throw new Error(
+        "Supabase configuration missing."
+      );
+
     }
 
-    const supabase = window.supabase.createClient(
-      cfg.SUPABASE_URL,
-      cfg.SUPABASE_ANON_KEY
-    );
 
-    const {data,error} = await supabase
-      .from(TABLE_NAME)
-      .select("*")
-      .order("created_at",{ascending:false});
+    const supabase =
+      window.supabase.createClient(
+        cfg.SUPABASE_URL,
+        cfg.SUPABASE_ANON_KEY
+      );
 
-    if(error) throw error;
 
-    cachedPatients = data || [];
+    const {data,error} =
+      await supabase
+        .from(TABLE_NAME)
+        .select("*")
+        .order(
+          "created_at",
+          {
+            ascending:false
+          }
+        );
+
+
+    if(error)
+      throw error;
+
+
+    cachedPatients =
+      data || [];
+
 
     patientSelect.innerHTML =
       '<option value="">-- Select Patient --</option>';
 
-    cachedPatients.forEach(p=>{
 
-      const option = document.createElement("option");
+    cachedPatients.forEach(
+      p=>{
 
-      option.value = p.patient_id || "";
+        const option =
+          document.createElement("option");
 
-      option.textContent =
-        (p.patient_id || "N/A") +
-        " - " +
-        (p.patient_name || "Patient") +
-        " (" +
-        (p.opd_number || "No OPD") +
-        ")";
 
-      patientSelect.appendChild(option);
+        option.value =
+          p.patient_id || "";
 
-    });
 
-    patientSelect.disabled = false;
+        option.textContent =
+          (p.patient_id || "N/A") +
+          " - " +
+          (p.patient_name || "Patient") +
+          " (" +
+          (p.opd_number || "No OPD") +
+          ")";
+
+
+        patientSelect.appendChild(option);
+
+      }
+    );
+
+
+    patientSelect.disabled =
+      false;
+
 
     dbStatus.innerHTML =
       '<span class="dot ok"></span>' +
       cachedPatients.length +
       " clinical records";
 
+
     mainStatus.textContent =
       "Clinical records loaded. Connect the ESP32 to read or write a card.";
 
   }
+
   catch(error){
 
     console.error(error);
 
+
     dbStatus.innerHTML =
       '<span class="dot bad"></span> Database error';
 
+
     mainStatus.textContent =
       error.message;
+
   }
+
 }
 
 
@@ -588,27 +1393,59 @@ async function loadPatients(){
    NFC DIALOG
 ========================= */
 
-function showNFC(title,text,icon="📡"){
+function showNFC(
+  title,
+  text,
+  icon="📡"
+){
 
-  document.getElementById("nfcIcon").textContent = icon;
-  document.getElementById("nfcTitle").textContent = title;
-  document.getElementById("nfcText").textContent = text;
+  document.getElementById(
+    "nfcIcon"
+  ).textContent = icon;
 
-  document.getElementById("nfcIcon")
-    .classList.add("active");
+
+  document.getElementById(
+    "nfcTitle"
+  ).textContent = title;
+
+
+  document.getElementById(
+    "nfcText"
+  ).textContent = text;
+
+
+  document.getElementById(
+    "nfcIcon"
+  ).classList.add("active");
+
 
   if(!nfcDialog.open)
     nfcDialog.showModal();
+
 }
 
 
-function updateNFC(title,text,icon){
+function updateNFC(
+  title,
+  text,
+  icon
+){
 
-  document.getElementById("nfcTitle").textContent = title;
-  document.getElementById("nfcText").textContent = text;
+  document.getElementById(
+    "nfcTitle"
+  ).textContent = title;
+
+
+  document.getElementById(
+    "nfcText"
+  ).textContent = text;
+
 
   if(icon)
-    document.getElementById("nfcIcon").textContent = icon;
+    document.getElementById(
+      "nfcIcon"
+    ).textContent = icon;
+
 }
 
 
@@ -634,37 +1471,51 @@ async function connectESP32(){
     );
 
     return;
+
   }
+
 
   try{
 
-    serialPort = await navigator.serial.requestPort();
+    serialPort =
+      await navigator.serial.requestPort();
+
 
     await serialPort.open({
       baudRate:115200
     });
 
-    writer = serialPort.writable.getWriter();
+
+    writer =
+      serialPort.writable.getWriter();
+
 
     serialStatus.innerHTML =
       '<span class="dot ok"></span> ESP32 connected';
 
+
     mainStatus.textContent =
       "ESP32 connected. RC522 is ready.";
+
 
     startSerialReader();
 
   }
+
   catch(error){
 
     console.error(error);
 
+
     serialStatus.innerHTML =
       '<span class="dot bad"></span> Connection failed';
 
+
     mainStatus.textContent =
       error.message;
+
   }
+
 }
 
 
@@ -674,38 +1525,54 @@ async function connectESP32(){
 
 async function startSerialReader(){
 
-  if(!serialPort || !serialPort.readable)
+  if(
+    !serialPort ||
+    !serialPort.readable
+  )
     return;
+
 
   const textDecoder =
     new TextDecoderStream();
+
 
   serialPort.readable
     .pipeTo(textDecoder.writable)
     .catch(()=>{});
 
+
   reader =
     textDecoder.readable.getReader();
+
 
   try{
 
     while(true){
 
-      const {value,done} =
+      const {
+        value,
+        done
+      } =
         await reader.read();
 
-      if(done) break;
+
+      if(done)
+        break;
+
 
       if(value)
         processSerialData(value);
+
     }
 
   }
+
   catch(error){
 
     console.error(error);
 
   }
+
 }
 
 
@@ -713,20 +1580,28 @@ function processSerialData(data){
 
   serialBuffer += data;
 
+
   const lines =
     serialBuffer.split(/\r?\n/);
+
 
   serialBuffer =
     lines.pop() || "";
 
-  lines.forEach(line=>{
 
-    line = line.trim();
+  lines.forEach(
+    line=>{
 
-    if(line)
-      handleSerialLine(line);
+      line =
+        line.trim();
 
-  });
+
+      if(line)
+        handleSerialLine(line);
+
+    }
+  );
+
 }
 
 
@@ -736,7 +1611,11 @@ function processSerialData(data){
 
 function handleSerialLine(line){
 
-  console.log("ESP32:",line);
+  console.log(
+    "ESP32:",
+    line
+  );
+
 
   if(line === "WAITING_FOR_CARD"){
 
@@ -747,6 +1626,7 @@ function handleSerialLine(line){
     );
 
     return;
+
   }
 
 
@@ -759,6 +1639,7 @@ function handleSerialLine(line){
     );
 
     return;
+
   }
 
 
@@ -771,6 +1652,7 @@ function handleSerialLine(line){
     );
 
     return;
+
   }
 
 
@@ -783,38 +1665,58 @@ function handleSerialLine(line){
     );
 
     return;
+
   }
 
 
   if(line.startsWith("PATIENT_ID:")){
 
     const patientId =
-      line.substring("PATIENT_ID:".length).trim();
+      line
+        .substring(
+          "PATIENT_ID:".length
+        )
+        .trim();
 
-    handlePatientID(patientId);
+
+    handlePatientID(
+      patientId
+    );
 
     return;
+
   }
 
 
   /*
-     Some ESP32 versions send:
-     NDEF_JSON:{"patient_id":"P-1006"}
+    Some ESP32 versions send:
+
+    NDEF_JSON:{"patient_id":"P-1006"}
   */
 
   if(line.startsWith("NDEF_JSON:")){
 
     const json =
-      line.substring("NDEF_JSON:".length).trim();
+      line
+        .substring(
+          "NDEF_JSON:".length
+        )
+        .trim();
+
 
     try{
 
-      const obj = JSON.parse(json);
+      const obj =
+        JSON.parse(json);
+
 
       if(obj.patient_id)
-        handlePatientID(obj.patient_id);
+        handlePatientID(
+          obj.patient_id
+        );
 
     }
+
     catch(error){
 
       console.error(
@@ -825,6 +1727,7 @@ function handleSerialLine(line){
     }
 
     return;
+
   }
 
 
@@ -837,6 +1740,7 @@ function handleSerialLine(line){
     );
 
     return;
+
   }
 
 
@@ -848,9 +1752,15 @@ function handleSerialLine(line){
       "✓"
     );
 
-    setTimeout(closeNFC,1500);
+
+    setTimeout(
+      closeNFC,
+      1500
+    );
+
 
     return;
+
   }
 
 
@@ -863,11 +1773,14 @@ function handleSerialLine(line){
     );
 
     return;
+
   }
 
 
-  if(line.startsWith("AUTH_ERROR") ||
-     line.startsWith("READ_ERROR")){
+  if(
+    line.startsWith("AUTH_ERROR") ||
+    line.startsWith("READ_ERROR")
+  ){
 
     updateNFC(
       "Couldn't Read",
@@ -876,6 +1789,7 @@ function handleSerialLine(line){
     );
 
     return;
+
   }
 
 
@@ -888,6 +1802,7 @@ function handleSerialLine(line){
     );
 
     return;
+
   }
 
 }
@@ -899,12 +1814,19 @@ function handleSerialLine(line){
 
 async function readCard(){
 
-  if(!serialPort || !writer){
+  if(
+    !serialPort ||
+    !writer
+  ){
 
-    alert("Connect the ESP32 first.");
+    alert(
+      "Connect the ESP32 first."
+    );
 
     return;
+
   }
+
 
   showNFC(
     "Reading Card",
@@ -912,16 +1834,21 @@ async function readCard(){
     "📡"
   );
 
+
   try{
 
     await writer.write(
-      new TextEncoder().encode("READ\n")
+      new TextEncoder().encode(
+        "READ\n"
+      )
     );
 
   }
+
   catch(error){
 
     console.error(error);
+
 
     updateNFC(
       "Connection Problem",
@@ -930,6 +1857,7 @@ async function readCard(){
     );
 
   }
+
 }
 
 
@@ -939,22 +1867,34 @@ async function readCard(){
 
 async function writeCard(){
 
-  if(!serialPort || !writer){
+  if(
+    !serialPort ||
+    !writer
+  ){
 
-    alert("Connect the ESP32 first.");
+    alert(
+      "Connect the ESP32 first."
+    );
 
     return;
+
   }
+
 
   const patientId =
     patientSelect.value;
 
+
   if(!patientId){
 
-    alert("Select a patient first.");
+    alert(
+      "Select a patient first."
+    );
 
     return;
+
   }
+
 
   showNFC(
     "Writing Card",
@@ -962,18 +1902,23 @@ async function writeCard(){
     "💾"
   );
 
+
   try{
 
     await writer.write(
       new TextEncoder().encode(
-        "WRITE:" + patientId + "\n"
+        "WRITE:" +
+        patientId +
+        "\n"
       )
     );
 
   }
+
   catch(error){
 
     console.error(error);
+
 
     updateNFC(
       "Couldn't Write",
@@ -982,6 +1927,7 @@ async function writeCard(){
     );
 
   }
+
 }
 
 
@@ -989,21 +1935,32 @@ async function writeCard(){
    PATIENT ID MATCH
 ========================= */
 
-function handlePatientID(patientId){
+function handlePatientID(
+  patientId
+){
 
   patientId =
-    String(patientId || "").trim();
+    String(
+      patientId || ""
+    ).trim();
+
 
   if(!patientId)
     return;
 
+
   const patient =
-    cachedPatients.find(p=>
-      String(p.patient_id || "")
-      .trim()
-      .toUpperCase() ===
-      patientId.toUpperCase()
+    cachedPatients.find(
+      p=>
+        String(
+          p.patient_id || ""
+        )
+        .trim()
+        .toUpperCase()
+        ===
+        patientId.toUpperCase()
     );
+
 
   if(!patient){
 
@@ -1014,7 +1971,9 @@ function handlePatientID(patientId){
     );
 
     return;
+
   }
+
 
   updateNFC(
     "Patient Found",
@@ -1022,13 +1981,19 @@ function handlePatientID(patientId){
     "✓"
   );
 
-  setTimeout(()=>{
 
-    closeNFC();
+  setTimeout(
+    ()=>{
 
-    renderPatient(patient);
+      closeNFC();
 
-  },700);
+      renderPatient(
+        patient
+      );
+
+    },
+    700
+  );
 
 }
 
@@ -1039,29 +2004,47 @@ function handlePatientID(patientId){
 
 function value(v){
 
-  if(v === null ||
-     v === undefined ||
-     v === "")
-
+  if(
+    v === null ||
+    v === undefined ||
+    v === ""
+  )
     return "Not recorded";
 
+
   return String(v);
+
 }
 
 
 function yesNoClass(v){
 
-  return String(v).toLowerCase() === "yes"
+  return String(v).toLowerCase()
+    === "yes"
+
     ? "yes"
-    : String(v).toLowerCase() === "no"
-    ? "no"
-    : "";
+
+    : String(v).toLowerCase()
+      === "no"
+
+      ? "no"
+
+      : "";
+
 }
 
 
-function field(label,key,p){
+function field(
+  label,
+  key,
+  p
+){
 
-  const val = value(p[key]);
+  const val =
+    value(
+      p[key]
+    );
+
 
   return `
     <div class="info ${yesNoClass(p[key])}">
@@ -1069,10 +2052,15 @@ function field(label,key,p){
       <b>${escapeHTML(val)}</b>
     </div>
   `;
+
 }
 
 
-function section(title,fields,p){
+function section(
+  title,
+  fields,
+  p
+){
 
   return `
     <div class="section">
@@ -1083,82 +2071,146 @@ function section(title,fields,p){
 
       <div class="infoGrid">
 
-        ${fields.map(f=>
-          field(f[0],f[1],p)
+        ${fields.map(
+          f=>
+            field(
+              f[0],
+              f[1],
+              p
+            )
         ).join("")}
 
       </div>
 
     </div>
   `;
+
 }
 
 
+/* =========================
+   RENDER PATIENT
+========================= */
+
 function renderPatient(p){
 
-  document.getElementById("patientName")
-    .textContent =
-      value(p.patient_name);
-
-  document.getElementById("patientId")
-    .textContent =
-      "ID: " + value(p.patient_id);
-
-  document.getElementById("patientOPD")
-    .textContent =
-      "OPD: " + value(p.opd_number);
-
-  document.getElementById("patientDate")
-    .textContent =
-      "Date: " +
-      (
-        p.created_at
-        ? new Date(p.created_at)
-          .toLocaleString()
-        : "Not recorded"
-      );
+  document.getElementById(
+    "patientName"
+  ).textContent =
+    value(
+      p.patient_name
+    );
 
 
-  document.getElementById("qAge")
-    .textContent =
-      value(p.age);
+  document.getElementById(
+    "patientId"
+  ).textContent =
+    "ID: " +
+    value(
+      p.patient_id
+    );
 
-  document.getElementById("qSex")
-    .textContent =
-      value(p.sex);
 
-  document.getElementById("qLesion")
-    .textContent =
-      value(p.lesion_location);
+  document.getElementById(
+    "patientOPD"
+  ).textContent =
+    "OPD: " +
+    value(
+      p.opd_number
+    );
 
-  document.getElementById("qSize")
-    .textContent =
-      p.lesion_maximum_diameter_mm
-      ? p.lesion_maximum_diameter_mm+" mm"
-      : "Not recorded";
 
-  document.getElementById("qStage")
-    .textContent =
-      value(p.osmf_stage);
+  document.getElementById(
+    "patientDate"
+  ).textContent =
+    "Date: " +
+    (
+      p.created_at
+
+      ? new Date(
+          p.created_at
+        ).toLocaleString()
+
+      : "Not recorded"
+    );
+
+
+  document.getElementById(
+    "qAge"
+  ).textContent =
+    value(
+      p.age
+    );
+
+
+  document.getElementById(
+    "qSex"
+  ).textContent =
+    value(
+      p.sex
+    );
+
+
+  document.getElementById(
+    "qLesion"
+  ).textContent =
+    value(
+      p.lesion_location
+    );
+
+
+  document.getElementById(
+    "qSize"
+  ).textContent =
+    p.lesion_maximum_diameter_mm
+
+    ? p.lesion_maximum_diameter_mm +
+      " mm"
+
+    : "Not recorded";
+
+
+  document.getElementById(
+    "qStage"
+  ).textContent =
+    value(
+      p.osmf_stage
+    );
 
 
   const risk =
-    value(p.risk_level);
+    value(
+      p.risk_level
+    );
+
 
   const riskBadge =
-    document.getElementById("riskBadge");
+    document.getElementById(
+      "riskBadge"
+    );
+
 
   riskBadge.textContent =
-    "Risk: " + risk;
+    "Risk: " +
+    risk;
+
 
   riskBadge.className =
     "risk " +
     (
-      risk.toLowerCase().includes("high")
+      risk
+        .toLowerCase()
+        .includes("high")
+
       ? "high"
-      : risk.toLowerCase().includes("low")
-      ? "low"
-      : "medium"
+
+      : risk
+          .toLowerCase()
+          .includes("low")
+
+        ? "low"
+
+        : "medium"
     );
 
 
@@ -1166,6 +2218,7 @@ function renderPatient(p){
 
     [
       "01 · Patient Details",
+
       [
         ["Patient ID","patient_id"],
         ["Patient Name","patient_name"],
@@ -1180,10 +2233,13 @@ function renderPatient(p){
         ["Latitude","latitude"],
         ["Longitude","longitude"]
       ]
+
     ],
+
 
     [
       "02 · Smoking History",
+
       [
         ["Smoking","smoking"],
         ["Cigarette Smoking","cigarette_smoking"],
@@ -1193,10 +2249,13 @@ function renderPatient(p){
         ["Smoking Duration (Years)","smoking_duration_years"],
         ["Smoking Frequency / Day","smoking_frequency_per_day"]
       ]
+
     ],
+
 
     [
       "03 · Tobacco & Chewing Habits",
+
       [
         ["Any Chewing Habits","any_chewing_habits"],
         ["Tobacco Chewing","tobacco_chewing"],
@@ -1209,20 +2268,26 @@ function renderPatient(p){
         ["Betel Quid","betel_quid_consumption"],
         ["Habit Combination","habit_combination"]
       ]
+
     ],
+
 
     [
       "04 · Alcohol History",
+
       [
         ["Alcohol","alcohol"],
         ["Duration (Years)","alcohol_duration_years"],
         ["Frequency","alcohol_frequency"],
         ["Quantity","alcohol_quantity"]
       ]
+
     ],
+
 
     [
       "05 · Medical History",
+
       [
         ["Diabetes Mellitus","diabetes_mellitus"],
         ["Hypertension","hypertension"],
@@ -1232,10 +2297,13 @@ function renderPatient(p){
         ["Previous Oral Diseases","previous_oral_diseases"],
         ["Other Systemic Diseases","other_systemic_diseases"]
       ]
+
     ],
+
 
     [
       "06 · Symptoms & Complaints",
+
       [
         ["Pain","pain_presence"],
         ["Swelling","swelling"],
@@ -1247,10 +2315,13 @@ function renderPatient(p){
         ["Loss of Appetite","loss_of_appetite"],
         ["Weight Loss","weight_loss"]
       ]
+
     ],
+
 
     [
       "07 · Oral Lesion Details",
+
       [
         ["Lesion Location","lesion_location"],
         ["Position Coordinates","lesion_position_coords"],
@@ -1264,19 +2335,25 @@ function renderPatient(p){
         ["Lesion Extension","lesion_extension"],
         ["Affected Teeth","affected_teeth"]
       ]
+
     ],
+
 
     [
       "08 · Mouth & Dental Findings",
+
       [
         ["Inter-Incisal Distance (mm)","inter_incisal_distance_mm"],
         ["Mouth Opening Assessment","mouth_opening_assessment"],
         ["Mobility of Associated Teeth","mobility_of_associated_teeth"]
       ]
+
     ],
+
 
     [
       "09 · Regional Lymph Nodes",
+
       [
         ["Node Palpability","regional_lymph_node_palpability"],
         ["Involvement","lymph_node_involvement"],
@@ -1288,33 +2365,50 @@ function renderPatient(p){
         ["Shape","regional_lymph_node_shape"],
         ["Tenderness","regional_lymph_node_tenderness"]
       ]
+
     ],
+
 
     [
       "10 · Final Assessment",
+
       [
         ["Risk Level","risk_level"],
         ["OSMF Stage","osmf_stage"]
       ]
+
     ],
+
 
     [
       "11 · Record Information",
+
       [
         ["Database ID","id"],
         ["Created At","created_at"]
       ]
+
     ]
 
   ];
 
 
-  document.getElementById("patientSections")
-    .innerHTML =
-      sections.map(s=>
-        section(s[0],s[1],p)
-      ).join("") +
-      createLesionVisual(p);
+  document.getElementById(
+    "patientSections"
+  ).innerHTML =
+
+    sections.map(
+      s=>
+        section(
+          s[0],
+          s[1],
+          p
+        )
+    ).join("")
+
+    +
+
+    createLesionVisual(p);
 
 
   patientDialog.showModal();
@@ -1329,39 +2423,54 @@ function renderPatient(p){
 function createLesionVisual(p){
 
   const location =
-    value(p.lesion_location);
+    value(
+      p.lesion_location
+    );
+
 
   let x = 105;
   let y = 75;
 
+
   const loc =
     location.toLowerCase();
 
-  if(loc.includes("right"))
-  {
+
+  if(loc.includes("right")){
+
     x = 35;
     y = 75;
+
   }
-  else if(loc.includes("left"))
-  {
+
+  else if(loc.includes("left")){
+
     x = 175;
     y = 75;
+
   }
-  else if(loc.includes("tongue"))
-  {
+
+  else if(loc.includes("tongue")){
+
     x = 105;
     y = 90;
+
   }
-  else if(loc.includes("palate"))
-  {
+
+  else if(loc.includes("palate")){
+
     x = 105;
     y = 45;
+
   }
-  else if(loc.includes("floor"))
-  {
+
+  else if(loc.includes("floor")){
+
     x = 105;
     y = 115;
+
   }
+
 
   return `
 
@@ -1371,7 +2480,9 @@ function createLesionVisual(p){
         12 · Lesion Visual View
       </div>
 
+
       <div class="lesion">
+
 
         <div class="lesionVisual">
 
@@ -1379,14 +2490,17 @@ function createLesionVisual(p){
 
             <div
               class="lesionPoint"
-              style="left:${x}px;top:${y}px">
+              style="left:${x}px;top:${y}px"
+            >
             </div>
 
           </div>
 
         </div>
 
+
         <div class="lesionInfo">
+
 
           ${field(
             "Location",
@@ -1394,11 +2508,13 @@ function createLesionVisual(p){
             p
           )}
 
+
           ${field(
             "Color",
             "lesion_color",
             p
           )}
+
 
           ${field(
             "Shape",
@@ -1406,11 +2522,13 @@ function createLesionVisual(p){
             p
           )}
 
+
           ${field(
             "Surface",
             "lesion_surface_characteristics",
             p
           )}
+
 
           ${field(
             "Texture",
@@ -1418,11 +2536,13 @@ function createLesionVisual(p){
             p
           )}
 
+
           ${field(
             "Length",
             "lesion_length_mm",
             p
           )}
+
 
           ${field(
             "Width",
@@ -1430,11 +2550,13 @@ function createLesionVisual(p){
             p
           )}
 
+
           ${field(
             "Maximum Diameter",
             "lesion_maximum_diameter_mm",
             p
           )}
+
 
           ${field(
             "Extension",
@@ -1442,23 +2564,27 @@ function createLesionVisual(p){
             p
           )}
 
+
           ${field(
             "Position",
             "lesion_position_coords",
             p
           )}
 
+
         </div>
 
       </div>
 
     </div>
+
   `;
+
 }
 
 
 /* =========================
-   CLOSE
+   CLOSE PATIENT
 ========================= */
 
 function closePatient(){
@@ -1476,11 +2602,32 @@ function closePatient(){
 function escapeHTML(value){
 
   return String(value)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
 }
 
 
