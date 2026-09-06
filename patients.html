@@ -1,90 +1,69 @@
-```html
-<!-- Navigation Header -->
-<header class="top-nav">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <div class="brand-area">
-    <div class="brand-icon">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2">
-        <path d="M12 3v18"/>
-        <path d="M3 12h18"/>
-        <path d="M5 5l14 14"/>
-        <path d="M19 5L5 19"/>
-      </svg>
-    </div>
+<title>View Patients | Oral Clinical Registry</title>
 
-    <div>
-      <div class="brand-title">Oral Clinical Registry</div>
-      <div class="brand-subtitle">
-        Assessment Dashboard
-      </div>
-    </div>
-  </div>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <nav class="nav-links">
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <a href="patients.html" class="nav-link active">
-      <svg width="15" height="15" viewBox="0 0 24 24"
-           fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-      View Patients
-    </a>
+<!-- Central Config -->
+<script src="config/config.js"></script>
 
-    <a href="registerpatients.html" class="nav-link">
-      <svg width="15" height="15" viewBox="0 0 24 24"
-           fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="16"/>
-        <line x1="8" y1="12" x2="16" y2="12"/>
-      </svg>
-      Register Patient
-    </a>
+<!-- SheetJS -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <a href="analytics.html" class="nav-link">
-      <svg width="15" height="15" viewBox="0 0 24 24"
-           fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="20" x2="18" y2="10"/>
-        <line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6" y1="20" x2="6" y2="14"/>
-      </svg>
-      Analytics
-    </a>
+<style>
+:root {
+  --bg: #090d16;
+  --surface: #111827;
+  --surface-hover: #1f2937;
+  --border: #1f293d;
+  --border-light: #2d3748;
 
-    <a href="oral_clinical_assessment.html" class="nav-link">
-      <svg width="15" height="15" viewBox="0 0 24 24"
-           fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M9 11l3 3L22 4"/>
-        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-      </svg>
-      Assessment
-    </a>
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
 
-    <a href="nfc.html" class="nav-link">
-      <svg width="15" height="15" viewBox="0 0 24 24"
-           fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="4" y="3" width="16" height="18" rx="2"/>
-        <line x1="8" y1="7" x2="16" y2="7"/>
-        <line x1="8" y1="11" x2="16" y2="11"/>
-        <line x1="8" y1="15" x2="13" y2="15"/>
-      </svg>
-      NFC Card
-    </a>
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
 
-  </nav>
+  --danger-bg: rgba(239, 68, 68, 0.1);
+  --danger-text: #f87171;
+  --danger-border: rgba(239, 68, 68, 0.2);
 
-</header>
-```
+  --warning-bg: rgba(245, 158, 11, 0.1);
+  --warning-text: #fbbf24;
+  --warning-border: rgba(245, 158, 11, 0.2);
 
-Add this CSS to your existing `<style>`:
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --success-text: #34d399;
+  --success-border: rgba(16, 185, 129, 0.2);
+}
 
-```css
-/* ================================
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* =========================================================
    TOP NAVIGATION
-================================ */
+========================================================= */
 
 .top-nav {
   max-width: 1280px;
@@ -177,80 +156,2533 @@ Add this CSS to your existing `<style>`:
   color: #60a5fa;
 }
 
+/* =========================================================
+   MAIN CONTAINER
+========================================================= */
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.title-area h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.title-area p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-muted);
+}
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+.controls-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 280px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  color: var(--text-muted);
+
+  width: 16px;
+  height: 16px;
+}
+
+.search-input {
+  width: 100%;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+
+  color: var(--text-primary);
+
+  padding: 9px 12px 9px 36px;
+
+  border-radius: 6px;
+
+  font-size: 13px;
+
+  outline: none;
+
+  transition: border-color 0.15s;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.filter-group {
+  display: flex;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+
+  border-radius: 6px;
+
+  padding: 3px;
+  gap: 2px;
+}
+
+.filter-btn {
+  background: transparent;
+  border: none;
+
+  color: var(--text-secondary);
+
+  padding: 6px 12px;
+
+  border-radius: 4px;
+
+  font-size: 12px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: all 0.15s;
+}
+
+.filter-btn:hover {
+  color: var(--text-primary);
+}
+
+.filter-btn.active {
+  background: #1f293d;
+  color: var(--text-primary);
+}
+
+/* =========================================================
+   PATIENT CARD GRID
+========================================================= */
+
+.grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fill, minmax(320px, 1fr));
+
+  gap: 16px;
+}
+
+.card {
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 8px;
+
+  padding: 16px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  transition: border-color 0.15s;
+}
+
+.card:hover {
+  border-color: var(--border-light);
+}
+
+.card-top {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 12px;
+}
+
+.opd-badge {
+  font-family: monospace;
+
+  font-size: 12px;
+
+  color: var(--text-secondary);
+
+  background: #0d1321;
+
+  padding: 2px 8px;
+
+  border-radius: 4px;
+
+  border: 1px solid var(--border);
+}
+
+.status-badge {
+  font-size: 11px;
+
+  font-weight: 600;
+
+  padding: 2px 8px;
+
+  border-radius: 4px;
+
+  letter-spacing: 0.02em;
+}
+
+.status-high {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
+}
+
+.status-moderate {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
+}
+
+.status-low {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
+}
+
+.patient-name {
+  font-size: 15px;
+
+  font-weight: 600;
+
+  color: var(--text-primary);
+
+  margin-bottom: 4px;
+}
+
+.patient-meta {
+  font-size: 13px;
+
+  color: var(--text-secondary);
+
+  margin-bottom: 12px;
+}
+
+.info-block {
+  background: #0d1321;
+
+  border: 1px solid var(--border);
+
+  border-radius: 6px;
+
+  padding: 10px 12px;
+
+  margin-bottom: 16px;
+
+  font-size: 12px;
+}
+
+.info-row {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 4px;
+
+  gap: 10px;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  color: var(--text-muted);
+}
+
+.info-val {
+  color: var(--text-secondary);
+
+  font-weight: 500;
+
+  text-align: right;
+}
+
+.btn-card {
+  width: 100%;
+
+  background: #192233;
+
+  border: 1px solid var(--border-light);
+
+  color: var(--text-primary);
+
+  padding: 8px;
+
+  border-radius: 6px;
+
+  font-size: 12px;
+
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: background 0.15s;
+}
+
+.btn-card:hover {
+  background: var(--accent);
+
+  border-color: var(--accent);
+}
+
+/* =========================================================
+   LOADING SKELETON
+========================================================= */
+
+.skeleton-card {
+  height: 225px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #111827 25%,
+      #182131 37%,
+      #111827 63%
+    );
+
+  background-size: 400% 100%;
+
+  animation: skeletonLoading 1.4s ease infinite;
+
+  border: 1px solid var(--border);
+
+  border-radius: 8px;
+}
+
+@keyframes skeletonLoading {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.8);
+
+  backdrop-filter: blur(4px);
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  z-index: 100;
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  transition: opacity 0.2s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+
+  pointer-events: auto;
+}
+
+.modal-box {
+  background: var(--surface);
+
+  border: 1px solid var(--border-light);
+
+  border-radius: 12px;
+
+  width: 92%;
+
+  max-width: 900px;
+
+  max-height: 88vh;
+
+  overflow-y: auto;
+
+  padding: 28px;
+
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: flex-start;
+
+  padding-bottom: 16px;
+
+  border-bottom: 1px solid var(--border);
+
+  margin-bottom: 20px;
+}
+
+.modal-close {
+  background: var(--border);
+
+  border: none;
+
+  color: var(--text-secondary);
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  padding: 6px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+
+  background: var(--border-light);
+}
+
+/* =========================================================
+   MODAL SECTIONS
+========================================================= */
+
+.section-title {
+  font-size: 12px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  color: var(--accent);
+
+  letter-spacing: 0.05em;
+
+  margin: 20px 0 10px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.section-title::after {
+  content: '';
+
+  flex: 1;
+
+  height: 1px;
+
+  background: var(--border);
+}
+
+.data-table {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 10px;
+}
+
+.data-cell {
+  background: #0d1321;
+
+  padding: 10px 12px;
+
+  border-radius: 6px;
+
+  border: 1px solid var(--border);
+}
+
+.data-cell.full-width {
+  grid-column: 1 / -1;
+}
+
+.data-cell label {
+  display: block;
+
+  font-size: 11px;
+
+  color: var(--text-muted);
+
+  margin-bottom: 2px;
+
+  font-weight: 500;
+}
+
+.data-cell span {
+  font-size: 13px;
+
+  color: var(--text-primary);
+
+  font-weight: 500;
+
+  word-break: break-word;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
 @media(max-width: 900px) {
+
   .top-nav {
     flex-direction: column;
+
     align-items: flex-start;
   }
 
   .nav-links {
     width: 100%;
+
     justify-content: flex-start;
   }
+
+}
+
+@media(max-width: 768px) {
+
+  .page-header {
+    align-items: flex-start;
+
+    gap: 15px;
+
+    flex-direction: column;
+  }
+
+  .data-table {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
 }
 
 @media(max-width: 600px) {
+
   .nav-links {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+
+    grid-template-columns:
+      repeat(2, 1fr);
+
     width: 100%;
   }
 
   .nav-link {
     justify-content: center;
   }
+
+  .container {
+    padding: 24px 15px;
+  }
+
 }
-```
 
-### Where to put it
+@media(max-width: 480px) {
 
-Your current structure:
+  .data-table {
+    grid-template-columns: 1fr;
+  }
 
-```html
+  .filter-group {
+    width: 100%;
+
+    overflow-x: auto;
+  }
+
+  .filter-btn {
+    white-space: nowrap;
+  }
+
+}
+</style>
+</head>
+
 <body>
 
-<div class="container">
+<!-- =====================================================
+     COMMON NAVIGATION HEADER
+====================================================== -->
 
-  <!-- Header -->
-  <header class="page-header">
-     ...
-  </header>
-```
-
-should become:
-
-```html
-<body>
-
-<!-- Navigation -->
 <header class="top-nav">
-   ...
+
+  <div class="brand-area">
+
+    <div class="brand-icon">
+      <svg width="20" height="20"
+           viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2">
+        <path d="M12 3v18"/>
+        <path d="M3 12h18"/>
+        <path d="M5 5l14 14"/>
+        <path d="M19 5L5 19"/>
+      </svg>
+    </div>
+
+    <div>
+      <div class="brand-title">
+        Oral Clinical Registry
+      </div>
+
+      <div class="brand-subtitle">
+        Assessment Dashboard
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="nav-links">
+
+    <!-- VIEW PATIENTS -->
+    <a href="patients.html"
+       class="nav-link active">
+
+      <svg width="15" height="15"
+           viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2">
+
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+
+        <circle cx="9" cy="7" r="4"/>
+
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+
+      </svg>
+
+      View Patients
+
+    </a>
+
+    <!-- REGISTER PATIENT -->
+    <a href="registerpatients.html"
+       class="nav-link">
+
+      <svg width="15" height="15"
+           viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2">
+
+        <circle cx="12" cy="12" r="10"/>
+
+        <line x1="12" y1="8"
+              x2="12" y2="16"/>
+
+        <line x1="8" y1="12"
+              x2="16" y2="12"/>
+
+      </svg>
+
+      Register Patient
+
+    </a>
+
+    <!-- ANALYTICS -->
+    <a href="analytics.html"
+       class="nav-link">
+
+      <svg width="15" height="15"
+           viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2">
+
+        <line x1="18" y1="20"
+              x2="18" y2="10"/>
+
+        <line x1="12" y1="20"
+              x2="12" y2="4"/>
+
+        <line x1="6" y1="20"
+              x2="6" y2="14"/>
+
+      </svg>
+
+      Analytics
+
+    </a>
+
+    <!-- ASSESSMENT -->
+    <a href="oral_clinical_assessment.html"
+       class="nav-link">
+
+      <svg width="15" height="15"
+           viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2">
+
+        <path d="M9 11l3 3L22 4"/>
+
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+
+      </svg>
+
+      Assessment
+
+    </a>
+
+    <!-- NFC CARD -->
+    <a href="nfc.html"
+       class="nav-link">
+
+      <svg width="15" height="15"
+           viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2">
+
+        <rect x="4" y="3"
+              width="16"
+              height="18"
+              rx="2"/>
+
+        <line x1="8" y1="7"
+              x2="16" y2="7"/>
+
+        <line x1="8" y1="11"
+              x2="16" y2="11"/>
+
+        <line x1="8" y1="15"
+              x2="13" y2="15"/>
+
+      </svg>
+
+      NFC Card
+
+    </a>
+
+  </nav>
+
 </header>
+
+
+<!-- =====================================================
+     MAIN CONTENT
+====================================================== -->
 
 <div class="container">
 
   <!-- Page Header -->
   <header class="page-header">
-     <div class="title-area">
-       <h1>View Patients</h1>
-       <p>Direct view of recorded patient examinations</p>
-     </div>
 
-     <button class="btn-secondary" onclick="exportToExcel()">
-       ...
-       Export CSV/Excel
-     </button>
+    <div class="title-area">
+
+      <h1>
+        View Patients
+      </h1>
+
+      <p>
+        Direct view of recorded patient examinations
+      </p>
+
+    </div>
+
+    <button class="btn-secondary"
+            onclick="exportToExcel()">
+
+      <svg width="14"
+           height="14"
+           viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2">
+
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+
+        <polyline points="7 10 12 15 17 10"/>
+
+        <line x1="12" y1="15"
+              x2="12" y2="3"/>
+
+      </svg>
+
+      Export CSV/Excel
+
+    </button>
+
   </header>
-```
 
-And importantly, **`View Patients` gets the `active` class** on this page.
 
-For your other pages, keep exactly the same header and simply move `active`:
+  <!-- Controls -->
 
-* `patients.html` → **View Patients active**
-* `registerpatients.html` → **Register Patient active**
-* `analytics.html` → **Analytics active**
-* `oral_clinical_assessment.html` → **Assessment active**
-* `nfc.html` → **NFC Card active**
+  <div class="controls-bar">
 
-This will give all five pages a consistent navigation system.
+    <div class="search-wrapper">
+
+      <svg class="search-icon"
+           viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2">
+
+        <circle cx="11" cy="11" r="8"/>
+
+        <line x1="21" y1="21"
+              x2="16.65"
+              y2="16.65"/>
+
+      </svg>
+
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input"
+        placeholder="Search OPD, Name, or Patient ID..."
+        oninput="filterPatients()"
+      >
+
+    </div>
+
+
+    <div class="filter-group">
+
+      <button
+        class="filter-btn active"
+        onclick="setFilter('All', this)">
+        All
+      </button>
+
+      <button
+        class="filter-btn"
+        onclick="setFilter('High Risk', this)">
+        High Risk
+      </button>
+
+      <button
+        class="filter-btn"
+        onclick="setFilter('Smoker', this)">
+        Smokers
+      </button>
+
+      <button
+        class="filter-btn"
+        onclick="setFilter('Chewing', this)">
+        Chewing
+      </button>
+
+      <button
+        class="filter-btn"
+        onclick="setFilter('Alcohol', this)">
+        Alcohol
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- Patient Grid -->
+
+  <main class="grid"
+        id="patientGrid">
+
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+
+  </main>
+
+</div>
+
+
+<!-- =====================================================
+     COMPREHENSIVE VIEW ASSESSMENT MODAL
+====================================================== -->
+
+<div class="modal-overlay"
+     id="detailModal">
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+
+      <div>
+
+        <h2 id="modalName"
+            style="font-size:20px;font-weight:700;">
+          Patient Assessment
+        </h2>
+
+        <p id="modalSub"
+           style="font-size:13px;color:var(--text-secondary);margin-top:2px;">
+          OPD: - | ID: -
+        </p>
+
+      </div>
+
+      <button class="modal-close"
+              onclick="closeModal()">
+
+        <svg width="20"
+             height="20"
+             viewBox="0 0 24 24"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2">
+
+          <line x1="18" y1="6"
+                x2="6" y2="18"/>
+
+          <line x1="6" y1="6"
+                x2="18" y2="18"/>
+
+        </svg>
+
+      </button>
+
+    </div>
+
+
+    <!-- 1. PATIENT DEMOGRAPHICS -->
+
+    <div class="section-title">
+      1. Patient Demographics & Location
+    </div>
+
+    <div class="data-table">
+
+      <div class="data-cell">
+        <label>Patient ID</label>
+        <span id="mPatientId">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Patient Name</label>
+        <span id="mPatientName">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>OPD Number</label>
+        <span id="mOpdNumber">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Age / Sex</label>
+        <span id="mAgeSex">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Religion</label>
+        <span id="mReligion">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Occupation</label>
+        <span id="mOccupation">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Residence</label>
+        <span id="mResidence">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Marital Status</label>
+        <span id="mMarital">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Location Facility</label>
+        <span id="mPatientLocation">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>GPS Coordinates</label>
+        <span id="mGpsCoords">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Recorded On</label>
+        <span id="mCreatedAt">-</span>
+      </div>
+
+    </div>
+
+
+    <!-- 2. SMOKING -->
+
+    <div class="section-title">
+      2. Smoking Habits
+    </div>
+
+    <div class="data-table">
+
+      <div class="data-cell">
+        <label>Smoking Active?</label>
+        <span id="mSmoking">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Cigarette Smoking</label>
+        <span id="mCigarette">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Bidi Smoking</label>
+        <span id="mBidi">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Reverse Smoking</label>
+        <span id="mReverse">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>E-Cigarette</label>
+        <span id="mECigarette">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Duration (Years)</label>
+        <span id="mSmokeYears">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Frequency / Day</label>
+        <span id="mSmokeFreq">-</span>
+      </div>
+
+    </div>
+
+
+    <!-- 3. CHEWING -->
+
+    <div class="section-title">
+      3. Chewing Habits
+    </div>
+
+    <div class="data-table">
+
+      <div class="data-cell">
+        <label>Any Chewing Habits?</label>
+        <span id="mChewing">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Tobacco Chewing</label>
+        <span id="mTobaccoChewing">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Gutkha</label>
+        <span id="mGutkha">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Khaini</label>
+        <span id="mKhaini">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Snuff</label>
+        <span id="mSnuff">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Mawa</label>
+        <span id="mMawa">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Tobacco Tooth Powder</label>
+        <span id="mTobaccoPowder">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Betel Nut Chewing</label>
+        <span id="mBetelNut">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Betel Quid Consumption</label>
+        <span id="mBetelQuid">-</span>
+      </div>
+
+    </div>
+
+
+    <!-- 4. ALCOHOL -->
+
+    <div class="section-title">
+      4. Alcohol History
+    </div>
+
+    <div class="data-table">
+
+      <div class="data-cell">
+        <label>Alcohol Consumer?</label>
+        <span id="mAlcohol">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Duration (Years)</label>
+        <span id="mAlcoholYears">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Frequency</label>
+        <span id="mAlcoholFreq">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Quantity / Day</label>
+        <span id="mAlcoholQty">-</span>
+      </div>
+
+      <div class="data-cell full-width">
+        <label>Habit Combination</label>
+        <span id="mHabitCombo">-</span>
+      </div>
+
+    </div>
+
+
+    <!-- 5. MEDICAL HISTORY -->
+
+    <div class="section-title">
+      5. Medical & Oral History
+    </div>
+
+    <div class="data-table">
+
+      <div class="data-cell">
+        <label>Diabetes Mellitus</label>
+        <span id="mDiabetes">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Hypertension</label>
+        <span id="mHypertension">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>HIV Infection</label>
+        <span id="mHiv">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Tuberculosis</label>
+        <span id="mTb">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Bronchial Asthma</label>
+        <span id="mAsthma">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Previous Oral Diseases</label>
+        <span id="mPrevOralDiseases">-</span>
+      </div>
+
+      <div class="data-cell full-width">
+        <label>Other Systemic Notes</label>
+        <span id="mOtherSystemic">-</span>
+      </div>
+
+    </div>
+
+
+    <!-- 6. SYMPTOMS -->
+
+    <div class="section-title">
+      6. Symptoms & Anatomical Lesion Map
+    </div>
+
+    <div class="data-table">
+
+      <div class="data-cell">
+        <label>Pain Presence</label>
+        <span id="mPain">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Swelling</label>
+        <span id="mSwelling">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Burning Sensation</label>
+        <span id="mBurning">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Bleeding Gums</label>
+        <span id="mBleedingGums">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Ulcer &lt; 2 Weeks</label>
+        <span id="mUlcerLess">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Ulcer &gt; 2 Weeks</label>
+        <span id="mUlcerGreater">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Lesion Location</label>
+        <span id="mLesionLoc">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Map Coordinates (X, Y)</label>
+        <span id="mLesionCoords">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Lesion Color</label>
+        <span id="mLesionColor">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Lesion Shape</label>
+        <span id="mLesionShape">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Surface Characteristics</label>
+        <span id="mLesionSurface">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Lesion Texture</label>
+        <span id="mLesionTexture">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Length (mm)</label>
+        <span id="mLesionLength">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Width (mm)</label>
+        <span id="mLesionWidth">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Max Diameter (mm)</label>
+        <span id="mLesionMaxDia">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Lesion Extension</label>
+        <span id="mLesionExtension">-</span>
+      </div>
+
+      <div class="data-cell full-width">
+        <label>Associated Affected Teeth (FDI)</label>
+        <span id="mAffectedTeeth">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Halitosis</label>
+        <span id="mHalitosis">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Teeth Mobility</label>
+        <span id="mTeethMobility">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Loss of Appetite</label>
+        <span id="mLossAppetite">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Weight Loss</label>
+        <span id="mWeightLoss">-</span>
+      </div>
+
+    </div>
+
+
+    <!-- 7. EXAMINATION -->
+
+    <div class="section-title">
+      7. Examination & Regional Lymph Nodes
+    </div>
+
+    <div class="data-table">
+
+      <div class="data-cell">
+        <label>Inter-Incisal Distance</label>
+        <span id="mInterIncisal">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Mouth Opening Assessment</label>
+        <span id="mMouthOpeningAssessment">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Lymph Nodes Palpability</label>
+        <span id="mLymphPalpable">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>LN Involvement</label>
+        <span id="mLymphInvolvement">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>LN Laterality</label>
+        <span id="mLymphLaterality">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Node Number</label>
+        <span id="mLymphNumber">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Consistency</label>
+        <span id="mLymphConsistency">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Mobility</label>
+        <span id="mLymphMobility">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Size (mm)</label>
+        <span id="mLymphSize">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Shape</label>
+        <span id="mLymphShape">-</span>
+      </div>
+
+      <div class="data-cell">
+        <label>Tenderness</label>
+        <span id="mLymphTenderness">-</span>
+      </div>
+
+    </div>
+
+
+    <!-- 8. EVALUATION -->
+
+    <div class="section-title">
+      8. Evaluation Outputs
+    </div>
+
+    <div class="data-table">
+
+      <div class="data-cell">
+        <label>Risk Level</label>
+        <span id="mComputedRiskLevel"
+              style="font-weight:700;">
+          -
+        </span>
+      </div>
+
+      <div class="data-cell">
+        <label>OSMF Stage / Grade</label>
+        <span id="mComputedOsmfStage"
+              style="font-weight:700;">
+          -
+        </span>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   GLOBAL VARIABLES
+========================================================= */
+
+let supabaseClient = null;
+
+let patients = [];
+
+let activeFilter = 'All';
+
+
+/* =========================================================
+   INITIALIZE SUPABASE
+========================================================= */
+
+function initSupabase() {
+
+  if (
+    typeof CONFIG !== 'undefined' &&
+    CONFIG.SUPABASE_URL &&
+    CONFIG.SUPABASE_ANON_KEY
+  ) {
+
+    supabaseClient =
+      window.supabase.createClient(
+        CONFIG.SUPABASE_URL,
+        CONFIG.SUPABASE_ANON_KEY
+      );
+
+    return true;
+  }
+
+  return false;
+}
+
+
+/* =========================================================
+   COMPUTE RISK LEVEL
+========================================================= */
+
+function computeRiskLevel(p) {
+
+  if (p.risk_level) {
+    return p.risk_level;
+  }
+
+  let score = 0;
+
+  if (
+    p.smoking &&
+    p.smoking.toLowerCase() === 'yes'
+  ) {
+    score += 1;
+  }
+
+  if (
+    p.any_chewing_habits &&
+    p.any_chewing_habits.toLowerCase() === 'yes'
+  ) {
+    score += 2;
+  }
+
+  if (
+    p.alcohol &&
+    p.alcohol.toLowerCase() === 'yes'
+  ) {
+    score += 1;
+  }
+
+  if (
+    p.ulcer_greater_than_2_weeks &&
+    p.ulcer_greater_than_2_weeks.toLowerCase() === 'yes'
+  ) {
+    score += 3;
+  }
+
+  if (
+    p.lesion_texture === 'Indurated'
+  ) {
+    score += 3;
+  }
+
+  if (
+    p.regional_lymph_node_palpability &&
+    p.regional_lymph_node_palpability.toLowerCase() === 'yes'
+  ) {
+    score += 2;
+  }
+
+  if (score >= 7) {
+    return 'HIGH / SUSPICIOUS';
+  }
+
+  if (score >= 4) {
+    return 'MODERATE RISK';
+  }
+
+  return 'LOW RISK';
+}
+
+
+/* =========================================================
+   LOAD PATIENTS
+========================================================= */
+
+async function loadPatientsFromSupabase() {
+
+  const grid =
+    document.getElementById('patientGrid');
+
+  if (!supabaseClient) {
+
+    const initialized = initSupabase();
+
+    if (!initialized) {
+
+      grid.innerHTML = `
+        <div style="
+          grid-column:1/-1;
+          text-align:center;
+          color:var(--danger-text);
+          padding:40px;
+        ">
+          Supabase configuration not found.
+        </div>
+      `;
+
+      return;
+    }
+  }
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+
+      .from('oral_clinical_assessments')
+
+      .select('*')
+
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      );
+
+    if (error) {
+      throw error;
+    }
+
+    patients = data || [];
+
+    renderPatients();
+
+  } catch (err) {
+
+    console.error(err);
+
+    grid.innerHTML = `
+      <div style="
+        grid-column:1/-1;
+        text-align:center;
+        color:var(--danger-text);
+        padding:40px;
+      ">
+        Failed to retrieve database entries:
+        ${escapeHtml(err.message)}
+      </div>
+    `;
+  }
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(value) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+    return '';
+  }
+
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+
+/* =========================================================
+   RENDER PATIENTS
+========================================================= */
+
+function renderPatients() {
+
+  const grid =
+    document.getElementById('patientGrid');
+
+  const searchVal =
+    document
+      .getElementById('searchInput')
+      .value
+      .toLowerCase()
+      .trim();
+
+  grid.innerHTML = '';
+
+  const filtered =
+    patients.filter(p => {
+
+      const idStr =
+        (p.patient_id || '')
+          .toString()
+          .toLowerCase();
+
+      const nameStr =
+        (p.patient_name || '')
+          .toString()
+          .toLowerCase();
+
+      const opdStr =
+        (p.opd_number || '')
+          .toString()
+          .toLowerCase();
+
+      const matchesSearch =
+        nameStr.includes(searchVal) ||
+        idStr.includes(searchVal) ||
+        opdStr.includes(searchVal);
+
+      const risk =
+        computeRiskLevel(p);
+
+      let matchesCategory = true;
+
+      if (activeFilter === 'High Risk') {
+
+        matchesCategory =
+          risk.includes('HIGH');
+
+      } else if (activeFilter === 'Smoker') {
+
+        matchesCategory =
+          (p.smoking || '')
+            .toLowerCase() === 'yes';
+
+      } else if (activeFilter === 'Chewing') {
+
+        matchesCategory =
+          (p.any_chewing_habits || '')
+            .toLowerCase() === 'yes';
+
+      } else if (activeFilter === 'Alcohol') {
+
+        matchesCategory =
+          (p.alcohol || '')
+            .toLowerCase() === 'yes';
+      }
+
+      return (
+        matchesSearch &&
+        matchesCategory
+      );
+    });
+
+
+  if (filtered.length === 0) {
+
+    grid.innerHTML = `
+      <div style="
+        grid-column:1/-1;
+        text-align:center;
+        color:var(--text-muted);
+        padding:40px;
+      ">
+        No assessment records found
+        matching criteria.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  filtered.forEach(p => {
+
+    const risk =
+      computeRiskLevel(p);
+
+    const riskClass =
+      risk.includes('HIGH')
+        ? 'status-high'
+        : risk.includes('MODERATE')
+          ? 'status-moderate'
+          : 'status-low';
+
+
+    const card =
+      document.createElement('div');
+
+    card.className = 'card';
+
+
+    card.innerHTML = `
+
+      <div>
+
+        <div class="card-top">
+
+          <span class="opd-badge">
+            ${escapeHtml(
+              p.opd_number || 'OPD-N/A'
+            )}
+          </span>
+
+          <span class="status-badge ${riskClass}">
+            ${escapeHtml(risk)}
+          </span>
+
+        </div>
+
+
+        <div class="patient-name">
+          ${escapeHtml(
+            p.patient_name ||
+            'Unnamed Record'
+          )}
+        </div>
+
+
+        <div class="patient-meta">
+
+          ID:
+          ${escapeHtml(
+            p.patient_id || 'N/A'
+          )}
+
+          •
+
+          ${escapeHtml(
+            p.age || 'N/A'
+          )}
+          Yrs
+
+          •
+
+          ${escapeHtml(
+            p.sex || 'N/A'
+          )}
+
+        </div>
+
+
+        <div class="info-block">
+
+          <div class="info-row">
+
+            <span class="info-label">
+              Lesion Loc:
+            </span>
+
+            <span class="info-val">
+              ${escapeHtml(
+                p.lesion_location ||
+                'N/A'
+              )}
+            </span>
+
+          </div>
+
+
+          <div class="info-row">
+
+            <span class="info-label">
+              Chewing:
+            </span>
+
+            <span class="info-val">
+              ${escapeHtml(
+                p.any_chewing_habits ||
+                'No'
+              )}
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <button
+        class="btn-card"
+        onclick="openModalByIndex(${patients.indexOf(p)})">
+
+        View Assessment
+
+      </button>
+
+    `;
+
+    grid.appendChild(card);
+
+  });
+}
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+function setFilter(
+  category,
+  btnElement
+) {
+
+  activeFilter = category;
+
+  document
+    .querySelectorAll('.filter-btn')
+    .forEach(btn => {
+
+      btn.classList.remove('active');
+
+    });
+
+  btnElement.classList.add('active');
+
+  renderPatients();
+}
+
+
+function filterPatients() {
+
+  renderPatients();
+
+}
+
+
+/* =========================================================
+   VALUE HELPER
+========================================================= */
+
+function val(
+  v,
+  suffix = ''
+) {
+
+  if (
+    v === null ||
+    v === undefined ||
+    v === ''
+  ) {
+
+    return 'N/A';
+
+  }
+
+  return `${v}${suffix}`;
+
+}
+
+
+/* =========================================================
+   OPEN MODAL SAFELY
+========================================================= */
+
+function openModalByIndex(index) {
+
+  const patient =
+    patients[index];
+
+  if (patient) {
+
+    openModal(patient);
+
+  }
+
+}
+
+
+/* =========================================================
+   OPEN MODAL
+========================================================= */
+
+function openModal(p) {
+
+  /* Modal title */
+
+  document
+    .getElementById('modalName')
+    .textContent =
+      p.patient_name || 'N/A';
+
+  document
+    .getElementById('modalSub')
+    .textContent =
+      `OPD: ${p.opd_number || 'N/A'} | ID: ${p.patient_id || 'N/A'}`;
+
+
+  /* 1. Demographics */
+
+  document
+    .getElementById('mPatientId')
+    .textContent =
+      val(p.patient_id);
+
+  document
+    .getElementById('mPatientName')
+    .textContent =
+      val(p.patient_name);
+
+  document
+    .getElementById('mOpdNumber')
+    .textContent =
+      val(p.opd_number);
+
+  document
+    .getElementById('mAgeSex')
+    .textContent =
+      `${val(p.age)} Yrs / ${val(p.sex)}`;
+
+  document
+    .getElementById('mReligion')
+    .textContent =
+      val(p.religion);
+
+  document
+    .getElementById('mOccupation')
+    .textContent =
+      val(p.occupation);
+
+  document
+    .getElementById('mResidence')
+    .textContent =
+      val(p.residence);
+
+  document
+    .getElementById('mMarital')
+    .textContent =
+      val(p.marital_status);
+
+  document
+    .getElementById('mPatientLocation')
+    .textContent =
+      val(p.patient_location);
+
+  document
+    .getElementById('mGpsCoords')
+    .textContent =
+      (
+        p.latitude !== null &&
+        p.latitude !== undefined &&
+        p.longitude !== null &&
+        p.longitude !== undefined
+      )
+        ? `${p.latitude}, ${p.longitude}`
+        : 'N/A';
+
+  document
+    .getElementById('mCreatedAt')
+    .textContent =
+      p.created_at
+        ? new Date(
+            p.created_at
+          ).toLocaleString()
+        : 'N/A';
+
+
+  /* 2. Smoking */
+
+  document
+    .getElementById('mSmoking')
+    .textContent =
+      val(p.smoking);
+
+  document
+    .getElementById('mCigarette')
+    .textContent =
+      val(p.cigarette_smoking);
+
+  document
+    .getElementById('mBidi')
+    .textContent =
+      val(p.bidi_smoking);
+
+  document
+    .getElementById('mReverse')
+    .textContent =
+      val(p.reverse_smoking);
+
+  document
+    .getElementById('mECigarette')
+    .textContent =
+      val(p.electronic_cigarette);
+
+  document
+    .getElementById('mSmokeYears')
+    .textContent =
+      val(p.smoking_duration_years);
+
+  document
+    .getElementById('mSmokeFreq')
+    .textContent =
+      val(p.smoking_frequency_per_day);
+
+
+  /* 3. Chewing */
+
+  document
+    .getElementById('mChewing')
+    .textContent =
+      val(p.any_chewing_habits);
+
+  document
+    .getElementById('mTobaccoChewing')
+    .textContent =
+      val(p.tobacco_chewing);
+
+  document
+    .getElementById('mGutkha')
+    .textContent =
+      val(p.gutkha);
+
+  document
+    .getElementById('mKhaini')
+    .textContent =
+      val(p.khaini);
+
+  document
+    .getElementById('mSnuff')
+    .textContent =
+      val(p.snuff);
+
+  document
+    .getElementById('mMawa')
+    .textContent =
+      val(p.mawa);
+
+  document
+    .getElementById('mTobaccoPowder')
+    .textContent =
+      val(
+        p.tobacco_containing_tooth_powder
+      );
+
+  document
+    .getElementById('mBetelNut')
+    .textContent =
+      val(p.betel_nut_chewing);
+
+  document
+    .getElementById('mBetelQuid')
+    .textContent =
+      val(
+        p.betel_quid_consumption
+      );
+
+
+  /* 4. Alcohol */
+
+  document
+    .getElementById('mAlcohol')
+    .textContent =
+      val(p.alcohol);
+
+  document
+    .getElementById('mAlcoholYears')
+    .textContent =
+      val(
+        p.alcohol_duration_years
+      );
+
+  document
+    .getElementById('mAlcoholFreq')
+    .textContent =
+      val(
+        p.alcohol_frequency
+      );
+
+  document
+    .getElementById('mAlcoholQty')
+    .textContent =
+      val(
+        p.alcohol_quantity
+      );
+
+  document
+    .getElementById('mHabitCombo')
+    .textContent =
+      val(
+        p.habit_combination
+      );
+
+
+  /* 5. Medical */
+
+  document
+    .getElementById('mDiabetes')
+    .textContent =
+      val(p.diabetes_mellitus);
+
+  document
+    .getElementById('mHypertension')
+    .textContent =
+      val(p.hypertension);
+
+  document
+    .getElementById('mHiv')
+    .textContent =
+      val(p.hiv_infection);
+
+  document
+    .getElementById('mTb')
+    .textContent =
+      val(p.tuberculosis);
+
+  document
+    .getElementById('mAsthma')
+    .textContent =
+      val(p.bronchial_asthma);
+
+  document
+    .getElementById('mPrevOralDiseases')
+    .textContent =
+      val(
+        p.previous_oral_diseases
+      );
+
+  document
+    .getElementById('mOtherSystemic')
+    .textContent =
+      val(
+        p.other_systemic_diseases
+      );
+
+
+  /* 6. Symptoms */
+
+  document
+    .getElementById('mPain')
+    .textContent =
+      val(p.pain_presence);
+
+  document
+    .getElementById('mSwelling')
+    .textContent =
+      val(p.swelling);
+
+  document
+    .getElementById('mBurning')
+    .textContent =
+      val(p.burning_sensation);
+
+  document
+    .getElementById('mBleedingGums')
+    .textContent =
+      val(p.bleeding_gums);
+
+  document
+    .getElementById('mUlcerLess')
+    .textContent =
+      val(
+        p.ulcer_less_than_2_weeks
+      );
+
+  document
+    .getElementById('mUlcerGreater')
+    .textContent =
+      val(
+        p.ulcer_greater_than_2_weeks
+      );
+
+  document
+    .getElementById('mLesionLoc')
+    .textContent =
+      val(
+        p.lesion_location
+      );
+
+  document
+    .getElementById('mLesionCoords')
+    .textContent =
+      val(
+        p.lesion_position_coords
+      );
+
+  document
+    .getElementById('mLesionColor')
+    .textContent =
+      val(
+        p.lesion_color
+      );
+
+  document
+    .getElementById('mLesionShape')
+    .textContent =
+      val(
+        p.lesion_shape
+      );
+
+  document
+    .getElementById('mLesionSurface')
+    .textContent =
+      val(
+        p.lesion_surface_characteristics
+      );
+
+  document
+    .getElementById('mLesionTexture')
+    .textContent =
+      val(
+        p.lesion_texture
+      );
+
+  document
+    .getElementById('mLesionLength')
+    .textContent =
+      val(
+        p.lesion_length_mm,
+        ' mm'
+      );
+
+  document
+    .getElementById('mLesionWidth')
+    .textContent =
+      val(
+        p.lesion_width_mm,
+        ' mm'
+      );
+
+  document
+    .getElementById('mLesionMaxDia')
+    .textContent =
+      val(
+        p.lesion_maximum_diameter_mm,
+        ' mm'
+      );
+
+  document
+    .getElementById('mLesionExtension')
+    .textContent =
+      val(
+        p.lesion_extension
+      );
+
+  document
+    .getElementById('mAffectedTeeth')
+    .textContent =
+      val(
+        p.affected_teeth
+      );
+
+  document
+    .getElementById('mHalitosis')
+    .textContent =
+      val(
+        p.halitosis
+      );
+
+  document
+    .getElementById('mTeethMobility')
+    .textContent =
+      val(
+        p.mobility_of_associated_teeth
+      );
+
+  document
+    .getElementById('mLossAppetite')
+    .textContent =
+      val(
+        p.loss_of_appetite
+      );
+
+  document
+    .getElementById('mWeightLoss')
+    .textContent =
+      val(
+        p.weight_loss
+      );
+
+
+  /* 7. Examination */
+
+  document
+    .getElementById('mInterIncisal')
+    .textContent =
+      val(
+        p.inter_incisal_distance_mm,
+        ' mm'
+      );
+
+  document
+    .getElementById('mMouthOpeningAssessment')
+    .textContent =
+      val(
+        p.mouth_opening_assessment
+      );
+
+  document
+    .getElementById('mLymphPalpable')
+    .textContent =
+      val(
+        p.regional_lymph_node_palpability
+      );
+
+  document
+    .getElementById('mLymphInvolvement')
+    .textContent =
+      val(
+        p.lymph_node_involvement
+      );
+
+  document
+    .getElementById('mLymphLaterality')
+    .textContent =
+      val(
+        p.lymph_node_laterality
+      );
+
+  document
+    .getElementById('mLymphNumber')
+    .textContent =
+      val(
+        p.regional_lymph_node_number
+      );
+
+  document
+    .getElementById('mLymphConsistency')
+    .textContent =
+      val(
+        p.regional_lymph_node_consistency
+      );
+
+  document
+    .getElementById('mLymphMobility')
+    .textContent =
+      val(
+        p.regional_lymph_node_mobility
+      );
+
+  document
+    .getElementById('mLymphSize')
+    .textContent =
+      val(
+        p.regional_lymph_node_size_mm,
+        ' mm'
+      );
+
+  document
+    .getElementById('mLymphShape')
+    .textContent =
+      val(
+        p.regional_lymph_node_shape
+      );
+
+  document
+    .getElementById('mLymphTenderness')
+    .textContent =
+      val(
+        p.regional_lymph_node_tenderness
+      );
+
+
+  /* 8. Evaluation */
+
+  document
+    .getElementById('mComputedRiskLevel')
+    .textContent =
+      val(
+        p.risk_level ||
+        computeRiskLevel(p)
+      );
+
+  document
+    .getElementById('mComputedOsmfStage')
+    .textContent =
+      val(
+        p.osmf_stage
+      );
+
+
+  /* Show modal */
+
+  document
+    .getElementById('detailModal')
+    .classList.add('active');
+}
+
+
+/* =========================================================
+   CLOSE MODAL
+========================================================= */
+
+function closeModal() {
+
+  document
+    .getElementById('detailModal')
+    .classList.remove('active');
+
+}
+
+
+/* =========================================================
+   CLOSE MODAL ON BACKDROP
+========================================================= */
+
+document
+  .getElementById('detailModal')
+  .addEventListener(
+    'click',
+    function(event) {
+
+      if (event.target === this) {
+        closeModal();
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   ESC KEY
+========================================================= */
+
+document.addEventListener(
+  'keydown',
+  function(event) {
+
+    if (event.key === 'Escape') {
+      closeModal();
+    }
+
+  }
+);
+
+
+/* =========================================================
+   EXPORT EXCEL
+========================================================= */
+
+function exportToExcel() {
+
+  if (patients.length === 0) {
+
+    alert(
+      "No data available to export."
+    );
+
+    return;
+  }
+
+
+  const worksheet =
+    XLSX.utils.json_to_sheet(
+      patients
+    );
+
+  const workbook =
+    XLSX.utils.book_new();
+
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "Assessments"
+  );
+
+
+  XLSX.writeFile(
+    workbook,
+    `Clinical_Assessments_${
+      new Date()
+        .toISOString()
+        .slice(0, 10)
+    }.xlsx`
+  );
+
+}
+
+
+/* =========================================================
+   INITIAL LOAD
+========================================================= */
+
+window.addEventListener(
+  'DOMContentLoaded',
+  loadPatientsFromSupabase
+);
+
+</script>
+
+</body>
+</html>
