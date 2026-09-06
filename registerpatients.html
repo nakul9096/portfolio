@@ -1,0 +1,2312 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Register Patient - NAKUL DHANDE</title>
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Inter Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Supabase Configuration -->
+<script src="config/config.js"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        app: {
+          bg: '#090d16',
+          surface: '#111827',
+          hover: '#1f2937',
+          border: '#1f293d',
+          borderLight: '#2d3748',
+          blue: '#2563eb',
+          blueHover: '#1d4ed8'
+        }
+      }
+    }
+  }
+}
+</script>
+
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+
+  margin: 0;
+
+  background: #090d16;
+
+  color: #f9fafb;
+
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+
+  line-height: 1.5;
+
+  font-size: 14px;
+
+  min-height: 100vh;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.app-nav {
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 50;
+
+  width: 100%;
+
+  background: rgba(17, 24, 39, 0.97);
+
+  border-bottom: 1px solid #1f293d;
+
+  backdrop-filter: blur(12px);
+}
+
+
+.nav-inner {
+
+  width: 100%;
+
+  max-width: 1440px;
+
+  min-height: 68px;
+
+  margin: 0 auto;
+
+  padding: 0 28px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 24px;
+}
+
+
+.nav-brand {
+
+  display: flex;
+
+  align-items: center;
+
+  min-width: 240px;
+}
+
+
+.nav-brand-text {
+
+  display: flex;
+
+  flex-direction: column;
+
+  line-height: 1.2;
+}
+
+
+.nav-brand-title {
+
+  color: #f9fafb;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  letter-spacing: -0.01em;
+}
+
+
+.nav-brand-subtitle {
+
+  margin-top: 4px;
+
+  color: #6b7280;
+
+  font-size: 11px;
+
+  font-weight: 400;
+}
+
+
+.nav-right {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+
+.nav-links {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 4px;
+}
+
+
+.nav-links a {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  color: #9ca3af;
+
+  text-decoration: none;
+
+  font-size: 13px;
+
+  font-weight: 500;
+
+  border-radius: 6px;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+
+.nav-links a:hover {
+
+  background: #1f2937;
+
+  color: #f9fafb;
+}
+
+
+.nav-links a.active {
+
+  background: rgba(37, 99, 235, 0.12);
+
+  color: #60a5fa;
+}
+
+
+.nav-register {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 38px;
+
+  padding: 0 14px;
+
+  border: 1px solid #2563eb;
+
+  border-radius: 6px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 13px;
+
+  font-weight: 500;
+}
+
+
+.nav-register:hover {
+
+  background: #1d4ed8;
+
+  border-color: #1d4ed8;
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.container {
+
+  width: 100%;
+
+  max-width: 900px;
+
+  margin: 0 auto;
+
+  padding: 42px 24px 60px;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.page-header {
+
+  margin-bottom: 28px;
+
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid #1f293d;
+}
+
+
+.page-header h1 {
+
+  margin: 0;
+
+  color: #f9fafb;
+
+  font-size: 23px;
+
+  font-weight: 600;
+
+  letter-spacing: -0.02em;
+}
+
+
+.page-header p {
+
+  margin: 6px 0 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   FORM CARD
+========================================================= */
+
+.form-card {
+
+  background: #111827;
+
+  border: 1px solid #1f293d;
+
+  border-radius: 10px;
+
+  padding: 28px;
+}
+
+
+.form-section-title {
+
+  margin: 0 0 18px;
+
+  color: #f9fafb;
+
+  font-size: 15px;
+
+  font-weight: 600;
+}
+
+
+.form-section-subtitle {
+
+  margin: -10px 0 22px;
+
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   AADHAR CHECK
+========================================================= */
+
+.aadhar-section {
+
+  padding: 18px;
+
+  background: #0d1321;
+
+  border: 1px solid #1f293d;
+
+  border-radius: 8px;
+
+  margin-bottom: 26px;
+}
+
+
+.aadhar-label {
+
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #d1d5db;
+
+  font-size: 12px;
+
+  font-weight: 500;
+}
+
+
+.aadhar-row {
+
+  display: flex;
+
+  gap: 10px;
+}
+
+
+.aadhar-input-wrapper {
+
+  position: relative;
+
+  flex: 1;
+}
+
+
+.form-input {
+
+  width: 100%;
+
+  height: 42px;
+
+  padding: 0 13px;
+
+  background: #090d16;
+
+  border: 1px solid #1f293d;
+
+  border-radius: 6px;
+
+  color: #f9fafb;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  outline: none;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+
+.form-input:focus {
+
+  background: #0d1321;
+
+  border-color: #2563eb;
+}
+
+
+.form-input:disabled {
+
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+.form-input.valid {
+
+  border-color: #34d399;
+
+  padding-right: 42px;
+}
+
+
+.form-input.invalid {
+
+  border-color: #f87171;
+}
+
+
+/* Green tick */
+
+.success-tick {
+
+  position: absolute;
+
+  right: 13px;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  display: none;
+
+  width: 20px;
+
+  height: 20px;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #34d399;
+
+  color: #06130e;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  animation: tickPop 0.3s ease;
+}
+
+
+@keyframes tickPop {
+
+  0% {
+
+    transform:
+      translateY(-50%)
+      scale(0);
+
+  }
+
+  70% {
+
+    transform:
+      translateY(-50%)
+      scale(1.15);
+
+  }
+
+  100% {
+
+    transform:
+      translateY(-50%)
+      scale(1);
+
+  }
+
+}
+
+
+.check-btn {
+
+  height: 42px;
+
+  min-width: 90px;
+
+  padding: 0 17px;
+
+  border: 1px solid #2563eb;
+
+  border-radius: 6px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: 0.15s ease;
+}
+
+
+.check-btn:hover {
+
+  background: #1d4ed8;
+}
+
+
+.check-btn:disabled {
+
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+.check-btn.hidden {
+
+  display: none;
+}
+
+
+/* =========================================================
+   STATUS MESSAGE
+========================================================= */
+
+.status-message {
+
+  display: none;
+
+  margin-top: 12px;
+
+  padding: 10px 12px;
+
+  border-radius: 6px;
+
+  font-size: 12px;
+}
+
+
+.status-message.success {
+
+  display: block;
+
+  background: rgba(52, 211, 153, 0.08);
+
+  border: 1px solid rgba(52, 211, 153, 0.20);
+
+  color: #34d399;
+}
+
+
+.status-message.error {
+
+  display: block;
+
+  background: rgba(248, 113, 113, 0.08);
+
+  border: 1px solid rgba(248, 113, 113, 0.20);
+
+  color: #f87171;
+}
+
+
+/* =========================================================
+   REGISTRATION FORM
+========================================================= */
+
+.registration-form {
+
+  opacity: 0.45;
+
+  pointer-events: none;
+
+  transition:
+    opacity 0.25s ease;
+}
+
+
+.registration-form.enabled {
+
+  opacity: 1;
+
+  pointer-events: auto;
+}
+
+
+.form-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+
+.form-group {
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.form-group.full {
+
+  grid-column: 1 / -1;
+}
+
+
+.form-label {
+
+  margin-bottom: 7px;
+
+  color: #d1d5db;
+
+  font-size: 12px;
+
+  font-weight: 500;
+}
+
+
+.optional {
+
+  color: #6b7280;
+
+  font-weight: 400;
+}
+
+
+.required {
+
+  color: #f87171;
+
+  margin-left: 2px;
+}
+
+
+.form-help {
+
+  margin-top: 5px;
+
+  color: #6b7280;
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   REGISTER BUTTON
+========================================================= */
+
+.form-actions {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin-top: 28px;
+
+  padding-top: 20px;
+
+  border-top: 1px solid #1f293d;
+}
+
+
+.register-btn {
+
+  min-height: 42px;
+
+  min-width: 175px;
+
+  padding: 0 20px;
+
+  border: 1px solid #2563eb;
+
+  border-radius: 6px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: 0.15s ease;
+}
+
+
+.register-btn:hover {
+
+  background: #1d4ed8;
+}
+
+
+.register-btn:disabled {
+
+  background: #1f2937;
+
+  border-color: #2d3748;
+
+  color: #6b7280;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.spinner {
+
+  width: 15px;
+
+  height: 15px;
+
+  border: 2px solid rgba(255,255,255,0.35);
+
+  border-top-color: #ffffff;
+
+  border-radius: 50%;
+
+  animation: spin 0.7s linear infinite;
+}
+
+
+@keyframes spin {
+
+  to {
+
+    transform: rotate(360deg);
+
+  }
+
+}
+
+
+/* =========================================================
+   SUCCESS MODAL
+========================================================= */
+
+.modal-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 100;
+
+  display: none;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(3, 7, 18, 0.84);
+
+  backdrop-filter: blur(7px);
+}
+
+
+.modal-overlay.show {
+
+  display: flex;
+
+  animation: overlayIn 0.2s ease;
+}
+
+
+@keyframes overlayIn {
+
+  from {
+
+    opacity: 0;
+
+  }
+
+  to {
+
+    opacity: 1;
+
+  }
+
+}
+
+
+.success-dialog {
+
+  width: 100%;
+
+  max-width: 410px;
+
+  padding: 32px;
+
+  text-align: center;
+
+  background: #111827;
+
+  border: 1px solid #2d3748;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 25px 70px rgba(0,0,0,0.55);
+
+  animation: dialogIn 0.4s cubic-bezier(.17,.67,.32,1.25);
+}
+
+
+@keyframes dialogIn {
+
+  0% {
+
+    opacity: 0;
+
+    transform:
+      translateY(25px)
+      scale(0.88);
+
+  }
+
+  100% {
+
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+
+  }
+
+}
+
+
+.success-icon {
+
+  width: 64px;
+
+  height: 64px;
+
+  margin: 0 auto 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(52, 211, 153, 0.12);
+
+  border: 1px solid rgba(52, 211, 153, 0.25);
+
+  color: #34d399;
+
+  font-size: 30px;
+
+  animation:
+    successPop 0.55s
+    cubic-bezier(.17,.67,.32,1.4);
+}
+
+
+@keyframes successPop {
+
+  0% {
+
+    transform: scale(0);
+
+  }
+
+  60% {
+
+    transform: scale(1.15);
+
+  }
+
+  100% {
+
+    transform: scale(1);
+
+  }
+
+}
+
+
+.success-dialog h2 {
+
+  margin: 0;
+
+  color: #f9fafb;
+
+  font-size: 18px;
+
+  font-weight: 600;
+}
+
+
+.success-dialog p {
+
+  margin: 7px 0;
+
+  color: #9ca3af;
+
+  font-size: 12px;
+}
+
+
+.patient-id-box {
+
+  margin: 20px 0;
+
+  padding: 15px;
+
+  background: #0d1321;
+
+  border: 1px solid #1f293d;
+
+  border-radius: 8px;
+}
+
+
+.patient-id-label {
+
+  color: #6b7280;
+
+  font-size: 10px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.08em;
+}
+
+
+.patient-id {
+
+  margin-top: 5px;
+
+  color: #60a5fa;
+
+  font-size: 22px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+}
+
+
+.ok-btn {
+
+  width: 100%;
+
+  height: 40px;
+
+  border: 1px solid #2563eb;
+
+  border-radius: 6px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+
+.ok-btn:hover {
+
+  background: #1d4ed8;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.app-footer {
+
+  background: #111827;
+
+  border-top: 1px solid #1f293d;
+
+  padding: 20px 24px;
+}
+
+
+.footer-content {
+
+  max-width: 1280px;
+
+  margin: 0 auto;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 5px;
+
+  color: #9ca3af;
+
+  text-align: center;
+
+  font-size: 12px;
+}
+
+
+.footer-credits {
+
+  color: #6b7280;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .nav-inner {
+
+    padding: 0 20px;
+
+  }
+
+}
+
+
+@media (max-width: 900px) {
+
+  .nav-inner {
+
+    min-height: auto;
+
+    padding: 14px 18px;
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+  }
+
+  .nav-brand {
+
+    min-width: 0;
+
+  }
+
+  .nav-right {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+  }
+
+  .nav-links {
+
+    flex-wrap: nowrap;
+
+  }
+
+  .nav-links a {
+
+    flex-shrink: 0;
+
+  }
+
+}
+
+
+@media (max-width: 650px) {
+
+  .container {
+
+    padding: 28px 14px 45px;
+
+  }
+
+  .form-card {
+
+    padding: 20px;
+
+  }
+
+  .aadhar-row {
+
+    flex-direction: column;
+
+  }
+
+  .check-btn {
+
+    width: 100%;
+
+  }
+
+  .form-grid {
+
+    grid-template-columns: 1fr;
+
+  }
+
+  .form-group.full {
+
+    grid-column: auto;
+
+  }
+
+  .form-actions {
+
+    justify-content: stretch;
+
+  }
+
+  .register-btn {
+
+    width: 100%;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<nav class="app-nav">
+
+  <div class="nav-inner">
+
+
+    <div class="nav-brand">
+
+      <div class="nav-brand-text">
+
+        <span class="nav-brand-title">
+          Oral Clinical Registry - Assessment Dashboard
+        </span>
+
+        <span class="nav-brand-subtitle">
+          Developed By Nakul Dhande With Team Hardik, Chinmay, Shantanu
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="nav-right">
+
+      <div class="nav-links">
+
+        <a href="patients.html">
+          View Patients
+        </a>
+
+        <a href="registerpatients.html" class="active">
+          Register Patient
+        </a>
+
+        <a href="analytics.html">
+          Analytics
+        </a>
+
+        <a href="oral_clinical_assessment.html">
+          Assessment
+        </a>
+
+        <a href="nfc.html">
+          NFC Card
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</nav>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<div class="container">
+
+
+  <header class="page-header">
+
+    <h1>
+      Register Patient
+    </h1>
+
+    <p>
+      Create a new patient record in the clinical registry
+    </p>
+
+  </header>
+
+
+  <section class="form-card">
+
+
+    <h2 class="form-section-title">
+      Patient Registration
+    </h2>
+
+    <p class="form-section-subtitle">
+      Verify the patient's Aadhar number before creating a new registry record.
+    </p>
+
+
+    <!-- =====================================================
+         AADHAR VERIFICATION
+    ====================================================== -->
+
+    <div class="aadhar-section">
+
+
+      <label class="aadhar-label">
+        Aadhar Number
+        <span class="required">*</span>
+      </label>
+
+
+      <div class="aadhar-row">
+
+
+        <div class="aadhar-input-wrapper">
+
+          <input
+            type="text"
+            id="aadharNumber"
+            class="form-input"
+            maxlength="12"
+            inputmode="numeric"
+            placeholder="Enter 12-digit Aadhar number"
+            autocomplete="off">
+
+          <div
+            id="successTick"
+            class="success-tick">
+
+            ✓
+
+          </div>
+
+        </div>
+
+
+        <button
+          type="button"
+          id="checkBtn"
+          class="check-btn"
+          onclick="checkAadhar()">
+
+          Check
+
+        </button>
+
+      </div>
+
+
+      <div
+        id="statusMessage"
+        class="status-message">
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         REGISTRATION FORM
+    ====================================================== -->
+
+    <form
+      id="registrationForm"
+      class="registration-form"
+      onsubmit="registerPatient(event)">
+
+
+      <div class="form-grid">
+
+
+        <!-- NAME -->
+
+        <div class="form-group">
+
+          <label class="form-label">
+
+            Patient Name
+
+            <span class="required">*</span>
+
+          </label>
+
+          <input
+            type="text"
+            id="patientName"
+            class="form-input"
+            placeholder="Enter patient's full name"
+            required
+            disabled>
+
+        </div>
+
+
+        <!-- PHONE -->
+
+        <div class="form-group">
+
+          <label class="form-label">
+
+            Phone Number
+
+            <span class="required">*</span>
+
+          </label>
+
+          <input
+            type="tel"
+            id="phone"
+            class="form-input"
+            maxlength="10"
+            inputmode="numeric"
+            placeholder="Enter 10-digit phone number"
+            required
+            disabled>
+
+        </div>
+
+
+        <!-- EMAIL -->
+
+        <div class="form-group">
+
+          <label class="form-label">
+
+            Email
+
+            <span class="optional">
+              (Optional)
+            </span>
+
+          </label>
+
+          <input
+            type="email"
+            id="email"
+            class="form-input"
+            placeholder="Enter email address"
+            disabled>
+
+        </div>
+
+
+        <!-- GUARDIAN NAME -->
+
+        <div class="form-group">
+
+          <label class="form-label">
+
+            Guardian Name
+
+            <span class="optional">
+              (Optional)
+            </span>
+
+          </label>
+
+          <input
+            type="text"
+            id="guardianName"
+            class="form-input"
+            placeholder="Parent / guardian name"
+            disabled>
+
+        </div>
+
+
+        <!-- GUARDIAN PHONE -->
+
+        <div class="form-group">
+
+          <label class="form-label">
+
+            Guardian / Parent Phone
+
+            <span class="optional">
+              (Optional)
+            </span>
+
+          </label>
+
+          <input
+            type="tel"
+            id="guardianPhone"
+            class="form-input"
+            maxlength="10"
+            inputmode="numeric"
+            placeholder="Parent / guardian phone"
+            disabled>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- ACTION -->
+
+      <div class="form-actions">
+
+        <button
+          type="submit"
+          id="registerBtn"
+          class="register-btn"
+          disabled>
+
+          Register Patient
+
+        </button>
+
+      </div>
+
+
+    </form>
+
+
+  </section>
+
+</div>
+
+
+<!-- =========================================================
+     SUCCESS DIALOG
+========================================================= -->
+
+<div
+  id="successModal"
+  class="modal-overlay">
+
+
+  <div class="success-dialog">
+
+
+    <div class="success-icon">
+
+      ✓
+
+    </div>
+
+
+    <h2>
+      Patient Registered Successfully
+    </h2>
+
+
+    <p>
+      The patient has been added to the clinical registry.
+    </p>
+
+
+    <div class="patient-id-box">
+
+      <div class="patient-id-label">
+        Patient ID
+      </div>
+
+      <div
+        id="generatedPatientId"
+        class="patient-id">
+
+        --
+
+      </div>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="ok-btn"
+      onclick="closeSuccessDialog()">
+
+      OK / Close
+
+    </button>
+
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="app-footer">
+
+  <div class="footer-content">
+
+    <div>
+      Copyright © 2026 Nakul Dhande. All Rights Reserved.
+    </div>
+
+    <div class="footer-credits">
+      Developed in collaboration with Team Shantanu Marathe,
+      Hardik Kunte, Chinmay Ashtankar
+    </div>
+
+  </div>
+
+</footer>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+function getAppConfig() {
+
+  if (typeof CONFIG !== 'undefined')
+    return CONFIG;
+
+  if (typeof window.CONFIG !== 'undefined')
+    return window.CONFIG;
+
+  throw new Error(
+    'CONFIG object missing in config/config.js'
+  );
+
+}
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const aadharInput =
+  document.getElementById('aadharNumber');
+
+const checkBtn =
+  document.getElementById('checkBtn');
+
+const successTick =
+  document.getElementById('successTick');
+
+const statusMessage =
+  document.getElementById('statusMessage');
+
+const registrationForm =
+  document.getElementById('registrationForm');
+
+const registerBtn =
+  document.getElementById('registerBtn');
+
+
+/* =========================================================
+   ALLOW ONLY NUMBERS
+========================================================= */
+
+aadharInput.addEventListener(
+  'input',
+  function() {
+
+    this.value =
+      this.value
+        .replace(/\D/g, '')
+        .slice(0, 12);
+
+    resetVerification();
+
+  }
+);
+
+
+/* =========================================================
+   RESET VERIFICATION
+========================================================= */
+
+function resetVerification() {
+
+  successTick.style.display = 'none';
+
+  aadharInput.classList.remove(
+    'valid',
+    'invalid'
+  );
+
+  statusMessage.className =
+    'status-message';
+
+  statusMessage.textContent = '';
+
+  checkBtn.classList.remove('hidden');
+
+  disableRegistrationForm();
+
+}
+
+
+/* =========================================================
+   DISABLE FORM
+========================================================= */
+
+function disableRegistrationForm() {
+
+  registrationForm.classList.remove('enabled');
+
+  const fields =
+    registrationForm.querySelectorAll(
+      'input'
+    );
+
+  fields.forEach(field => {
+
+    field.disabled = true;
+
+  });
+
+  registerBtn.disabled = true;
+
+}
+
+
+/* =========================================================
+   ENABLE FORM
+========================================================= */
+
+function enableRegistrationForm() {
+
+  registrationForm.classList.add(
+    'enabled'
+  );
+
+  const fields =
+    registrationForm.querySelectorAll(
+      'input'
+    );
+
+  fields.forEach(field => {
+
+    field.disabled = false;
+
+  });
+
+  registerBtn.disabled = false;
+
+}
+
+
+/* =========================================================
+   SHOW STATUS
+========================================================= */
+
+function showStatus(
+  message,
+  type
+) {
+
+  statusMessage.className =
+    `status-message ${type}`;
+
+  statusMessage.textContent =
+    message;
+
+}
+
+
+/* =========================================================
+   CHECK AADHAR
+========================================================= */
+
+async function checkAadhar() {
+
+  const aadhar =
+    aadharInput.value.trim();
+
+
+  /* Validate */
+
+  if (aadhar.length !== 12) {
+
+    aadharInput.classList.add(
+      'invalid'
+    );
+
+    showStatus(
+      'Please enter a valid 12-digit Aadhar number.',
+      'error'
+    );
+
+    return;
+
+  }
+
+
+  checkBtn.disabled = true;
+
+  checkBtn.innerHTML = '';
+
+  const spinner =
+    document.createElement('div');
+
+  spinner.className =
+    'spinner';
+
+  checkBtn.appendChild(spinner);
+
+
+  try {
+
+    const cfg =
+      getAppConfig();
+
+
+    const response =
+      await fetch(
+
+        `${cfg.SUPABASE_URL}/rest/v1/patients?select=patient_id& aadhar_number=eq.${encodeURIComponent(aadhar)}`.replace(' ', ''),
+
+        {
+
+          method: 'GET',
+
+          headers: {
+
+            'apikey':
+              cfg.SUPABASE_ANON_KEY,
+
+            'Authorization':
+              `Bearer ${cfg.SUPABASE_ANON_KEY}`,
+
+            'Content-Type':
+              'application/json'
+
+          }
+
+        }
+
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        `HTTP Error: ${response.status}`
+      );
+
+    }
+
+
+    const records =
+      await response.json();
+
+
+    /* =====================================================
+       ALREADY REGISTERED
+    ====================================================== */
+
+    if (records.length > 0) {
+
+      aadharInput.classList.add(
+        'invalid'
+      );
+
+      showStatus(
+        `This patient is already registered with Patient ID ${records[0].patient_id}.`,
+        'error'
+      );
+
+
+      disableRegistrationForm();
+
+
+      checkBtn.classList.remove(
+        'hidden'
+      );
+
+      checkBtn.disabled = false;
+
+      checkBtn.textContent =
+        'Check';
+
+
+      return;
+
+    }
+
+
+    /* =====================================================
+       NEW PATIENT
+    ====================================================== */
+
+    aadharInput.classList.remove(
+      'invalid'
+    );
+
+    aadharInput.classList.add(
+      'valid'
+    );
+
+
+    successTick.style.display =
+      'flex';
+
+
+    showStatus(
+      'Aadhar verified. Patient is not registered. You can continue with registration.',
+      'success'
+    );
+
+
+    checkBtn.classList.add(
+      'hidden'
+    );
+
+
+    enableRegistrationForm();
+
+
+    document
+      .getElementById('patientName')
+      .focus();
+
+
+  } catch (error) {
+
+    showStatus(
+      `Unable to check Aadhar: ${error.message}`,
+      'error'
+    );
+
+    checkBtn.disabled = false;
+
+    checkBtn.textContent =
+      'Check';
+
+  }
+
+}
+
+
+/* =========================================================
+   GENERATE PATIENT ID
+========================================================= */
+
+function generatePatientId() {
+
+  const now =
+    new Date();
+
+
+  const year =
+    now.getFullYear()
+      .toString()
+      .slice(-2);
+
+
+  const random =
+    Math.floor(
+      100000 +
+      Math.random() * 900000
+    );
+
+
+  return `PT-${year}-${random}`;
+
+}
+
+
+/* =========================================================
+   REGISTER PATIENT
+========================================================= */
+
+async function registerPatient(event) {
+
+  event.preventDefault();
+
+
+  const aadhar =
+    aadharInput.value.trim();
+
+  const patientName =
+    document
+      .getElementById('patientName')
+      .value
+      .trim();
+
+  const phone =
+    document
+      .getElementById('phone')
+      .value
+      .trim();
+
+  const email =
+    document
+      .getElementById('email')
+      .value
+      .trim();
+
+  const guardianName =
+    document
+      .getElementById('guardianName')
+      .value
+      .trim();
+
+  const guardianPhone =
+    document
+      .getElementById('guardianPhone')
+      .value
+      .trim();
+
+
+  /* =====================================================
+     VALIDATION
+  ====================================================== */
+
+  if (aadhar.length !== 12) {
+
+    showStatus(
+      'Please verify the Aadhar number first.',
+      'error'
+    );
+
+    return;
+
+  }
+
+
+  if (!patientName) {
+
+    showStatus(
+      'Patient name is required.',
+      'error'
+    );
+
+    return;
+
+  }
+
+
+  if (!/^\d{10}$/.test(phone)) {
+
+    showStatus(
+      'Please enter a valid 10-digit phone number.',
+      'error'
+    );
+
+    return;
+
+  }
+
+
+  if (
+    guardianPhone &&
+    !/^\d{10}$/.test(guardianPhone)
+  ) {
+
+    showStatus(
+      'Please enter a valid guardian phone number.',
+      'error'
+    );
+
+    return;
+
+  }
+
+
+  /* =====================================================
+     LOADING
+  ====================================================== */
+
+  registerBtn.disabled = true;
+
+  registerBtn.innerHTML = '';
+
+  const spinner =
+    document.createElement('div');
+
+  spinner.className =
+    'spinner';
+
+  registerBtn.appendChild(spinner);
+
+
+  try {
+
+    const cfg =
+      getAppConfig();
+
+
+    const patientId =
+      generatePatientId();
+
+
+    const patientData = {
+
+      patient_id:
+        patientId,
+
+      aadhar_number:
+        aadhar,
+
+      patient_name:
+        patientName,
+
+      phone:
+        phone,
+
+      email:
+        email || null,
+
+      guardian_name:
+        guardianName || null,
+
+      guardian_phone:
+        guardianPhone || null
+
+    };
+
+
+    const response =
+      await fetch(
+
+        `${cfg.SUPABASE_URL}/rest/v1/patients`,
+
+        {
+
+          method: 'POST',
+
+          headers: {
+
+            'apikey':
+              cfg.SUPABASE_ANON_KEY,
+
+            'Authorization':
+              `Bearer ${cfg.SUPABASE_ANON_KEY}`,
+
+            'Content-Type':
+              'application/json',
+
+            'Prefer':
+              'return=representation'
+
+          },
+
+          body:
+            JSON.stringify(
+              patientData
+            )
+
+        }
+
+      );
+
+
+    if (!response.ok) {
+
+      const errorText =
+        await response.text();
+
+      throw new Error(
+        errorText ||
+        `HTTP Error: ${response.status}`
+      );
+
+    }
+
+
+    /* =====================================================
+       SUCCESS
+    ====================================================== */
+
+    document
+      .getElementById(
+        'generatedPatientId'
+      )
+      .textContent =
+      patientId;
+
+
+    document
+      .getElementById(
+        'successModal'
+      )
+      .classList.add('show');
+
+
+  } catch (error) {
+
+    console.error(
+      'Registration error:',
+      error
+    );
+
+
+    showStatus(
+      `Registration failed: ${error.message}`,
+      'error'
+    );
+
+
+    registerBtn.disabled =
+      false;
+
+    registerBtn.textContent =
+      'Register Patient';
+
+  }
+
+}
+
+
+/* =========================================================
+   CLOSE SUCCESS DIALOG
+========================================================= */
+
+function closeSuccessDialog() {
+
+  document
+    .getElementById(
+      'successModal'
+    )
+    .classList.remove('show');
+
+
+  /* Reset page */
+
+  aadharInput.value = '';
+
+  document
+    .getElementById('patientName')
+    .value = '';
+
+  document
+    .getElementById('phone')
+    .value = '';
+
+  document
+    .getElementById('email')
+    .value = '';
+
+  document
+    .getElementById('guardianName')
+    .value = '';
+
+  document
+    .getElementById('guardianPhone')
+    .value = '';
+
+
+  successTick.style.display =
+    'none';
+
+
+  aadharInput.classList.remove(
+    'valid',
+    'invalid'
+  );
+
+
+  statusMessage.className =
+    'status-message';
+
+  statusMessage.textContent =
+    '';
+
+
+  checkBtn.classList.remove(
+    'hidden'
+  );
+
+  checkBtn.disabled =
+    false;
+
+  checkBtn.textContent =
+    'Check';
+
+
+  registerBtn.disabled =
+    true;
+
+  registerBtn.textContent =
+    'Register Patient';
+
+
+  disableRegistrationForm();
+
+}
+
+
+/* =========================================================
+   CLOSE MODAL WHEN CLICKING OUTSIDE
+========================================================= */
+
+document
+  .getElementById('successModal')
+  .addEventListener(
+    'click',
+    function(event) {
+
+      if (
+        event.target === this
+      ) {
+
+        closeSuccessDialog();
+
+      }
+
+    }
+  );
+
+
+</script>
+
+</body>
+
+</html>
+```
