@@ -1,879 +1,924 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
->
-
-<title>Mobile NFC - Oral Clinical Registry</title>
+<title>Oral Clinical Registry — NFC Card</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script src="config/config.js"></script>
 
 <style>
-
-/* =========================
-   GLOBAL
-========================= */
-
 *{
-  box-sizing:border-box;
+    box-sizing:border-box;
 }
 
-html,
+html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    background:#080c14;
+    color:#e5e7eb;
+    font-family:"Plus Jakarta Sans","Inter",Arial,sans-serif;
+}
+
 body{
-  margin:0;
-  min-height:100%;
+    min-height:100vh;
 }
-
-body{
-  background:#090d16;
-  color:#fff;
-  font-family:Inter,Arial,sans-serif;
-  font-size:14px;
-}
-
-button,
-select{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-}
-
 
 /* =========================
    HEADER
 ========================= */
 
 .top-nav{
-  width:100%;
-  max-width:1280px;
-  margin:auto;
-  padding:16px 18px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:18px;
-  border-bottom:1px solid #1f293d;
+    width:100%;
+    max-width:1280px;
+    margin:0 auto;
+    padding:18px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:28px;
+    border-bottom:1px solid #1f293d;
 }
 
 .brand-area{
-  display:flex;
-  align-items:center;
-  gap:11px;
-  flex-shrink:0;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-shrink:0;
 }
 
 .brand-icon{
-  width:36px;
-  height:36px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(37,99,235,.12);
-  color:#60a5fa;
-  border:1px solid rgba(37,99,235,.25);
-  border-radius:8px;
+    width:38px;
+    height:38px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(37,99,235,.12);
+    color:#60a5fa;
+    border:1px solid rgba(37,99,235,.25);
+    border-radius:9px;
 }
 
 .brand-title{
-  color:#f9fafb;
-  font-size:14px;
-  font-weight:700;
+    color:#f9fafb;
+    font-size:14px;
+    font-weight:700;
+    line-height:1.2;
 }
 
 .brand-subtitle{
-  color:#6b7280;
-  font-size:11px;
-  margin-top:2px;
+    color:#6b7280;
+    font-size:11px;
+    margin-top:3px;
 }
 
 .nav-links{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  flex-wrap:wrap;
-  justify-content:flex-end;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:5px;
+    flex-wrap:wrap;
 }
 
 .nav-link{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:8px 11px;
-  color:#9ca3af;
-  text-decoration:none;
-  font-size:11px;
-  font-weight:500;
-  border:1px solid transparent;
-  border-radius:6px;
-  white-space:nowrap;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:36px;
+    padding:8px 13px;
+    color:#9ca3af;
+    text-decoration:none;
+    font-size:12px;
+    font-weight:500;
+    border:1px solid transparent;
+    border-radius:7px;
+    white-space:nowrap;
+    transition:.18s ease;
 }
 
 .nav-link:hover{
-  color:#fff;
-  background:#111827;
-  border-color:#1f293d;
+    color:#f9fafb;
+    background:#111827;
+    border-color:#1f293d;
 }
 
 .nav-link.active{
-  color:#fff;
-  background:#1f293d;
-  border-color:#2d3748;
+    color:#fff;
+    background:#1f293d;
+    border-color:#2d3748;
 }
-
 
 /* =========================
    MAIN
 ========================= */
 
 main{
-  max-width:1100px;
-  margin:auto;
-  padding:30px 18px 50px;
+    width:100%;
+    max-width:1280px;
+    margin:0 auto;
+    padding:38px 28px 60px;
 }
 
 .pageHead{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-  margin-bottom:22px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:20px;
+    margin-bottom:26px;
 }
 
-h1{
-  font-size:23px;
-  margin:0 0 5px;
+.pageHead h1{
+    margin:0;
+    font-size:26px;
+    font-weight:700;
+    color:#f8fafc;
+    letter-spacing:-.4px;
 }
 
 .subtitle{
-  color:#778195;
-  font-size:12px;
+    margin:8px 0 0;
+    color:#788397;
+    font-size:12px;
 }
-
-
-/* =========================
-   DATABASE
-========================= */
-
-.db{
-  border:1px solid #293449;
-  background:#111827;
-  padding:9px 12px;
-  border-radius:8px;
-  font-size:11px;
-  color:#9ca3af;
-}
-
-.dot{
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  display:inline-block;
-  background:#fbbf24;
-  margin-right:7px;
-}
-
-.dot.ok{
-  background:#34d399;
-}
-
-.dot.bad{
-  background:#f87171;
-}
-
-
-/* =========================
-   NFC CARD
-========================= */
-
-.mobileNFC{
-  max-width:620px;
-  margin:25px auto;
-}
-
-.card{
-  background:#111827;
-  border:1px solid #253044;
-  border-radius:15px;
-  overflow:hidden;
-}
-
-.cardHead{
-  padding:20px;
-  border-bottom:1px solid #253044;
-}
-
-.cardHead h2{
-  margin:0;
-  font-size:16px;
-}
-
-.cardHead p{
-  margin:6px 0 0;
-  color:#718096;
-  font-size:11px;
-}
-
-.cardBody{
-  padding:28px 22px;
-  text-align:center;
-}
-
-
-/* =========================
-   NFC ICON
-========================= */
-
-.nfcIcon{
-  width:115px;
-  height:115px;
-  margin:5px auto 24px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  border-radius:50%;
-
-  background:#0c1527;
-
-  border:1px solid #29446e;
-
-  font-size:46px;
-
-  position:relative;
-}
-
-.nfcIcon.active{
-  animation:pulse 1.5s infinite;
-}
-
-.nfcIcon.active:after{
-  content:"";
-
-  position:absolute;
-
-  width:145px;
-  height:145px;
-
-  border:1px solid #2563eb;
-
-  border-radius:50%;
-
-  animation:wave 1.5s infinite;
-}
-
-@keyframes pulse{
-
-  50%{
-    box-shadow:
-      0 0 35px rgba(37,99,235,.35);
-  }
-
-}
-
-@keyframes wave{
-
-  0%{
-    transform:scale(.7);
-    opacity:.8;
-  }
-
-  100%{
-    transform:scale(1.2);
-    opacity:0;
-  }
-
-}
-
-
-/* =========================
-   TEXT
-========================= */
-
-.nfcTitle{
-  font-size:20px;
-  font-weight:700;
-  margin-bottom:8px;
-}
-
-.nfcText{
-  color:#7c8799;
-  font-size:12px;
-  line-height:1.6;
-  max-width:430px;
-  margin:0 auto 22px;
-}
-
-
-/* =========================
-   BUTTON
-========================= */
-
-.btn{
-  width:100%;
-  height:46px;
-
-  border:0;
-  border-radius:8px;
-
-  background:#2563eb;
-  color:#fff;
-
-  font-size:13px;
-  font-weight:600;
-
-  margin-top:10px;
-}
-
-.btn:hover{
-  background:#1d4ed8;
-}
-
-.btn.gray{
-  background:#1f2937;
-}
-
-.btn.gray:hover{
-  background:#2d3748;
-}
-
 
 /* =========================
    STATUS
 ========================= */
 
-.statusBox{
-  margin-top:18px;
-
-  padding:13px 15px;
-
-  border:1px solid #253044;
-
-  background:#0d1321;
-
-  border-radius:8px;
-
-  color:#9ca3af;
-
-  font-size:12px;
-
-  line-height:1.5;
+.db-status{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:#8d98aa;
+    font-size:11px;
 }
 
+.db-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#64748b;
+}
+
+.db-dot.online{
+    background:#22c55e;
+    box-shadow:0 0 10px rgba(34,197,94,.45);
+}
+
+.db-dot.error{
+    background:#ef4444;
+}
 
 /* =========================
-   MOBILE INFO
+   NFC GRID
 ========================= */
 
-.infoBox{
-  margin-top:18px;
-
-  padding:15px;
-
-  background:#0d1321;
-
-  border:1px solid #253044;
-
-  border-radius:9px;
-
-  text-align:left;
+.nfc-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
 }
 
-.infoBox strong{
-  display:block;
-
-  color:#dbe4f2;
-
-  font-size:12px;
-
-  margin-bottom:7px;
+.nfc-card{
+    background:#0d1320;
+    border:1px solid #1f293d;
+    border-radius:13px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.16);
 }
 
-.infoBox span{
-  color:#718096;
-
-  font-size:11px;
-
-  line-height:1.6;
+.card-header{
+    padding:20px 22px;
+    border-bottom:1px solid #1f293d;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:15px;
 }
 
+.card-title-area{
+    display:flex;
+    gap:13px;
+    align-items:flex-start;
+}
+
+.card-icon{
+    width:38px;
+    height:38px;
+    border-radius:9px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#111b2c;
+    border:1px solid #26334a;
+    color:#60a5fa;
+    flex-shrink:0;
+}
+
+.card-title{
+    margin:0;
+    color:#f3f4f6;
+    font-size:14px;
+    font-weight:700;
+}
+
+.card-description{
+    margin:5px 0 0;
+    color:#69758a;
+    font-size:11px;
+    line-height:1.55;
+}
+
+.method-badge{
+    padding:6px 9px;
+    border:1px solid #27344a;
+    border-radius:6px;
+    color:#8ea0ba;
+    background:#101827;
+    font-size:9px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    white-space:nowrap;
+}
+
+.card-body{
+    padding:21px 22px 23px;
+}
 
 /* =========================
-   PATIENT DIALOG
+   INFO BOX
 ========================= */
 
-dialog{
-  border:0;
-  padding:0;
-
-  background:transparent;
-
-  width:min(
-    1180px,
-    calc(100% - 18px)
-  );
+.info-box{
+    background:#0a101b;
+    border:1px solid #1c283b;
+    border-radius:9px;
+    padding:13px 14px;
+    margin-bottom:17px;
 }
 
-dialog::backdrop{
-  background:rgba(2,6,15,.85);
-  backdrop-filter:blur(7px);
+.info-label{
+    color:#68758a;
+    font-size:9px;
+    text-transform:uppercase;
+    letter-spacing:.7px;
+    font-weight:700;
+    margin-bottom:6px;
 }
 
-.patientBox{
-  background:#0d1321;
-
-  border:1px solid #2b374b;
-
-  border-radius:15px;
-
-  overflow:hidden;
-
-  max-height:90vh;
-
-  overflow-y:auto;
+.info-value{
+    color:#dbe3ef;
+    font-size:12px;
 }
-
-.patientHeader{
-  padding:22px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #111827,
-      #0d1628
-    );
-
-  border-bottom:1px solid #263247;
-
-  display:flex;
-
-  justify-content:space-between;
-
-  gap:15px;
-
-  align-items:flex-start;
-}
-
-.patientHeader h2{
-  margin:0;
-  font-size:21px;
-}
-
-.patientMeta{
-  display:flex;
-  flex-wrap:wrap;
-  gap:7px;
-  margin-top:9px;
-}
-
-.patientMeta span{
-  padding:5px 8px;
-
-  background:#172033;
-
-  border:1px solid #29364c;
-
-  border-radius:5px;
-
-  color:#9ca3af;
-
-  font-size:10px;
-}
-
 
 /* =========================
-   RISK
+   FORM
 ========================= */
 
-.risk{
-  padding:9px 13px;
-
-  border-radius:7px;
-
-  font-weight:700;
-
-  font-size:11px;
-
-  white-space:nowrap;
+.form-group{
+    margin-bottom:16px;
 }
 
-.risk.high{
-  color:#fb7185;
-  background:#351721;
-  border:1px solid #71303e;
+.form-label{
+    display:block;
+    color:#9ca8ba;
+    font-size:10px;
+    font-weight:600;
+    margin-bottom:7px;
 }
 
-.risk.medium{
-  color:#fbbf24;
-  background:#302712;
-  border:1px solid #67521c;
+select{
+    width:100%;
+    height:42px;
+    padding:0 12px;
+    border-radius:8px;
+    border:1px solid #263247;
+    background:#0a101b;
+    color:#dce4ef;
+    outline:none;
+    font-size:11px;
 }
 
-.risk.low{
-  color:#34d399;
-  background:#102b23;
-  border:1px solid #21604c;
+select:focus{
+    border-color:#3b82f6;
 }
-
 
 /* =========================
-   PATIENT BODY
+   BUTTONS
 ========================= */
 
-.patientBody{
-  padding:18px;
+.button-row{
+    display:flex;
+    gap:9px;
+    flex-wrap:wrap;
 }
 
-.quick{
-  display:grid;
-
-  grid-template-columns:
-    repeat(5,1fr);
-
-  gap:10px;
-
-  margin-bottom:18px;
+button{
+    border:0;
+    cursor:pointer;
+    font-family:inherit;
 }
 
-.quickCard{
-  background:#111827;
-
-  border:1px solid #253044;
-
-  border-radius:9px;
-
-  padding:12px;
+.btn{
+    min-height:39px;
+    padding:9px 14px;
+    border-radius:7px;
+    font-size:11px;
+    font-weight:700;
+    transition:.18s ease;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
 }
 
-.quickCard small{
-  display:block;
-
-  color:#68758a;
-
-  font-size:9px;
-
-  margin-bottom:5px;
+.btn-primary{
+    color:#fff;
+    background:#2563eb;
+    border:1px solid #3b82f6;
 }
 
-.quickCard b{
-  font-size:12px;
+.btn-primary:hover{
+    background:#1d4ed8;
+    transform:translateY(-1px);
 }
 
+.btn-secondary{
+    color:#d0d8e5;
+    background:#111827;
+    border:1px solid #27344a;
+}
+
+.btn-secondary:hover{
+    background:#182234;
+    border-color:#34435d;
+}
+
+.btn-success{
+    color:#fff;
+    background:#15803d;
+    border:1px solid #22c55e;
+}
+
+.btn-success:hover{
+    background:#166534;
+}
+
+.btn-danger{
+    color:#fecaca;
+    background:#2a1115;
+    border:1px solid #5b2027;
+}
 
 /* =========================
-   SECTIONS
+   CONNECTION PANEL
 ========================= */
 
-.section{
-  margin-top:16px;
-
-  border:1px solid #253044;
-
-  border-radius:10px;
-
-  overflow:hidden;
-
-  background:#111827;
+.connection-panel{
+    margin-top:17px;
+    padding:14px;
+    border:1px solid #1f2b3f;
+    border-radius:9px;
+    background:#0a101a;
 }
 
-.sectionTitle{
-  padding:12px 14px;
-
-  background:#151e2e;
-
-  border-bottom:1px solid #253044;
-
-  color:#60a5fa;
-
-  font-size:10px;
-
-  font-weight:700;
-
-  text-transform:uppercase;
-
-  letter-spacing:.05em;
+.connection-title{
+    font-size:10px;
+    color:#8d99ac;
+    font-weight:700;
+    margin-bottom:11px;
+    text-transform:uppercase;
+    letter-spacing:.6px;
 }
 
-.infoGrid{
-  display:grid;
-
-  grid-template-columns:
-    repeat(3,1fr);
-
-  gap:1px;
-
-  background:#253044;
+.connection-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    margin-bottom:9px;
 }
 
-.info{
-  padding:11px 12px;
-
-  background:#111827;
-
-  min-height:55px;
+.connection-row:last-child{
+    margin-bottom:0;
 }
 
-.info small{
-  display:block;
-
-  color:#68758a;
-
-  font-size:9px;
-
-  margin-bottom:4px;
+.connection-key{
+    color:#667388;
+    font-size:10px;
 }
 
-.info b{
-  display:block;
-
-  font-size:11px;
-
-  color:#edf2f7;
-
-  word-break:break-word;
+.connection-value{
+    color:#d8e0ec;
+    font-size:10px;
+    font-weight:600;
+    text-align:right;
 }
 
-.yes b{
-  color:#fbbf24;
+.status-connected{
+    color:#4ade80;
 }
 
-.no b{
-  color:#34d399;
+.status-disconnected{
+    color:#94a3b8;
 }
 
+.status-error{
+    color:#f87171;
+}
 
 /* =========================
-   LESION
+   SERIAL PORT LIST
 ========================= */
 
-.lesion{
-  display:grid;
-
-  grid-template-columns:
-    1fr 1fr;
-
-  gap:15px;
-
-  padding:15px;
+.port-list{
+    margin-top:13px;
+    display:none;
 }
 
-.lesionVisual{
-  min-height:250px;
-
-  border:1px solid #253044;
-
-  background:#0a101c;
-
-  border-radius:9px;
-
-  display:flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-  position:relative;
+.port-list.show{
+    display:block;
 }
 
-.mouth{
-  width:210px;
-  height:150px;
-
-  border:3px solid #526174;
-
-  border-radius:50%;
-
-  position:relative;
+.port-item{
+    padding:10px 11px;
+    background:#0d1522;
+    border:1px solid #202c40;
+    border-radius:7px;
+    margin-top:6px;
+    color:#9daabd;
+    font-size:10px;
 }
-
-.mouth:before{
-  content:"";
-
-  position:absolute;
-
-  width:130px;
-  height:70px;
-
-  left:37px;
-  top:36px;
-
-  border:2px solid #37465a;
-
-  border-radius:50%;
-}
-
-.lesionPoint{
-  position:absolute;
-
-  width:18px;
-  height:18px;
-
-  border-radius:50%;
-
-  background:#f87171;
-
-  box-shadow:
-    0 0 0 8px rgba(248,113,113,.13),
-    0 0 25px rgba(248,113,113,.6);
-
-  animation:lesionPulse 1.3s infinite;
-}
-
-@keyframes lesionPulse{
-
-  50%{
-    transform:scale(1.3);
-  }
-
-}
-
-.lesionInfo{
-  display:grid;
-
-  grid-template-columns:
-    1fr 1fr;
-
-  gap:9px;
-}
-
 
 /* =========================
-   FOOTER
+   ACTIVITY
 ========================= */
 
-.footer{
-  padding:15px 18px;
-
-  border-top:1px solid #253044;
-
-  color:#667085;
-
-  font-size:10px;
-
-  display:flex;
-
-  justify-content:space-between;
-
-  align-items:center;
+.activity-box{
+    margin-top:17px;
+    background:#070b12;
+    border:1px solid #1b2638;
+    border-radius:8px;
+    overflow:hidden;
 }
 
+.activity-head{
+    padding:9px 12px;
+    border-bottom:1px solid #1b2638;
+    color:#667388;
+    font-size:9px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+}
+
+.activity-log{
+    height:125px;
+    overflow:auto;
+    padding:10px 12px;
+    font-family:Consolas,monospace;
+    font-size:9px;
+    line-height:1.7;
+    color:#8190a5;
+}
+
+.log-line{
+    border-bottom:1px solid rgba(31,41,55,.35);
+    padding:1px 0;
+}
+
+.log-success{
+    color:#4ade80;
+}
+
+.log-error{
+    color:#f87171;
+}
+
+.log-info{
+    color:#60a5fa;
+}
+
+/* =========================
+   MOBILE NFC
+========================= */
+
+.mobile-feature-list{
+    display:grid;
+    gap:9px;
+    margin-bottom:17px;
+}
+
+.mobile-feature{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 11px;
+    background:#0a101b;
+    border:1px solid #1d293b;
+    border-radius:8px;
+}
+
+.feature-icon{
+    width:27px;
+    height:27px;
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#111c2d;
+    color:#60a5fa;
+    flex-shrink:0;
+}
+
+.feature-text{
+    color:#aab5c6;
+    font-size:10px;
+}
+
+.mobile-status{
+    margin-top:16px;
+    padding:12px 13px;
+    border-radius:8px;
+    background:#0a101a;
+    border:1px solid #1e2a3d;
+    font-size:10px;
+    color:#8b98ab;
+    line-height:1.5;
+}
+
+.mobile-status.supported{
+    border-color:#174c32;
+    background:#08150f;
+    color:#6ee7a0;
+}
+
+.mobile-status.unsupported{
+    border-color:#4b2026;
+    background:#160b0d;
+    color:#fca5a5;
+}
+
+/* =========================
+   PATIENT PREVIEW
+========================= */
+
+.patient-preview{
+    display:none;
+    margin-top:17px;
+    padding:14px;
+    border:1px solid #24334a;
+    border-radius:9px;
+    background:#0a101b;
+}
+
+.patient-preview.show{
+    display:block;
+}
+
+.preview-name{
+    color:#f3f4f6;
+    font-size:13px;
+    font-weight:700;
+}
+
+.preview-id{
+    margin-top:4px;
+    color:#718097;
+    font-size:10px;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.72);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:9999;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    width:100%;
+    max-width:900px;
+    max-height:90vh;
+    overflow:auto;
+    background:#0d1320;
+    border:1px solid #27344a;
+    border-radius:13px;
+    box-shadow:0 25px 80px rgba(0,0,0,.5);
+}
+
+.modal-header{
+    padding:18px 20px;
+    border-bottom:1px solid #202b3d;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+}
+
+.modal-title{
+    color:#f5f7fa;
+    font-size:15px;
+    font-weight:700;
+}
+
+.modal-close{
+    width:32px;
+    height:32px;
+    border-radius:7px;
+    color:#94a3b8;
+    background:#121b2a;
+    border:1px solid #27344a;
+    font-size:16px;
+}
+
+.modal-close:hover{
+    color:#fff;
+}
+
+.modal-body{
+    padding:20px;
+}
+
+.patient-top{
+    display:grid;
+    grid-template-columns:1.5fr 1fr 1fr;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.patient-top-box{
+    padding:13px;
+    background:#0a101b;
+    border:1px solid #1e2a3d;
+    border-radius:8px;
+}
+
+.top-label{
+    color:#657288;
+    font-size:8px;
+    text-transform:uppercase;
+    letter-spacing:.7px;
+    font-weight:700;
+}
+
+.top-value{
+    margin-top:5px;
+    color:#e2e8f0;
+    font-size:12px;
+    font-weight:600;
+}
+
+.record-section{
+    border:1px solid #1d293b;
+    border-radius:9px;
+    margin-bottom:12px;
+    overflow:hidden;
+}
+
+.record-section-title{
+    padding:11px 13px;
+    background:#101827;
+    color:#b7c2d2;
+    font-size:10px;
+    font-weight:700;
+}
+
+.record-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+}
+
+.record-item{
+    padding:11px 13px;
+    border-top:1px solid #182335;
+}
+
+.record-item:nth-child(odd){
+    border-right:1px solid #182335;
+}
+
+.record-label{
+    color:#627087;
+    font-size:8px;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+}
+
+.record-value{
+    margin-top:4px;
+    color:#cbd5e1;
+    font-size:10px;
+    word-break:break-word;
+}
+
+.risk-badge{
+    display:inline-flex;
+    padding:5px 8px;
+    border-radius:5px;
+    font-size:9px;
+    font-weight:700;
+    background:#172033;
+    color:#a9b8cc;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast{
+    position:fixed;
+    right:22px;
+    bottom:22px;
+    max-width:360px;
+    padding:12px 15px;
+    background:#111827;
+    border:1px solid #2a3850;
+    border-radius:8px;
+    color:#dbe4ef;
+    font-size:10px;
+    box-shadow:0 15px 40px rgba(0,0,0,.35);
+    transform:translateY(20px);
+    opacity:0;
+    pointer-events:none;
+    transition:.25s ease;
+    z-index:10000;
+}
+
+.toast.show{
+    opacity:1;
+    transform:translateY(0);
+}
+
+.toast.success{
+    border-color:#1d633b;
+}
+
+.toast.error{
+    border-color:#6b252c;
+}
 
 /* =========================
    RESPONSIVE
 ========================= */
 
-@media(max-width:900px){
+@media(max-width:1000px){
 
-  .top-nav{
-    flex-direction:column;
-    align-items:flex-start;
-  }
+    .nfc-grid{
+        grid-template-columns:1fr;
+    }
 
-  .nav-links{
-    width:100%;
+}
 
-    display:flex;
+@media(max-width:800px){
 
-    overflow-x:auto;
+    .top-nav{
+        max-width:none;
+        padding:16px 16px 14px;
+        display:block;
+        border-bottom:1px solid #1f293d;
+    }
 
-    flex-wrap:nowrap;
+    .brand-area{
+        width:100%;
+        margin-bottom:15px;
+    }
 
-    justify-content:flex-start;
+    .nav-links{
+        width:100%;
+        display:flex;
+        gap:6px;
+        flex-wrap:nowrap;
+        overflow-x:auto;
+        overflow-y:hidden;
+        justify-content:flex-start;
+        padding:5px;
+        background:#0d1321;
+        border:1px solid #202b3e;
+        border-radius:10px;
+        scrollbar-width:none;
+    }
 
-    padding-bottom:2px;
-  }
+    .nav-links::-webkit-scrollbar{
+        display:none;
+    }
 
-  .nav-link{
-    flex:0 0 auto;
-  }
+    .nav-link{
+        flex:0 0 auto;
+        min-height:38px;
+        padding:9px 13px;
+        border-radius:7px;
+        font-size:11px;
+        font-weight:600;
+    }
 
-  .quick{
-    grid-template-columns:
-      repeat(2,1fr);
-  }
+    main{
+        padding:25px 16px 45px;
+    }
 
-  .infoGrid{
-    grid-template-columns:
-      repeat(2,1fr);
-  }
+    .pageHead{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:12px;
+    }
 
-  .lesion{
-    grid-template-columns:1fr;
-  }
+    .patient-top{
+        grid-template-columns:1fr;
+    }
 
 }
 
 @media(max-width:600px){
 
-  main{
-    padding:
-      22px 12px 40px;
-  }
+    .top-nav{
+        padding:14px 12px 12px;
+    }
 
-  .pageHead{
-    flex-direction:column;
+    .brand-area{
+        gap:10px;
+        margin-bottom:13px;
+    }
 
-    align-items:flex-start;
-  }
+    .brand-icon{
+        width:34px;
+        height:34px;
+    }
 
-  .db{
-    width:100%;
-  }
+    .brand-title{
+        font-size:12px;
+    }
 
-  .mobileNFC{
-    margin-top:15px;
-  }
+    .brand-subtitle{
+        font-size:9px;
+    }
 
-  .cardBody{
-    padding:25px 16px;
-  }
+    .nav-links{
+        padding:4px;
+        gap:4px;
+    }
 
-  .nfcIcon{
-    width:105px;
-    height:105px;
-  }
+    .nav-link{
+        min-height:36px;
+        padding:8px 11px;
+        font-size:10px;
+    }
 
-  .nfcIcon.active:after{
-    width:135px;
-    height:135px;
-  }
+    main{
+        padding:22px 12px 40px;
+    }
 
-  .patientHeader{
-    flex-direction:column;
-  }
+    .pageHead h1{
+        font-size:20px;
+    }
 
-  .quick{
-    grid-template-columns:
-      1fr 1fr;
-  }
+    .nfc-card{
+        border-radius:11px;
+    }
 
-  .infoGrid{
-    grid-template-columns:1fr;
-  }
+    .card-header{
+        padding:17px 16px;
+    }
 
-  .lesionInfo{
-    grid-template-columns:1fr;
-  }
+    .card-body{
+        padding:16px;
+    }
+
+    .record-grid{
+        grid-template-columns:1fr;
+    }
+
+    .record-item:nth-child(odd){
+        border-right:0;
+    }
+
+    .button-row{
+        flex-direction:column;
+    }
+
+    .btn{
+        width:100%;
+    }
 
 }
-
 </style>
-
 </head>
 
-
 <body>
-
 
 <!-- =========================
      HEADER
@@ -881,1587 +926,2727 @@ dialog::backdrop{
 
 <nav class="top-nav">
 
-  <div class="brand-area">
+    <div class="brand-area">
 
-    <div class="brand-icon">
+        <div class="brand-icon">
+            <svg width="20" height="20"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2">
+                <path d="M12 3v18"/>
+                <path d="M3 12h18"/>
+                <path d="M5 5l14 14"/>
+                <path d="M19 5L5 19"/>
+            </svg>
+        </div>
 
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
+        <div>
+            <div class="brand-title">
+                Oral Clinical Registry
+            </div>
 
-        <path d="M12 3v18"/>
-        <path d="M3 12h18"/>
-        <path d="M5 5l14 14"/>
-        <path d="M19 5L5 19"/>
-
-      </svg>
-
-    </div>
-
-    <div>
-
-      <div class="brand-title">
-        Oral Clinical Registry
-      </div>
-
-      <div class="brand-subtitle">
-        Assessment Dashboard
-      </div>
+            <div class="brand-subtitle">
+                Assessment Dashboard
+            </div>
+        </div>
 
     </div>
 
-  </div>
+    <div class="nav-links">
 
+        <a href="patients.html" class="nav-link">
+            Registry Records
+        </a>
 
-  <div class="nav-links">
+        <a href="registerpatients.html" class="nav-link">
+            Register Patient
+        </a>
 
-    <a href="patients.html" class="nav-link">
-      Registry Records
-    </a>
+        <a href="analytics.html" class="nav-link">
+            Analytics
+        </a>
 
-    <a href="registerpatients.html" class="nav-link">
-      Register Patient
-    </a>
+        <a href="oral_clinical_assessment.html" class="nav-link">
+            Assessment
+        </a>
 
-    <a href="analytics.html" class="nav-link">
-      Analytics
-    </a>
+        <a href="nfc.html" class="nav-link active">
+            NFC Card
+        </a>
 
-    <a href="oral_clinical_assessment.html" class="nav-link">
-      Assessment
-    </a>
-
-    <a href="nfc.html" class="nav-link">
-      Laptop NFC
-    </a>
-
-    <a href="nfc_mobile.html" class="nav-link active">
-      Mobile NFC
-    </a>
-
-  </div>
+    </div>
 
 </nav>
 
 
 <main>
 
+    <!-- PAGE HEADER -->
 
-<!-- =========================
-     PAGE HEADER
-========================= -->
+    <div class="pageHead">
 
-<div class="pageHead">
+        <div>
 
-  <div>
+            <h1>NFC Card Management</h1>
 
-    <h1>
-      Mobile NFC
-    </h1>
+            <p class="subtitle">
+                Manage patient NFC cards using ESP32 hardware or mobile device NFC.
+            </p>
 
-    <div class="subtitle">
-      Read patient cards directly using the phone's built-in NFC
-    </div>
+        </div>
 
-  </div>
+        <div class="db-status">
 
-  <div
-    class="db"
-    id="dbStatus"
-  >
+            <span id="dbDot" class="db-dot"></span>
 
-    <span class="dot"></span>
+            <span id="dbText">
+                Connecting database...
+            </span>
 
-    Connecting...
-
-  </div>
-
-</div>
-
-
-<!-- =========================
-     MOBILE NFC
-========================= -->
-
-<div class="mobileNFC">
-
-  <div class="card">
-
-    <div class="cardHead">
-
-      <h2>
-        Read Patient Card
-      </h2>
-
-      <p>
-        Mobile NFC reader
-      </p>
+        </div>
 
     </div>
 
 
-    <div class="cardBody">
+    <!-- =====================================================
+         TWO NFC CARDS
+    ====================================================== -->
+
+    <div class="nfc-grid">
 
 
-      <div
-        class="nfcIcon active"
-        id="nfcIcon"
-      >
-        📡
-      </div>
+        <!-- =================================================
+             CARD 1 — LAPTOP NFC
+        ================================================== -->
+
+        <section class="nfc-card">
+
+            <div class="card-header">
+
+                <div class="card-title-area">
+
+                    <div class="card-icon">
+
+                        <svg width="20" height="20"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8">
+
+                            <rect x="3" y="4" width="18" height="16" rx="2"/>
+                            <path d="M7 8h10"/>
+                            <path d="M7 12h5"/>
+                            <path d="M7 16h3"/>
+
+                        </svg>
+
+                    </div>
+
+                    <div>
+
+                        <h2 class="card-title">
+                            Laptop NFC
+                        </h2>
+
+                        <p class="card-description">
+                            ESP32 + RC522 NFC reader connected through USB Serial.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="method-badge">
+                    ESP32 / RC522
+                </div>
+
+            </div>
 
 
-      <div
-        class="nfcTitle"
-        id="nfcTitle"
-      >
-        Ready to Scan
-      </div>
+            <div class="card-body">
+
+                <!-- CONNECTION -->
+
+                <div class="info-box">
+
+                    <div class="info-label">
+                        Hardware Connection
+                    </div>
+
+                    <div class="info-value" id="hardwareMessage">
+                        Connect the ESP32 NFC reader through USB.
+                    </div>
+
+                </div>
 
 
-      <div
-        class="nfcText"
-        id="nfcText"
-      >
-        Tap the button below and place the NFC card
-        near the back of your phone.
-      </div>
+                <!-- BUTTONS -->
+
+                <div class="button-row">
+
+                    <button
+                        class="btn btn-primary"
+                        id="connectBtn"
+                        onclick="connectLaptopNFC()">
+
+                        <svg width="14" height="14"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2">
+
+                            <path d="M12 2v20"/>
+                            <path d="M5 9l7-7 7 7"/>
+                            <path d="M5 15l7 7 7-7"/>
+
+                        </svg>
+
+                        Connect NFC Reader
+
+                    </button>
 
 
-      <button
-        class="btn"
-        id="scanButton"
-        onclick="startNFCScan()"
-      >
-        Scan NFC Card
-      </button>
+                    <button
+                        class="btn btn-secondary"
+                        id="refreshPortsBtn"
+                        onclick="checkSerialPorts()">
+
+                        Check Ports
+
+                    </button>
+
+                </div>
 
 
-      <button
-        class="btn gray"
-        onclick="stopNFCScan()"
-      >
-        Stop Scanning
-      </button>
+                <!-- PORT INFORMATION -->
+
+                <div class="connection-panel">
+
+                    <div class="connection-title">
+                        Serial Connection
+                    </div>
+
+                    <div class="connection-row">
+
+                        <span class="connection-key">
+                            Web Serial API
+                        </span>
+
+                        <span
+                            class="connection-value"
+                            id="serialSupport">
+                            Checking...
+                        </span>
+
+                    </div>
+
+                    <div class="connection-row">
+
+                        <span class="connection-key">
+                            Reader Status
+                        </span>
+
+                        <span
+                            class="connection-value status-disconnected"
+                            id="readerStatus">
+                            Disconnected
+                        </span>
+
+                    </div>
+
+                    <div class="connection-row">
+
+                        <span class="connection-key">
+                            Selected Port
+                        </span>
+
+                        <span
+                            class="connection-value"
+                            id="selectedPort">
+                            —
+                        </span>
+
+                    </div>
+
+                    <div class="port-list" id="portList"></div>
+
+                </div>
 
 
-      <div
-        class="statusBox"
-        id="nfcStatus"
-      >
-        NFC scanner is ready.
-      </div>
+                <!-- PATIENT -->
+
+                <div class="form-group" style="margin-top:17px;">
+
+                    <label class="form-label">
+                        Patient for NFC Card
+                    </label>
+
+                    <select id="patientSelect">
+
+                        <option value="">
+                            Select patient
+                        </option>
+
+                    </select>
+
+                </div>
 
 
-      <div class="infoBox">
+                <!-- WRITE -->
 
-        <strong>
-          Mobile NFC
-        </strong>
+                <div class="button-row">
 
-        <span>
-          This page uses the phone's built-in NFC hardware.
-          No ESP32 or RC522 is required.
-        </span>
+                    <button
+                        class="btn btn-success"
+                        id="writeLaptopBtn"
+                        onclick="writeLaptopCard()"
+                        disabled>
 
-      </div>
+                        Write Patient Card
 
+                    </button>
+
+                    <button
+                        class="btn btn-secondary"
+                        id="readLaptopBtn"
+                        onclick="readLaptopCard()"
+                        disabled>
+
+                        Read NFC Card
+
+                    </button>
+
+                </div>
+
+
+                <!-- ACTIVITY -->
+
+                <div class="activity-box">
+
+                    <div class="activity-head">
+                        NFC Activity
+                    </div>
+
+                    <div
+                        class="activity-log"
+                        id="activityLog">
+
+                        <div class="log-line">
+                            Waiting for NFC reader connection...
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CARD 2 — MOBILE NFC
+        ================================================== -->
+
+        <section class="nfc-card">
+
+            <div class="card-header">
+
+                <div class="card-title-area">
+
+                    <div class="card-icon">
+
+                        <svg width="20" height="20"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8">
+
+                            <rect x="7" y="2" width="10" height="20" rx="2"/>
+                            <path d="M10 5h4"/>
+                            <circle cx="12" cy="18" r="1"/>
+
+                        </svg>
+
+                    </div>
+
+                    <div>
+
+                        <h2 class="card-title">
+                            Mobile NFC
+                        </h2>
+
+                        <p class="card-description">
+                            Use the phone's built-in NFC without ESP32 or RC522.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="method-badge">
+                    Phone NFC
+                </div>
+
+            </div>
+
+
+            <div class="card-body">
+
+
+                <!-- FEATURES -->
+
+                <div class="mobile-feature-list">
+
+                    <div class="mobile-feature">
+
+                        <div class="feature-icon">
+
+                            <svg width="14" height="14"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2">
+
+                                <path d="M12 3v18"/>
+                                <path d="M3 12h18"/>
+
+                            </svg>
+
+                        </div>
+
+                        <div class="feature-text">
+                            No ESP32 or RC522 required
+                        </div>
+
+                    </div>
+
+
+                    <div class="mobile-feature">
+
+                        <div class="feature-icon">
+
+                            <svg width="14" height="14"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2">
+
+                                <path d="M4 12a8 8 0 0 1 16 0"/>
+                                <path d="M7 12a5 5 0 0 1 10 0"/>
+                                <path d="M10 12a2 2 0 0 1 4 0"/>
+
+                            </svg>
+
+                        </div>
+
+                        <div class="feature-text">
+                            Direct NFC communication with compatible phone
+                        </div>
+
+                    </div>
+
+
+                    <div class="mobile-feature">
+
+                        <div class="feature-icon">
+
+                            <svg width="14" height="14"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2">
+
+                                <path d="M5 12h14"/>
+                                <path d="M12 5l7 7-7 7"/>
+
+                            </svg>
+
+                        </div>
+
+                        <div class="feature-text">
+                            Patient ID is stored in an NDEF record
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PATIENT SELECT -->
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Patient for Mobile NFC Write
+                    </label>
+
+                    <select id="mobilePatientSelect">
+
+                        <option value="">
+                            Select patient
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- MOBILE BUTTONS -->
+
+                <div class="button-row">
+
+                    <button
+                        class="btn btn-success"
+                        id="mobileWriteBtn"
+                        onclick="writeMobileNFC()">
+
+                        Write NFC Card
+
+                    </button>
+
+
+                    <button
+                        class="btn btn-primary"
+                        id="mobileReadBtn"
+                        onclick="readMobileNFC()">
+
+                        Read NFC Card
+
+                    </button>
+
+                </div>
+
+
+                <!-- SUPPORT STATUS -->
+
+                <div
+                    class="mobile-status"
+                    id="mobileStatus">
+
+                    Checking mobile NFC support...
+
+                </div>
+
+
+                <!-- PREVIEW -->
+
+                <div
+                    class="patient-preview"
+                    id="mobilePatientPreview">
+
+                    <div
+                        class="preview-name"
+                        id="mobilePreviewName">
+                    </div>
+
+                    <div
+                        class="preview-id"
+                        id="mobilePreviewId">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
 
     </div>
-
-  </div>
-
-</div>
-
-
-<div
-  class="statusBox"
-  id="mainStatus"
->
-  Clinical records are loading...
-</div>
-
 
 </main>
 
 
-<!-- =========================
-     PATIENT DIALOG
-========================= -->
+<!-- =========================================================
+     PATIENT MODAL
+========================================================= -->
 
-<dialog
-  id="patientDialog"
->
+<div class="modal" id="patientModal">
 
-<div class="patientBox">
+    <div class="modal-box">
 
+        <div class="modal-header">
 
-  <div class="patientHeader">
+            <div class="modal-title">
+                Patient Clinical Record
+            </div>
 
-    <div>
+            <button
+                class="modal-close"
+                onclick="closePatientModal()">
+                ×
+            </button>
 
-      <h2 id="patientName">
-        Patient
-      </h2>
+        </div>
 
-      <div class="patientMeta">
+        <div
+            class="modal-body"
+            id="patientModalBody">
 
-        <span id="patientId">
-          ID: --
-        </span>
-
-        <span id="patientOPD">
-          OPD: --
-        </span>
-
-        <span id="patientDate">
-          Date: --
-        </span>
-
-      </div>
+        </div>
 
     </div>
-
-
-    <div
-      id="riskBadge"
-      class="risk medium"
-    >
-      Risk: --
-    </div>
-
-  </div>
-
-
-  <div class="patientBody">
-
-
-    <div class="quick">
-
-      <div class="quickCard">
-
-        <small>AGE</small>
-
-        <b id="qAge">
-          --
-        </b>
-
-      </div>
-
-
-      <div class="quickCard">
-
-        <small>SEX</small>
-
-        <b id="qSex">
-          --
-        </b>
-
-      </div>
-
-
-      <div class="quickCard">
-
-        <small>LESION</small>
-
-        <b id="qLesion">
-          --
-        </b>
-
-      </div>
-
-
-      <div class="quickCard">
-
-        <small>DIAMETER</small>
-
-        <b id="qSize">
-          --
-        </b>
-
-      </div>
-
-
-      <div class="quickCard">
-
-        <small>OSMF STAGE</small>
-
-        <b id="qStage">
-          --
-        </b>
-
-      </div>
-
-    </div>
-
-
-    <div id="patientSections"></div>
-
-  </div>
-
-
-  <div class="footer">
-
-    <span>
-      Clinical Record • Supabase
-    </span>
-
-    <button
-      class="btn gray"
-      style="width:auto;margin:0;padding:0 15px"
-      onclick="closePatient()"
-    >
-      Close
-    </button>
-
-  </div>
-
 
 </div>
 
-</dialog>
+
+<!-- TOAST -->
+
+<div class="toast" id="toast"></div>
 
 
 <script>
 
-/* =====================================================
-   CONFIGURATION
-===================================================== */
+/* =========================================================
+   SUPABASE
+========================================================= */
 
-const TABLE_NAME =
-  "oral_clinical_assessments";
+let supabaseClient = null;
+
+try {
+
+    if (
+        typeof SUPABASE_URL !== "undefined" &&
+        typeof SUPABASE_ANON_KEY !== "undefined"
+    ) {
+
+        supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_ANON_KEY
+            );
+
+    }
+
+} catch(error) {
+
+    console.error(error);
+
+}
+
+
+/* =========================================================
+   GLOBAL VARIABLES
+========================================================= */
 
 let cachedPatients = [];
 
-let ndefReader = null;
+let serialPort = null;
+let serialReader = null;
+let serialWriter = null;
+
+let serialBuffer = "";
+
+let mobileNDEFReader = null;
+
+let isSerialConnected = false;
 
 
-/* =====================================================
-   DOM
-===================================================== */
+/* =========================================================
+   DATABASE STATUS
+========================================================= */
 
-const dbStatus =
-  document.getElementById("dbStatus");
+async function checkDatabase(){
 
-const nfcStatus =
-  document.getElementById("nfcStatus");
+    const dot =
+        document.getElementById("dbDot");
 
-const mainStatus =
-  document.getElementById("mainStatus");
+    const text =
+        document.getElementById("dbText");
 
-const patientDialog =
-  document.getElementById("patientDialog");
+    if(!supabaseClient){
 
+        dot.className = "db-dot error";
+        text.textContent = "Database configuration missing";
 
-/* =====================================================
-   SUPABASE CONFIG
-===================================================== */
-
-function getConfig(){
-
-  if(window.CONFIG)
-    return window.CONFIG;
-
-  if(typeof CONFIG !== "undefined")
-    return CONFIG;
-
-  throw new Error(
-    "config/config.js not found or CONFIG is missing."
-  );
-
-}
-
-
-/* =====================================================
-   LOAD PATIENTS
-===================================================== */
-
-async function loadPatients(){
-
-  try{
-
-    const cfg =
-      getConfig();
-
-
-    if(
-      !cfg.SUPABASE_URL ||
-      !cfg.SUPABASE_ANON_KEY
-    ){
-
-      throw new Error(
-        "Supabase configuration missing."
-      );
+        return;
 
     }
-
-
-    const supabase =
-      window.supabase.createClient(
-        cfg.SUPABASE_URL,
-        cfg.SUPABASE_ANON_KEY
-      );
-
-
-    const {data,error} =
-      await supabase
-        .from(TABLE_NAME)
-        .select("*")
-        .order(
-          "created_at",
-          {
-            ascending:false
-          }
-        );
-
-
-    if(error)
-      throw error;
-
-
-    cachedPatients =
-      data || [];
-
-
-    dbStatus.innerHTML =
-      '<span class="dot ok"></span>' +
-      cachedPatients.length +
-      " clinical records";
-
-
-    mainStatus.textContent =
-      "Clinical records loaded. NFC scanner is ready.";
-
-  }
-
-  catch(error){
-
-    console.error(error);
-
-    dbStatus.innerHTML =
-      '<span class="dot bad"></span> Database error';
-
-    mainStatus.textContent =
-      error.message;
-
-  }
-
-}
-
-
-/* =====================================================
-   CHECK WEB NFC
-===================================================== */
-
-function isNFCAvailable(){
-
-  return "NDEFReader" in window;
-
-}
-
-
-/* =====================================================
-   START NFC SCAN
-===================================================== */
-
-async function startNFCScan(){
-
-  if(!isNFCAvailable()){
-
-    setNFCStatus(
-      "NFC Not Supported",
-      "Web NFC is not available in this browser. Use a supported Android browser such as Chrome and open this page over HTTPS.",
-      "!"
-    );
-
-    return;
-
-  }
-
-
-  try{
-
-    ndefReader =
-      new NDEFReader();
-
-
-    await ndefReader.scan();
-
-
-    setNFCStatus(
-      "Ready to Scan",
-      "Hold the NFC card near the back of your phone.",
-      "📡"
-    );
-
-
-    mainStatus.textContent =
-      "NFC scanning started. Bring the card close to the phone.";
-
-
-    ndefReader.onreadingerror =
-      function(){
-
-        setNFCStatus(
-          "Read Error",
-          "The NFC card could not be read. Try again.",
-          "!"
-        );
-
-      };
-
-
-    ndefReader.onreading =
-      function(event){
-
-        handleNFCReading(event);
-
-      };
-
-  }
-
-  catch(error){
-
-    console.error(error);
-
-    setNFCStatus(
-      "NFC Error",
-      error.message ||
-      "Unable to start NFC scanning.",
-      "!"
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   HANDLE NFC READING
-===================================================== */
-
-async function handleNFCReading(event){
-
-  console.log(
-    "NFC serial number:",
-    event.serialNumber
-  );
-
-
-  setNFCStatus(
-    "Card Found",
-    "Reading patient information...",
-    "✓"
-  );
-
-
-  let patientId = "";
-
-
-  try{
-
-    const records =
-      event.message.records || [];
-
-
-    for(
-      const record of records
-    ){
-
-      console.log(
-        "NFC record:",
-        record.recordType
-      );
-
-
-      /* ---------------------------------------------
-         TEXT RECORD
-      --------------------------------------------- */
-
-      if(
-        record.recordType === "text"
-      ){
-
-        const decoder =
-          new TextDecoder(
-            record.encoding ||
-            "utf-8"
-          );
-
-
-        const text =
-          decoder.decode(
-            record.data
-          ).trim();
-
-
-        console.log(
-          "NFC text:",
-          text
-        );
-
-
-        patientId =
-          extractPatientId(text);
-
-
-        if(patientId)
-          break;
-
-      }
-
-
-      /* ---------------------------------------------
-         MIME JSON RECORD
-      --------------------------------------------- */
-
-      if(
-        record.recordType ===
-        "application/json"
-      ){
-
-        const decoder =
-          new TextDecoder();
-
-
-        const text =
-          decoder.decode(
-            record.data
-          );
-
-
-        try{
-
-          const obj =
-            JSON.parse(text);
-
-
-          if(obj.patient_id){
-
-            patientId =
-              String(
-                obj.patient_id
-              ).trim();
-
-            break;
-
-          }
-
-        }
-
-        catch(error){
-
-          console.error(
-            "Invalid JSON:",
-            error
-          );
-
-        }
-
-      }
-
-    }
-
-
-    /*
-      Some cards may contain a raw payload such as:
-
-      P-1006
-
-      or:
-
-      {"patient_id":"P-1006"}
-    */
-
-
-    if(!patientId){
-
-      setNFCStatus(
-        "Patient ID Not Found",
-        "The NFC card was detected, but no patient ID was found.",
-        "!"
-      );
-
-      return;
-
-    }
-
-
-    handlePatientID(
-      patientId
-    );
-
-  }
-
-  catch(error){
-
-    console.error(error);
-
-    setNFCStatus(
-      "Read Error",
-      "Unable to process the NFC card.",
-      "!"
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   EXTRACT PATIENT ID
-===================================================== */
-
-function extractPatientId(text){
-
-  text =
-    String(
-      text || ""
-    ).trim();
-
-
-  if(!text)
-    return "";
-
-
-  /*
-    JSON
-  */
-
-  if(
-    text.startsWith("{")
-  ){
 
     try{
 
-      const obj =
-        JSON.parse(text);
+        const { error } =
+            await supabaseClient
+                .from("oral_clinical_assessments")
+                .select("patient_id")
+                .limit(1);
 
+        if(error) throw error;
 
-      if(obj.patient_id)
-        return String(
-          obj.patient_id
-        ).trim();
+        dot.className = "db-dot online";
+        text.textContent = "Database connected";
+
+    }catch(error){
+
+        console.error(error);
+
+        dot.className = "db-dot error";
+        text.textContent = "Database connection error";
 
     }
 
-    catch(error){
+}
 
-      console.error(
-        error
-      );
+
+/* =========================================================
+   LOAD PATIENTS
+========================================================= */
+
+async function loadPatients(){
+
+    if(!supabaseClient){
+
+        showToast(
+            "Supabase is not configured.",
+            "error"
+        );
+
+        return;
 
     }
 
-  }
+    try{
 
+        const { data, error } =
+            await supabaseClient
+                .from("oral_clinical_assessments")
+                .select("*")
+                .order("created_at", {
+                    ascending:false
+                });
 
-  /*
-    NDEF style
-  */
+        if(error) throw error;
 
-  if(
-    text.toUpperCase()
-      .startsWith("PATIENT_ID:")
-  ){
+        cachedPatients = data || [];
 
-    return text
-      .substring(
-        "PATIENT_ID:".length
-      )
-      .trim();
+        populatePatientSelects();
 
-  }
+        addLog(
+            "Loaded " +
+            cachedPatients.length +
+            " patient records.",
+            "success"
+        );
 
+    }catch(error){
 
-  /*
-    Direct patient ID
-  */
+        console.error(error);
 
-  return text;
+        addLog(
+            "Unable to load patient records.",
+            "error"
+        );
 
-}
-
-
-/* =====================================================
-   NFC STATUS
-===================================================== */
-
-function setNFCStatus(
-  title,
-  text,
-  icon
-){
-
-  document.getElementById(
-    "nfcTitle"
-  ).textContent =
-    title;
-
-
-  document.getElementById(
-    "nfcText"
-  ).textContent =
-    text;
-
-
-  document.getElementById(
-    "nfcIcon"
-  ).textContent =
-    icon;
-
-
-  nfcStatus.textContent =
-    text;
+    }
 
 }
 
 
-/* =====================================================
-   STOP NFC
-===================================================== */
+/* =========================================================
+   POPULATE SELECTS
+========================================================= */
 
-function stopNFCScan(){
+function populatePatientSelects(){
 
-  ndefReader =
-    null;
+    const desktopSelect =
+        document.getElementById("patientSelect");
+
+    const mobileSelect =
+        document.getElementById("mobilePatientSelect");
+
+    desktopSelect.innerHTML =
+        `<option value="">Select patient</option>`;
+
+    mobileSelect.innerHTML =
+        `<option value="">Select patient</option>`;
+
+    const seen = new Set();
+
+    cachedPatients.forEach(patient => {
+
+        const id =
+            patient.patient_id;
+
+        if(!id) return;
+
+        const key =
+            String(id).toLowerCase();
+
+        if(seen.has(key)) return;
+
+        seen.add(key);
+
+        const name =
+            patient.patient_name ||
+            "Unnamed Patient";
+
+        const optionText =
+            `${name} — ${id}`;
+
+        const option1 =
+            document.createElement("option");
+
+        option1.value = id;
+        option1.textContent = optionText;
+
+        desktopSelect.appendChild(option1);
 
 
-  setNFCStatus(
-    "Ready to Scan",
-    "Tap Scan NFC Card and place the card near the phone.",
-    "📡"
-  );
+        const option2 =
+            document.createElement("option");
 
+        option2.value = id;
+        option2.textContent = optionText;
 
-  mainStatus.textContent =
-    "NFC scanner stopped.";
+        mobileSelect.appendChild(option2);
+
+    });
 
 }
 
 
-/* =====================================================
-   PATIENT MATCH
-===================================================== */
+/* =========================================================
+   PATIENT LOOKUP
+========================================================= */
 
-function handlePatientID(
-  patientId
-){
+function findPatient(patientId){
 
-  patientId =
-    String(
-      patientId || ""
-    )
-    .trim();
+    if(!patientId) return null;
+
+    const clean =
+        String(patientId)
+            .trim()
+            .toLowerCase();
+
+    return cachedPatients.find(patient => {
+
+        return String(patient.patient_id || "")
+            .trim()
+            .toLowerCase() === clean;
+
+    }) || null;
+
+}
 
 
-  if(!patientId)
-    return;
+/* =========================================================
+   LOG
+========================================================= */
+
+function addLog(message, type=""){
+
+    const log =
+        document.getElementById("activityLog");
+
+    const line =
+        document.createElement("div");
+
+    line.className =
+        "log-line " +
+        (type ? "log-" + type : "");
+
+    const time =
+        new Date().toLocaleTimeString();
+
+    line.textContent =
+        `[${time}] ${message}`;
+
+    log.appendChild(line);
+
+    log.scrollTop =
+        log.scrollHeight;
+
+}
 
 
-  const patient =
-    cachedPatients.find(
-      p =>
-        String(
-          p.patient_id || ""
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer = null;
+
+function showToast(message, type=""){
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent = message;
+
+    toast.className =
+        "toast show " + type;
+
+    clearTimeout(toastTimer);
+
+    toastTimer =
+        setTimeout(() => {
+
+            toast.className = "toast";
+
+        }, 3500);
+
+}
+
+
+/* =========================================================
+   SERIAL API SUPPORT
+========================================================= */
+
+function checkSerialSupport(){
+
+    const support =
+        document.getElementById("serialSupport");
+
+    if("serial" in navigator){
+
+        support.textContent =
+            "Supported";
+
+        support.className =
+            "connection-value status-connected";
+
+        return true;
+
+    }
+
+    support.textContent =
+        "Not Supported";
+
+    support.className =
+        "connection-value status-error";
+
+    return false;
+
+}
+
+
+/* =========================================================
+   CHECK SERIAL PORTS
+========================================================= */
+
+async function checkSerialPorts(){
+
+    if(!checkSerialSupport()){
+
+        showToast(
+            "Web Serial is not supported in this browser.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    try{
+
+        const ports =
+            await navigator.serial.getPorts();
+
+        const list =
+            document.getElementById("portList");
+
+        list.innerHTML = "";
+
+        list.classList.add("show");
+
+        if(ports.length === 0){
+
+            list.innerHTML = `
+                <div class="port-item">
+                    No previously authorized serial ports found.
+                    Click "Connect NFC Reader" to select the ESP32.
+                </div>
+            `;
+
+            addLog(
+                "No authorized serial ports found.",
+                "info"
+            );
+
+            return;
+
+        }
+
+        ports.forEach((port,index) => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "port-item";
+
+            const info =
+                port.getInfo();
+
+            const usbVendor =
+                info.usbVendorId
+                    ? "VID: " + info.usbVendorId
+                    : "USB device";
+
+            item.textContent =
+                `Port ${index + 1} — ${usbVendor}`;
+
+            list.appendChild(item);
+
+        });
+
+        addLog(
+            `${ports.length} serial port(s) detected.`,
+            "success"
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        addLog(
+            "Unable to check serial ports: " +
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CONNECT LAPTOP NFC
+========================================================= */
+
+async function connectLaptopNFC(){
+
+    if(!checkSerialSupport()){
+
+        showToast(
+            "Use Chrome or another browser supporting Web Serial.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    try{
+
+        addLog(
+            "Checking available serial ports...",
+            "info"
+        );
+
+        const existingPorts =
+            await navigator.serial.getPorts();
+
+        addLog(
+            `${existingPorts.length} authorized port(s) found.`,
+            "info"
+        );
+
+
+        /*
+         * Request the user to select the ESP32.
+         * Browser shows the available serial ports.
+         */
+
+        serialPort =
+            await navigator.serial.requestPort();
+
+
+        await serialPort.open({
+            baudRate:115200
+        });
+
+
+        isSerialConnected = true;
+
+        const info =
+            serialPort.getInfo();
+
+        document.getElementById(
+            "readerStatus"
+        ).textContent =
+            "Connected";
+
+        document.getElementById(
+            "readerStatus"
+        ).className =
+            "connection-value status-connected";
+
+        let portName = "ESP32 / USB Serial";
+
+        if(info.usbVendorId){
+
+            portName +=
+                ` (VID ${info.usbVendorId}`;
+
+            if(info.usbProductId){
+
+                portName +=
+                    `, PID ${info.usbProductId}`;
+
+            }
+
+            portName += ")";
+
+        }
+
+        document.getElementById(
+            "selectedPort"
+        ).textContent =
+            portName;
+
+        document.getElementById(
+            "hardwareMessage"
+        ).textContent =
+            "ESP32 NFC reader connected successfully.";
+
+        document.getElementById(
+            "writeLaptopBtn"
+        ).disabled = false;
+
+        document.getElementById(
+            "readLaptopBtn"
+        ).disabled = false;
+
+        addLog(
+            "ESP32 NFC reader connected.",
+            "success"
+        );
+
+        showToast(
+            "NFC reader connected.",
+            "success"
+        );
+
+
+        startSerialReader();
+
+    }catch(error){
+
+        console.error(error);
+
+        if(error.name === "NotFoundError"){
+
+            addLog(
+                "No serial port selected.",
+                "error"
+            );
+
+        }else{
+
+            addLog(
+                "Connection failed: " +
+                error.message,
+                "error"
+            );
+
+        }
+
+        showToast(
+            "Unable to connect NFC reader.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SERIAL READER
+========================================================= */
+
+async function startSerialReader(){
+
+    if(!serialPort) return;
+
+    try{
+
+        const decoder =
+            new TextDecoderStream();
+
+        serialPort.readable
+            .pipeTo(decoder.writable);
+
+        serialReader =
+            decoder.readable.getReader();
+
+
+        while(true){
+
+            const {value, done} =
+                await serialReader.read();
+
+            if(done) break;
+
+            if(value){
+
+                serialBuffer += value;
+
+                let index;
+
+                while(
+                    (index =
+                        serialBuffer.indexOf("\n")) !== -1
+                ){
+
+                    const line =
+                        serialBuffer
+                            .slice(0,index)
+                            .trim();
+
+                    serialBuffer =
+                        serialBuffer.slice(index + 1);
+
+                    if(line){
+
+                        handleESP32Message(line);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        isSerialConnected = false;
+
+        document.getElementById(
+            "readerStatus"
+        ).textContent =
+            "Disconnected";
+
+        document.getElementById(
+            "readerStatus"
+        ).className =
+            "connection-value status-disconnected";
+
+        addLog(
+            "Serial connection closed.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   HANDLE ESP32 MESSAGE
+========================================================= */
+
+function handleESP32Message(message){
+
+    addLog(message, "info");
+
+
+    if(message === "WAITING_FOR_CARD"){
+
+        showToast(
+            "Place the NFC card on the reader.",
+            "info"
+        );
+
+    }
+
+
+    else if(message.startsWith("UID:")){
+
+        const uid =
+            message.substring(4).trim();
+
+        addLog(
+            "NFC UID detected: " + uid,
+            "success"
+        );
+
+    }
+
+
+    else if(message === "AUTH_SUCCESS"){
+
+        addLog(
+            "NFC authentication successful.",
+            "success"
+        );
+
+    }
+
+
+    else if(message.startsWith("PATIENT_ID:")){
+
+        const patientId =
+            message
+                .substring("PATIENT_ID:".length)
+                .trim();
+
+        processReadPatient(patientId);
+
+    }
+
+
+    else if(message.startsWith("NDEF_JSON:")){
+
+        try{
+
+            const jsonText =
+                message
+                    .substring("NDEF_JSON:".length)
+                    .trim();
+
+            const json =
+                JSON.parse(jsonText);
+
+            if(json.patient_id){
+
+                processReadPatient(
+                    json.patient_id
+                );
+
+            }
+
+        }catch(error){
+
+            addLog(
+                "Invalid NDEF JSON.",
+                "error"
+            );
+
+        }
+
+    }
+
+
+    else if(message === "READ_SUCCESS"){
+
+        addLog(
+            "NFC card read successfully.",
+            "success"
+        );
+
+    }
+
+
+    else if(message === "WRITE_SUCCESS"){
+
+        addLog(
+            "Patient ID written successfully.",
+            "success"
+        );
+
+        showToast(
+            "Patient card written successfully.",
+            "success"
+        );
+
+    }
+
+
+    else if(message.startsWith("AUTH_ERROR")){
+
+        addLog(
+            "NFC authentication failed.",
+            "error"
+        );
+
+    }
+
+
+    else if(message.startsWith("READ_ERROR")){
+
+        addLog(
+            "NFC read failed.",
+            "error"
+        );
+
+    }
+
+
+    else if(message.startsWith("WRITE_ERROR")){
+
+        addLog(
+            "NFC write failed.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SEND SERIAL COMMAND
+========================================================= */
+
+async function sendSerialCommand(command){
+
+    if(
+        !serialPort ||
+        !serialPort.writable
+    ){
+
+        throw new Error(
+            "NFC reader is not connected."
+        );
+
+    }
+
+    const encoder =
+        new TextEncoder();
+
+    serialWriter =
+        serialPort.writable.getWriter();
+
+    await serialWriter.write(
+        encoder.encode(command + "\n")
+    );
+
+    serialWriter.releaseLock();
+
+}
+
+
+/* =========================================================
+   WRITE LAPTOP NFC
+========================================================= */
+
+async function writeLaptopCard(){
+
+    const patientId =
+        document.getElementById(
+            "patientSelect"
+        ).value;
+
+    if(!patientId){
+
+        showToast(
+            "Select a patient first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    if(!isSerialConnected){
+
+        showToast(
+            "Connect the NFC reader first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    try{
+
+        const patient =
+            findPatient(patientId);
+
+        if(!patient){
+
+            showToast(
+                "Patient record not found.",
+                "error"
+            );
+
+            return;
+
+        }
+
+        addLog(
+            `Preparing card for ${patientId}...`,
+            "info"
+        );
+
+        /*
+         * ESP32 receives the command.
+         *
+         * IMPORTANT:
+         * Your ESP32 firmware should convert this
+         * patient ID into an NDEF record.
+         */
+
+        await sendSerialCommand(
+            `WRITE:${patientId}`
+        );
+
+        addLog(
+            "WRITE command sent to ESP32.",
+            "success"
+        );
+
+        showToast(
+            "Place NFC card on RC522 reader.",
+            "success"
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        addLog(
+            "Write command failed: " +
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   READ LAPTOP NFC
+========================================================= */
+
+async function readLaptopCard(){
+
+    if(!isSerialConnected){
+
+        showToast(
+            "Connect the NFC reader first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    try{
+
+        addLog(
+            "Starting NFC card read...",
+            "info"
+        );
+
+        await sendSerialCommand(
+            "READ"
+        );
+
+        showToast(
+            "Place NFC card on RC522.",
+            "success"
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        addLog(
+            "Read command failed: " +
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   PROCESS READ PATIENT
+========================================================= */
+
+function processReadPatient(patientId){
+
+    patientId =
+        String(patientId)
+            .trim()
+            .replace(/^["']|["']$/g,"");
+
+    addLog(
+        "Patient ID received: " +
+        patientId,
+        "success"
+    );
+
+    const patient =
+        findPatient(patientId);
+
+    if(!patient){
+
+        showToast(
+            `No patient found for ${patientId}.`,
+            "error"
+        );
+
+        addLog(
+            "Patient record not found.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    renderPatient(patient);
+
+}
+
+
+/* =========================================================
+   MOBILE NFC SUPPORT
+========================================================= */
+
+function checkMobileNFCSupport(){
+
+    const status =
+        document.getElementById(
+            "mobileStatus"
+        );
+
+    if("NDEFReader" in window){
+
+        status.className =
+            "mobile-status supported";
+
+        status.textContent =
+            "Web NFC is supported. Tap Read NFC Card or Write NFC Card and bring the card near the phone.";
+
+        return true;
+
+    }
+
+    status.className =
+        "mobile-status unsupported";
+
+    status.textContent =
+        "Web NFC is not supported in this browser/device. Use a supported Android browser such as Chrome and serve this page over HTTPS.";
+
+    return false;
+
+}
+
+
+/* =========================================================
+   MOBILE NFC — WRITE
+========================================================= */
+
+async function writeMobileNFC(){
+
+    if(!checkMobileNFCSupport()){
+
+        showToast(
+            "Mobile NFC is not supported on this device.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const patientId =
+        document.getElementById(
+            "mobilePatientSelect"
+        ).value;
+
+    if(!patientId){
+
+        showToast(
+            "Select a patient first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const patient =
+        findPatient(patientId);
+
+    if(!patient){
+
+        showToast(
+            "Patient record not found.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        const ndef =
+            new NDEFReader();
+
+        document.getElementById(
+            "mobileStatus"
+        ).textContent =
+            "Hold the NFC card near the phone...";
+
+
+        /*
+         * Write a simple text record.
+         *
+         * Example payload:
+         *
+         * PATIENT_ID:P-1006
+         *
+         * This is easy for both phone and ESP32
+         * firmware to understand.
+         */
+
+        await ndef.write({
+
+            records:[
+                {
+                    recordType:"text",
+                    data:`PATIENT_ID:${patientId}`
+                }
+            ]
+
+        });
+
+
+        document.getElementById(
+            "mobileStatus"
+        ).className =
+            "mobile-status supported";
+
+        document.getElementById(
+            "mobileStatus"
+        ).textContent =
+            `NFC card successfully written with ${patientId}.`;
+
+        showMobilePreview(patient);
+
+        showToast(
+            "Mobile NFC card written successfully.",
+            "success"
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById(
+            "mobileStatus"
+        ).className =
+            "mobile-status unsupported";
+
+        document.getElementById(
+            "mobileStatus"
+        ).textContent =
+            "NFC write failed: " +
+            error.message;
+
+        showToast(
+            "NFC write failed.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE NFC — READ
+========================================================= */
+
+async function readMobileNFC(){
+
+    if(!checkMobileNFCSupport()){
+
+        showToast(
+            "Mobile NFC is not supported.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        mobileNDEFReader =
+            new NDEFReader();
+
+
+        document.getElementById(
+            "mobileStatus"
+        ).className =
+            "mobile-status supported";
+
+        document.getElementById(
+            "mobileStatus"
+        ).textContent =
+            "Ready. Hold the NFC card near the phone.";
+
+
+        await mobileNDEFReader.scan();
+
+
+        mobileNDEFReader.onreadingerror =
+            () => {
+
+                document.getElementById(
+                    "mobileStatus"
+                ).textContent =
+                    "Unable to read the NFC card. Try again.";
+
+                showToast(
+                    "NFC read failed.",
+                    "error"
+                );
+
+            };
+
+
+        mobileNDEFReader.onreading =
+            event => {
+
+                handleMobileNFCReading(
+                    event
+                );
+
+            };
+
+
+        showToast(
+            "NFC reader ready. Tap the card.",
+            "success"
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById(
+            "mobileStatus"
+        ).className =
+            "mobile-status unsupported";
+
+        document.getElementById(
+            "mobileStatus"
+        ).textContent =
+            "Unable to start NFC reader: " +
+            error.message;
+
+        showToast(
+            "Unable to start mobile NFC.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   HANDLE MOBILE NFC READING
+========================================================= */
+
+async function handleMobileNFCReading(event){
+
+    let patientId = null;
+
+
+    try{
+
+        for(
+            const record of event.message.records
+        ){
+
+            const data =
+                await decodeNDEFRecord(record);
+
+
+            if(!data) continue;
+
+
+            /*
+             * Format 1:
+             *
+             * PATIENT_ID:P-1006
+             */
+
+            if(
+                data
+                    .toUpperCase()
+                    .startsWith("PATIENT_ID:")
+            ){
+
+                patientId =
+                    data
+                        .substring(
+                            "PATIENT_ID:".length
+                        )
+                        .trim();
+
+                break;
+
+            }
+
+
+            /*
+             * Format 2:
+             *
+             * {"patient_id":"P-1006"}
+             */
+
+            if(
+                data.trim().startsWith("{")
+            ){
+
+                try{
+
+                    const json =
+                        JSON.parse(data);
+
+                    if(json.patient_id){
+
+                        patientId =
+                            json.patient_id;
+
+                        break;
+
+                    }
+
+                }catch(e){}
+
+            }
+
+
+            /*
+             * Format 3:
+             *
+             * Direct patient ID
+             */
+
+            if(
+                /^P-\d+$/i.test(
+                    data.trim()
+                )
+            ){
+
+                patientId =
+                    data.trim();
+
+                break;
+
+            }
+
+        }
+
+
+        if(!patientId){
+
+            document.getElementById(
+                "mobileStatus"
+            ).textContent =
+                "NFC card detected, but no valid patient ID was found.";
+
+            showToast(
+                "No patient ID found on NFC card.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        processMobilePatient(
+            patientId
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Unable to process NFC data.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   DECODE NDEF RECORD
+========================================================= */
+
+async function decodeNDEFRecord(record){
+
+    try{
+
+        if(record.recordType === "text"){
+
+            const decoder =
+                new TextDecoder(
+                    record.encoding || "utf-8"
+                );
+
+            let text =
+                decoder.decode(
+                    record.data
+                );
+
+
+            /*
+             * Web NFC text records may contain
+             * language information internally.
+             */
+
+            return text.trim();
+
+        }
+
+
+        if(
+            record.recordType ===
+            "application/json"
+        ){
+
+            const decoder =
+                new TextDecoder();
+
+            return decoder
+                .decode(record.data)
+                .trim();
+
+        }
+
+
+        if(
+            record.recordType === "url" ||
+            record.recordType === "absolute-url"
+        ){
+
+            const decoder =
+                new TextDecoder();
+
+            return decoder
+                .decode(record.data)
+                .trim();
+
+        }
+
+
+        const decoder =
+            new TextDecoder();
+
+        return decoder
+            .decode(record.data)
+            .trim();
+
+    }catch(error){
+
+        console.error(
+            "NDEF decode error:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+
+/* =========================================================
+   PROCESS MOBILE PATIENT
+========================================================= */
+
+function processMobilePatient(patientId){
+
+    patientId =
+        String(patientId)
+            .trim();
+
+    const patient =
+        findPatient(patientId);
+
+    if(!patient){
+
+        document.getElementById(
+            "mobileStatus"
+        ).className =
+            "mobile-status unsupported";
+
+        document.getElementById(
+            "mobileStatus"
+        ).textContent =
+            `NFC read ${patientId}, but no matching patient exists in the registry.`;
+
+        showToast(
+            "Patient not found in registry.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "mobileStatus"
+    ).className =
+        "mobile-status supported";
+
+    document.getElementById(
+        "mobileStatus"
+    ).textContent =
+        `NFC card read successfully. Patient ${patientId} found.`;
+
+
+    showMobilePreview(patient);
+
+    showToast(
+        `Patient ${patientId} found.`,
+        "success"
+    );
+
+
+    renderPatient(patient);
+
+}
+
+
+/* =========================================================
+   MOBILE PATIENT PREVIEW
+========================================================= */
+
+function showMobilePreview(patient){
+
+    const preview =
+        document.getElementById(
+            "mobilePatientPreview"
+        );
+
+    const name =
+        document.getElementById(
+            "mobilePreviewName"
+        );
+
+    const id =
+        document.getElementById(
+            "mobilePreviewId"
+        );
+
+    name.textContent =
+        patient.patient_name ||
+        "Unnamed Patient";
+
+    id.textContent =
+        "Patient ID: " +
+        (patient.patient_id || "—");
+
+    preview.classList.add("show");
+
+}
+
+
+/* =========================================================
+   RENDER PATIENT
+========================================================= */
+
+function renderPatient(patient){
+
+    const body =
+        document.getElementById(
+            "patientModalBody"
+        );
+
+
+    const value =
+        v =>
+            v === null ||
+            v === undefined ||
+            v === ""
+                ? "—"
+                : String(v);
+
+
+    const field =
+        (label, val) => {
+
+            return `
+                <div class="record-item">
+                    <div class="record-label">
+                        ${escapeHTML(label)}
+                    </div>
+
+                    <div class="record-value">
+                        ${escapeHTML(value(val))}
+                    </div>
+                </div>
+            `;
+
+        };
+
+
+    const section =
+        (number, title, fields) => {
+
+            return `
+                <div class="record-section">
+
+                    <div class="record-section-title">
+                        ${number} &nbsp; ${title}
+                    </div>
+
+                    <div class="record-grid">
+                        ${fields}
+                    </div>
+
+                </div>
+            `;
+
+        };
+
+
+    let html = `
+
+        <div class="patient-top">
+
+            <div class="patient-top-box">
+
+                <div class="top-label">
+                    Patient
+                </div>
+
+                <div class="top-value">
+                    ${escapeHTML(
+                        value(patient.patient_name)
+                    )}
+                </div>
+
+            </div>
+
+
+            <div class="patient-top-box">
+
+                <div class="top-label">
+                    Patient ID
+                </div>
+
+                <div class="top-value">
+                    ${escapeHTML(
+                        value(patient.patient_id)
+                    )}
+                </div>
+
+            </div>
+
+
+            <div class="patient-top-box">
+
+                <div class="top-label">
+                    OPD Number
+                </div>
+
+                <div class="top-value">
+                    ${escapeHTML(
+                        value(patient.opd_number)
+                    )}
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    /* 01 */
+
+    html += section(
+        "01",
+        "Patient Details",
+
+        field("Patient ID",patient.patient_id) +
+        field("Patient Name",patient.patient_name) +
+        field("OPD Number",patient.opd_number) +
+        field("Age",patient.age) +
+        field("Sex",patient.sex) +
+        field("Religion",patient.religion) +
+        field("Occupation",patient.occupation) +
+        field("Residence",patient.residence) +
+        field("Marital Status",patient.marital_status) +
+        field("Patient Location",patient.patient_location) +
+        field("Latitude",patient.latitude) +
+        field("Longitude",patient.longitude)
+
+    );
+
+
+    /* 02 */
+
+    html += section(
+        "02",
+        "Smoking History",
+
+        field("Smoking",patient.smoking) +
+        field(
+            "Cigarette Smoking",
+            patient.cigarette_smoking
+        ) +
+        field(
+            "Bidi Smoking",
+            patient.bidi_smoking
+        ) +
+        field(
+            "Reverse Smoking",
+            patient.reverse_smoking
+        ) +
+        field(
+            "Electronic Cigarette",
+            patient.electronic_cigarette
+        ) +
+        field(
+            "Duration (Years)",
+            patient.smoking_duration_years
+        ) +
+        field(
+            "Frequency / Day",
+            patient.smoking_frequency_per_day
         )
-        .trim()
-        .toUpperCase()
-        ===
-        patientId
-          .toUpperCase()
+
     );
 
 
-  if(!patient){
+    /* 03 */
 
-    setNFCStatus(
-      "Patient Not Found",
-      "The card was read, but this patient is not present in the clinical registry.",
-      "!"
+    html += section(
+        "03",
+        "Tobacco & Chewing Habits",
+
+        field(
+            "Any Chewing Habits",
+            patient.any_chewing_habits
+        ) +
+        field(
+            "Tobacco Chewing",
+            patient.tobacco_chewing
+        ) +
+        field("Gutkha",patient.gutkha) +
+        field("Khaini",patient.khaini) +
+        field("Snuff",patient.snuff) +
+        field("Mawa",patient.mawa) +
+        field(
+            "Tobacco Tooth Powder",
+            patient.tobacco_containing_tooth_powder
+        ) +
+        field(
+            "Betel Nut Chewing",
+            patient.betel_nut_chewing
+        ) +
+        field(
+            "Betel Quid",
+            patient.betel_quid_consumption
+        ) +
+        field(
+            "Habit Combination",
+            patient.habit_combination
+        )
+
     );
 
-    return;
 
-  }
+    /* 04 */
+
+    html += section(
+        "04",
+        "Alcohol History",
+
+        field("Alcohol",patient.alcohol) +
+        field(
+            "Duration (Years)",
+            patient.alcohol_duration_years
+        ) +
+        field(
+            "Frequency",
+            patient.alcohol_frequency
+        ) +
+        field(
+            "Quantity",
+            patient.alcohol_quantity
+        )
+
+    );
 
 
-  setNFCStatus(
-    "Patient Found",
-    "Opening the clinical record...",
-    "✓"
-  );
+    /* 05 */
+
+    html += section(
+        "05",
+        "Medical History",
+
+        field(
+            "Diabetes Mellitus",
+            patient.diabetes_mellitus
+        ) +
+        field(
+            "Hypertension",
+            patient.hypertension
+        ) +
+        field(
+            "HIV Infection",
+            patient.hiv_infection
+        ) +
+        field(
+            "Tuberculosis",
+            patient.tuberculosis
+        ) +
+        field(
+            "Bronchial Asthma",
+            patient.bronchial_asthma
+        ) +
+        field(
+            "Previous Oral Diseases",
+            patient.previous_oral_diseases
+        ) +
+        field(
+            "Other Systemic Diseases",
+            patient.other_systemic_diseases
+        )
+
+    );
 
 
-  mainStatus.textContent =
-    "Patient " +
-    patientId +
-    " found.";
+    /* 06 */
+
+    html += section(
+        "06",
+        "Symptoms & Complaints",
+
+        field(
+            "Pain Presence",
+            patient.pain_presence
+        ) +
+        field(
+            "Swelling",
+            patient.swelling
+        ) +
+        field(
+            "Burning Sensation",
+            patient.burning_sensation
+        ) +
+        field(
+            "Bleeding Gums",
+            patient.bleeding_gums
+        ) +
+        field(
+            "Ulcer < 2 Weeks",
+            patient.ulcer_less_than_2_weeks
+        ) +
+        field(
+            "Ulcer > 2 Weeks",
+            patient.ulcer_greater_than_2_weeks
+        ) +
+        field(
+            "Halitosis",
+            patient.halitosis
+        ) +
+        field(
+            "Loss of Appetite",
+            patient.loss_of_appetite
+        ) +
+        field(
+            "Weight Loss",
+            patient.weight_loss
+        )
+
+    );
 
 
-  setTimeout(
-    function(){
+    /* 07 */
 
-      renderPatient(
-        patient
-      );
+    html += section(
+        "07",
+        "Oral Lesion Details",
 
-    },
-    500
-  );
+        field(
+            "Lesion Location",
+            patient.lesion_location
+        ) +
+        field(
+            "Lesion Position",
+            patient.lesion_position_coords
+        ) +
+        field(
+            "Lesion Color",
+            patient.lesion_color
+        ) +
+        field(
+            "Lesion Shape",
+            patient.lesion_shape
+        ) +
+        field(
+            "Surface Characteristics",
+            patient.lesion_surface_characteristics
+        ) +
+        field(
+            "Texture",
+            patient.lesion_texture
+        ) +
+        field(
+            "Length (mm)",
+            patient.lesion_length_mm
+        ) +
+        field(
+            "Width (mm)",
+            patient.lesion_width_mm
+        ) +
+        field(
+            "Maximum Diameter (mm)",
+            patient.lesion_maximum_diameter_mm
+        ) +
+        field(
+            "Lesion Extension",
+            patient.lesion_extension
+        ) +
+        field(
+            "Affected Teeth",
+            patient.affected_teeth
+        )
+
+    );
+
+
+    /* 08 */
+
+    html += section(
+        "08",
+        "Mouth & Dental Findings",
+
+        field(
+            "Inter-Incisal Distance",
+            patient.inter_incisal_distance_mm
+        ) +
+        field(
+            "Mouth Opening Assessment",
+            patient.mouth_opening_assessment
+        ) +
+        field(
+            "Mobility of Associated Teeth",
+            patient.mobility_of_associated_teeth
+        )
+
+    );
+
+
+    /* 09 */
+
+    html += section(
+        "09",
+        "Regional Lymph Nodes",
+
+        field(
+            "Palpability",
+            patient.regional_lymph_node_palpability
+        ) +
+        field(
+            "Involvement",
+            patient.lymph_node_involvement
+        ) +
+        field(
+            "Laterality",
+            patient.lymph_node_laterality
+        ) +
+        field(
+            "Number",
+            patient.regional_lymph_node_number
+        ) +
+        field(
+            "Consistency",
+            patient.regional_lymph_node_consistency
+        ) +
+        field(
+            "Mobility",
+            patient.regional_lymph_node_mobility
+        ) +
+        field(
+            "Size (mm)",
+            patient.regional_lymph_node_size_mm
+        ) +
+        field(
+            "Shape",
+            patient.regional_lymph_node_shape
+        ) +
+        field(
+            "Tenderness",
+            patient.regional_lymph_node_tenderness
+        )
+
+    );
+
+
+    /* 10 */
+
+    html += section(
+        "10",
+        "Final Assessment",
+
+        field(
+            "Risk Level",
+            patient.risk_level
+        ) +
+        field(
+            "OSMF Stage",
+            patient.osmf_stage
+        )
+
+    );
+
+
+    /* 11 */
+
+    html += section(
+        "11",
+        "Record Information",
+
+        field(
+            "Database ID",
+            patient.id
+        ) +
+        field(
+            "Created At",
+            patient.created_at
+                ? new Date(
+                    patient.created_at
+                ).toLocaleString()
+                : "—"
+        )
+
+    );
+
+
+    body.innerHTML = html;
+
+    document
+        .getElementById("patientModal")
+        .classList.add("show");
 
 }
 
 
-/* =====================================================
-   VALUE
-===================================================== */
-
-function value(v){
-
-  if(
-    v === null ||
-    v === undefined ||
-    v === ""
-  )
-    return "Not recorded";
-
-
-  return String(v);
-
-}
-
-
-/* =====================================================
-   YES / NO
-===================================================== */
-
-function yesNoClass(v){
-
-  return String(v).toLowerCase()
-    === "yes"
-
-    ? "yes"
-
-    : String(v).toLowerCase()
-      === "no"
-
-      ? "no"
-
-      : "";
-
-}
-
-
-/* =====================================================
-   ESCAPE
-===================================================== */
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
 
 function escapeHTML(value){
 
-  return String(value)
-
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-
-    .replace(
-      /</g,
-      "&lt;"
-    )
-
-    .replace(
-      />/g,
-      "&gt;"
-    )
-
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-
-    .replace(
-      /'/g,
-      "&#039;"
-    );
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
 
 }
 
 
-/* =====================================================
-   FIELD
-===================================================== */
+/* =========================================================
+   CLOSE MODAL
+========================================================= */
 
-function field(
-  label,
-  key,
-  p
-){
+function closePatientModal(){
 
-  const val =
-    value(
-      p[key]
-    );
-
-
-  return `
-    <div class="info ${yesNoClass(p[key])}">
-      <small>${label}</small>
-      <b>${escapeHTML(val)}</b>
-    </div>
-  `;
+    document
+        .getElementById("patientModal")
+        .classList.remove("show");
 
 }
 
 
-/* =====================================================
-   SECTION
-===================================================== */
+document
+    .getElementById("patientModal")
+    .addEventListener(
+        "click",
+        event => {
 
-function section(
-  title,
-  fields,
-  p
-){
+            if(
+                event.target.id ===
+                "patientModal"
+            ){
 
-  return `
-    <div class="section">
+                closePatientModal();
 
-      <div class="sectionTitle">
-        ${title}
-      </div>
+            }
 
-      <div class="infoGrid">
-
-        ${
-          fields
-            .map(
-              f =>
-                field(
-                  f[0],
-                  f[1],
-                  p
-                )
-            )
-            .join("")
         }
-
-      </div>
-
-    </div>
-  `;
-
-}
-
-
-/* =====================================================
-   RENDER PATIENT
-===================================================== */
-
-function renderPatient(p){
-
-  document.getElementById(
-    "patientName"
-  ).textContent =
-    value(
-      p.patient_name
     );
 
 
-  document.getElementById(
-    "patientId"
-  ).textContent =
-    "ID: " +
-    value(
-      p.patient_id
-    );
-
-
-  document.getElementById(
-    "patientOPD"
-  ).textContent =
-    "OPD: " +
-    value(
-      p.opd_number
-    );
-
-
-  document.getElementById(
-    "patientDate"
-  ).textContent =
-    "Date: " +
-    (
-      p.created_at
-
-      ? new Date(
-          p.created_at
-        ).toLocaleString()
-
-      : "Not recorded"
-    );
-
-
-  document.getElementById(
-    "qAge"
-  ).textContent =
-    value(
-      p.age
-    );
-
-
-  document.getElementById(
-    "qSex"
-  ).textContent =
-    value(
-      p.sex
-    );
-
-
-  document.getElementById(
-    "qLesion"
-  ).textContent =
-    value(
-      p.lesion_location
-    );
-
-
-  document.getElementById(
-    "qSize"
-  ).textContent =
-
-    p.lesion_maximum_diameter_mm
-
-    ? p.lesion_maximum_diameter_mm +
-      " mm"
-
-    : "Not recorded";
-
-
-  document.getElementById(
-    "qStage"
-  ).textContent =
-    value(
-      p.osmf_stage
-    );
-
-
-  const risk =
-    value(
-      p.risk_level
-    );
-
-
-  const riskBadge =
-    document.getElementById(
-      "riskBadge"
-    );
-
-
-  riskBadge.textContent =
-    "Risk: " +
-    risk;
-
-
-  riskBadge.className =
-    "risk " +
-
-    (
-      risk
-        .toLowerCase()
-        .includes("high")
-
-      ? "high"
-
-      : risk
-          .toLowerCase()
-          .includes("low")
-
-        ? "low"
-
-        : "medium"
-    );
-
-
-  const sections = [
-
-    [
-      "01 · Patient Details",
-
-      [
-        ["Patient ID","patient_id"],
-        ["Patient Name","patient_name"],
-        ["OPD Number","opd_number"],
-        ["Age","age"],
-        ["Sex","sex"],
-        ["Religion","religion"],
-        ["Occupation","occupation"],
-        ["Residence","residence"],
-        ["Marital Status","marital_status"],
-        ["Patient Location","patient_location"],
-        ["Latitude","latitude"],
-        ["Longitude","longitude"]
-      ]
-
-    ],
-
-    [
-      "02 · Smoking History",
-
-      [
-        ["Smoking","smoking"],
-        ["Cigarette Smoking","cigarette_smoking"],
-        ["Bidi Smoking","bidi_smoking"],
-        ["Reverse Smoking","reverse_smoking"],
-        ["Electronic Cigarette","electronic_cigarette"],
-        ["Smoking Duration (Years)","smoking_duration_years"],
-        ["Smoking Frequency / Day","smoking_frequency_per_day"]
-      ]
-
-    ],
-
-    [
-      "03 · Tobacco & Chewing Habits",
-
-      [
-        ["Any Chewing Habits","any_chewing_habits"],
-        ["Tobacco Chewing","tobacco_chewing"],
-        ["Gutkha","gutkha"],
-        ["Khaini","khaini"],
-        ["Snuff","snuff"],
-        ["Mawa","mawa"],
-        ["Tobacco Tooth Powder","tobacco_containing_tooth_powder"],
-        ["Betel Nut","betel_nut_chewing"],
-        ["Betel Quid","betel_quid_consumption"],
-        ["Habit Combination","habit_combination"]
-      ]
-
-    ],
-
-    [
-      "04 · Alcohol History",
-
-      [
-        ["Alcohol","alcohol"],
-        ["Duration (Years)","alcohol_duration_years"],
-        ["Frequency","alcohol_frequency"],
-        ["Quantity","alcohol_quantity"]
-      ]
-
-    ],
-
-    [
-      "05 · Medical History",
-
-      [
-        ["Diabetes Mellitus","diabetes_mellitus"],
-        ["Hypertension","hypertension"],
-        ["HIV Infection","hiv_infection"],
-        ["Tuberculosis","tuberculosis"],
-        ["Bronchial Asthma","bronchial_asthma"],
-        ["Previous Oral Diseases","previous_oral_diseases"],
-        ["Other Systemic Diseases","other_systemic_diseases"]
-      ]
-
-    ],
-
-    [
-      "06 · Symptoms & Complaints",
-
-      [
-        ["Pain","pain_presence"],
-        ["Swelling","swelling"],
-        ["Burning Sensation","burning_sensation"],
-        ["Bleeding Gums","bleeding_gums"],
-        ["Ulcer < 2 Weeks","ulcer_less_than_2_weeks"],
-        ["Ulcer > 2 Weeks","ulcer_greater_than_2_weeks"],
-        ["Halitosis","halitosis"],
-        ["Loss of Appetite","loss_of_appetite"],
-        ["Weight Loss","weight_loss"]
-      ]
-
-    ],
-
-    [
-      "07 · Oral Lesion Details",
-
-      [
-        ["Lesion Location","lesion_location"],
-        ["Position Coordinates","lesion_position_coords"],
-        ["Lesion Color","lesion_color"],
-        ["Lesion Shape","lesion_shape"],
-        ["Surface Characteristics","lesion_surface_characteristics"],
-        ["Texture","lesion_texture"],
-        ["Length (mm)","lesion_length_mm"],
-        ["Width (mm)","lesion_width_mm"],
-        ["Maximum Diameter (mm)","lesion_maximum_diameter_mm"],
-        ["Lesion Extension","lesion_extension"],
-        ["Affected Teeth","affected_teeth"]
-      ]
-
-    ],
-
-    [
-      "08 · Mouth & Dental Findings",
-
-      [
-        ["Inter-Incisal Distance (mm)","inter_incisal_distance_mm"],
-        ["Mouth Opening Assessment","mouth_opening_assessment"],
-        ["Mobility of Associated Teeth","mobility_of_associated_teeth"]
-      ]
-
-    ],
-
-    [
-      "09 · Regional Lymph Nodes",
-
-      [
-        ["Node Palpability","regional_lymph_node_palpability"],
-        ["Involvement","lymph_node_involvement"],
-        ["Laterality","lymph_node_laterality"],
-        ["Number","regional_lymph_node_number"],
-        ["Consistency","regional_lymph_node_consistency"],
-        ["Mobility","regional_lymph_node_mobility"],
-        ["Size (mm)","regional_lymph_node_size_mm"],
-        ["Shape","regional_lymph_node_shape"],
-        ["Tenderness","regional_lymph_node_tenderness"]
-      ]
-
-    ],
-
-    [
-      "10 · Final Assessment",
-
-      [
-        ["Risk Level","risk_level"],
-        ["OSMF Stage","osmf_stage"]
-      ]
-
-    ],
-
-    [
-      "11 · Record Information",
-
-      [
-        ["Database ID","id"],
-        ["Created At","created_at"]
-      ]
-
-    ]
-
-  ];
-
-
-  document.getElementById(
-    "patientSections"
-  ).innerHTML =
-
-    sections
-      .map(
-        s =>
-          section(
-            s[0],
-            s[1],
-            p
-          )
-      )
-      .join("")
-
-    +
-
-    createLesionVisual(p);
-
-
-  if(!patientDialog.open)
-    patientDialog.showModal();
-
-}
-
-
-/* =====================================================
-   LESION VISUAL
-===================================================== */
-
-function createLesionVisual(p){
-
-  const location =
-    value(
-      p.lesion_location
-    );
-
-
-  let x = 105;
-  let y = 75;
-
-
-  const loc =
-    location.toLowerCase();
-
-
-  if(loc.includes("right")){
-
-    x = 35;
-    y = 75;
-
-  }
-
-  else if(loc.includes("left")){
-
-    x = 175;
-    y = 75;
-
-  }
-
-  else if(loc.includes("tongue")){
-
-    x = 105;
-    y = 90;
-
-  }
-
-  else if(loc.includes("palate")){
-
-    x = 105;
-    y = 45;
-
-  }
-
-  else if(loc.includes("floor")){
-
-    x = 105;
-    y = 115;
-
-  }
-
-
-  return `
-
-    <div class="section">
-
-      <div class="sectionTitle">
-        12 · Lesion Visual View
-      </div>
-
-      <div class="lesion">
-
-        <div class="lesionVisual">
-
-          <div class="mouth">
-
-            <div
-              class="lesionPoint"
-              style="
-                left:${x}px;
-                top:${y}px
-              "
-            ></div>
-
-          </div>
-
-        </div>
-
-
-        <div class="lesionInfo">
-
-          ${field(
-            "Location",
-            "lesion_location",
-            p
-          )}
-
-          ${field(
-            "Color",
-            "lesion_color",
-            p
-          )}
-
-          ${field(
-            "Shape",
-            "lesion_shape",
-            p
-          )}
-
-          ${field(
-            "Surface",
-            "lesion_surface_characteristics",
-            p
-          )}
-
-          ${field(
-            "Texture",
-            "lesion_texture",
-            p
-          )}
-
-          ${field(
-            "Length",
-            "lesion_length_mm",
-            p
-          )}
-
-          ${field(
-            "Width",
-            "lesion_width_mm",
-            p
-          )}
-
-          ${field(
-            "Maximum Diameter",
-            "lesion_maximum_diameter_mm",
-            p
-          )}
-
-          ${field(
-            "Extension",
-            "lesion_extension",
-            p
-          )}
-
-          ${field(
-            "Position",
-            "lesion_position_coords",
-            p
-          )}
-
-        </div>
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =====================================================
-   CLOSE PATIENT
-===================================================== */
-
-function closePatient(){
-
-  if(patientDialog.open)
-    patientDialog.close();
-
-}
-
-
-/* =====================================================
-   START
-===================================================== */
+/* =========================================================
+   ESC KEY
+========================================================= */
 
 document.addEventListener(
-  "DOMContentLoaded",
-  loadPatients
+    "keydown",
+    event => {
+
+        if(event.key === "Escape"){
+
+            closePatientModal();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        checkSerialSupport();
+
+        checkMobileNFCSupport();
+
+        await checkDatabase();
+
+        await loadPatients();
+
+        /*
+         * Automatically inspect already authorized
+         * serial ports when page loads.
+         */
+
+        if("serial" in navigator){
+
+            try{
+
+                const ports =
+                    await navigator.serial.getPorts();
+
+                addLog(
+                    `${ports.length} previously authorized serial port(s) available.`,
+                    "info"
+                );
+
+            }catch(error){
+
+                console.error(error);
+
+            }
+
+        }
+
+    }
 );
 
 </script>
 
 </body>
-
 </html>
