@@ -439,6 +439,10 @@ select option{
 }
 
 .mobileBadge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+
     padding:8px 13px;
     border-radius:20px;
 
@@ -449,6 +453,12 @@ select option{
     font-size:12px;
     font-weight:700;
     white-space:nowrap;
+}
+
+.mobileBadge svg{
+    width:14px;
+    height:14px;
+    stroke:currentColor;
 }
 
 .mobileSection > .controlsGrid{
@@ -494,12 +504,21 @@ select option{
 
     border-radius:12px;
 
-    background:#17233a;
+    background:linear-gradient(145deg,#1c2942,#131d30);
     border:1px solid #30425e;
 
-    font-size:22px;
+    box-shadow:
+        0 6px 16px rgba(0,0,0,.3),
+        inset 0 1px 0 rgba(255,255,255,.04);
 
     margin-bottom:16px;
+}
+
+.mobileCardIcon svg{
+    width:22px;
+    height:22px;
+    color:#60a5fa;
+    stroke:currentColor;
 }
 
 
@@ -550,12 +569,21 @@ select option{
     justify-content:center;
     align-items:center;
 
-    background:#17233a;
+    background:linear-gradient(145deg,#1c2942,#131d30);
     border:1px solid #30425e;
 
     border-radius:15px;
 
-    font-size:27px;
+    box-shadow:
+        0 6px 16px rgba(0,0,0,.3),
+        inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+.phoneIcon svg{
+    width:24px;
+    height:24px;
+    color:#60a5fa;
+    stroke:currentColor;
 }
 
 .nfcWave{
@@ -624,6 +652,13 @@ select option{
 ========================================================= */
 
 dialog{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    margin:auto;
+
     border:none;
     padding:0;
 
@@ -640,6 +675,12 @@ dialog{
 dialog::backdrop{
     background:rgba(0,0,0,.78);
     backdrop-filter:blur(7px);
+}
+
+dialog[open]{
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
 
 .patientDialogBox{
@@ -981,7 +1022,9 @@ dialog::backdrop{
 ========================================================= */
 
 #nfcDialog{
-    width:min(430px,92vw);
+    width:min(400px,92vw);
+    max-height:none;
+    height:auto;
 }
 
 .nfcBox{
@@ -989,19 +1032,21 @@ dialog::backdrop{
 
     overflow:hidden;
 
+    width:100%;
+
     background:
         radial-gradient(
-            circle at 50% 30%,
-            rgba(37,99,235,.18),
-            transparent 45%
+            circle at 50% 25%,
+            rgba(37,99,235,.22),
+            transparent 50%
         ),
         #0d1422;
 
     border:1px solid #26344a;
 
-    border-radius:16px;
+    border-radius:18px;
 
-    padding:38px 30px 32px;
+    padding:42px 32px 36px;
 
     text-align:center;
 
@@ -1065,23 +1110,45 @@ dialog::backdrop{
 
     z-index:2;
 
-    width:82px;
-    height:82px;
+    width:88px;
+    height:88px;
 
-    margin:0 auto 22px;
+    margin:0 auto 24px;
 
-    border-radius:20px;
+    border-radius:22px;
 
-    background:#17233a;
+    background:linear-gradient(145deg,#1c2942,#131d30);
 
     border:1px solid #30425e;
+
+    box-shadow:
+        0 8px 24px rgba(0,0,0,.35),
+        inset 0 1px 0 rgba(255,255,255,.04);
 
     display:flex;
 
     justify-content:center;
     align-items:center;
+}
 
-    font-size:38px;
+.nfcIcon svg{
+    width:40px;
+    height:40px;
+    color:#60a5fa;
+    stroke:currentColor;
+    transition:color .25s ease;
+}
+
+.nfcIcon.success svg{
+    color:#34d399;
+}
+
+.nfcIcon.error svg{
+    color:#f87171;
+}
+
+.nfcIcon.active svg{
+    animation:iconPulse 1.4s ease-in-out infinite;
 }
 
 .nfcIcon.active::before,
@@ -1091,11 +1158,11 @@ dialog::backdrop{
 
     position:absolute;
 
-    inset:-8px;
+    inset:-10px;
 
-    border:1px solid rgba(37,99,235,.45);
+    border:1.5px solid rgba(37,99,235,.5);
 
-    border-radius:25px;
+    border-radius:28px;
 
     animation:cardWave 2s ease-out infinite;
 }
@@ -1107,13 +1174,25 @@ dialog::backdrop{
 @keyframes cardWave{
 
     0%{
-        opacity:.8;
+        opacity:.9;
         transform:scale(.9);
     }
 
     100%{
         opacity:0;
-        transform:scale(1.35);
+        transform:scale(1.4);
+    }
+
+}
+
+@keyframes iconPulse{
+
+    0%,100%{
+        transform:scale(1);
+    }
+
+    50%{
+        transform:scale(1.1);
     }
 
 }
@@ -1649,7 +1728,12 @@ dialog::backdrop{
 
             <div class="mobileBadge">
 
-                📱 Built-in NFC
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="7" y="2" width="10" height="20" rx="2"></rect>
+                    <path d="M11 18h2"></path>
+                </svg>
+
+                Built-in NFC
 
             </div>
 
@@ -1667,7 +1751,10 @@ dialog::backdrop{
             <div class="card mobileCard">
 
                 <div class="mobileCardIcon">
-                    ✍️
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                    </svg>
                 </div>
 
 
@@ -1750,7 +1837,10 @@ dialog::backdrop{
             <div class="card mobileCard">
 
                 <div class="mobileCardIcon">
-                    📖
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
                 </div>
 
 
@@ -1772,7 +1862,10 @@ dialog::backdrop{
                     <div class="phoneNfcAnimation">
 
                         <div class="phoneIcon">
-                            📱
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="6" y="2" width="12" height="20" rx="2.5"></rect>
+                                <path d="M11 18h2"></path>
+                            </svg>
                         </div>
 
                         <div class="nfcWave wave1"></div>
@@ -1853,7 +1946,12 @@ dialog::backdrop{
             class="nfcIcon active"
             id="nfcIcon">
 
-            📡
+            <svg id="nfcIconSvg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12a7 7 0 0 1 14 0"></path>
+                <path d="M8.5 12a3.5 3.5 0 0 1 7 0"></path>
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"></circle>
+                <path d="M2 16h20" opacity="0"></path>
+            </svg>
 
         </div>
 
@@ -2509,7 +2607,7 @@ function handleSerialLine(line){
         showNFC(
             "Card Found",
             "Reading patient information from the card.",
-            "💳"
+            "card"
         );
 
 
@@ -2533,7 +2631,7 @@ function handleSerialLine(line){
         updateNFC(
             "Reading Card",
             "Checking the card data.",
-            "📡"
+            "waves"
         );
 
         return;
@@ -2550,7 +2648,7 @@ function handleSerialLine(line){
         updateNFC(
             "Reading Card",
             "Loading card information.",
-            "📖"
+            "read"
         );
 
         return;
@@ -2634,7 +2732,7 @@ function handleSerialLine(line){
         updateNFC(
             "Writing Card",
             "Saving patient ID to the NFC card.",
-            "✍️"
+            "write"
         );
 
         return;
@@ -2678,7 +2776,7 @@ function handleSerialLine(line){
         updateNFC(
             "Couldn’t Read",
             line,
-            "!"
+            "error"
         );
 
 
@@ -2727,7 +2825,7 @@ async function readCard(){
         showNFC(
             "Reading Card",
             "Place the NFC card on the RC522 reader.",
-            "📡"
+            "waves"
         );
 
 
@@ -2752,7 +2850,7 @@ async function readCard(){
         updateNFC(
             "Couldn’t Read",
             "Unable to send the read command.",
-            "!"
+            "error"
         );
 
     }
@@ -2799,7 +2897,7 @@ async function writeCard(){
         showNFC(
             "Writing Card",
             "Place the NFC card on the RC522 reader.",
-            "✍️"
+            "write"
         );
 
 
@@ -2818,7 +2916,7 @@ async function writeCard(){
         updateNFC(
             "Couldn’t Write",
             "Unable to send the write command.",
-            "!"
+            "error"
         );
 
     }
@@ -2879,7 +2977,7 @@ async function mobileWriteCard(){
         showNFC(
             "Writing Card",
             "Hold the NFC card near the back of your phone.",
-            "✍️"
+            "write"
         );
 
 
@@ -2943,7 +3041,7 @@ async function mobileWriteCard(){
             "Couldn’t Write",
             error.message ||
             "Unable to write the NFC card.",
-            "!"
+            "error"
         );
 
 
@@ -2999,7 +3097,7 @@ async function mobileReadCard(){
         showNFC(
             "Reading Card",
             "Hold the NFC card near the back of your phone.",
-            "📡"
+            "waves"
         );
 
 
@@ -3017,7 +3115,7 @@ async function mobileReadCard(){
             updateNFC(
                 "Couldn’t Read",
                 "The NFC card could not be read.",
-                "!"
+                "error"
             );
 
 
@@ -3051,7 +3149,7 @@ async function mobileReadCard(){
             "Couldn’t Read",
             error.message ||
             "Unable to start NFC reading.",
-            "!"
+            "error"
         );
 
 
@@ -3198,7 +3296,7 @@ function handleMobileNFCReading(event){
         updateNFC(
             "Card Found",
             "Finding the patient record.",
-            "💳"
+            "card"
         );
 
 
@@ -3219,7 +3317,7 @@ function handleMobileNFCReading(event){
             "Couldn’t Read",
             error.message ||
             "The patient ID could not be read.",
-            "!"
+            "error"
         );
 
 
@@ -3269,7 +3367,7 @@ function handlePatientID(patientId){
         updateNFC(
             "Patient Not Found",
             `No patient record was found for ${patientId}.`,
-            "!"
+            "error"
         );
 
 
@@ -3320,13 +3418,101 @@ function handlePatientID(patientId){
 
 
 /* =========================================================
+   NFC ICON LIBRARY (SVG)
+========================================================= */
+
+const NFC_ICONS = {
+
+    waves: `<path d="M5 12a7 7 0 0 1 14 0"></path>
+            <path d="M8.5 12a3.5 3.5 0 0 1 7 0"></path>
+            <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"></circle>`,
+
+    card: `<rect x="2" y="6" width="20" height="14" rx="2.5"></rect>
+           <path d="M2 10.5h20"></path>
+           <path d="M6 15h4"></path>`,
+
+    scan: `<path d="M4 7V5a1 1 0 0 1 1-1h2"></path>
+           <path d="M17 4h2a1 1 0 0 1 1 1v2"></path>
+           <path d="M20 17v2a1 1 0 0 1-1 1h-2"></path>
+           <path d="M7 20H5a1 1 0 0 1-1-1v-2"></path>
+           <path d="M8 12h8"></path>
+           <path d="M12 8v8"></path>`,
+
+    read: `<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+           <path d="M9 8h7"></path>
+           <path d="M9 12h7"></path>`,
+
+    write: `<path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>`,
+
+    success: `<path d="M20 6 9 17l-5-5"></path>`,
+
+    error: `<circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 8v5"></path>
+            <path d="M12 16h.01"></path>`,
+
+    search: `<circle cx="11" cy="11" r="7"></circle>
+             <path d="m21 21-4.3-4.3"></path>`
+
+};
+
+
+function setNFCIcon(name, mode){
+
+    const iconEl =
+        document.getElementById("nfcIcon");
+
+
+    const svg =
+        `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${NFC_ICONS[name] || NFC_ICONS.waves}</svg>`;
+
+
+    iconEl.innerHTML = svg;
+
+
+    iconEl.classList.remove("success", "error");
+
+
+    if(mode === "success"){
+
+        iconEl.classList.add("success");
+
+    }
+    else if(mode === "error"){
+
+        iconEl.classList.add("error");
+
+    }
+
+}
+
+
+function iconForTitle(title){
+
+    const t = title.toLowerCase();
+
+
+    if(t.includes("writing")) return { name:"write", mode:"active" };
+    if(t.includes("reading")) return { name:"read", mode:"active" };
+    if(t.includes("card found")) return { name:"card", mode:"active" };
+    if(t.includes("finding")) return { name:"search", mode:"active" };
+    if(t.includes("done") || t.includes("found") || t.includes("read")) return { name:"success", mode:"success" };
+    if(t.includes("couldn") || t.includes("not found") || t.includes("error")) return { name:"error", mode:"error" };
+
+    return { name:"waves", mode:"active" };
+
+}
+
+
+/* =========================================================
    NFC DIALOG
 ========================================================= */
 
 function showNFC(
     title,
     text,
-    icon
+    iconKey
 ){
 
     const dialog =
@@ -3347,10 +3533,14 @@ function showNFC(
         text;
 
 
-    document.getElementById(
-        "nfcIcon"
-    ).textContent =
-        icon;
+    const resolved =
+        iconForTitle(title);
+
+
+    setNFCIcon(
+        resolved.name,
+        resolved.mode
+    );
 
 
     document.getElementById(
@@ -3378,7 +3568,7 @@ function showNFC(
 function updateNFC(
     title,
     text,
-    icon
+    iconKey
 ){
 
     document.getElementById(
@@ -3393,12 +3583,6 @@ function updateNFC(
         text;
 
 
-    document.getElementById(
-        "nfcIcon"
-    ).textContent =
-        icon;
-
-
     const completed =
         title === "Done" ||
         title === "Patient Found" ||
@@ -3406,6 +3590,16 @@ function updateNFC(
         title === "Patient Not Found" ||
         title === "Couldn’t Read" ||
         title === "Couldn’t Write";
+
+
+    const resolved =
+        iconForTitle(title);
+
+
+    setNFCIcon(
+        resolved.name,
+        resolved.mode
+    );
 
 
     if(completed){
