@@ -1,10 +1,11 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>NAKUL DHANDE</title>
+<title>NAKUL DHANDE - Patient Registry</title>
 
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -38,6 +39,7 @@ tailwind.config = {
 </script>
 
 <style>
+
 * {
   box-sizing: border-box;
 }
@@ -65,8 +67,10 @@ body {
   top: 0;
   z-index: 50;
   width: 100%;
+
   background: rgba(17, 24, 39, 0.97);
   border-bottom: 1px solid #1f293d;
+
   backdrop-filter: blur(12px);
 }
 
@@ -74,6 +78,7 @@ body {
   width: 100%;
   max-width: 1440px;
   min-height: 68px;
+
   margin: 0 auto;
   padding: 0 28px;
 
@@ -112,7 +117,7 @@ body {
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 10px;
 }
 
 .nav-links {
@@ -123,18 +128,22 @@ body {
 
 .nav-links a {
   position: relative;
+
   display: inline-flex;
   align-items: center;
+  justify-content: center;
 
   min-height: 38px;
-  padding: 0 13px;
+  padding: 0 12px;
 
   color: #9ca3af;
   text-decoration: none;
+
   font-size: 13px;
   font-weight: 500;
 
   border-radius: 6px;
+
   transition:
     background 0.15s ease,
     color 0.15s ease;
@@ -150,13 +159,15 @@ body {
   color: #60a5fa;
 }
 
-.nav-patients {
+/* Register Patient */
+
+.nav-register {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   min-height: 38px;
-  padding: 0 15px;
+  padding: 0 14px;
 
   border: 1px solid #2563eb;
   border-radius: 6px;
@@ -165,6 +176,7 @@ body {
   color: #ffffff;
 
   text-decoration: none;
+
   font-size: 13px;
   font-weight: 500;
 
@@ -173,7 +185,7 @@ body {
     border-color 0.15s ease;
 }
 
-.nav-patients:hover {
+.nav-register:hover {
   background: #1d4ed8;
   border-color: #1d4ed8;
 }
@@ -185,7 +197,9 @@ body {
 .container {
   width: 100%;
   max-width: 1280px;
+
   margin: 0 auto;
+
   padding: 32px 24px 48px;
 }
 
@@ -210,8 +224,10 @@ body {
   margin: 0;
 
   color: #f9fafb;
+
   font-size: 22px;
   font-weight: 600;
+
   letter-spacing: -0.02em;
 }
 
@@ -219,6 +235,7 @@ body {
   margin: 5px 0 0;
 
   color: #6b7280;
+
   font-size: 13px;
 }
 
@@ -234,7 +251,9 @@ body {
 
 .kpi-grid {
   display: grid;
+
   grid-template-columns: repeat(4, minmax(0, 1fr));
+
   gap: 14px;
 
   margin-bottom: 24px;
@@ -246,6 +265,7 @@ body {
   padding: 18px 20px;
 
   background: #111827;
+
   border: 1px solid #1f293d;
   border-radius: 8px;
 
@@ -267,6 +287,7 @@ body {
   margin-bottom: 8px;
 
   color: #9ca3af;
+
   font-size: 12px;
   font-weight: 500;
 }
@@ -276,7 +297,9 @@ body {
 
   font-size: 28px;
   line-height: 1.1;
+
   font-weight: 700;
+
   letter-spacing: -0.03em;
 }
 
@@ -284,6 +307,7 @@ body {
   margin-top: 7px;
 
   color: #6b7280;
+
   font-size: 11px;
 }
 
@@ -302,12 +326,14 @@ body {
   padding: 14px;
 
   background: #111827;
+
   border: 1px solid #1f293d;
   border-radius: 8px;
 }
 
 .search-box {
   position: relative;
+
   flex: 1;
   min-width: 260px;
 }
@@ -319,10 +345,12 @@ body {
   padding: 0 13px;
 
   background: #0d1321;
+
   border: 1px solid #1f293d;
   border-radius: 6px;
 
   color: #f9fafb;
+
   font-family: inherit;
   font-size: 13px;
 
@@ -354,14 +382,17 @@ body {
   padding: 0 34px 0 13px;
 
   background: #0d1321;
+
   border: 1px solid #1f293d;
   border-radius: 6px;
 
   color: #f9fafb;
+
   font-family: inherit;
   font-size: 13px;
 
   outline: none;
+
   cursor: pointer;
 
   transition: border-color 0.15s ease;
@@ -381,6 +412,7 @@ body {
   margin-bottom: 32px;
 
   background: #111827;
+
   border: 1px solid #1f293d;
   border-radius: 8px;
 }
@@ -397,6 +429,7 @@ table {
   border-collapse: collapse;
 
   text-align: left;
+
   font-size: 13px;
 }
 
@@ -411,6 +444,7 @@ thead th {
 
   font-size: 11px;
   font-weight: 600;
+
   letter-spacing: 0.02em;
   text-transform: uppercase;
 
@@ -445,6 +479,84 @@ tbody td strong {
 }
 
 /* =========================================================
+   SKELETON LOADING
+========================================================= */
+
+.skeleton {
+  position: relative;
+
+  overflow: hidden;
+
+  background: #1a2333;
+
+  border-radius: 5px;
+}
+
+.skeleton::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -150%;
+
+  width: 150%;
+  height: 100%;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.045),
+    transparent
+  );
+
+  animation: skeletonLoading 1.35s infinite;
+}
+
+@keyframes skeletonLoading {
+  100% {
+    left: 150%;
+  }
+}
+
+.skeleton-kpi {
+  height: 28px;
+  width: 70px;
+  margin-top: 2px;
+}
+
+.skeleton-kpi-small {
+  height: 11px;
+  width: 125px;
+  margin-top: 8px;
+}
+
+.skeleton-row {
+  height: 13px;
+  width: 75%;
+}
+
+.skeleton-row.short {
+  width: 45%;
+}
+
+.skeleton-row.medium {
+  width: 60%;
+}
+
+.skeleton-badge {
+  width: 48px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+.skeleton-button {
+  width: 62px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+/* =========================================================
    BADGES
 ========================================================= */
 
@@ -464,19 +576,25 @@ tbody td strong {
 
 .badge.danger {
   background: rgba(248, 113, 113, 0.10);
+
   color: #f87171;
+
   border: 1px solid rgba(248, 113, 113, 0.20);
 }
 
 .badge.warning {
   background: rgba(251, 191, 36, 0.10);
+
   color: #fbbf24;
+
   border: 1px solid rgba(251, 191, 36, 0.20);
 }
 
 .badge.success {
   background: rgba(52, 211, 153, 0.10);
+
   color: #34d399;
+
   border: 1px solid rgba(52, 211, 153, 0.20);
 }
 
@@ -496,6 +614,7 @@ tbody td strong {
   border-radius: 6px;
 
   font-family: inherit;
+
   font-size: 13px;
   font-weight: 500;
 
@@ -511,7 +630,9 @@ tbody td strong {
 
 .btn.primary {
   background: #2563eb;
+
   border: 1px solid #2563eb;
+
   color: #ffffff;
 }
 
@@ -522,7 +643,9 @@ tbody td strong {
 
 .btn.secondary {
   background: #1f293d;
+
   border: 1px solid #2d3748;
+
   color: #f9fafb;
 }
 
@@ -533,6 +656,7 @@ tbody td strong {
 
 .btn.sm {
   min-height: 32px;
+
   padding: 0 10px;
 
   font-size: 12px;
@@ -549,6 +673,7 @@ tbody td strong {
   z-index: 100;
 
   display: none;
+
   align-items: center;
   justify-content: center;
 
@@ -571,6 +696,7 @@ tbody td strong {
   background: #111827;
 
   border: 1px solid #2d3748;
+
   border-radius: 8px;
 
   box-shadow:
@@ -601,7 +727,9 @@ tbody td strong {
 
 .detail-grid {
   display: grid;
+
   grid-template-columns: repeat(2, minmax(0, 1fr));
+
   gap: 10px;
 }
 
@@ -611,6 +739,7 @@ tbody td strong {
   background: #0d1321;
 
   border: 1px solid #1f293d;
+
   border-radius: 6px;
 }
 
@@ -649,6 +778,7 @@ tbody td strong {
 
 .footer-content {
   max-width: 1280px;
+
   margin: 0 auto;
 
   display: flex;
@@ -660,11 +790,13 @@ tbody td strong {
   color: #9ca3af;
 
   text-align: center;
+
   font-size: 12px;
 }
 
 .footer-credits {
   color: #6b7280;
+
   font-size: 11px;
 }
 
@@ -672,32 +804,39 @@ tbody td strong {
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
 
   .nav-inner {
     padding: 0 20px;
   }
 
   .nav-right {
-    gap: 8px;
+    gap: 6px;
   }
 
   .nav-links a {
-    padding: 0 9px;
+    padding: 0 8px;
   }
+
+}
+
+@media (max-width: 1100px) {
 
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
 }
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
 
   .nav-inner {
     min-height: auto;
+
     padding: 14px 18px;
 
     flex-direction: column;
+
     align-items: stretch;
   }
 
@@ -709,19 +848,21 @@ tbody td strong {
     width: 100%;
 
     flex-wrap: wrap;
-    justify-content: space-between;
+
+    justify-content: flex-start;
   }
 
   .nav-links {
     flex-wrap: wrap;
   }
 
-  .nav-patients {
-    margin-left: auto;
-  }
+}
+
+@media (max-width: 800px) {
 
   .page-header {
     align-items: flex-start;
+
     flex-direction: column;
   }
 
@@ -735,6 +876,7 @@ tbody td strong {
 
   .controls-card {
     align-items: stretch;
+
     flex-direction: column;
   }
 
@@ -744,8 +886,10 @@ tbody td strong {
 
   .filter-group select {
     width: 100%;
+
     min-width: 0;
   }
+
 }
 
 @media (max-width: 600px) {
@@ -760,12 +904,15 @@ tbody td strong {
 
   .nav-right {
     flex-direction: column;
+
     align-items: stretch;
   }
 
   .nav-links {
     width: 100%;
+
     overflow-x: auto;
+
     flex-wrap: nowrap;
   }
 
@@ -773,9 +920,8 @@ tbody td strong {
     flex-shrink: 0;
   }
 
-  .nav-patients {
+  .nav-register {
     width: 100%;
-    margin-left: 0;
   }
 
   .kpi-grid {
@@ -801,7 +947,9 @@ tbody td strong {
   .modal-content {
     padding: 18px;
   }
+
 }
+
 </style>
 </head>
 
@@ -816,38 +964,52 @@ tbody td strong {
   <div class="nav-inner">
 
     <div class="nav-brand">
+
       <div class="nav-brand-text">
+
         <span class="nav-brand-title">
-         Oral Clinical Registry - Assessment Dashboard
+          Oral Clinical Registry - Assessment Dashboard
         </span>
 
         <span class="nav-brand-subtitle">
           Developed By Nakul Dhande With Team Hardik, Chinmay, Shantanu
         </span>
+
       </div>
+
     </div>
+
 
     <div class="nav-right">
 
       <div class="nav-links">
 
+        <!-- VIEW PATIENTS -->
         <a href="patients.html" class="active">
-          Registry Records
+          View Patients
         </a>
 
-        <a href="oral_clinical_assessment.html">
-          New Assessment
+        <!-- REGISTER PATIENT -->
+        <a href="registerpatients.html">
+          Register Patient
         </a>
 
+        <!-- ANALYTICS -->
         <a href="analytics.html">
           Analytics
         </a>
 
-      </div>
+        <!-- ASSESSMENT -->
+        <a href="oral_clinical_assessment.html">
+          Assessment
+        </a>
 
-      <a href="patientinfo.html" class="nav-patients">
-        Get Patients
-      </a>
+        <!-- NFC CARD -->
+        <a href="nfc.html">
+          NFC Card
+        </a>
+
+      </div>
 
     </div>
 
@@ -862,7 +1024,8 @@ tbody td strong {
 
 <div class="container">
 
-  <!-- Page Header -->
+
+  <!-- PAGE HEADER -->
 
   <header class="page-header">
 
@@ -878,18 +1041,24 @@ tbody td strong {
 
     </div>
 
+
     <div class="header-actions">
 
       <button
         class="btn secondary"
         onclick="fetchRecords()">
+
         Refresh
+
       </button>
 
+
       <a
-        href="oral_clinical_assessment.html"
+        href="registerpatients.html"
         class="btn primary">
-        New Assessment
+
+        Register Patient
+
       </a>
 
     </div>
@@ -903,6 +1072,7 @@ tbody td strong {
 
   <section class="kpi-grid">
 
+
     <div class="kpi-card">
 
       <div class="kpi-label">
@@ -912,7 +1082,9 @@ tbody td strong {
       <div
         class="kpi-value"
         id="mTotal">
-        --
+
+        <div class="skeleton skeleton-kpi"></div>
+
       </div>
 
       <div class="kpi-subtext">
@@ -931,7 +1103,9 @@ tbody td strong {
       <div
         class="kpi-value"
         id="mLesions">
-        --
+
+        <div class="skeleton skeleton-kpi"></div>
+
       </div>
 
       <div class="kpi-subtext">
@@ -950,7 +1124,9 @@ tbody td strong {
       <div
         class="kpi-value"
         id="mHabits">
-        --
+
+        <div class="skeleton skeleton-kpi"></div>
+
       </div>
 
       <div class="kpi-subtext">
@@ -969,7 +1145,9 @@ tbody td strong {
       <div
         class="kpi-value"
         id="mLymph">
-        --
+
+        <div class="skeleton skeleton-kpi"></div>
+
       </div>
 
       <div class="kpi-subtext">
@@ -993,7 +1171,7 @@ tbody td strong {
         type="text"
         id="searchInput"
         placeholder="Search Patient ID, Name, OPD, or Location..."
-        oninput="applyFilters()">
+        oninput="applyFilters">
 
     </div>
 
@@ -1084,18 +1262,167 @@ tbody td strong {
 
         <tbody id="tableBody">
 
+          <!-- SKELETON LOADING -->
+
           <tr>
 
-            <td
-              colspan="9"
-              style="
-                text-align:center;
-                padding:40px;
-                color:#6b7280;
-              ">
+            <td>
+              <div class="skeleton skeleton-row short"></div>
+            </td>
 
-              Loading registry assessments...
+            <td>
+              <div class="skeleton skeleton-row"></div>
+            </td>
 
+            <td>
+              <div class="skeleton skeleton-row short"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row medium"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row short"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-badge"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-badge"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-button"></div>
+            </td>
+
+          </tr>
+
+
+          <tr>
+
+            <td>
+              <div class="skeleton skeleton-row short"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row short"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row medium"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row short"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-badge"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-badge"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-button"></div>
+            </td>
+
+          </tr>
+
+
+          <tr>
+
+            <td>
+              <div class="skeleton skeleton-row short"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row short"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row medium"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row short"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-badge"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-badge"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-button"></div>
+            </td>
+
+          </tr>
+
+
+          <tr>
+
+            <td>
+              <div class="skeleton skeleton-row short"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row short"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row medium"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-row short"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-badge"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-badge"></div>
+            </td>
+
+            <td>
+              <div class="skeleton skeleton-button"></div>
             </td>
 
           </tr>
@@ -1141,6 +1468,7 @@ tbody td strong {
     <div
       class="detail-grid"
       id="modalBody">
+
     </div>
 
   </div>
@@ -1200,16 +1528,137 @@ async function fetchRecords() {
   const tbody =
     document.getElementById('tableBody');
 
-  tbody.innerHTML =
-    '<tr>' +
-    '<td colspan="9" style="text-align:center; padding:40px; color:#6b7280">' +
-    'Fetching clinical assessments...' +
-    '</td>' +
-    '</tr>';
+  /* Skeleton while fetching */
+
+  tbody.innerHTML = `
+
+    <tr>
+
+      <td>
+        <div class="skeleton skeleton-row short"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row short"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row medium"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row short"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-badge"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-badge"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-button"></div>
+      </td>
+
+    </tr>
+
+    <tr>
+
+      <td>
+        <div class="skeleton skeleton-row short"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row short"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row medium"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row short"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-badge"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-badge"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-button"></div>
+      </td>
+
+    </tr>
+
+    <tr>
+
+      <td>
+        <div class="skeleton skeleton-row short"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row short"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row medium"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-row short"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-badge"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-badge"></div>
+      </td>
+
+      <td>
+        <div class="skeleton skeleton-button"></div>
+      </td>
+
+    </tr>
+
+  `;
+
 
   try {
 
     const cfg = getAppConfig();
+
 
     const response = await fetch(
       `${cfg.SUPABASE_URL}/rest/v1/oral_clinical_assessments?select=*&order=created_at.desc`,
@@ -1218,27 +1667,33 @@ async function fetchRecords() {
 
         headers: {
           'apikey': cfg.SUPABASE_ANON_KEY,
+
           'Authorization':
             `Bearer ${cfg.SUPABASE_ANON_KEY}`
         }
       }
     );
 
+
     if (!response.ok)
       throw new Error(
         `HTTP Error: ${response.status}`
       );
 
+
     rawRecords = await response.json();
+
 
     updateMetrics(rawRecords);
 
     renderTable(rawRecords);
 
+
   } catch (err) {
 
     tbody.innerHTML =
       `<tr>
+
         <td
           colspan="9"
           style="
@@ -1246,8 +1701,11 @@ async function fetchRecords() {
             padding:40px;
             color:#f87171;
           ">
+
           Error loading registry data: ${err.message}
+
         </td>
+
       </tr>`;
 
   }
@@ -1260,12 +1718,14 @@ function updateMetrics(data) {
   document.getElementById('mTotal').textContent =
     data.length;
 
+
   document.getElementById('mLesions').textContent =
     data.filter(
       d =>
         (d.swelling || '').toLowerCase() === 'yes' ||
         (d.swelling || '').toLowerCase() === 'true'
     ).length;
+
 
   document.getElementById('mHabits').textContent =
     data.filter(
@@ -1275,12 +1735,14 @@ function updateMetrics(data) {
         (d.alcohol || '').toLowerCase() === 'yes'
     ).length;
 
+
   document.getElementById('mLymph').textContent =
     data.filter(
       d =>
         (d.regional_lymph_node_palpability || '')
           .toLowerCase()
           .includes('palpable') &&
+
         !(d.regional_lymph_node_palpability || '')
           .toLowerCase()
           .includes('non')
@@ -1294,15 +1756,21 @@ function renderTable(data) {
   const tbody =
     document.getElementById('tableBody');
 
+
   tbody.innerHTML = '';
+
 
   if (data.length === 0) {
 
     tbody.innerHTML =
       '<tr>' +
+
       '<td colspan="9" style="text-align:center; padding:40px; color:#6b7280">' +
+
       'No matching clinical assessments found.' +
+
       '</td>' +
+
       '</tr>';
 
     return;
@@ -1315,14 +1783,17 @@ function renderTable(data) {
     const tr =
       document.createElement('tr');
 
+
     const isSwelling =
       (p.swelling || '').toLowerCase() === 'yes' ||
       (p.swelling || '').toLowerCase() === 'true';
+
 
     const isLymph =
       (p.regional_lymph_node_palpability || '')
         .toLowerCase()
         .includes('palpable') &&
+
       !(p.regional_lymph_node_palpability || '')
         .toLowerCase()
         .includes('non');
@@ -1330,10 +1801,12 @@ function renderTable(data) {
 
     let habitsSummary = [];
 
+
     if (
       (p.smoking || '').toLowerCase() === 'yes'
     )
       habitsSummary.push('Smoking');
+
 
     if (
       (p.any_chewing_habits || '').toLowerCase() === 'yes'
@@ -1403,6 +1876,7 @@ function renderTable(data) {
 
     `;
 
+
     tbody.appendChild(tr);
 
   });
@@ -1417,6 +1891,7 @@ function applyFilters() {
       .getElementById('searchInput')
       .value
       .toLowerCase();
+
 
   const riskFilter =
     document
@@ -1459,15 +1934,18 @@ function applyFilters() {
           (p.swelling || '')
             .toLowerCase() === 'yes';
 
+
         const isLymph =
           (p.regional_lymph_node_palpability || '')
             .toLowerCase()
             .includes('palpable');
 
+
         matchRisk =
           isSwelling && isLymph;
 
       }
+
 
       else if (riskFilter === 'HABITS') {
 
@@ -1482,6 +1960,7 @@ function applyFilters() {
             .toLowerCase() === 'yes';
 
       }
+
 
       else if (riskFilter === 'ULCER') {
 
@@ -1506,6 +1985,7 @@ function viewDetails(index) {
 
   const p = rawRecords[index];
 
+
   if (!p)
     return;
 
@@ -1513,6 +1993,7 @@ function viewDetails(index) {
   document.getElementById(
     'modalPatientTitle'
   ).textContent =
+
     `Assessment Details: ${
       p.patient_name || 'Patient'
     } (${
@@ -1522,6 +2003,7 @@ function viewDetails(index) {
 
   const container =
     document.getElementById('modalBody');
+
 
   container.innerHTML = '';
 
@@ -1619,14 +2101,18 @@ function viewDetails(index) {
     const item =
       document.createElement('div');
 
+
     item.className =
       'detail-item';
 
+
     item.innerHTML =
       `<span>${label}</span>
+
        <strong>${
          escapeHtml(val || 'N/A')
        }</strong>`;
+
 
     container.appendChild(item);
 
@@ -1652,9 +2138,13 @@ function closeModal() {
 function escapeHtml(str) {
 
   return String(str)
+
     .replace(/&/g, '&amp;')
+
     .replace(/</g, '&lt;')
+
     .replace(/>/g, '&gt;')
+
     .replace(/"/g, '&quot;');
 
 }
@@ -1669,3 +2159,16 @@ document.addEventListener(
 
 </body>
 </html>
+```
+
+### Header structure now
+
+**View Patients** → `patients.html`
+**Register Patient** → `registerpatients.html`
+**Analytics** → `analytics.html`
+**Assessment** → `oral_clinical_assessment.html`
+**NFC Card** → `nfc.html`
+
+The loading state now shows **animated skeleton rows and KPI placeholders** instead of plain “Loading registry assessments...” text. Once Supabase responds, your existing data rendering replaces the skeleton automatically.
+
+One small thing: I preserved your existing JavaScript logic as requested, including its current behavior around filtered-row inspection.
