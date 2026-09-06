@@ -39,7 +39,6 @@ tailwind.config = {
 }
 </script>
 
-
 <style>
 
 * {
@@ -51,23 +50,16 @@ html {
 }
 
 body {
-
   margin: 0;
-
   background: #090d16;
-
   color: #f9fafb;
-
   font-family:
     'Inter',
     -apple-system,
     BlinkMacSystemFont,
     sans-serif;
-
   line-height: 1.5;
-
   font-size: 14px;
-
   min-height: 100vh;
 }
 
@@ -76,187 +68,85 @@ body {
    HEADER
 ========================================================= */
 
-.app-nav {
-
-  position: sticky;
-
-  top: 0;
-
-  z-index: 50;
-
-  width: 100%;
-
-  background: rgba(17, 24, 39, 0.97);
-
-  border-bottom: 1px solid #1f293d;
-
-  backdrop-filter: blur(12px);
-}
-
-
-.nav-inner {
-
-  width: 100%;
-
-  max-width: 1440px;
-
-  min-height: 68px;
-
+.top-nav {
+  max-width: 1280px;
   margin: 0 auto;
-
-  padding: 0 28px;
-
+  padding: 18px 24px;
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   gap: 24px;
+  border-bottom: 1px solid #1f293d;
 }
 
-
-.nav-brand {
-
+.brand-area {
   display: flex;
-
   align-items: center;
-
-  min-width: 240px;
+  gap: 11px;
+  flex-shrink: 0;
 }
 
-
-.nav-brand-text {
-
+.brand-icon {
+  width: 36px;
+  height: 36px;
   display: flex;
-
-  flex-direction: column;
-
-  line-height: 1.2;
+  align-items: center;
+  justify-content: center;
+  background: rgba(37, 99, 235, 0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  border-radius: 8px;
 }
 
-
-.nav-brand-title {
-
+.brand-title {
   color: #f9fafb;
-
   font-size: 14px;
-
-  font-weight: 600;
-
+  font-weight: 700;
   letter-spacing: -0.01em;
 }
 
-
-.nav-brand-subtitle {
-
-  margin-top: 4px;
-
+.brand-subtitle {
   color: #6b7280;
-
   font-size: 11px;
-
-  font-weight: 400;
+  margin-top: 1px;
 }
-
-
-.nav-right {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 10px;
-}
-
 
 .nav-links {
-
   display: flex;
-
   align-items: center;
-
   gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-
-.nav-links a {
-
+.nav-link {
   display: inline-flex;
-
   align-items: center;
-
-  justify-content: center;
-
-  min-height: 38px;
-
-  padding: 0 12px;
-
+  gap: 7px;
+  padding: 8px 11px;
   color: #9ca3af;
-
   text-decoration: none;
-
-  font-size: 13px;
-
+  font-size: 12px;
   font-weight: 500;
-
+  border: 1px solid transparent;
   border-radius: 6px;
-
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
-
-.nav-links a:hover {
-
-  background: #1f2937;
-
+.nav-link:hover {
   color: #f9fafb;
+  background: #111827;
+  border-color: #1f293d;
 }
 
-
-.nav-links a.active {
-
-  background: rgba(37, 99, 235, 0.12);
-
-  color: #60a5fa;
-}
-
-
-.nav-register {
-
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  min-height: 38px;
-
-  padding: 0 14px;
-
-  border: 1px solid #2563eb;
-
-  border-radius: 6px;
-
-  background: #2563eb;
-
+.nav-link.active {
   color: #ffffff;
-
-  text-decoration: none;
-
-  font-size: 13px;
-
-  font-weight: 500;
+  background: #1f293d;
+  border-color: #2d3748;
 }
 
-
-.nav-register:hover {
-
-  background: #1d4ed8;
-
-  border-color: #1d4ed8;
+.nav-link.active svg {
+  color: #60a5fa;
 }
 
 
@@ -265,13 +155,9 @@ body {
 ========================================================= */
 
 .container {
-
   width: 100%;
-
   max-width: 900px;
-
   margin: 0 auto;
-
   padding: 42px 24px 60px;
 }
 
@@ -281,35 +167,22 @@ body {
 ========================================================= */
 
 .page-header {
-
   margin-bottom: 28px;
-
   padding-bottom: 20px;
-
   border-bottom: 1px solid #1f293d;
 }
 
-
 .page-header h1 {
-
   margin: 0;
-
   color: #f9fafb;
-
   font-size: 23px;
-
   font-weight: 600;
-
   letter-spacing: -0.02em;
 }
 
-
 .page-header p {
-
   margin: 6px 0 0;
-
   color: #6b7280;
-
   font-size: 13px;
 }
 
@@ -319,35 +192,22 @@ body {
 ========================================================= */
 
 .form-card {
-
   background: #111827;
-
   border: 1px solid #1f293d;
-
   border-radius: 10px;
-
   padding: 28px;
 }
 
-
 .form-section-title {
-
   margin: 0 0 18px;
-
   color: #f9fafb;
-
   font-size: 15px;
-
   font-weight: 600;
 }
 
-
 .form-section-subtitle {
-
   margin: -10px 0 22px;
-
   color: #6b7280;
-
   font-size: 12px;
 }
 
@@ -357,216 +217,141 @@ body {
 ========================================================= */
 
 .aadhar-section {
-
   padding: 18px;
-
   background: #0d1321;
-
   border: 1px solid #1f293d;
-
   border-radius: 8px;
-
   margin-bottom: 26px;
 }
 
-
 .aadhar-label {
-
   display: block;
-
   margin-bottom: 8px;
-
   color: #d1d5db;
-
   font-size: 12px;
-
   font-weight: 500;
 }
 
-
 .aadhar-row {
-
   display: flex;
-
   gap: 10px;
 }
 
-
 .aadhar-input-wrapper {
-
   position: relative;
-
   flex: 1;
 }
 
-
 .form-input {
-
   width: 100%;
-
   height: 42px;
-
   padding: 0 13px;
-
   background: #090d16;
-
   border: 1px solid #1f293d;
-
   border-radius: 6px;
-
   color: #f9fafb;
-
   font-family: inherit;
-
   font-size: 13px;
-
   outline: none;
-
   transition:
     border-color 0.15s ease,
     background 0.15s ease;
 }
 
-
 .form-input:focus {
-
   background: #0d1321;
-
   border-color: #2563eb;
 }
 
-
 .form-input:disabled {
-
   opacity: 0.55;
-
   cursor: not-allowed;
 }
 
-
 .form-input.valid {
-
   border-color: #34d399;
-
   padding-right: 42px;
 }
 
-
 .form-input.invalid {
-
   border-color: #f87171;
 }
 
 
-/* Green tick */
+/* =========================================================
+   GREEN TICK
+========================================================= */
 
 .success-tick {
-
   position: absolute;
-
   right: 13px;
-
   top: 50%;
-
   transform: translateY(-50%);
-
   display: none;
-
   width: 20px;
-
   height: 20px;
-
   align-items: center;
-
   justify-content: center;
-
   border-radius: 50%;
-
   background: #34d399;
-
   color: #06130e;
-
   font-size: 12px;
-
   font-weight: 700;
-
   animation: tickPop 0.3s ease;
 }
-
 
 @keyframes tickPop {
 
   0% {
-
     transform:
       translateY(-50%)
       scale(0);
-
   }
 
   70% {
-
     transform:
       translateY(-50%)
       scale(1.15);
-
   }
 
   100% {
-
     transform:
       translateY(-50%)
       scale(1);
-
   }
 
 }
 
 
+/* =========================================================
+   CHECK BUTTON
+========================================================= */
+
 .check-btn {
-
   height: 42px;
-
   min-width: 90px;
-
   padding: 0 17px;
-
   border: 1px solid #2563eb;
-
   border-radius: 6px;
-
   background: #2563eb;
-
   color: #ffffff;
-
   font-family: inherit;
-
   font-size: 13px;
-
   font-weight: 500;
-
   cursor: pointer;
-
   transition: 0.15s ease;
 }
 
-
 .check-btn:hover {
-
   background: #1d4ed8;
 }
 
-
 .check-btn:disabled {
-
   opacity: 0.6;
-
   cursor: not-allowed;
 }
 
-
 .check-btn.hidden {
-
   display: none;
 }
 
@@ -576,39 +361,24 @@ body {
 ========================================================= */
 
 .status-message {
-
   display: none;
-
   margin-top: 12px;
-
   padding: 10px 12px;
-
   border-radius: 6px;
-
   font-size: 12px;
 }
 
-
 .status-message.success {
-
   display: block;
-
   background: rgba(52, 211, 153, 0.08);
-
   border: 1px solid rgba(52, 211, 153, 0.20);
-
   color: #34d399;
 }
 
-
 .status-message.error {
-
   display: block;
-
   background: rgba(248, 113, 113, 0.08);
-
   border: 1px solid rgba(248, 113, 113, 0.20);
-
   color: #f87171;
 }
 
@@ -618,83 +388,52 @@ body {
 ========================================================= */
 
 .registration-form {
-
   opacity: 0.45;
-
   pointer-events: none;
-
-  transition:
-    opacity 0.25s ease;
+  transition: opacity 0.25s ease;
 }
 
-
 .registration-form.enabled {
-
   opacity: 1;
-
   pointer-events: auto;
 }
 
-
 .form-grid {
-
   display: grid;
-
   grid-template-columns:
     repeat(2, minmax(0, 1fr));
-
   gap: 18px;
 }
 
-
 .form-group {
-
   display: flex;
-
   flex-direction: column;
 }
 
-
 .form-group.full {
-
   grid-column: 1 / -1;
 }
 
-
 .form-label {
-
   margin-bottom: 7px;
-
   color: #d1d5db;
-
   font-size: 12px;
-
   font-weight: 500;
 }
 
-
 .optional {
-
   color: #6b7280;
-
   font-weight: 400;
 }
 
-
 .required {
-
   color: #f87171;
-
   margin-left: 2px;
 }
 
-
 .form-help {
-
   margin-top: 5px;
-
   color: #6b7280;
-
   font-size: 10px;
 }
 
@@ -704,61 +443,36 @@ body {
 ========================================================= */
 
 .form-actions {
-
   display: flex;
-
   justify-content: flex-end;
-
   margin-top: 28px;
-
   padding-top: 20px;
-
   border-top: 1px solid #1f293d;
 }
 
-
 .register-btn {
-
   min-height: 42px;
-
   min-width: 175px;
-
   padding: 0 20px;
-
   border: 1px solid #2563eb;
-
   border-radius: 6px;
-
   background: #2563eb;
-
   color: #ffffff;
-
   font-family: inherit;
-
   font-size: 13px;
-
   font-weight: 500;
-
   cursor: pointer;
-
   transition: 0.15s ease;
 }
 
-
 .register-btn:hover {
-
   background: #1d4ed8;
 }
 
-
 .register-btn:disabled {
-
   background: #1f2937;
-
   border-color: #2d3748;
-
   color: #6b7280;
-
   cursor: not-allowed;
 }
 
@@ -768,27 +482,18 @@ body {
 ========================================================= */
 
 .spinner {
-
   width: 15px;
-
   height: 15px;
-
   border: 2px solid rgba(255,255,255,0.35);
-
   border-top-color: #ffffff;
-
   border-radius: 50%;
-
   animation: spin 0.7s linear infinite;
 }
-
 
 @keyframes spin {
 
   to {
-
     transform: rotate(360deg);
-
   }
 
 }
@@ -799,241 +504,148 @@ body {
 ========================================================= */
 
 .modal-overlay {
-
   position: fixed;
-
   inset: 0;
-
   z-index: 100;
-
   display: none;
-
   align-items: center;
-
   justify-content: center;
-
   padding: 20px;
-
   background: rgba(3, 7, 18, 0.84);
-
   backdrop-filter: blur(7px);
 }
 
-
 .modal-overlay.show {
-
   display: flex;
-
   animation: overlayIn 0.2s ease;
 }
-
 
 @keyframes overlayIn {
 
   from {
-
     opacity: 0;
-
   }
 
   to {
-
     opacity: 1;
-
   }
 
 }
 
-
 .success-dialog {
-
   width: 100%;
-
   max-width: 410px;
-
   padding: 32px;
-
   text-align: center;
-
   background: #111827;
-
   border: 1px solid #2d3748;
-
   border-radius: 12px;
-
   box-shadow:
     0 25px 70px rgba(0,0,0,0.55);
-
   animation: dialogIn 0.4s cubic-bezier(.17,.67,.32,1.25);
 }
-
 
 @keyframes dialogIn {
 
   0% {
-
     opacity: 0;
-
     transform:
       translateY(25px)
       scale(0.88);
-
   }
 
   100% {
-
     opacity: 1;
-
     transform:
       translateY(0)
       scale(1);
-
   }
 
 }
 
-
 .success-icon {
-
   width: 64px;
-
   height: 64px;
-
   margin: 0 auto 18px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   border-radius: 50%;
-
   background: rgba(52, 211, 153, 0.12);
-
   border: 1px solid rgba(52, 211, 153, 0.25);
-
   color: #34d399;
-
   font-size: 30px;
-
   animation:
     successPop 0.55s
     cubic-bezier(.17,.67,.32,1.4);
 }
 
-
 @keyframes successPop {
 
   0% {
-
     transform: scale(0);
-
   }
 
   60% {
-
     transform: scale(1.15);
-
   }
 
   100% {
-
     transform: scale(1);
-
   }
 
 }
 
-
 .success-dialog h2 {
-
   margin: 0;
-
   color: #f9fafb;
-
   font-size: 18px;
-
   font-weight: 600;
 }
 
-
 .success-dialog p {
-
   margin: 7px 0;
-
   color: #9ca3af;
-
   font-size: 12px;
 }
 
-
 .patient-id-box {
-
   margin: 20px 0;
-
   padding: 15px;
-
   background: #0d1321;
-
   border: 1px solid #1f293d;
-
   border-radius: 8px;
 }
 
-
 .patient-id-label {
-
   color: #6b7280;
-
   font-size: 10px;
-
   text-transform: uppercase;
-
   letter-spacing: 0.08em;
 }
-
 
 .patient-id {
-
   margin-top: 5px;
-
   color: #60a5fa;
-
   font-size: 22px;
-
   font-weight: 700;
-
   letter-spacing: 0.08em;
 }
 
-
 .ok-btn {
-
   width: 100%;
-
   height: 40px;
-
   border: 1px solid #2563eb;
-
   border-radius: 6px;
-
   background: #2563eb;
-
   color: #ffffff;
-
   font-family: inherit;
-
   font-size: 13px;
-
   font-weight: 500;
-
   cursor: pointer;
 }
 
-
 .ok-btn:hover {
-
   background: #1d4ed8;
 }
 
@@ -1043,41 +655,25 @@ body {
 ========================================================= */
 
 .app-footer {
-
   background: #111827;
-
   border-top: 1px solid #1f293d;
-
   padding: 20px 24px;
 }
 
-
 .footer-content {
-
   max-width: 1280px;
-
   margin: 0 auto;
-
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   gap: 5px;
-
   color: #9ca3af;
-
   text-align: center;
-
   font-size: 12px;
 }
 
-
 .footer-credits {
-
   color: #6b7280;
-
   font-size: 11px;
 }
 
@@ -1086,108 +682,66 @@ body {
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 1100px) {
-
-  .nav-inner {
-
-    padding: 0 20px;
-
-  }
-
-}
-
-
 @media (max-width: 900px) {
 
-  .nav-inner {
-
-    min-height: auto;
-
-    padding: 14px 18px;
-
+  .top-nav {
     flex-direction: column;
-
-    align-items: stretch;
-
-  }
-
-  .nav-brand {
-
-    min-width: 0;
-
-  }
-
-  .nav-right {
-
-    width: 100%;
-
-    overflow-x: auto;
-
+    align-items: flex-start;
   }
 
   .nav-links {
-
-    flex-wrap: nowrap;
-
-  }
-
-  .nav-links a {
-
-    flex-shrink: 0;
-
+    width: 100%;
+    justify-content: flex-start;
   }
 
 }
 
+@media (max-width: 600px) {
 
-@media (max-width: 650px) {
+  .top-nav {
+    padding: 18px 14px;
+  }
+
+  .nav-links {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+  }
+
+  .nav-link {
+    justify-content: center;
+  }
 
   .container {
-
     padding: 28px 14px 45px;
-
   }
 
   .form-card {
-
     padding: 20px;
-
   }
 
   .aadhar-row {
-
     flex-direction: column;
-
   }
 
   .check-btn {
-
     width: 100%;
-
   }
 
   .form-grid {
-
     grid-template-columns: 1fr;
-
   }
 
   .form-group.full {
-
     grid-column: auto;
-
   }
 
   .form-actions {
-
     justify-content: stretch;
-
   }
 
   .register-btn {
-
     width: 100%;
-
   }
 
 }
@@ -1204,59 +758,228 @@ body {
      HEADER
 ========================================================= -->
 
-<nav class="app-nav">
+<header class="top-nav">
 
-  <div class="nav-inner">
+  <div class="brand-area">
 
+    <div class="brand-icon">
 
-    <div class="nav-brand">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2">
 
-      <div class="nav-brand-text">
+        <path d="M12 3v18"/>
+        <path d="M3 12h18"/>
+        <path d="M5 5l14 14"/>
+        <path d="M19 5L5 19"/>
 
-        <span class="nav-brand-title">
-          Oral Clinical Registry - Assessment Dashboard
-        </span>
-
-        <span class="nav-brand-subtitle">
-          Developed By Nakul Dhande With Team Hardik, Chinmay, Shantanu
-        </span>
-
-      </div>
+      </svg>
 
     </div>
 
+    <div>
 
-    <div class="nav-right">
+      <div class="brand-title">
+        Oral Clinical Registry
+      </div>
 
-      <div class="nav-links">
-
-        <a href="patients.html">
-          View Patients
-        </a>
-
-        <a href="registerpatients.html" class="active">
-          Register Patient
-        </a>
-
-        <a href="analytics.html">
-          Analytics
-        </a>
-
-        <a href="oral_clinical_assessment.html">
-          Assessment
-        </a>
-
-        <a href="nfc.html">
-          NFC Card
-        </a>
-
+      <div class="brand-subtitle">
+        Assessment Dashboard
       </div>
 
     </div>
 
   </div>
 
-</nav>
+
+  <nav class="nav-links">
+
+    <!-- VIEW PATIENTS -->
+
+    <a
+      href="patients.html"
+      class="nav-link">
+
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2">
+
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+
+        <circle
+          cx="9"
+          cy="7"
+          r="4"/>
+
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+
+      </svg>
+
+      View Patients
+
+    </a>
+
+
+    <!-- REGISTER PATIENT -->
+
+    <a
+      href="registerpatients.html"
+      class="nav-link active">
+
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2">
+
+        <circle
+          cx="12"
+          cy="12"
+          r="10"/>
+
+        <line
+          x1="12"
+          y1="8"
+          x2="12"
+          y2="16"/>
+
+        <line
+          x1="8"
+          y1="12"
+          x2="16"
+          y2="12"/>
+
+      </svg>
+
+      Register Patient
+
+    </a>
+
+
+    <!-- ANALYTICS -->
+
+    <a
+      href="analytics.html"
+      class="nav-link">
+
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2">
+
+        <line
+          x1="18"
+          y1="20"
+          x2="18"
+          y2="10"/>
+
+        <line
+          x1="12"
+          y1="20"
+          x2="12"
+          y2="4"/>
+
+        <line
+          x1="6"
+          y1="20"
+          x2="6"
+          y2="14"/>
+
+      </svg>
+
+      Analytics
+
+    </a>
+
+
+    <!-- ASSESSMENT -->
+
+    <a
+      href="oral_clinical_assessment.html"
+      class="nav-link">
+
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2">
+
+        <path d="M9 11l3 3L22 4"/>
+
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+
+      </svg>
+
+      Assessment
+
+    </a>
+
+
+    <!-- NFC CARD -->
+
+    <a
+      href="nfc.html"
+      class="nav-link">
+
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2">
+
+        <rect
+          x="4"
+          y="3"
+          width="16"
+          height="18"
+          rx="2"/>
+
+        <line
+          x1="8"
+          y1="7"
+          x2="16"
+          y2="7"/>
+
+        <line
+          x1="8"
+          y1="11"
+          x2="16"
+          y2="11"/>
+
+        <line
+          x1="8"
+          y1="15"
+          x2="13"
+          y2="15"/>
+
+      </svg>
+
+      NFC Card
+
+    </a>
+
+  </nav>
+
+</header>
 
 
 <!-- =========================================================
@@ -1264,7 +987,6 @@ body {
 ========================================================= -->
 
 <div class="container">
-
 
   <header class="page-header">
 
@@ -1281,7 +1003,6 @@ body {
 
   <section class="form-card">
 
-
     <h2 class="form-section-title">
       Patient Registration
     </h2>
@@ -1297,15 +1018,16 @@ body {
 
     <div class="aadhar-section">
 
-
       <label class="aadhar-label">
+
         Aadhar Number
+
         <span class="required">*</span>
+
       </label>
 
 
       <div class="aadhar-row">
-
 
         <div class="aadhar-input-wrapper">
 
@@ -1508,7 +1230,6 @@ body {
 
     </form>
 
-
   </section>
 
 </div>
@@ -1699,9 +1420,7 @@ function disableRegistrationForm() {
   registrationForm.classList.remove('enabled');
 
   const fields =
-    registrationForm.querySelectorAll(
-      'input'
-    );
+    registrationForm.querySelectorAll('input');
 
   fields.forEach(field => {
 
@@ -1725,9 +1444,7 @@ function enableRegistrationForm() {
   );
 
   const fields =
-    registrationForm.querySelectorAll(
-      'input'
-    );
+    registrationForm.querySelectorAll('input');
 
   fields.forEach(field => {
 
@@ -1808,7 +1525,8 @@ async function checkAadhar() {
     const response =
       await fetch(
 
-        `${cfg.SUPABASE_URL}/rest/v1/patients?select=patient_id& aadhar_number=eq.${encodeURIComponent(aadhar)}`.replace(' ', ''),
+        `${cfg.SUPABASE_URL}/rest/v1/patients?select=patient_id& aadhar_number=eq.${encodeURIComponent(aadhar)}`
+          .replace(' ', ''),
 
         {
 
@@ -2308,4 +2026,3 @@ document
 </body>
 
 </html>
-```
