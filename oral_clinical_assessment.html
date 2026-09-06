@@ -757,6 +757,10 @@ input:focus, select:focus, textarea:focus {
 .patient-selected { display:none; margin-top:9px; padding:10px 12px; border:1px solid rgba(52,211,153,.22); background:rgba(52,211,153,.06); border-radius:10px; color:#a7f3d0; font-size:11px; }
 .patient-selected.show { display:block; }
 .db-readonly { background:#111827 !important; color:#cbd5e1 !important; border-color:#26334d !important; cursor:not-allowed; }
+.text-view { min-height:42px; width:100%; display:flex; align-items:center; padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-md); background:#111827; color:#e2e8f0; font-size:14px; font-weight:500; word-break:break-word; }
+.text-view-multiline { align-items:flex-start; min-height:70px; line-height:1.55; white-space:pre-wrap; }
+.personal-info-grid .field label { color:#94a3b8; font-size:12px; }
+
 .db-note { margin:0 0 16px; padding:10px 12px; border-left:3px solid var(--primary); background:var(--primary-light); color:#93c5fd; border-radius:6px; font-size:11px; }
 @media(max-width:850px){ .assessment-meta-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
 @media(max-width:560px){ .assessment-meta-grid{grid-template-columns:1fr;} }
@@ -865,18 +869,17 @@ input:focus, select:focus, textarea:focus {
     <div id="selectedPatientBadge" class="patient-selected"></div>
   </div>
 
-  <div class="grid">
-    <div class="field"><label for="patient_id">Patient ID</label><input id="patient_id" name="patient_id" class="db-readonly" readonly required></div>
-    <div class="field"><label for="patient_name">Patient Name</label><input id="patient_name" name="patient_name" class="db-readonly" readonly required></div>
-    <div class="field"><label for="opd_number">OPD Number</label><input id="opd_number" name="opd_number" class="db-readonly" readonly required></div>
-    <div class="field"><label for="age">Age</label><input id="age" name="age" type="number" class="db-readonly" readonly required></div>
-    <div class="field"><label for="sex">Sex</label><input id="sex" name="sex" class="db-readonly" readonly></div>
-    <div class="field"><label for="religion">Religion</label><input id="religion" name="religion" class="db-readonly" readonly></div>
-    <div class="field"><label for="occupation">Occupation</label><input id="occupation" name="occupation" class="db-readonly" readonly></div>
-    <div class="field"><label for="residence">Residence</label><input id="residence" name="residence" class="db-readonly" readonly></div>
-    <div class="field"><label for="marital_status">Marital Status</label><input id="marital_status" name="marital_status" class="db-readonly" readonly></div>
-    <div class="field"><label for="address">Address</label><input id="address" class="db-readonly" readonly></div>
-    <div class="field full"><label for="patient_location">Patient Location (Facility / City)</label><input id="patient_location" name="patient_location" class="db-readonly" readonly></div>
+  <div class="grid personal-info-grid">
+    <div class="field"><label>Patient ID</label><div id="patient_id_view" class="text-view">—</div><input id="patient_id" name="patient_id" type="hidden" required></div>
+    <div class="field"><label>Patient Name</label><div id="patient_name_view" class="text-view">—</div><input id="patient_name" name="patient_name" type="hidden" required></div>
+    <div class="field"><label>OPD Number</label><div id="opd_number_view" class="text-view">—</div><input id="opd_number" name="opd_number" type="hidden" required></div>
+    <div class="field"><label>Age</label><div id="age_view" class="text-view">—</div><input id="age" name="age" type="hidden" required></div>
+    <div class="field"><label>Sex</label><div id="sex_view" class="text-view">—</div><input id="sex" name="sex" type="hidden"></div>
+    <div class="field"><label>Religion</label><div id="religion_view" class="text-view">—</div><input id="religion" name="religion" type="hidden"></div>
+    <div class="field"><label>Occupation</label><div id="occupation_view" class="text-view">—</div><input id="occupation" name="occupation" type="hidden"></div>
+    <div class="field"><label>Residence</label><div id="residence_view" class="text-view">—</div><input id="residence" name="residence" type="hidden"></div>
+    <div class="field"><label>Marital Status</label><div id="marital_status_view" class="text-view">—</div><input id="marital_status" name="marital_status" type="hidden"></div>
+    <div class="field full"><label>Address</label><div id="address_view" class="text-view text-view-multiline">—</div><input id="address" type="hidden"></div>
     <input type="hidden" id="latitude" name="latitude">
     <input type="hidden" id="longitude" name="longitude">
   </div>
@@ -2433,8 +2436,9 @@ async function resetFormState() {
   selectedPatient = null;
   $('patientSearch').value = '';
   $('selectedPatientBadge').classList.remove('show');
-  document.querySelectorAll('.db-readonly').forEach(el => { if (el.id !== 'address') el.value = ''; });
-  $('address').value = '';
+  ['patient_id','patient_name','age','sex','religion','occupation','residence','marital_status','address'].forEach(id => { if ($(id)) $(id).value = ''; if ($(`${id}_view`)) $(`${id}_view`).textContent = '—'; });
+  $('opd_number').value = '';
+  $('opd_number_view').textContent = '—';
   $('patientList').classList.remove('open');
   await initializeAssessment();
   setTimeout(sync, 10);
@@ -2667,6 +2671,8 @@ async function initializeAssessment() {
   assessmentMeta.assessment_date = now.toISOString().slice(0,10);
   assessmentMeta.assessment_timestamp = now.toISOString();
   $('assessmentIdDisplay').textContent = assessmentMeta.assessment_id;
+  $('opd_number').value = assessmentMeta.assessment_id;
+  $('opd_number_view').textContent = assessmentMeta.assessment_id;
   $('assessmentDateDisplay').textContent = assessmentMeta.assessment_date;
   $('assessmentTimestampDisplay').textContent = now.toLocaleString('en-IN');
   $('assessmentNoDisplay').textContent = 'Loading...';
@@ -2730,17 +2736,21 @@ function selectRegisteredPatient(patient) {
   const map = {
     patient_id: patient.patient_id,
     patient_name: patient.patient_name,
-    opd_number: patient.opd_number,
     age: patient.age,
     sex: patient.sex,
     religion: patient.religion,
     occupation: patient.occupation,
     residence: patient.residence,
     marital_status: patient.marital_status,
-    patient_location: patient.patient_location || patient.address,
     address: patient.address
   };
-  Object.entries(map).forEach(([id,value]) => { if ($(id)) $(id).value = value ?? ''; });
+  Object.entries(map).forEach(([id,value]) => {
+    if ($(id)) $(id).value = value ?? '';
+    if ($(`${id}_view`)) $(`${id}_view`).textContent = value ?? '—';
+  });
+  const currentAssessmentId = assessmentMeta.assessment_id || '—';
+  $('opd_number').value = currentAssessmentId;
+  $('opd_number_view').textContent = currentAssessmentId;
   $('selectedPatientBadge').textContent = `✓ Registered profile selected: ${patient.patient_name || ''} · ${patient.patient_id || ''}`;
   $('selectedPatientBadge').classList.add('show');
   $('patientList').classList.remove('open');
@@ -2812,6 +2822,7 @@ async function handleFormSubmit(e) {
   try {
     if (!supabaseClient) throw new Error('Supabase client is not initialized. Ensure config/config.js provides SUPABASE_URL and SUPABASE_ANON_KEY.');
     if (!selectedPatient) throw new Error('Please select a registered patient before saving the assessment.');
+    if (selectedPatient.age === null || selectedPatient.age === undefined || selectedPatient.age === '') throw new Error('Selected patient does not have age registered in the patients table.');
     if (!assessmentMeta.assessment_id || !assessmentMeta.assessment_no) throw new Error('Assessment identity is not ready. Please wait a moment and try again.');
 
     const assessmentRecord = {
