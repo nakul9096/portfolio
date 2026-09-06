@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NFC Card - Oral Clinical Registry</title>
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+>
+
+<title>Mobile NFC - Oral Clinical Registry</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script src="config/config.js"></script>
 
 <style>
@@ -15,38 +23,45 @@
 ========================= */
 
 *{
-  box-sizing:border-box
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  min-height:100%;
 }
 
 body{
-  margin:0;
   background:#090d16;
-  color:#ffffff;
+  color:#fff;
   font-family:Inter,Arial,sans-serif;
-  font-size:14px
+  font-size:14px;
 }
 
-button,select{
-  font:inherit
+button,
+select{
+  font:inherit;
 }
 
 button{
-  cursor:pointer
+  cursor:pointer;
 }
 
 
 /* =========================
-   NEW THEMED HEADER
+   HEADER
 ========================= */
 
 .top-nav{
+  width:100%;
   max-width:1280px;
-  margin:0 auto;
-  padding:18px 24px;
+  margin:auto;
+  padding:16px 18px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:24px;
+  gap:18px;
   border-bottom:1px solid #1f293d;
 }
 
@@ -78,7 +93,7 @@ button{
 .brand-subtitle{
   color:#6b7280;
   font-size:11px;
-  margin-top:1px;
+  margin-top:2px;
 }
 
 .nav-links{
@@ -92,19 +107,19 @@ button{
 .nav-link{
   display:inline-flex;
   align-items:center;
-  gap:7px;
+  justify-content:center;
   padding:8px 11px;
   color:#9ca3af;
   text-decoration:none;
-  font-size:12px;
+  font-size:11px;
   font-weight:500;
   border:1px solid transparent;
   border-radius:6px;
-  transition:all .15s ease;
+  white-space:nowrap;
 }
 
 .nav-link:hover{
-  color:#f9fafb;
+  color:#fff;
   background:#111827;
   border-color:#1f293d;
 }
@@ -121,9 +136,9 @@ button{
 ========================= */
 
 main{
-  max-width:1400px;
+  max-width:1100px;
   margin:auto;
-  padding:30px 22px 50px
+  padding:30px 18px 50px;
 }
 
 .pageHead{
@@ -131,22 +146,22 @@ main{
   justify-content:space-between;
   align-items:center;
   gap:15px;
-  margin-bottom:22px
+  margin-bottom:22px;
 }
 
 h1{
   font-size:23px;
-  margin:0 0 5px
+  margin:0 0 5px;
 }
 
 .subtitle{
   color:#778195;
-  font-size:12px
+  font-size:12px;
 }
 
 
 /* =========================
-   DATABASE STATUS
+   DATABASE
 ========================= */
 
 .db{
@@ -155,7 +170,7 @@ h1{
   padding:9px 12px;
   border-radius:8px;
   font-size:11px;
-  color:#9ca3af
+  color:#9ca3af;
 }
 
 .dot{
@@ -164,121 +179,172 @@ h1{
   border-radius:50%;
   display:inline-block;
   background:#fbbf24;
-  margin-right:7px
+  margin-right:7px;
 }
 
 .dot.ok{
-  background:#34d399
+  background:#34d399;
 }
 
 .dot.bad{
-  background:#f87171
+  background:#f87171;
 }
 
 
 /* =========================
-   GRID / CARDS
+   NFC CARD
 ========================= */
 
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:18px
+.mobileNFC{
+  max-width:620px;
+  margin:25px auto;
 }
 
 .card{
   background:#111827;
   border:1px solid #253044;
-  border-radius:12px;
-  overflow:hidden
+  border-radius:15px;
+  overflow:hidden;
 }
 
 .cardHead{
-  padding:18px 20px;
+  padding:20px;
   border-bottom:1px solid #253044;
-  display:flex;
-  justify-content:space-between;
-  align-items:center
 }
 
 .cardHead h2{
   margin:0;
-  font-size:15px
+  font-size:16px;
 }
 
 .cardHead p{
-  margin:4px 0 0;
+  margin:6px 0 0;
   color:#718096;
-  font-size:11px
-}
-
-.badge{
-  padding:5px 8px;
-  border-radius:5px;
-  background:#182235;
-  color:#60a5fa;
-  font-size:10px
+  font-size:11px;
 }
 
 .cardBody{
-  padding:20px
+  padding:28px 22px;
+  text-align:center;
 }
 
 
 /* =========================
-   SELECT
+   NFC ICON
 ========================= */
 
-select{
-  width:100%;
-  height:44px;
-  padding:0 12px;
-  background:#0b1220;
-  color:white;
-  border:1px solid #293449;
-  border-radius:7px;
-  outline:none
+.nfcIcon{
+  width:115px;
+  height:115px;
+  margin:5px auto 24px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+
+  background:#0c1527;
+
+  border:1px solid #29446e;
+
+  font-size:46px;
+
+  position:relative;
 }
 
-select:focus{
-  border-color:#2563eb
+.nfcIcon.active{
+  animation:pulse 1.5s infinite;
+}
+
+.nfcIcon.active:after{
+  content:"";
+
+  position:absolute;
+
+  width:145px;
+  height:145px;
+
+  border:1px solid #2563eb;
+
+  border-radius:50%;
+
+  animation:wave 1.5s infinite;
+}
+
+@keyframes pulse{
+
+  50%{
+    box-shadow:
+      0 0 35px rgba(37,99,235,.35);
+  }
+
+}
+
+@keyframes wave{
+
+  0%{
+    transform:scale(.7);
+    opacity:.8;
+  }
+
+  100%{
+    transform:scale(1.2);
+    opacity:0;
+  }
+
 }
 
 
 /* =========================
-   BUTTONS
+   TEXT
+========================= */
+
+.nfcTitle{
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.nfcText{
+  color:#7c8799;
+  font-size:12px;
+  line-height:1.6;
+  max-width:430px;
+  margin:0 auto 22px;
+}
+
+
+/* =========================
+   BUTTON
 ========================= */
 
 .btn{
   width:100%;
-  height:43px;
+  height:46px;
+
   border:0;
-  border-radius:7px;
-  margin-top:12px;
-  font-weight:600;
-  font-size:12px;
+  border-radius:8px;
+
   background:#2563eb;
-  color:white
+  color:#fff;
+
+  font-size:13px;
+  font-weight:600;
+
+  margin-top:10px;
 }
 
 .btn:hover{
-  background:#1d4ed8
-}
-
-.btn.green{
-  background:#059669
-}
-
-.btn.green:hover{
-  background:#047857
+  background:#1d4ed8;
 }
 
 .btn.gray{
-  background:#1f2937
+  background:#1f2937;
 }
 
 .btn.gray:hover{
-  background:#2d3748
+  background:#2d3748;
 }
 
 
@@ -288,132 +354,57 @@ select:focus{
 
 .statusBox{
   margin-top:18px;
+
   padding:13px 15px;
+
   border:1px solid #253044;
+
   background:#0d1321;
+
   border-radius:8px;
+
   color:#9ca3af;
-  font-size:12px
+
+  font-size:12px;
+
+  line-height:1.5;
 }
 
 
 /* =========================
-   NFC DIALOG
+   MOBILE INFO
 ========================= */
 
-dialog{
-  border:0;
-  padding:0;
-  background:transparent;
-  width:min(430px,calc(100% - 28px))
+.infoBox{
+  margin-top:18px;
+
+  padding:15px;
+
+  background:#0d1321;
+
+  border:1px solid #253044;
+
+  border-radius:9px;
+
+  text-align:left;
 }
 
-dialog::backdrop{
-  background:rgba(2,6,15,.82);
-  backdrop-filter:blur(7px)
-}
-
-.nfcBox{
-  background:#111827;
-  border:1px solid #2d3748;
-  border-radius:18px;
-  padding:35px 25px;
-  text-align:center;
-  box-shadow:0 25px 80px #000
-}
-
-.nfcIcon{
-  width:92px;
-  height:92px;
-  border-radius:50%;
-  margin:0 auto 20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#0c1527;
-  border:1px solid #29446e;
-  font-size:36px;
-  position:relative
-}
-
-.nfcIcon.active{
-  animation:pulse 1.5s infinite
-}
-
-.nfcIcon.active:after{
-  content:"";
-  position:absolute;
-  width:120px;
-  height:120px;
-  border:1px solid #2563eb;
-  border-radius:50%;
-  animation:wave 1.5s infinite
-}
-
-@keyframes pulse{
-  50%{
-    box-shadow:0 0 30px rgba(37,99,235,.35)
-  }
-}
-
-@keyframes wave{
-  0%{
-    transform:scale(.7);
-    opacity:.8
-  }
-
-  100%{
-    transform:scale(1.2);
-    opacity:0
-  }
-}
-
-.nfcBox h2{
-  font-size:17px;
-  margin:0
-}
-
-.nfcBox p{
-  color:#7c8799;
-  font-size:12px;
-  margin:8px 0 20px
-}
-
-.loader{
-  width:130px;
-  height:3px;
-  background:#1f2937;
-  margin:auto;
-  overflow:hidden;
-  border-radius:5px
-}
-
-.loader i{
+.infoBox strong{
   display:block;
-  width:45%;
-  height:100%;
-  background:#2563eb;
-  animation:load 1.2s infinite
+
+  color:#dbe4f2;
+
+  font-size:12px;
+
+  margin-bottom:7px;
 }
 
-@keyframes load{
-  0%{
-    transform:translateX(-120%)
-  }
+.infoBox span{
+  color:#718096;
 
-  100%{
-    transform:translateX(300%)
-  }
-}
+  font-size:11px;
 
-.closeSmall{
-  position:absolute;
-  right:15px;
-  top:12px;
-  background:none;
-  border:0;
-  color:#8792a5;
-  font-size:22px
+  line-height:1.6;
 }
 
 
@@ -421,48 +412,82 @@ dialog::backdrop{
    PATIENT DIALOG
 ========================= */
 
-.patientDialog{
-  width:min(1180px,calc(100% - 20px))
+dialog{
+  border:0;
+  padding:0;
+
+  background:transparent;
+
+  width:min(
+    1180px,
+    calc(100% - 18px)
+  );
+}
+
+dialog::backdrop{
+  background:rgba(2,6,15,.85);
+  backdrop-filter:blur(7px);
 }
 
 .patientBox{
   background:#0d1321;
+
   border:1px solid #2b374b;
+
   border-radius:15px;
+
   overflow:hidden;
+
   max-height:90vh;
-  overflow-y:auto
+
+  overflow-y:auto;
 }
 
 .patientHeader{
-  padding:22px 24px;
-  background:linear-gradient(135deg,#111827,#0d1628);
+  padding:22px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #111827,
+      #0d1628
+    );
+
   border-bottom:1px solid #263247;
+
   display:flex;
+
   justify-content:space-between;
+
   gap:15px;
-  align-items:flex-start
+
+  align-items:flex-start;
 }
 
 .patientHeader h2{
   margin:0;
-  font-size:22px
+  font-size:21px;
 }
 
 .patientMeta{
   display:flex;
   flex-wrap:wrap;
   gap:7px;
-  margin-top:9px
+  margin-top:9px;
 }
 
 .patientMeta span{
   padding:5px 8px;
+
   background:#172033;
+
   border:1px solid #29364c;
+
   border-radius:5px;
+
   color:#9ca3af;
-  font-size:11px
+
+  font-size:10px;
 }
 
 
@@ -472,28 +497,32 @@ dialog::backdrop{
 
 .risk{
   padding:9px 13px;
+
   border-radius:7px;
+
   font-weight:700;
+
   font-size:11px;
-  white-space:nowrap
+
+  white-space:nowrap;
 }
 
 .risk.high{
   color:#fb7185;
   background:#351721;
-  border:1px solid #71303e
+  border:1px solid #71303e;
 }
 
 .risk.medium{
   color:#fbbf24;
   background:#302712;
-  border:1px solid #67521c
+  border:1px solid #67521c;
 }
 
 .risk.low{
   color:#34d399;
   background:#102b23;
-  border:1px solid #21604c
+  border:1px solid #21604c;
 }
 
 
@@ -502,37 +531,42 @@ dialog::backdrop{
 ========================= */
 
 .patientBody{
-  padding:20px
+  padding:18px;
 }
-
-
-/* =========================
-   QUICK CARDS
-========================= */
 
 .quick{
   display:grid;
-  grid-template-columns:repeat(5,1fr);
+
+  grid-template-columns:
+    repeat(5,1fr);
+
   gap:10px;
-  margin-bottom:20px
+
+  margin-bottom:18px;
 }
 
 .quickCard{
   background:#111827;
+
   border:1px solid #253044;
+
   border-radius:9px;
-  padding:13px
+
+  padding:12px;
 }
 
 .quickCard small{
   display:block;
+
   color:#68758a;
-  font-size:10px;
-  margin-bottom:5px
+
+  font-size:9px;
+
+  margin-bottom:5px;
 }
 
 .quickCard b{
-  font-size:13px
+  font-size:12px;
 }
 
 
@@ -541,57 +575,80 @@ dialog::backdrop{
 ========================= */
 
 .section{
-  margin-top:18px;
+  margin-top:16px;
+
   border:1px solid #253044;
+
   border-radius:10px;
+
   overflow:hidden;
-  background:#111827
+
+  background:#111827;
 }
 
 .sectionTitle{
-  padding:12px 15px;
+  padding:12px 14px;
+
   background:#151e2e;
+
   border-bottom:1px solid #253044;
+
   color:#60a5fa;
-  font-size:11px;
+
+  font-size:10px;
+
   font-weight:700;
+
   text-transform:uppercase;
-  letter-spacing:.05em
+
+  letter-spacing:.05em;
 }
 
 .infoGrid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+
+  grid-template-columns:
+    repeat(3,1fr);
+
   gap:1px;
-  background:#253044
+
+  background:#253044;
 }
 
 .info{
-  padding:11px 13px;
+  padding:11px 12px;
+
   background:#111827;
-  min-height:56px
+
+  min-height:55px;
 }
 
 .info small{
   display:block;
+
   color:#68758a;
-  font-size:10px;
-  margin-bottom:4px
+
+  font-size:9px;
+
+  margin-bottom:4px;
 }
 
 .info b{
   display:block;
-  font-size:12px;
+
+  font-size:11px;
+
   color:#edf2f7;
-  word-break:break-word
+
+  word-break:break-word;
 }
 
 .yes b{
-  color:#fbbf24
+  color:#fbbf24;
 }
 
 .no b{
-  color:#34d399
+  color:#34d399;
 }
 
 
@@ -601,63 +658,92 @@ dialog::backdrop{
 
 .lesion{
   display:grid;
-  grid-template-columns:1fr 1fr;
+
+  grid-template-columns:
+    1fr 1fr;
+
   gap:15px;
-  padding:15px
+
+  padding:15px;
 }
 
 .lesionVisual{
-  min-height:260px;
+  min-height:250px;
+
   border:1px solid #253044;
+
   background:#0a101c;
+
   border-radius:9px;
+
   display:flex;
+
   align-items:center;
+
   justify-content:center;
-  position:relative
+
+  position:relative;
 }
 
 .mouth{
   width:210px;
   height:150px;
+
   border:3px solid #526174;
+
   border-radius:50%;
-  position:relative
+
+  position:relative;
 }
 
 .mouth:before{
   content:"";
+
   position:absolute;
+
   width:130px;
   height:70px;
+
   left:37px;
   top:36px;
+
   border:2px solid #37465a;
-  border-radius:50%
+
+  border-radius:50%;
 }
 
 .lesionPoint{
   position:absolute;
+
   width:18px;
   height:18px;
+
   border-radius:50%;
+
   background:#f87171;
+
   box-shadow:
     0 0 0 8px rgba(248,113,113,.13),
     0 0 25px rgba(248,113,113,.6);
-  animation:lesionPulse 1.3s infinite
+
+  animation:lesionPulse 1.3s infinite;
 }
 
 @keyframes lesionPulse{
+
   50%{
-    transform:scale(1.3)
+    transform:scale(1.3);
   }
+
 }
 
 .lesionInfo{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:9px
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:9px;
 }
 
 
@@ -666,16 +752,19 @@ dialog::backdrop{
 ========================= */
 
 .footer{
-  padding:15px 20px;
-  border-top:1px solid #253044;
-  color:#667085;
-  font-size:10px;
-  display:flex;
-  justify-content:space-between
-}
+  padding:15px 18px;
 
-.nfcTitle{
-  color:#ffffff
+  border-top:1px solid #253044;
+
+  color:#667085;
+
+  font-size:10px;
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
 }
 
 
@@ -685,22 +774,6 @@ dialog::backdrop{
 
 @media(max-width:900px){
 
-  .grid{
-    grid-template-columns:1fr
-  }
-
-  .quick{
-    grid-template-columns:repeat(2,1fr)
-  }
-
-  .infoGrid{
-    grid-template-columns:repeat(2,1fr)
-  }
-
-  .lesion{
-    grid-template-columns:1fr
-  }
-
   .top-nav{
     flex-direction:column;
     align-items:flex-start;
@@ -708,48 +781,94 @@ dialog::backdrop{
 
   .nav-links{
     width:100%;
+
+    display:flex;
+
+    overflow-x:auto;
+
+    flex-wrap:nowrap;
+
     justify-content:flex-start;
+
+    padding-bottom:2px;
+  }
+
+  .nav-link{
+    flex:0 0 auto;
+  }
+
+  .quick{
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+
+  .infoGrid{
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+
+  .lesion{
+    grid-template-columns:1fr;
   }
 
 }
 
-
 @media(max-width:600px){
 
-  .nav-links{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    width:100%;
-  }
-
-  .nav-link{
-    justify-content:center;
+  main{
+    padding:
+      22px 12px 40px;
   }
 
   .pageHead{
     flex-direction:column;
-    align-items:flex-start
+
+    align-items:flex-start;
   }
 
-  .quick{
-    grid-template-columns:1fr 1fr
+  .db{
+    width:100%;
   }
 
-  .infoGrid{
-    grid-template-columns:1fr
+  .mobileNFC{
+    margin-top:15px;
+  }
+
+  .cardBody{
+    padding:25px 16px;
+  }
+
+  .nfcIcon{
+    width:105px;
+    height:105px;
+  }
+
+  .nfcIcon.active:after{
+    width:135px;
+    height:135px;
   }
 
   .patientHeader{
-    flex-direction:column
+    flex-direction:column;
+  }
+
+  .quick{
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .infoGrid{
+    grid-template-columns:1fr;
   }
 
   .lesionInfo{
-    grid-template-columns:1fr
+    grid-template-columns:1fr;
   }
 
 }
 
 </style>
+
 </head>
 
 
@@ -757,7 +876,7 @@ dialog::backdrop{
 
 
 <!-- =========================
-     NEW HEADER
+     HEADER
 ========================= -->
 
 <nav class="top-nav">
@@ -776,17 +895,13 @@ dialog::backdrop{
       >
 
         <path d="M12 3v18"/>
-
         <path d="M3 12h18"/>
-
         <path d="M5 5l14 14"/>
-
         <path d="M19 5L5 19"/>
 
       </svg>
 
     </div>
-
 
     <div>
 
@@ -805,49 +920,33 @@ dialog::backdrop{
 
   <div class="nav-links">
 
-    <a
-      href="patients.html"
-      class="nav-link"
-    >
+    <a href="patients.html" class="nav-link">
       Registry Records
     </a>
 
-
-    <a
-      href="registerpatients.html"
-      class="nav-link"
-    >
+    <a href="registerpatients.html" class="nav-link">
       Register Patient
     </a>
 
-
-    <a
-      href="analytics.html"
-      class="nav-link"
-    >
+    <a href="analytics.html" class="nav-link">
       Analytics
     </a>
 
-
-    <a
-      href="oral_clinical_assessment.html"
-      class="nav-link"
-    >
+    <a href="oral_clinical_assessment.html" class="nav-link">
       Assessment
     </a>
 
+    <a href="nfc.html" class="nav-link">
+      Laptop NFC
+    </a>
 
-    <a
-      href="nfc.html"
-      class="nav-link active"
-    >
-      NFC Card
+    <a href="nfc_mobile.html" class="nav-link active">
+      Mobile NFC
     </a>
 
   </div>
 
 </nav>
-
 
 
 <main>
@@ -862,15 +961,14 @@ dialog::backdrop{
   <div>
 
     <h1>
-      Patient Information
+      Mobile NFC
     </h1>
 
     <div class="subtitle">
-      Read a patient card or choose a clinical record
+      Read patient cards directly using the phone's built-in NFC
     </div>
 
   </div>
-
 
   <div
     class="db"
@@ -878,6 +976,7 @@ dialog::backdrop{
   >
 
     <span class="dot"></span>
+
     Connecting...
 
   </div>
@@ -885,97 +984,23 @@ dialog::backdrop{
 </div>
 
 
-
 <!-- =========================
-     MAIN CARDS
+     MOBILE NFC
 ========================= -->
 
-<div class="grid">
-
-
-  <!-- WRITE -->
+<div class="mobileNFC">
 
   <div class="card">
 
     <div class="cardHead">
 
-      <div>
+      <h2>
+        Read Patient Card
+      </h2>
 
-        <h2>
-          Write Patient Card
-        </h2>
-
-        <p>
-          Save the selected patient ID to the NFC card
-        </p>
-
-      </div>
-
-      <span class="badge">
-        ESP32 + RC522
-      </span>
-
-    </div>
-
-
-    <div class="cardBody">
-
-
-      <select
-        id="patientSelect"
-        disabled
-      >
-
-        <option>
-          Loading patients...
-        </option>
-
-      </select>
-
-
-      <button
-        class="btn gray"
-        onclick="connectESP32()"
-      >
-        Connect ESP32
-      </button>
-
-
-      <button
-        class="btn"
-        onclick="writeCard()"
-      >
-        Write Patient Card
-      </button>
-
-
-    </div>
-
-  </div>
-
-
-
-  <!-- READ -->
-
-  <div class="card">
-
-    <div class="cardHead">
-
-      <div>
-
-        <h2>
-          Read Patient Card
-        </h2>
-
-        <p>
-          Read the patient ID from ESP32 + RC522
-        </p>
-
-      </div>
-
-      <span class="badge">
-        READ MODE
-      </span>
+      <p>
+        Mobile NFC reader
+      </p>
 
     </div>
 
@@ -984,86 +1009,85 @@ dialog::backdrop{
 
 
       <div
-        class="statusBox"
-        id="serialStatus"
+        class="nfcIcon active"
+        id="nfcIcon"
       >
-        ESP32 is not connected.
+        📡
+      </div>
+
+
+      <div
+        class="nfcTitle"
+        id="nfcTitle"
+      >
+        Ready to Scan
+      </div>
+
+
+      <div
+        class="nfcText"
+        id="nfcText"
+      >
+        Tap the button below and place the NFC card
+        near the back of your phone.
       </div>
 
 
       <button
-        class="btn green"
-        onclick="readCard()"
+        class="btn"
+        id="scanButton"
+        onclick="startNFCScan()"
       >
-        Read NFC Card
+        Scan NFC Card
       </button>
+
+
+      <button
+        class="btn gray"
+        onclick="stopNFCScan()"
+      >
+        Stop Scanning
+      </button>
+
+
+      <div
+        class="statusBox"
+        id="nfcStatus"
+      >
+        NFC scanner is ready.
+      </div>
+
+
+      <div class="infoBox">
+
+        <strong>
+          Mobile NFC
+        </strong>
+
+        <span>
+          This page uses the phone's built-in NFC hardware.
+          No ESP32 or RC522 is required.
+        </span>
+
+      </div>
 
 
     </div>
 
   </div>
 
-
 </div>
-
 
 
 <div
   class="statusBox"
   id="mainStatus"
 >
-  Select a patient or connect the ESP32.
+  Clinical records are loading...
 </div>
 
 
 </main>
-
-
-
-<!-- =========================
-     NFC DIALOG
-========================= -->
-
-<dialog id="nfcDialog">
-
-  <div class="nfcBox">
-
-
-    <button
-      class="closeSmall"
-      onclick="closeNFC()"
-    >
-      ×
-    </button>
-
-
-    <div
-      class="nfcIcon active"
-      id="nfcIcon"
-    >
-      📡
-    </div>
-
-
-    <h2 id="nfcTitle">
-      Reading Card
-    </h2>
-
-
-    <p id="nfcText">
-      Place the card near the RC522 reader.
-    </p>
-
-
-    <div class="loader">
-      <i></i>
-    </div>
-
-
-  </div>
-
-</dialog>
-
 
 
 <!-- =========================
@@ -1072,7 +1096,6 @@ dialog::backdrop{
 
 <dialog
   id="patientDialog"
-  class="patientDialog"
 >
 
 <div class="patientBox">
@@ -1080,13 +1103,11 @@ dialog::backdrop{
 
   <div class="patientHeader">
 
-
     <div>
 
       <h2 id="patientName">
         Patient
       </h2>
-
 
       <div class="patientMeta">
 
@@ -1114,9 +1135,7 @@ dialog::backdrop{
       Risk: --
     </div>
 
-
   </div>
-
 
 
   <div class="patientBody">
@@ -1124,12 +1143,9 @@ dialog::backdrop{
 
     <div class="quick">
 
-
       <div class="quickCard">
 
-        <small>
-          AGE
-        </small>
+        <small>AGE</small>
 
         <b id="qAge">
           --
@@ -1140,9 +1156,7 @@ dialog::backdrop{
 
       <div class="quickCard">
 
-        <small>
-          SEX
-        </small>
+        <small>SEX</small>
 
         <b id="qSex">
           --
@@ -1153,9 +1167,7 @@ dialog::backdrop{
 
       <div class="quickCard">
 
-        <small>
-          LESION
-        </small>
+        <small>LESION</small>
 
         <b id="qLesion">
           --
@@ -1166,9 +1178,7 @@ dialog::backdrop{
 
       <div class="quickCard">
 
-        <small>
-          DIAMETER
-        </small>
+        <small>DIAMETER</small>
 
         <b id="qSize">
           --
@@ -1179,9 +1189,7 @@ dialog::backdrop{
 
       <div class="quickCard">
 
-        <small>
-          OSMF STAGE
-        </small>
+        <small>OSMF STAGE</small>
 
         <b id="qStage">
           --
@@ -1189,15 +1197,12 @@ dialog::backdrop{
 
       </div>
 
-
     </div>
 
 
     <div id="patientSections"></div>
 
-
   </div>
-
 
 
   <div class="footer">
@@ -1205,7 +1210,6 @@ dialog::backdrop{
     <span>
       Clinical Record • Supabase
     </span>
-
 
     <button
       class="btn gray"
@@ -1223,47 +1227,40 @@ dialog::backdrop{
 </dialog>
 
 
-
 <script>
 
-/* =========================
-   CONFIG
-========================= */
+/* =====================================================
+   CONFIGURATION
+===================================================== */
 
 const TABLE_NAME =
   "oral_clinical_assessments";
 
 let cachedPatients = [];
 
-let serialPort = null;
-let reader = null;
-let writer = null;
-let serialBuffer = "";
+let ndefReader = null;
 
 
-const patientSelect =
-  document.getElementById("patientSelect");
+/* =====================================================
+   DOM
+===================================================== */
 
 const dbStatus =
   document.getElementById("dbStatus");
 
-const serialStatus =
-  document.getElementById("serialStatus");
+const nfcStatus =
+  document.getElementById("nfcStatus");
 
 const mainStatus =
   document.getElementById("mainStatus");
-
-
-const nfcDialog =
-  document.getElementById("nfcDialog");
 
 const patientDialog =
   document.getElementById("patientDialog");
 
 
-/* =========================
-   SUPABASE
-========================= */
+/* =====================================================
+   SUPABASE CONFIG
+===================================================== */
 
 function getConfig(){
 
@@ -1279,6 +1276,10 @@ function getConfig(){
 
 }
 
+
+/* =====================================================
+   LOAD PATIENTS
+===================================================== */
 
 async function loadPatients(){
 
@@ -1327,40 +1328,6 @@ async function loadPatients(){
       data || [];
 
 
-    patientSelect.innerHTML =
-      '<option value="">-- Select Patient --</option>';
-
-
-    cachedPatients.forEach(
-      p=>{
-
-        const option =
-          document.createElement("option");
-
-
-        option.value =
-          p.patient_id || "";
-
-
-        option.textContent =
-          (p.patient_id || "N/A") +
-          " - " +
-          (p.patient_name || "Patient") +
-          " (" +
-          (p.opd_number || "No OPD") +
-          ")";
-
-
-        patientSelect.appendChild(option);
-
-      }
-    );
-
-
-    patientSelect.disabled =
-      false;
-
-
     dbStatus.innerHTML =
       '<span class="dot ok"></span>' +
       cachedPatients.length +
@@ -1368,7 +1335,7 @@ async function loadPatients(){
 
 
     mainStatus.textContent =
-      "Clinical records loaded. Connect the ESP32 to read or write a card.";
+      "Clinical records loaded. NFC scanner is ready.";
 
   }
 
@@ -1376,10 +1343,8 @@ async function loadPatients(){
 
     console.error(error);
 
-
     dbStatus.innerHTML =
       '<span class="dot bad"></span> Database error';
-
 
     mainStatus.textContent =
       error.message;
@@ -1389,43 +1354,345 @@ async function loadPatients(){
 }
 
 
-/* =========================
-   NFC DIALOG
-========================= */
+/* =====================================================
+   CHECK WEB NFC
+===================================================== */
 
-function showNFC(
-  title,
-  text,
-  icon="📡"
-){
+function isNFCAvailable(){
 
-  document.getElementById(
-    "nfcIcon"
-  ).textContent = icon;
-
-
-  document.getElementById(
-    "nfcTitle"
-  ).textContent = title;
-
-
-  document.getElementById(
-    "nfcText"
-  ).textContent = text;
-
-
-  document.getElementById(
-    "nfcIcon"
-  ).classList.add("active");
-
-
-  if(!nfcDialog.open)
-    nfcDialog.showModal();
+  return "NDEFReader" in window;
 
 }
 
 
-function updateNFC(
+/* =====================================================
+   START NFC SCAN
+===================================================== */
+
+async function startNFCScan(){
+
+  if(!isNFCAvailable()){
+
+    setNFCStatus(
+      "NFC Not Supported",
+      "Web NFC is not available in this browser. Use a supported Android browser such as Chrome and open this page over HTTPS.",
+      "!"
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    ndefReader =
+      new NDEFReader();
+
+
+    await ndefReader.scan();
+
+
+    setNFCStatus(
+      "Ready to Scan",
+      "Hold the NFC card near the back of your phone.",
+      "📡"
+    );
+
+
+    mainStatus.textContent =
+      "NFC scanning started. Bring the card close to the phone.";
+
+
+    ndefReader.onreadingerror =
+      function(){
+
+        setNFCStatus(
+          "Read Error",
+          "The NFC card could not be read. Try again.",
+          "!"
+        );
+
+      };
+
+
+    ndefReader.onreading =
+      function(event){
+
+        handleNFCReading(event);
+
+      };
+
+  }
+
+  catch(error){
+
+    console.error(error);
+
+    setNFCStatus(
+      "NFC Error",
+      error.message ||
+      "Unable to start NFC scanning.",
+      "!"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   HANDLE NFC READING
+===================================================== */
+
+async function handleNFCReading(event){
+
+  console.log(
+    "NFC serial number:",
+    event.serialNumber
+  );
+
+
+  setNFCStatus(
+    "Card Found",
+    "Reading patient information...",
+    "✓"
+  );
+
+
+  let patientId = "";
+
+
+  try{
+
+    const records =
+      event.message.records || [];
+
+
+    for(
+      const record of records
+    ){
+
+      console.log(
+        "NFC record:",
+        record.recordType
+      );
+
+
+      /* ---------------------------------------------
+         TEXT RECORD
+      --------------------------------------------- */
+
+      if(
+        record.recordType === "text"
+      ){
+
+        const decoder =
+          new TextDecoder(
+            record.encoding ||
+            "utf-8"
+          );
+
+
+        const text =
+          decoder.decode(
+            record.data
+          ).trim();
+
+
+        console.log(
+          "NFC text:",
+          text
+        );
+
+
+        patientId =
+          extractPatientId(text);
+
+
+        if(patientId)
+          break;
+
+      }
+
+
+      /* ---------------------------------------------
+         MIME JSON RECORD
+      --------------------------------------------- */
+
+      if(
+        record.recordType ===
+        "application/json"
+      ){
+
+        const decoder =
+          new TextDecoder();
+
+
+        const text =
+          decoder.decode(
+            record.data
+          );
+
+
+        try{
+
+          const obj =
+            JSON.parse(text);
+
+
+          if(obj.patient_id){
+
+            patientId =
+              String(
+                obj.patient_id
+              ).trim();
+
+            break;
+
+          }
+
+        }
+
+        catch(error){
+
+          console.error(
+            "Invalid JSON:",
+            error
+          );
+
+        }
+
+      }
+
+    }
+
+
+    /*
+      Some cards may contain a raw payload such as:
+
+      P-1006
+
+      or:
+
+      {"patient_id":"P-1006"}
+    */
+
+
+    if(!patientId){
+
+      setNFCStatus(
+        "Patient ID Not Found",
+        "The NFC card was detected, but no patient ID was found.",
+        "!"
+      );
+
+      return;
+
+    }
+
+
+    handlePatientID(
+      patientId
+    );
+
+  }
+
+  catch(error){
+
+    console.error(error);
+
+    setNFCStatus(
+      "Read Error",
+      "Unable to process the NFC card.",
+      "!"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   EXTRACT PATIENT ID
+===================================================== */
+
+function extractPatientId(text){
+
+  text =
+    String(
+      text || ""
+    ).trim();
+
+
+  if(!text)
+    return "";
+
+
+  /*
+    JSON
+  */
+
+  if(
+    text.startsWith("{")
+  ){
+
+    try{
+
+      const obj =
+        JSON.parse(text);
+
+
+      if(obj.patient_id)
+        return String(
+          obj.patient_id
+        ).trim();
+
+    }
+
+    catch(error){
+
+      console.error(
+        error
+      );
+
+    }
+
+  }
+
+
+  /*
+    NDEF style
+  */
+
+  if(
+    text.toUpperCase()
+      .startsWith("PATIENT_ID:")
+  ){
+
+    return text
+      .substring(
+        "PATIENT_ID:".length
+      )
+      .trim();
+
+  }
+
+
+  /*
+    Direct patient ID
+  */
+
+  return text;
+
+}
+
+
+/* =====================================================
+   NFC STATUS
+===================================================== */
+
+function setNFCStatus(
   title,
   text,
   icon
@@ -1433,507 +1700,54 @@ function updateNFC(
 
   document.getElementById(
     "nfcTitle"
-  ).textContent = title;
+  ).textContent =
+    title;
 
 
   document.getElementById(
     "nfcText"
-  ).textContent = text;
+  ).textContent =
+    text;
 
 
-  if(icon)
-    document.getElementById(
-      "nfcIcon"
-    ).textContent = icon;
-
-}
+  document.getElementById(
+    "nfcIcon"
+  ).textContent =
+    icon;
 
 
-function closeNFC(){
-
-  if(nfcDialog.open)
-    nfcDialog.close();
+  nfcStatus.textContent =
+    text;
 
 }
 
 
-/* =========================
-   ESP32 CONNECTION
-========================= */
+/* =====================================================
+   STOP NFC
+===================================================== */
 
-async function connectESP32(){
+function stopNFCScan(){
 
-  if(!("serial" in navigator)){
+  ndefReader =
+    null;
 
-    alert(
-      "Web Serial is not available.\n\n" +
-      "Use Google Chrome or Microsoft Edge."
-    );
 
-    return;
-
-  }
-
-
-  try{
-
-    serialPort =
-      await navigator.serial.requestPort();
-
-
-    await serialPort.open({
-      baudRate:115200
-    });
-
-
-    writer =
-      serialPort.writable.getWriter();
-
-
-    serialStatus.innerHTML =
-      '<span class="dot ok"></span> ESP32 connected';
-
-
-    mainStatus.textContent =
-      "ESP32 connected. RC522 is ready.";
-
-
-    startSerialReader();
-
-  }
-
-  catch(error){
-
-    console.error(error);
-
-
-    serialStatus.innerHTML =
-      '<span class="dot bad"></span> Connection failed';
-
-
-    mainStatus.textContent =
-      error.message;
-
-  }
-
-}
-
-
-/* =========================
-   SERIAL READER
-========================= */
-
-async function startSerialReader(){
-
-  if(
-    !serialPort ||
-    !serialPort.readable
-  )
-    return;
-
-
-  const textDecoder =
-    new TextDecoderStream();
-
-
-  serialPort.readable
-    .pipeTo(textDecoder.writable)
-    .catch(()=>{});
-
-
-  reader =
-    textDecoder.readable.getReader();
-
-
-  try{
-
-    while(true){
-
-      const {
-        value,
-        done
-      } =
-        await reader.read();
-
-
-      if(done)
-        break;
-
-
-      if(value)
-        processSerialData(value);
-
-    }
-
-  }
-
-  catch(error){
-
-    console.error(error);
-
-  }
-
-}
-
-
-function processSerialData(data){
-
-  serialBuffer += data;
-
-
-  const lines =
-    serialBuffer.split(/\r?\n/);
-
-
-  serialBuffer =
-    lines.pop() || "";
-
-
-  lines.forEach(
-    line=>{
-
-      line =
-        line.trim();
-
-
-      if(line)
-        handleSerialLine(line);
-
-    }
-  );
-
-}
-
-
-/* =========================
-   ESP32 MESSAGES
-========================= */
-
-function handleSerialLine(line){
-
-  console.log(
-    "ESP32:",
-    line
-  );
-
-
-  if(line === "WAITING_FOR_CARD"){
-
-    updateNFC(
-      "Ready",
-      "Place the card near the RC522 reader.",
-      "💳"
-    );
-
-    return;
-
-  }
-
-
-  if(line.startsWith("UID:")){
-
-    updateNFC(
-      "Card Found",
-      "Reading patient information...",
-      "💳"
-    );
-
-    return;
-
-  }
-
-
-  if(line.startsWith("AUTH_SUCCESS")){
-
-    updateNFC(
-      "Card Found",
-      "Reading patient information...",
-      "✓"
-    );
-
-    return;
-
-  }
-
-
-  if(line.startsWith("READ_BLOCK_OK")){
-
-    updateNFC(
-      "Reading Card",
-      "Getting patient information...",
-      "📖"
-    );
-
-    return;
-
-  }
-
-
-  if(line.startsWith("PATIENT_ID:")){
-
-    const patientId =
-      line
-        .substring(
-          "PATIENT_ID:".length
-        )
-        .trim();
-
-
-    handlePatientID(
-      patientId
-    );
-
-    return;
-
-  }
-
-
-  /*
-    Some ESP32 versions send:
-
-    NDEF_JSON:{"patient_id":"P-1006"}
-  */
-
-  if(line.startsWith("NDEF_JSON:")){
-
-    const json =
-      line
-        .substring(
-          "NDEF_JSON:".length
-        )
-        .trim();
-
-
-    try{
-
-      const obj =
-        JSON.parse(json);
-
-
-      if(obj.patient_id)
-        handlePatientID(
-          obj.patient_id
-        );
-
-    }
-
-    catch(error){
-
-      console.error(
-        "Invalid NDEF JSON",
-        error
-      );
-
-    }
-
-    return;
-
-  }
-
-
-  if(line === "READ_SUCCESS"){
-
-    updateNFC(
-      "Card Read",
-      "Looking for the patient record...",
-      "✓"
-    );
-
-    return;
-
-  }
-
-
-  if(line === "WRITE_SUCCESS"){
-
-    updateNFC(
-      "Done",
-      "Patient card was written successfully.",
-      "✓"
-    );
-
-
-    setTimeout(
-      closeNFC,
-      1500
-    );
-
-
-    return;
-
-  }
-
-
-  if(line.startsWith("WRITING BLOCK")){
-
-    updateNFC(
-      "Writing Card",
-      "Saving patient information...",
-      "💾"
-    );
-
-    return;
-
-  }
-
-
-  if(
-    line.startsWith("AUTH_ERROR") ||
-    line.startsWith("READ_ERROR")
-  ){
-
-    updateNFC(
-      "Couldn't Read",
-      "Please place the card correctly and try again.",
-      "!"
-    );
-
-    return;
-
-  }
-
-
-  if(line.startsWith("WRITE_ERROR")){
-
-    updateNFC(
-      "Couldn't Write",
-      "Please place the card correctly and try again.",
-      "!"
-    );
-
-    return;
-
-  }
-
-}
-
-
-/* =========================
-   READ CARD
-========================= */
-
-async function readCard(){
-
-  if(
-    !serialPort ||
-    !writer
-  ){
-
-    alert(
-      "Connect the ESP32 first."
-    );
-
-    return;
-
-  }
-
-
-  showNFC(
-    "Reading Card",
-    "Place the card near the RC522 reader.",
+  setNFCStatus(
+    "Ready to Scan",
+    "Tap Scan NFC Card and place the card near the phone.",
     "📡"
   );
 
 
-  try{
-
-    await writer.write(
-      new TextEncoder().encode(
-        "READ\n"
-      )
-    );
-
-  }
-
-  catch(error){
-
-    console.error(error);
-
-
-    updateNFC(
-      "Connection Problem",
-      "Please reconnect the ESP32.",
-      "!"
-    );
-
-  }
+  mainStatus.textContent =
+    "NFC scanner stopped.";
 
 }
 
 
-/* =========================
-   WRITE CARD
-========================= */
-
-async function writeCard(){
-
-  if(
-    !serialPort ||
-    !writer
-  ){
-
-    alert(
-      "Connect the ESP32 first."
-    );
-
-    return;
-
-  }
-
-
-  const patientId =
-    patientSelect.value;
-
-
-  if(!patientId){
-
-    alert(
-      "Select a patient first."
-    );
-
-    return;
-
-  }
-
-
-  showNFC(
-    "Writing Card",
-    "Place the card near the RC522 reader.",
-    "💾"
-  );
-
-
-  try{
-
-    await writer.write(
-      new TextEncoder().encode(
-        "WRITE:" +
-        patientId +
-        "\n"
-      )
-    );
-
-  }
-
-  catch(error){
-
-    console.error(error);
-
-
-    updateNFC(
-      "Couldn't Write",
-      "Please reconnect the ESP32 and try again.",
-      "!"
-    );
-
-  }
-
-}
-
-
-/* =========================
-   PATIENT ID MATCH
-========================= */
+/* =====================================================
+   PATIENT MATCH
+===================================================== */
 
 function handlePatientID(
   patientId
@@ -1942,7 +1756,8 @@ function handlePatientID(
   patientId =
     String(
       patientId || ""
-    ).trim();
+    )
+    .trim();
 
 
   if(!patientId)
@@ -1951,22 +1766,23 @@ function handlePatientID(
 
   const patient =
     cachedPatients.find(
-      p=>
+      p =>
         String(
           p.patient_id || ""
         )
         .trim()
         .toUpperCase()
         ===
-        patientId.toUpperCase()
+        patientId
+          .toUpperCase()
     );
 
 
   if(!patient){
 
-    updateNFC(
+    setNFCStatus(
       "Patient Not Found",
-      "The card was read, but this patient is not in the registry.",
+      "The card was read, but this patient is not present in the clinical registry.",
       "!"
     );
 
@@ -1975,32 +1791,36 @@ function handlePatientID(
   }
 
 
-  updateNFC(
+  setNFCStatus(
     "Patient Found",
     "Opening the clinical record...",
     "✓"
   );
 
 
-  setTimeout(
-    ()=>{
+  mainStatus.textContent =
+    "Patient " +
+    patientId +
+    " found.";
 
-      closeNFC();
+
+  setTimeout(
+    function(){
 
       renderPatient(
         patient
       );
 
     },
-    700
+    500
   );
 
 }
 
 
-/* =========================
-   DISPLAY PATIENT
-========================= */
+/* =====================================================
+   VALUE
+===================================================== */
 
 function value(v){
 
@@ -2016,6 +1836,10 @@ function value(v){
 
 }
 
+
+/* =====================================================
+   YES / NO
+===================================================== */
 
 function yesNoClass(v){
 
@@ -2033,6 +1857,46 @@ function yesNoClass(v){
 
 }
 
+
+/* =====================================================
+   ESCAPE
+===================================================== */
+
+function escapeHTML(value){
+
+  return String(value)
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+/* =====================================================
+   FIELD
+===================================================== */
 
 function field(
   label,
@@ -2056,6 +1920,10 @@ function field(
 }
 
 
+/* =====================================================
+   SECTION
+===================================================== */
+
 function section(
   title,
   fields,
@@ -2071,14 +1939,18 @@ function section(
 
       <div class="infoGrid">
 
-        ${fields.map(
-          f=>
-            field(
-              f[0],
-              f[1],
-              p
+        ${
+          fields
+            .map(
+              f =>
+                field(
+                  f[0],
+                  f[1],
+                  p
+                )
             )
-        ).join("")}
+            .join("")
+        }
 
       </div>
 
@@ -2088,9 +1960,9 @@ function section(
 }
 
 
-/* =========================
+/* =====================================================
    RENDER PATIENT
-========================= */
+===================================================== */
 
 function renderPatient(p){
 
@@ -2162,6 +2034,7 @@ function renderPatient(p){
   document.getElementById(
     "qSize"
   ).textContent =
+
     p.lesion_maximum_diameter_mm
 
     ? p.lesion_maximum_diameter_mm +
@@ -2197,6 +2070,7 @@ function renderPatient(p){
 
   riskBadge.className =
     "risk " +
+
     (
       risk
         .toLowerCase()
@@ -2236,7 +2110,6 @@ function renderPatient(p){
 
     ],
 
-
     [
       "02 · Smoking History",
 
@@ -2251,7 +2124,6 @@ function renderPatient(p){
       ]
 
     ],
-
 
     [
       "03 · Tobacco & Chewing Habits",
@@ -2271,7 +2143,6 @@ function renderPatient(p){
 
     ],
 
-
     [
       "04 · Alcohol History",
 
@@ -2283,7 +2154,6 @@ function renderPatient(p){
       ]
 
     ],
-
 
     [
       "05 · Medical History",
@@ -2299,7 +2169,6 @@ function renderPatient(p){
       ]
 
     ],
-
 
     [
       "06 · Symptoms & Complaints",
@@ -2317,7 +2186,6 @@ function renderPatient(p){
       ]
 
     ],
-
 
     [
       "07 · Oral Lesion Details",
@@ -2338,7 +2206,6 @@ function renderPatient(p){
 
     ],
 
-
     [
       "08 · Mouth & Dental Findings",
 
@@ -2349,7 +2216,6 @@ function renderPatient(p){
       ]
 
     ],
-
 
     [
       "09 · Regional Lymph Nodes",
@@ -2368,7 +2234,6 @@ function renderPatient(p){
 
     ],
 
-
     [
       "10 · Final Assessment",
 
@@ -2378,7 +2243,6 @@ function renderPatient(p){
       ]
 
     ],
-
 
     [
       "11 · Record Information",
@@ -2397,28 +2261,31 @@ function renderPatient(p){
     "patientSections"
   ).innerHTML =
 
-    sections.map(
-      s=>
-        section(
-          s[0],
-          s[1],
-          p
-        )
-    ).join("")
+    sections
+      .map(
+        s =>
+          section(
+            s[0],
+            s[1],
+            p
+          )
+      )
+      .join("")
 
     +
 
     createLesionVisual(p);
 
 
-  patientDialog.showModal();
+  if(!patientDialog.open)
+    patientDialog.showModal();
 
 }
 
 
-/* =========================
+/* =====================================================
    LESION VISUAL
-========================= */
+===================================================== */
 
 function createLesionVisual(p){
 
@@ -2480,9 +2347,7 @@ function createLesionVisual(p){
         12 · Lesion Visual View
       </div>
 
-
       <div class="lesion">
-
 
         <div class="lesionVisual">
 
@@ -2490,9 +2355,11 @@ function createLesionVisual(p){
 
             <div
               class="lesionPoint"
-              style="left:${x}px;top:${y}px"
-            >
-            </div>
+              style="
+                left:${x}px;
+                top:${y}px
+              "
+            ></div>
 
           </div>
 
@@ -2501,13 +2368,11 @@ function createLesionVisual(p){
 
         <div class="lesionInfo">
 
-
           ${field(
             "Location",
             "lesion_location",
             p
           )}
-
 
           ${field(
             "Color",
@@ -2515,13 +2380,11 @@ function createLesionVisual(p){
             p
           )}
 
-
           ${field(
             "Shape",
             "lesion_shape",
             p
           )}
-
 
           ${field(
             "Surface",
@@ -2529,13 +2392,11 @@ function createLesionVisual(p){
             p
           )}
 
-
           ${field(
             "Texture",
             "lesion_texture",
             p
           )}
-
 
           ${field(
             "Length",
@@ -2543,13 +2404,11 @@ function createLesionVisual(p){
             p
           )}
 
-
           ${field(
             "Width",
             "lesion_width_mm",
             p
           )}
-
 
           ${field(
             "Maximum Diameter",
@@ -2557,20 +2416,17 @@ function createLesionVisual(p){
             p
           )}
 
-
           ${field(
             "Extension",
             "lesion_extension",
             p
           )}
 
-
           ${field(
             "Position",
             "lesion_position_coords",
             p
           )}
-
 
         </div>
 
@@ -2583,9 +2439,9 @@ function createLesionVisual(p){
 }
 
 
-/* =========================
+/* =====================================================
    CLOSE PATIENT
-========================= */
+===================================================== */
 
 function closePatient(){
 
@@ -2595,45 +2451,9 @@ function closePatient(){
 }
 
 
-/* =========================
-   ESCAPE HTML
-========================= */
-
-function escapeHTML(value){
-
-  return String(value)
-
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-
-    .replace(
-      /</g,
-      "&lt;"
-    )
-
-    .replace(
-      />/g,
-      "&gt;"
-    )
-
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-
-    .replace(
-      /'/g,
-      "&#039;"
-    );
-
-}
-
-
-/* =========================
+/* =====================================================
    START
-========================= */
+===================================================== */
 
 document.addEventListener(
   "DOMContentLoaded",
@@ -2643,4 +2463,5 @@ document.addEventListener(
 </script>
 
 </body>
+
 </html>
